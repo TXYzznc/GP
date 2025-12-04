@@ -14,9 +14,7 @@ Material:
   m_ValidKeywords:
   - USE_SMOOTH_NORMAL
   m_InvalidKeywords:
-  - _METALLICSPECGLOSSMAP
-  - _NORMALMAP
-  - _PARALLAXMAP
+  - ENABLE_OUTLINE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -87,7 +85,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AmbientStrength: 0.2
+    - _AmbientStrength: 0.5
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BlendOp: 0
@@ -122,11 +120,11 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _OutlineWidth: 0.003
+    - _OutlineWidth: 0.0039
     - _OutlineZOffset: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
-    - _RampSmooth: 0.05
+    - _RampSmooth: 0
     - _RampThreshold: 0.2
     - _ReceiveShadows: 1
     - _RimPower: 3
@@ -151,6 +149,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _ToonSteps: 5
     - _UVSec: 0
     - _UseSmoothNormal: 1
     - _WorkflowMode: 1

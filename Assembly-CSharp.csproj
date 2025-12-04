@@ -47,7 +47,17 @@
     <Analyzer Include="F:\AAAAAStudy\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\测试\ShaderTest.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\测试\OutlineConfigTest.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\OutlineRenderFeature.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\测试\OutlineDiagnostics.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\测试\LayerTest.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\OutlineObjectTracker.cs" />
     <Compile Include="Assets\HybridCLRData\Generated\AOTGenericReferences.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\OutlineManager.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\OutlineRenderPass.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\PostEffectsBase.cs" />
+    <Compile Include="Assets\后处理\后处理外轮廓渲染\OutlineProfile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -57,12 +67,16 @@
     <None Include="Assets\AAAGame\DataTable\ColorTable.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\EntityGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\后处理\后处理外轮廓渲染\Shader\OutlineAdd.shader" />
+    <None Include="Assets\后处理\后处理外轮廓渲染\Shader\OutlineComposite.shader" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\LevelTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
+    <None Include="Assets\后处理\后处理外轮廓渲染\Shader\OutlineDetection.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\AAAGame\DataTable\Core\UIGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\后处理\后处理外轮廓渲染\Shader\OutlineShader.shader" />
     <None Include="Assets\AAAGame\DataTable\CameraViewTable.txt" />
     <None Include="Assets\角色卡通渲染测试\Shader\PlayerCartoon2.shader" />
     <None Include="Assets\AAAGame\DataTable\TestTable.txt" />
@@ -77,7 +91,9 @@
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\后处理\后处理外轮廓渲染\Shader\BlendShader.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\后处理\后处理外轮廓渲染\Shader\DrawOccupied.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\AAAGame\Config\GameConfig.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
@@ -1024,10 +1040,6 @@
       <HintPath>F:\AAAAAStudy\2022.3.62f3c1\Editor\Data\UnityReferenceAssemblies\unity-4.8-api\Facades\System.Xml.XPath.XDocument.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="HybridCLR.Runtime">
       <HintPath>Library\ScriptAssemblies\HybridCLR.Runtime.dll</HintPath>
       <Private>False</Private>
@@ -1040,12 +1052,8 @@
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.RenderPipelines.Universal.Runtime">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.Burst">
-      <HintPath>Library\ScriptAssemblies\Unity.Burst.dll</HintPath>
+    <Reference Include="com.unity.cinemachine.editor">
+      <HintPath>Library\ScriptAssemblies\com.unity.cinemachine.editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Burst.Editor">
@@ -1056,48 +1064,20 @@
       <HintPath>Library\ScriptAssemblies\Obfuz.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Obfuz.Editor">
-      <HintPath>Library\ScriptAssemblies\Obfuz.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="HybridCLR.Editor">
       <HintPath>Library\ScriptAssemblies\HybridCLR.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.Timeline.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.ShaderGraph.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.ShaderGraph.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json.UnityConverters.Mathematics">
       <HintPath>Library\ScriptAssemblies\Newtonsoft.Json.UnityConverters.Mathematics.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.VisualStudio.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="com.unity.cinemachine.editor">
-      <HintPath>Library\ScriptAssemblies\com.unity.cinemachine.editor.dll</HintPath>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Config.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Config.Runtime.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Universal.2D.Internal">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.2D.Internal.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Editor">
@@ -1110,18 +1090,6 @@
     </Reference>
     <Reference Include="Unity.Mathematics.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Mathematics.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.RenderPipeline.Universal.ShaderLibrary">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipeline.Universal.ShaderLibrary.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.Timeline">
-      <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.ShaderLibrary">
@@ -1144,6 +1112,66 @@
       <HintPath>Library\ScriptAssemblies\PPv2URPConverters.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VSCode.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Universal.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Universal.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Burst">
+      <HintPath>Library\ScriptAssemblies\Unity.Burst.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Obfuz.Editor">
+      <HintPath>Library\ScriptAssemblies\Obfuz.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Timeline.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.ShaderGraph.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.ShaderGraph.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VisualStudio.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipelines.Universal.2D.Internal">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.2D.Internal.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.RenderPipeline.Universal.ShaderLibrary">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipeline.Universal.ShaderLibrary.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Timeline">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json.UnityConverters">
       <HintPath>Library\ScriptAssemblies\Newtonsoft.Json.UnityConverters.dll</HintPath>
       <Private>False</Private>
@@ -1152,16 +1180,12 @@
       <HintPath>Library\ScriptAssemblies\Unity.Mathematics.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+    <Reference Include="Unity.RenderPipelines.Universal.Shaders">
+      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Shaders.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.RenderPipelines.Universal.Shaders">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Shaders.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Searcher.Editor">
@@ -1172,23 +1196,19 @@
       <HintPath>Library\ScriptAssemblies\Cinemachine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.RenderPipelines.Universal.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="UniTask.Addressables.csproj" />
     <ProjectReference Include="UnityGameFramework.Runtime.csproj" />
-    <ProjectReference Include="UniTask.Linq.csproj" />
-    <ProjectReference Include="Builtin.Runtime.csproj" />
     <ProjectReference Include="GameFramework.csproj" />
     <ProjectReference Include="ZString.csproj" />
-    <ProjectReference Include="DOTween.Extension.csproj" />
     <ProjectReference Include="UnityGameFramework.Editor.csproj" />
     <ProjectReference Include="UniTask.csproj" />
     <ProjectReference Include="UniTask.TextMeshPro.csproj" />
     <ProjectReference Include="Hotfix.csproj" />
+    <ProjectReference Include="Builtin.Runtime.csproj" />
+    <ProjectReference Include="UniTask.Linq.csproj" />
+    <ProjectReference Include="DOTween.Extension.csproj" />
     <ProjectReference Include="UniTask.DOTween.csproj" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
