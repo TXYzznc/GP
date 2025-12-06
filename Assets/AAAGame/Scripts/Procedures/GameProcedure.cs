@@ -4,8 +4,9 @@ using UnityGameFramework.Runtime;
 using GameFramework.Event;
 
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
-public class GameProcedure : ProcedureBase
+public class GameProcedure : ProcedureBase//这是之前项目的，可以参考写法，但不用管里面的内容
 {
+    /*
     private GameUIForm m_GameUI;
     private LevelEntity m_Level;
     private IFsm<IProcedureManager> procedure;
@@ -101,4 +102,5 @@ public class GameProcedure : ProcedureBase
         var args = e as OpenUIFormSuccessEventArgs;
         CheckGamePause();
     }
+    */
 }

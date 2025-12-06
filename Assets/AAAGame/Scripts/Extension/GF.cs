@@ -6,11 +6,11 @@ using UnityGameFramework.Runtime;
 public class GF : GFBuiltin
 {
     public static DataModelComponent DataModel { get; private set; }
-    //替代DataNode, 使用Jobs的高性能变量存储池,用于海量数据存储
+    //锟斤拷锟紻ataNode, 使锟斤拷Jobs锟侥革拷锟斤拷锟杰憋拷锟斤拷锟芥储锟斤拷,锟斤拷锟节猴拷锟斤拷锟斤拷锟捷存储
     public static VariablePoolComponent VariablePool { get; private set; }
     //public static ADComponent AD { get; private set; }
 
-    public static StaticUIComponent StaticUI { get; private set; } //无需异步加载的, 通用UI
+    public static StaticUIComponent StaticUI { get; private set; }
 
     private void Start()
     {

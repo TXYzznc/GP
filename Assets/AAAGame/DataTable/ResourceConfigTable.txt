@@ -1,0 +1,5 @@
+﻿#	ResourceConfigTable				
+#	ID		Type	Path	Name
+#	int		int	string	string
+#	资源ID	备注	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）	资源路径	资源名称
+	1001		1	UI/StartMenuUI/开始游戏界面-背景.png	开始游戏界面背景

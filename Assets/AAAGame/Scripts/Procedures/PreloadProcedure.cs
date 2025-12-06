@@ -61,7 +61,7 @@ public class PreloadProcedure : ProcedureBase
             preloadAllCompleted = true;
             InitGameFrameworkSettings();
             GF.Log("预加载完成, 进入游戏场景.");
-            procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, "Game");
+            procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, "StartGame");
             ChangeState<ChangeSceneProcedure>(procedureOwner);
         }
     }
@@ -145,6 +145,7 @@ public class PreloadProcedure : ProcedureBase
         loadedProgress = 0;
         m_DataTablesCount = -1;
         var appConfig = await AppConfigs.GetInstanceSync();
+
         totalProgress = appConfig.DataTables.Length + appConfig.Configs.Length + 2;//2是加载多语言和创建框架扩展
         CreateGFExtension();
     }

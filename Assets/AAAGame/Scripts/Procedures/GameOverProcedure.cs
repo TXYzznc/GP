@@ -3,8 +3,9 @@ using GameFramework.Fsm;
 using GameFramework.Procedure;
 using UnityGameFramework.Runtime;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
-public class GameOverProcedure : ProcedureBase
+public class GameOverProcedure : ProcedureBase//这是之前项目的，可以参考写法，但不用管里面的内容
 {
+    /*
     IFsm<IProcedureManager> procedure;
     private bool isWin;
 
@@ -42,4 +43,5 @@ public class GameOverProcedure : ProcedureBase
     {
         ChangeState<MenuProcedure>(procedure);
     }
+    */
 }

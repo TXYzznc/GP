@@ -1,0 +1,1185 @@
+# GF (GameFramework) 框架开发文档
+
+## 目录
+1. [框架概述](#框架概述)
+2. [框架架构](#框架架构)
+3. [核心模块](#核心模块)
+4. [开发流程](#开发流程)
+5. [常用功能](#常用功能)
+6. [最佳实践](#最佳实践)
+
+---
+
+## 框架概述
+
+### 简介
+GF 框架是基于 Unity GameFramework 的游戏开发框架，集成了 HybridCLR 热更新方案。框架采用模块化设计，提供了完整的游戏开发基础设施。
+
+### 核心特性
+- **热更新支持**: 基于 HybridCLR 的代码热更新
+- **模块化设计**: UI、Entity、DataTable、Network 等模块独立管理
+- **资源管理**: 支持 AssetBundle 资源加载和管理
+- **数据驱动**: 基于 Excel 的数据表配置系统
+- **多语言支持**: 完整的本地化解决方案
+- **状态机流程**: 基于 Procedure 的游戏流程管理
+- **对象池**: 高效的对象复用机制
+- **事件系统**: 解耦的事件通信机制
+
+### 技术栈
+- Unity 引擎
+- HybridCLR (IL2CPP 热更新)
+- DOTween (动画)
+- UniTask (异步编程)
+- Protobuf (网络序列化)
+- TextMeshPro (文本渲染)
+
+---
+
+## 框架架构
+
+### 目录结构
+```
+Assets/AAAGame/
+├── Scripts/              # 热更新脚本（业务逻辑）
+│   ├── Common/          # 通用工具类
+│   ├── DataModel/       # 数据模型
+│   ├── DataTable/       # 数据表定义
+│   ├── Entity/          # 实体逻辑
+│   ├── EventArgs/       # 事件参数
+│   ├── Extension/       # 框架扩展
+│   ├── Network/         # 网络通信
+│   ├── Procedures/      # 游戏流程
+│   ├── UI/              # UI 界面
+│   └── HotfixEntry.cs   # 热更新入口
+│
+├── ScriptsBuiltin/      # 内置脚本（不热更新）
+│   ├── Runtime/         # 运行时脚本
+│   │   ├── Procedures/  # 启动流程
+│   │   ├── Extension/   # 内置扩展
+│   │   └── GFHelper/    # 框架辅助类
+│   └── Editor/          # 编辑器工具
+│       ├── DataTableGenerator/  # 数据表生成器
+│       └── EditorTools/         # 编辑器工具集
+│
+├── Prefabs/             # 预制体资源
+├── Scene/               # 场景文件
+├── DataTable/           # 数据表文件
+├── Config/              # 配置文件
+└── Language/            # 多语言文件
+```
+
+### 启动流程
+
+```
+Launch 场景启动
+    ↓
+LaunchProcedure (启动流程)
+    ↓
+UpdateResourcesProcedure (资源更新) / LoadHotfixDllProcedure (编辑器模式)
+    ↓
+LoadHotfixDllProcedure (加载热更新 DLL)
+    ↓
+HotfixEntry.StartHotfixLogic() (进入热更新逻辑)
+    ↓
+PreloadProcedure (预加载数据)
+    ↓
+ChangeSceneProcedure (切换场景)
+    ↓
+MenuProcedure / GameProcedure (游戏流程)
+```
+
+### 核心类说明
+
+#### GFBuiltin
+内置框架访问入口，提供对所有 GameFramework 组件的静态访问：
+- `GFBuiltin.UI` - UI 组件
+- `GFBuiltin.Entity` - 实体组件
+- `GFBuiltin.DataTable` - 数据表组件
+- `GFBuiltin.Event` - 事件组件
+- `GFBuiltin.Resource` - 资源组件
+- `GFBuiltin.Sound` - 音效组件
+- `GFBuiltin.Network` - 网络组件
+- 等等...
+
+#### GF
+热更新框架访问入口，继承自 GFBuiltin，额外提供：
+- `GF.DataModel` - 数据模型组件
+- `GF.VariablePool` - 变量池组件
+- `GF.StaticUI` - 静态 UI 组件
+
+---
+
+## 核心模块
+
+### 1. UI 模块
+
+#### UI 界面开发流程
+
+1. **创建 UI 预制体**
+   - 在 `Assets/AAAGame/Prefabs/UI/` 目录下创建 UI 预制体
+   - 添加 UIFormBase 派生类脚本
+
+2. **编写 UI 逻辑类**
+```csharp
+public class MenuUIForm : UIFormBase
+{
+    protected override void OnOpen(object userData)
+    {
+        base.OnOpen(userData);
+        // UI 打开时的初始化逻辑
+    }
+
+    protected override void OnClose(bool isShutdown, object userData)
+    {
+        // UI 关闭时的清理逻辑
+        base.OnClose(isShutdown, userData);
+    }
+
+    public override void OnClickClose()
+    {
+        // 关闭按钮点击事件
+        base.OnClickClose();
+    }
+}
+```
+
+3. **配置 UI 数据表**
+   - 在 `UITable.xlsx` 中添加 UI 配置
+   - 配置 UI 名称、预制体路径、UI 组、排序等
+
+4. **打开 UI 界面**
+```csharp
+// 简单打开
+GF.UI.OpenUIForm(UIViews.MenuUIForm);
+
+// 带参数打开
+var uiParams = UIParams.Create();
+uiParams.Set<VarInt32>("Level", 1);
+uiParams.OpenCallback = (uiForm) => {
+    // UI 打开完成回调
+};
+GF.UI.OpenUIForm(UIViews.MenuUIForm, uiParams);
+```
+
+5. **关闭 UI 界面**
+```csharp
+// 带动画关闭
+GF.UI.Close(uiFormId);
+
+// 直接关闭
+GF.UI.CloseUIForm(uiFormId);
+```
+
+#### UI 动画
+框架支持两种 UI 动画方式：
+- **DOTween 动画**: 使用 DOTweenSequence 组件配置
+- **Animation 动画**: 使用 Unity Animation 组件
+
+#### UI Item 对象池
+```csharp
+// 从对象池获取 Item
+var item = SpawnItem<MyItemObject>(itemTemplate, parentTransform);
+
+// 回收 Item
+UnspawnItem<MyItemObject>(itemTemplate, item);
+
+// 回收所有 Item
+UnspawnAllItem<MyItemObject>(itemTemplate);
+```
+
+#### 子 UI 界面
+```csharp
+// 打开子 UI
+int subUIId = OpenSubUIForm(UIViews.SubDialog, subUiOrder: 1);
+
+// 关闭子 UI
+CloseSubUIForm(subUIId);
+
+// 关闭所有子 UI
+CloseAllSubUIForms();
+```
+
+---
+
+### 2. Entity 模块
+
+#### Entity 开发流程
+
+1. **创建 Entity 预制体**
+   - 在 `Assets/AAAGame/Prefabs/Entity/` 目录下创建预制体
+
+2. **编写 Entity 逻辑类**
+```csharp
+public class PlayerEntity : EntityBase
+{
+    protected override void OnShow(object userData)
+    {
+        base.OnShow(userData);
+        // Entity 显示时的初始化
+    }
+
+    protected override void OnHide(bool isShutdown, object userData)
+    {
+        // Entity 隐藏时的清理
+        base.OnHide(isShutdown, userData);
+    }
+
+    protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
+    {
+        base.OnUpdate(elapseSeconds, realElapseSeconds);
+        // 每帧更新逻辑
+    }
+}
+```
+
+3. **显示 Entity**
+```csharp
+// 创建 Entity 参数
+var entityParams = EntityParams.Create(
+    position: Vector3.zero,
+    eulerAngles: Vector3.zero,
+    localScale: Vector3.one
+);
+
+// 显示 Entity
+int entityId = GF.Entity.ShowEntity<PlayerEntity>(
+    "Player/PlayerPrefab",
+    Const.EntityGroup.Player,
+    entityParams
+);
+```
+
+4. **隐藏 Entity**
+```csharp
+// 安全隐藏（带检测）
+GF.Entity.HideEntitySafe(entityId);
+
+// 直接隐藏
+GF.Entity.HideEntity(entityId);
+```
+
+#### Entity 扩展功能
+
+**显示特效**
+```csharp
+GF.Entity.ShowEffect(
+    "Effects/Explosion",
+    EntityParams.Create(position),
+    lifeTime: 3f
+);
+```
+
+**飘字效果**
+```csharp
+GF.Entity.PopScreenText(
+    "Damage: 100",
+    worldPosition,
+    popDistance: 2f,
+    duration: 1f
+);
+```
+
+---
+
+### 3. DataTable 模块
+
+#### 数据表开发流程
+
+1. **创建 Excel 数据表**
+   - 在 `AAAGameData/DataTables/` 目录下创建 Excel 文件
+   - 第一行：字段注释
+   - 第二行：字段名称
+   - 第三行：字段类型
+   - 第四行开始：数据内容
+
+2. **数据表格式示例**
+```
+| ID注释 | 名称注释 | 等级注释 |
+| Id     | Name     | Level    |
+| int    | string   | int      |
+| 1      | Player1  | 10       |
+| 2      | Player2  | 20       |
+```
+
+3. **生成数据表代码**
+   - 使用编辑器工具：`Tools/GameData/Generate DataTables`
+   - 自动生成 C# 数据表类到 `Scripts/DataTable/` 目录
+
+4. **加载数据表**
+```csharp
+// 在 AppConfigs 中配置数据表名称
+// 框架会在 PreloadProcedure 中自动加载
+
+// 手动加载
+GF.DataTable.LoadDataTable("TestTable", useBytes: true);
+```
+
+5. **使用数据表**
+```csharp
+// 获取数据表
+var testTable = GF.DataTable.GetDataTable<TestTable>();
+
+// 获取单行数据
+var row = testTable.GetDataRow(1); // 通过 ID
+var row2 = testTable.GetDataRow(r => r.Name == "Player1"); // 通过条件
+
+// 获取所有数据
+var allRows = testTable.GetAllDataRows();
+
+// 遍历数据
+foreach (var row in testTable)
+{
+    Debug.Log($"ID: {row.Id}, Name: {row.Name}");
+}
+```
+
+#### 支持的数据类型
+- 基础类型：int, float, double, bool, string, long, byte, char
+- Unity 类型：Vector2, Vector3, Vector4, Color, Quaternion, Rect
+- 数组类型：int[], float[], string[], Vector3[] 等
+- 二维数组：int[][], float[][] 等
+- 枚举类型：自定义枚举
+
+---
+
+### 4. DataModel 模块
+
+#### DataModel 开发流程
+
+1. **创建 DataModel 类**
+```csharp
+public class PlayerDataModel : DataModelBase
+{
+    private int m_Level;
+    private int m_Exp;
+
+    public int Level
+    {
+        get => m_Level;
+        set
+        {
+            if (m_Level != value)
+            {
+                m_Level = value;
+                // 触发数据变化事件
+                FireDataChanged("Level", value);
+            }
+        }
+    }
+
+    public int Exp
+    {
+        get => m_Exp;
+        set
+        {
+            if (m_Exp != value)
+            {
+                m_Exp = value;
+                FireDataChanged("Exp", value);
+            }
+        }
+    }
+
+    protected override void OnInit(int id, RefParams userdata)
+    {
+        base.OnInit(id, userdata);
+        // 初始化数据
+        m_Level = 1;
+        m_Exp = 0;
+    }
+}
+```
+
+2. **使用 DataModel**
+```csharp
+// 创建或获取 DataModel
+var playerData = GF.DataModel.GetOrCreate<PlayerDataModel>();
+
+// 修改数据
+playerData.Level = 10;
+playerData.Exp = 500;
+
+// 监听数据变化
+GF.Event.Subscribe(PlayerDataChangedEventArgs.EventId, OnPlayerDataChanged);
+
+void OnPlayerDataChanged(object sender, GameEventArgs e)
+{
+    var args = e as PlayerDataChangedEventArgs;
+    Debug.Log($"数据变化: {args.PropertyName} = {args.Value}");
+}
+
+// 销毁 DataModel
+GF.DataModel.ReleaseDataModel<PlayerDataModel>();
+```
+
+---
+
+### 5. Network 模块
+
+#### 网络通信开发流程
+
+1. **定义网络包**
+```csharp
+// 客户端到服务器的包
+[ProtoContract]
+public class CSLogin : CSPacketBase
+{
+    public override int Id => PacketType.CSLogin;
+
+    [ProtoMember(1)]
+    public string Username { get; set; }
+
+    [ProtoMember(2)]
+    public string Password { get; set; }
+}
+
+// 服务器到客户端的包
+[ProtoContract]
+public class SCLogin : SCPacketBase
+{
+    public override int Id => PacketType.SCLogin;
+
+    [ProtoMember(1)]
+    public bool Success { get; set; }
+
+    [ProtoMember(2)]
+    public string Message { get; set; }
+}
+```
+
+2. **定义包处理器**
+```csharp
+public class SCLoginHandler : PacketHandlerBase
+{
+    public override int Id => PacketType.SCLogin;
+
+    public override void Handle(object sender, Packet packet)
+    {
+        var scLogin = packet as SCLogin;
+        if (scLogin.Success)
+        {
+            Debug.Log("登录成功");
+        }
+        else
+        {
+            Debug.Log($"登录失败: {scLogin.Message}");
+        }
+    }
+}
+```
+
+3. **连接服务器**
+```csharp
+// 创建网络频道
+var channel = GF.Network.CreateNetworkChannel(
+    "GameChannel",
+    new NetworkChannelHelper()
+);
+
+// 连接服务器
+channel.Connect("127.0.0.1", 8080);
+```
+
+4. **发送网络包**
+```csharp
+var loginPacket = ReferencePool.Acquire<CSLogin>();
+loginPacket.Username = "player1";
+loginPacket.Password = "123456";
+channel.Send(loginPacket);
+```
+
+---
+
+### 6. Event 模块
+
+#### 事件系统使用
+
+1. **定义事件参数**
+```csharp
+public class PlayerLevelUpEventArgs : GameEventArgs
+{
+    public static readonly int EventId = typeof(PlayerLevelUpEventArgs).GetHashCode();
+
+    public override int Id => EventId;
+
+    public int NewLevel { get; set; }
+    public int OldLevel { get; set; }
+
+    public override void Clear()
+    {
+        NewLevel = 0;
+        OldLevel = 0;
+    }
+}
+```
+
+2. **订阅事件**
+```csharp
+GF.Event.Subscribe(PlayerLevelUpEventArgs.EventId, OnPlayerLevelUp);
+
+void OnPlayerLevelUp(object sender, GameEventArgs e)
+{
+    var args = e as PlayerLevelUpEventArgs;
+    Debug.Log($"玩家升级: {args.OldLevel} -> {args.NewLevel}");
+}
+```
+
+3. **触发事件**
+```csharp
+// 立即触发
+var args = ReferencePool.Acquire<PlayerLevelUpEventArgs>();
+args.OldLevel = 5;
+args.NewLevel = 6;
+GF.Event.FireNow(this, args);
+
+// 延迟触发（下一帧）
+GF.Event.Fire(this, args);
+```
+
+4. **取消订阅**
+```csharp
+GF.Event.Unsubscribe(PlayerLevelUpEventArgs.EventId, OnPlayerLevelUp);
+```
+
+---
+
+### 7. Procedure 模块
+
+#### 游戏流程开发
+
+1. **创建流程类**
+```csharp
+public class GameProcedure : ProcedureBase
+{
+    protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
+    {
+        base.OnEnter(procedureOwner);
+        // 进入流程时的初始化
+        Debug.Log("进入游戏流程");
+    }
+
+    protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, 
+                                     float elapseSeconds, 
+                                     float realElapseSeconds)
+    {
+        base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
+        // 每帧更新逻辑
+    }
+
+    protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, 
+                                    bool isShutdown)
+    {
+        // 离开流程时的清理
+        base.OnLeave(procedureOwner, isShutdown);
+        Debug.Log("离开游戏流程");
+    }
+}
+```
+
+2. **切换流程**
+```csharp
+// 在当前流程中切换到其他流程
+ChangeState<MenuProcedure>(procedureOwner);
+
+// 带参数切换
+procedureOwner.SetData<VarString>("SceneName", "Game");
+ChangeState<ChangeSceneProcedure>(procedureOwner);
+```
+
+3. **配置流程**
+   - 在 `AppConfigs` ScriptableObject 中配置流程列表
+   - 流程会在 `HotfixEntry` 中初始化
+
+---
+
+### 8. Resource 模块
+
+#### 资源加载
+
+1. **同步加载**
+```csharp
+// 加载资源
+var asset = GF.Resource.LoadAsset<GameObject>("Prefabs/Player");
+
+// 实例化
+var instance = Instantiate(asset);
+```
+
+2. **异步加载**
+```csharp
+GF.Resource.LoadAsset(
+    "Prefabs/Player",
+    typeof(GameObject),
+    new LoadAssetCallbacks(
+        onSuccess: (assetName, asset, duration, userData) =>
+        {
+            var prefab = asset as GameObject;
+            Instantiate(prefab);
+        },
+        onFailure: (assetName, status, errorMessage, userData) =>
+        {
+            Debug.LogError($"加载失败: {errorMessage}");
+        }
+    )
+);
+```
+
+3. **使用 UniTask 异步加载**
+```csharp
+async UniTask LoadAssetAsync()
+{
+    var asset = await GF.Resource.LoadAssetAwait<GameObject>("Prefabs/Player");
+    Instantiate(asset);
+}
+```
+
+4. **检查资源是否存在**
+```csharp
+var result = GF.Resource.HasAsset("Prefabs/Player");
+if (result == HasAssetResult.AssetOnDisk)
+{
+    // 资源存在
+}
+```
+
+---
+
+### 9. Sound 模块
+
+#### 音效管理
+
+1. **播放音效**
+```csharp
+// 播放音效
+GF.Sound.PlayEffect("ui/ui_click.wav");
+
+// 播放背景音乐
+GF.Sound.PlayMusic("bgm/menu_bgm.mp3");
+```
+
+2. **音量控制**
+```csharp
+// 设置音量
+GF.Setting.SetMediaVolume(Const.SoundGroup.Music, 0.8f);
+GF.Setting.SetMediaVolume(Const.SoundGroup.Sound, 1.0f);
+
+// 静音
+GF.Setting.SetMediaMute(Const.SoundGroup.Music, true);
+```
+
+3. **震动**
+```csharp
+GF.Sound.PlayVibrate();
+```
+
+---
+
+### 10. Localization 模块
+
+#### 多语言支持
+
+1. **配置多语言文件**
+   - 在 `AAAGameData/Languages/` 目录下创建 Excel 文件
+   - 格式：Key | 中文 | 英文 | 日文 等
+
+2. **生成多语言文件**
+   - 使用编辑器工具生成 JSON 文件
+
+3. **使用多语言**
+```csharp
+// 获取多语言文本
+string text = GF.Localization.GetString("UI_Title");
+
+// 带参数的多语言
+string text = GF.Localization.GetString("UI_Level", 10); // "等级: 10"
+```
+
+4. **切换语言**
+```csharp
+GF.Setting.SetLanguage(Language.ChineseSimplified);
+GF.UI.UpdateLocalizationTexts(); // 刷新所有 UI 的多语言文本
+```
+
+5. **UI 静态文本多语言**
+   - 在 UI 文本组件上添加 `UIStringKey` 组件
+   - 设置多语言 Key
+   - 框架会自动更新文本
+
+---
+
+## 开发流程
+
+### 新功能开发流程
+
+1. **需求分析**
+   - 确定功能需求
+   - 设计数据结构
+
+2. **数据表配置**
+   - 创建或修改 Excel 数据表
+   - 生成数据表代码
+
+3. **UI 开发**
+   - 创建 UI 预制体
+   - 编写 UI 逻辑代码
+   - 配置 UI 数据表
+
+4. **Entity 开发**
+   - 创建 Entity 预制体
+   - 编写 Entity 逻辑代码
+
+5. **业务逻辑开发**
+   - 创建 DataModel（如需要）
+   - 实现业务逻辑
+   - 添加事件通信
+
+6. **测试**
+   - 单元测试
+   - 集成测试
+
+---
+
+## 常用功能
+
+### 1. 对象池使用
+
+```csharp
+// 创建对象池
+var pool = GF.ObjectPool.CreateSingleSpawnObjectPool<MyObject>(
+    "MyObjectPool",
+    autoReleaseInterval: 5f,
+    capacity: 50,
+    expireTime: 50f
+);
+
+// 从对象池获取对象
+var obj = pool.Spawn();
+
+// 回收对象
+pool.Unspawn(obj);
+
+// 释放未使用的对象
+pool.ReleaseAllUnused();
+```
+
+### 2. 变量池使用
+
+```csharp
+// 设置变量
+GF.VariablePool.SetVariable<VarInt32>("PlayerId", 12345);
+
+// 获取变量
+var playerId = GF.VariablePool.GetVariable<VarInt32>("PlayerId");
+
+// 清除变量
+GF.VariablePool.ClearVariables("PlayerId");
+```
+
+### 3. 配置文件使用
+
+```csharp
+// 加载配置
+GF.Config.LoadConfig("GameConfig", useBytes: true);
+
+// 读取配置
+bool value = GF.Config.GetBool("EnableDebug");
+int value2 = GF.Config.GetInt("MaxLevel");
+string value3 = GF.Config.GetString("ServerUrl");
+```
+
+### 4. 设置保存
+
+```csharp
+// 保存设置
+GF.Setting.SetInt("PlayerLevel", 10);
+GF.Setting.SetString("PlayerName", "Player1");
+GF.Setting.SetBool("MusicEnabled", true);
+GF.Setting.Save();
+
+// 读取设置
+int level = GF.Setting.GetInt("PlayerLevel", defaultValue: 1);
+string name = GF.Setting.GetString("PlayerName", defaultValue: "Guest");
+bool musicEnabled = GF.Setting.GetBool("MusicEnabled", defaultValue: true);
+```
+
+### 5. 场景管理
+
+```csharp
+// 加载场景
+GF.Scene.LoadScene("Game", OnSceneLoaded);
+
+void OnSceneLoaded(string sceneName, object userData)
+{
+    Debug.Log($"场景加载完成: {sceneName}");
+}
+
+// 卸载场景
+GF.Scene.UnloadScene("Menu");
+```
+
+### 6. 下载功能
+
+```csharp
+// 下载文件
+GF.Download.AddDownload(
+    "http://example.com/file.zip",
+    "file.zip",
+    userData: null
+);
+
+// 监听下载事件
+GF.Event.Subscribe(DownloadSuccessEventArgs.EventId, OnDownloadSuccess);
+GF.Event.Subscribe(DownloadFailureEventArgs.EventId, OnDownloadFailure);
+```
+
+### 7. Web 请求
+
+```csharp
+// 发送 GET 请求
+GF.WebRequest.AddWebRequest(
+    "http://api.example.com/data",
+    userData: null
+);
+
+// 监听请求结果
+GF.Event.Subscribe(WebRequestSuccessEventArgs.EventId, OnWebRequestSuccess);
+
+void OnWebRequestSuccess(object sender, GameEventArgs e)
+{
+    var args = e as WebRequestSuccessEventArgs;
+    string response = Encoding.UTF8.GetString(args.GetWebResponseBytes());
+    Debug.Log($"响应: {response}");
+}
+```
+
+### 8. Toast 提示
+
+```csharp
+// 显示 Toast
+GF.UI.ShowToast("操作成功", ToastStyle.Green, duration: 2f);
+GF.UI.ShowToast("操作失败", ToastStyle.Red, duration: 2f);
+GF.UI.ShowToast("提示信息", ToastStyle.Blue, duration: 2f);
+```
+
+---
+
+## 最佳实践
+
+### 1. 代码组织
+
+- **热更新代码**: 放在 `Scripts/` 目录，可以热更新
+- **内置代码**: 放在 `ScriptsBuiltin/` 目录，不可热更新
+- **按模块组织**: UI、Entity、DataModel 等分目录管理
+- **命名规范**: 
+  - 类名：PascalCase (如 `PlayerEntity`)
+  - 方法名：PascalCase (如 `OnPlayerDeath`)
+  - 私有字段：m_camelCase (如 `m_playerLevel`)
+  - 常量：UPPER_CASE (如 `MAX_LEVEL`)
+
+### 2. 资源管理
+
+- **资源路径**: 使用 `UtilityBuiltin.AssetsPath` 获取标准路径
+- **资源命名**: 使用有意义的名称，避免中文
+- **资源分组**: 按功能模块组织资源目录
+- **资源释放**: 及时释放不用的资源，避免内存泄漏
+
+### 3. 性能优化
+
+- **对象池**: 频繁创建销毁的对象使用对象池
+- **异步加载**: 大资源使用异步加载，避免卡顿
+- **事件订阅**: 及时取消不用的事件订阅
+- **UI 优化**: 
+  - 使用 Canvas 分组
+  - 避免频繁的 UI 重建
+  - 使用对象池管理 UI Item
+
+### 4. 数据管理
+
+- **数据驱动**: 尽量使用数据表配置，减少硬编码
+- **数据分离**: 配置数据和运行时数据分离
+- **数据持久化**: 使用 Setting 或 DataModel 的存储机制
+- **数据验证**: 加载数据后进行有效性验证
+
+### 5. 网络通信
+
+- **协议设计**: 使用 Protobuf 定义协议
+- **错误处理**: 完善的网络错误处理机制
+- **断线重连**: 实现自动重连逻辑
+- **数据加密**: 敏感数据进行加密传输
+
+### 6. 调试技巧
+
+- **日志系统**: 使用 `GF.Log()` 输出日志
+- **调试器**: 开启 `DebuggerComponent` 查看运行时信息
+- **编辑器模式**: 使用 `EditorResourceMode` 快速测试
+- **性能分析**: 使用 Unity Profiler 分析性能
+
+### 7. 热更新注意事项
+
+- **AOT 限制**: 注意 IL2CPP 的 AOT 限制
+- **泛型使用**: 提前在 AOT 代码中使用泛型类型
+- **反射优化**: 减少反射使用，使用代码生成
+- **DLL 管理**: 合理组织热更新 DLL 的依赖关系
+
+---
+
+## 编辑器工具
+
+### 1. 数据表生成器
+
+**路径**: `Tools/GameData/Generate DataTables`
+
+**功能**:
+- 从 Excel 文件生成 C# 数据表类
+- 生成二进制数据文件（.bytes）
+- 生成文本数据文件（.txt）用于调试
+
+**使用步骤**:
+1. 在 `AAAGameData/DataTables/` 创建 Excel 文件
+2. 点击菜单 `Tools/GameData/Generate DataTables`
+3. 生成的代码在 `Scripts/DataTable/` 目录
+
+### 2. UI 变量生成器
+
+**功能**:
+- 自动生成 UI 组件引用代码
+- 支持序列化字段工具
+
+**使用方法**:
+- 在 UIFormBase Inspector 中配置需要引用的组件
+- 自动生成 `.Variables.cs` 文件
+
+### 3. 资源打包工具
+
+**路径**: `Tools/AssetBundle/Build AssetBundles`
+
+**功能**:
+- 打包 AssetBundle
+- 生成资源版本信息
+- 支持增量打包
+
+### 4. 本地化扫描工具
+
+**路径**: `Tools/Localization/Scan Localization Texts`
+
+**功能**:
+- 扫描代码中的多语言文本
+- 生成多语言 Key 列表
+
+---
+
+## 常见问题
+
+### 1. 热更新相关
+
+**Q: 热更新代码不生效？**
+A: 
+- 检查是否重新编译了热更新 DLL
+- 确认 DLL 文件已正确打包到 AssetBundle
+- 清除本地缓存重新下载
+
+**Q: 泛型类型报错？**
+A: 
+- 在 AOT 代码中提前使用该泛型类型
+- 或在 link.xml 中添加类型保留
+
+### 2. UI 相关
+
+**Q: UI 界面打不开？**
+A: 
+- 检查 UITable 配置是否正确
+- 确认 UI 预制体路径是否正确
+- 查看 Console 错误日志
+
+**Q: UI 动画不播放？**
+A: 
+- 检查 DOTweenSequence 配置
+- 确认动画组件已正确设置
+
+### 3. 资源相关
+
+**Q: 资源加载失败？**
+A: 
+- 检查资源路径是否正确
+- 确认资源已打包到 AssetBundle
+- 使用 `HasAsset` 检查资源是否存在
+
+**Q: 资源内存占用过高？**
+A: 
+- 及时卸载不用的资源
+- 使用对象池复用对象
+- 检查是否有资源泄漏
+
+### 4. 数据表相关
+
+**Q: 数据表加载失败？**
+A: 
+- 检查数据表文件是否存在
+- 确认数据表格式是否正确
+- 重新生成数据表文件
+
+**Q: 数据表数据不对？**
+A: 
+- 检查 Excel 文件内容
+- 重新生成数据表
+- 清除缓存重新加载
+
+---
+
+## 扩展开发
+
+### 自定义组件
+
+1. **创建组件类**
+```csharp
+public class MyCustomComponent : GameFrameworkComponent
+{
+    protected override void Awake()
+    {
+        base.Awake();
+        // 初始化
+    }
+
+    private void Start()
+    {
+        // 启动逻辑
+    }
+}
+```
+
+2. **注册到 GF**
+```csharp
+public class GF : GFBuiltin
+{
+    public static MyCustomComponent MyCustom { get; private set; }
+
+    private void Start()
+    {
+        base.Start();
+        MyCustom = GameEntry.GetComponent<MyCustomComponent>();
+    }
+}
+```
+
+### 自定义扩展方法
+
+```csharp
+public static class MyExtension
+{
+    public static void MyMethod(this UIComponent uiComponent)
+    {
+        // 扩展方法实现
+    }
+}
+```
+
+---
+
+## 版本更新
+
+### 资源热更新流程
+
+1. **修改资源版本号**
+   - 在 `AppBuildSettings` 中修改版本号
+
+2. **打包资源**
+   - 使用 AssetBundle 打包工具
+   - 生成增量更新包
+
+3. **上传资源**
+   - 上传到 CDN 或文件服务器
+   - 更新版本配置文件
+
+4. **客户端更新**
+   - 启动时检查版本
+   - 下载更新资源
+   - 应用更新
+
+### 代码热更新流程
+
+1. **修改热更新代码**
+   - 修改 `Scripts/` 目录下的代码
+
+2. **编译 DLL**
+   - 使用 HybridCLR 编译热更新 DLL
+
+3. **打包 DLL**
+   - 将 DLL 打包到 AssetBundle
+
+4. **发布更新**
+   - 上传到服务器
+   - 客户端下载并加载新 DLL
+
+---
+
+## 附录
+
+### A. 常用路径工具
+
+```csharp
+// UI 路径
+UtilityBuiltin.AssetsPath.GetUIFormPath("MenuUIForm");
+
+// Entity 路径
+UtilityBuiltin.AssetsPath.GetEntityPath("Player/PlayerPrefab");
+
+// 数据表路径
+UtilityBuiltin.AssetsPath.GetDataTablePath("TestTable", useBytes: true);
+
+// 配置路径
+UtilityBuiltin.AssetsPath.GetConfigPath("GameConfig", useBytes: true);
+
+// 多语言路径
+UtilityBuiltin.AssetsPath.GetLanguagePath("ChineseSimplified", useBytes: true);
+
+// Sprite 路径
+UtilityBuiltin.AssetsPath.GetSpritesPath("UI/icon_coin");
+
+// 音效路径
+UtilityBuiltin.AssetsPath.GetSoundPath("ui/ui_click.wav");
+```
+
+### B. 常用常量
+
+```csharp
+// UI 组
+Const.UIGroup.UIForm
+Const.UIGroup.Dialog
+Const.UIGroup.Tips
+
+// Entity 组
+Const.EntityGroup.Player
+Const.EntityGroup.Enemy
+Const.EntityGroup.Effect
+
+// 音效组
+Const.SoundGroup.Music
+Const.SoundGroup.Sound
+Const.SoundGroup.Vibrate
+```
+
+### C. 参考资源
+
+- **GameFramework 官方文档**: https://gameframework.cn/
+- **HybridCLR 文档**: https://hybridclr.doc.code-philosophy.com/
+- **DOTween 文档**: http://dotween.demigiant.com/
+- **UniTask 文档**: https://github.com/Cysharp/UniTask
+
+---
+
+## 总结
+
+GF 框架是一个功能完善、结构清晰的 Unity 游戏开发框架。通过本文档，你应该能够：
+
+1. 理解框架的整体架构和设计思想
+2. 掌握各个核心模块的使用方法
+3. 了解完整的开发流程和最佳实践
+4. 能够独立开发游戏功能模块
+
+在实际开发中，建议：
+- 遵循框架的设计模式和代码规范
+- 充分利用框架提供的工具和组件
+- 注意性能优化和资源管理
+- 做好代码注释和文档维护
+
+祝开发顺利！

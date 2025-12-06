@@ -155,11 +155,11 @@ public partial class SettingDialog : UIFormBase
     private void Back2Home()
     {
         var curProcedure = GF.Procedure.CurrentProcedure;
-        if (curProcedure is GameProcedure)
-        {
-            var gameProcedure = curProcedure as GameProcedure;
-            gameProcedure.BackHome();
-        }
+        // if (curProcedure is GameProcedure)
+        // {
+        //     var gameProcedure = curProcedure as GameProcedure;
+        //     gameProcedure.BackHome();
+        // }
     }
 
 }

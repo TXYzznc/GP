@@ -58,9 +58,8 @@ public class ChangeSceneProcedure : ProcedureBase
         //场景加载完成,根据不同场景切换对应Procedure
         switch (nextScene)
         {
-            case "Game":
-                ChangeState<MenuProcedure>(procedureOwner);
-                //GF.Sound.PlayBGM("BillieEilishMusic.wav");
+            case "StartGame":
+                ChangeState<StartGameProcedure>(procedureOwner);
                 break;
         }
     }
@@ -90,7 +89,9 @@ public class ChangeSceneProcedure : ProcedureBase
         {
             return;
         }
-        //Log.Info("场景加载成功:{0}", arg.SceneAssetName);
+        Log.Info("场景加载成功:{0}", arg.SceneAssetName);
+        // ✅ 场景加载成功后隐藏加载进度
+        GFBuiltin.BuiltinView.HideLoadingProgress();
         loadSceneOver = true;
     }
     //加载场景资源失败 重启游戏框架

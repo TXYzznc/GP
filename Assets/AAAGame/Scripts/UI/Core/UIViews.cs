@@ -4,7 +4,7 @@
 #endif
 public enum UIViews : int
 {
-	MenuUIForm = 1,
+	StartMenuUI = 1,
 	GameUIForm = 2,
 	GameOverUIForm = 3,
 	Topbar = 4,

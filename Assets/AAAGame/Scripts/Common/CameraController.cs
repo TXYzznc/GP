@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        
+
     }
 
     private void InitURP()
@@ -62,20 +62,29 @@ public class CameraController : MonoBehaviour
         followerVCamera.LookAt = target;
         followerVCamera.Follow = target;
         mainCam.orthographic = false;
-        SetCameraView(1, false);
+        //SetCameraView(1, false);
+        // 使用默认视角，不再依赖数据表
+        SetCameraView(new Vector3(0, 0, -10), Vector3.zero, false);
     }
 
-    internal void SetCameraView(int viewId, bool smooth = true)
+    internal void SetCameraView(Vector3 followOffset, Vector3 aimOffset, bool smooth = true)
     {
-        var camTb = GF.DataTable.GetDataTable<CameraViewTable>();
-        if (!camTb.HasDataRow(viewId))
-        {
-            return;
-        }
-        var camRow = camTb.GetDataRow(viewId);
-        initOffset = camRow.FollowOffset;
-        SwitchCameraView(camRow.FollowOffset, camRow.AimOffset, smooth);
+        initOffset = followOffset;
+        SwitchCameraView(followOffset, aimOffset, smooth);
     }
+
+    //暂时注释掉
+    // internal void SetCameraView(int viewId, bool smooth = true)
+    // {
+    //     var camTb = GF.DataTable.GetDataTable<CameraViewTable>();
+    //     if (!camTb.HasDataRow(viewId))
+    //     {
+    //         return;
+    //     }
+    //     var camRow = camTb.GetDataRow(viewId);
+    //     initOffset = camRow.FollowOffset;
+    //     SwitchCameraView(camRow.FollowOffset, camRow.AimOffset, smooth);
+    // }
     internal void ShakeCamera(float power = 1f)
     {
         var imp = followerVCamera.GetComponent<CinemachineImpulseSource>();

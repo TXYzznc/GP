@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using GameFramework;
 using UnityGameFramework.Runtime;
-
+using GameExtension;
 using UnityEngine.U2D;
 using DG.Tweening;
 using System;
@@ -26,6 +26,25 @@ public static class UIExtension
             }
         });
     }
+
+    /// <summary>
+    /// 通过配置表ID异步加载并设置Sprite
+    /// </summary>
+    /// <param name="image">目标Image组件</param>
+    /// <param name="configId">资源配置表ID（使用ResourceIds中的常量）</param>
+    /// <param name="resize">是否自动调整大小</param>
+    public static void SetSpriteById(this Image image, int configId, bool resize = false)
+    {
+        ResourceExtension.LoadSpriteAsync(configId, sprite =>
+        {
+            if (sprite != null)
+            {
+                image.sprite = sprite;
+                if (resize) image.SetNativeSize();
+            }
+        });
+    }
+
     /// <summary>
     /// 异步加载并设置Texture
     /// </summary>
@@ -43,6 +62,25 @@ public static class UIExtension
             }
         });
     }
+
+    /// <summary>
+    /// 通过配置表ID异步加载并设置Texture
+    /// </summary>
+    /// <param name="rawImage">目标RawImage组件</param>
+    /// <param name="configId">资源配置表ID（使用ResourceIds中的常量）</param>
+    /// <param name="resize">是否自动调整大小</param>
+    public static void SetTextureById(this RawImage rawImage, int configId, bool resize = false)
+    {
+        ResourceExtension.LoadAssetByConfigAsync<Texture2D>(configId, texture =>
+        {
+            if (texture != null)
+            {
+                rawImage.texture = texture;
+                if (resize) rawImage.SetNativeSize();
+            }
+        });
+    }
+
     /// <summary>
     /// 判断是否点击在UI上
     /// </summary>

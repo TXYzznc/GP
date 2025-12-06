@@ -81,10 +81,23 @@ public class GFBuiltin : MonoBehaviour
     public void UpdateCanvasScaler()
     {
         CanvasScaler canvasScaler = RootCanvas.GetComponent<CanvasScaler>();
+
+        // 从 AppSettings 读取设计分辨率
         canvasScaler.referenceResolution = AppSettings.Instance.DesignResolution;
+
+        // 方式 1: 始终匹配宽度
+        //canvasScaler.matchWidthOrHeight = 0;
+
+        // 方式 2: 始终匹配高度
+        //canvasScaler.matchWidthOrHeight = 1;
+
+        // 方式 3: 固定比例 (例如 0.5 = 宽高各占一半)
+        canvasScaler.matchWidthOrHeight = 0.5f;
+
+        // 方式 4: 自动适配 (框架默认)
         var designRatio = canvasScaler.referenceResolution.x / (float)canvasScaler.referenceResolution.y;
-        canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         canvasScaler.matchWidthOrHeight = Screen.width / (float)Screen.height > designRatio ? 1 : 0;
+
         GFBuiltin.Log($"----------UI适配Match:{canvasScaler.matchWidthOrHeight}----------");
     }
 

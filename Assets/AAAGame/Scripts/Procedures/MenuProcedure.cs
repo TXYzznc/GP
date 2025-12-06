@@ -5,8 +5,9 @@ using GameFramework.Procedure;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
-public class MenuProcedure : ProcedureBase
+public class MenuProcedure : ProcedureBase//这是之前项目的，可以参考写法，但不用管里面的内容
 {
+    /*
     int menuUIFormId;
     LevelEntity lvEntity;
 
@@ -87,4 +88,5 @@ public class MenuProcedure : ProcedureBase
         lvEntity = await GF.Entity.ShowEntityAwait<LevelEntity>(lvRow.LvPfbName, Const.EntityGroup.Level, lvParams) as LevelEntity;
         GF.BuiltinView.HideLoadingProgress();
     }
+    */
 }

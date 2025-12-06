@@ -334,8 +334,8 @@
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\CheckVersionListResult.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\UI\UIManager.UIFormInstanceObject.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\FileSystem\IFileSystemHelper.cs" />
-    <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Download\DownloadAgentHelperErrorEventArgs.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Base\DataProvider\DataProviderCreator.cs" />
+    <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Download\DownloadAgentHelperErrorEventArgs.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\DataTable\IDataTableManager.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\ResourceManager.ResourceLoader.LoadResourceAgent.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\ResourceManager.ResourceLoader.LoadDependencyAssetTask.cs" />

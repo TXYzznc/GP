@@ -115,7 +115,7 @@ public class AppSettings : ScriptableObject
     [Tooltip("热更版本检测URL:")]
     public string CheckVersionUrl = "http://localhost/1_0_0_1/";
     [Tooltip("屏幕设计分辨率:")]
-    [HideInInspector] public Vector2Int DesignResolution = new Vector2Int(750, 1334);
+    [HideInInspector] public Vector2Int DesignResolution = new Vector2Int(1920, 1080);
     [Tooltip("需要加密的dll列表")]
     public string[] EncryptAOTDlls;
 }
