@@ -3,3 +3,9 @@
 #	int		int	string	string
 #	资源ID	备注	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）	资源路径	资源名称
 	1001		1	UI/StartMenuUI/开始游戏界面-背景.png	开始游戏界面背景
+	1002		1	UI/StartMenuUI/诸神对决.png	游戏名称
+	1003		1	UI/StartMenuUI/Clash Of Gods.png	游戏名称-英文
+	1004		1	UI/StartMenuUI/存档上云.png	存档上云图标
+	5001		2	UI/CloudInfo/PlayerInfo	角色信息预制体
+	5002		2	UI/CloudInfo/ItemsInfo	仓库信息预制体
+	5003		2	UI/CloudInfo/TimeInfo	存档时间预制体

@@ -14,4 +14,7 @@ public partial class StartMenuUI
 	[SerializeField] private Button varBtnLoadSave = null;
 	[SerializeField] private Button varBtnSettings = null;
 	[SerializeField] private Button varBtnQuit = null;
+	[SerializeField] private Image varName = null;
+	[SerializeField] private Image varNameEn = null;
+	[SerializeField] private Button var存档上云 = null;
 }

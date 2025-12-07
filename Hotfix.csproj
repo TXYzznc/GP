@@ -55,9 +55,11 @@
     <Compile Include="Assets\AAAGame\Scripts\Common\RefParams.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\Packet\SCHeartBeat.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIItemObject.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\TimeInfoItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\ConfigExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\PacketBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\Core\EntityBase.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PlayerInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\DownloadResult.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\EntityGroupTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\UtilityEx.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\LanguagesDialog.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIViews.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\BillboardMonoBehaviour.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\TimeInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\SCPacketBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\Core\EntityParams.cs" />
@@ -81,6 +84,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Procedures\StartGameProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\ConfigImageLoader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIInteract\ButtonHighlight.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\ItemsInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\ToastTips.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\PacketHeaderBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DOTweenExtension.cs" />
@@ -96,15 +100,19 @@
     <Compile Include="Assets\AAAGame\Scripts\Network\SCPacketHeader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\SettingExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\LocalizationExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CloudArchiveUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIFormBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Animation\AnimationExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelStorageBase.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\CloudArchiveUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\PlayerInfoItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\StartMenuUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarFloat.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\LanguageItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\LanguageItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\ParticleEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\SoundGroupTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\NewGameUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\AwaitParams.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelComponent.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\UIExtension.cs" />
@@ -123,14 +131,16 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\TypeIdPair.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\TransformExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarVector3Array.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\NewGameUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Common\CameraController.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\Network\CSPacketHeader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ResourceConfigTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Network\CSPacketHeader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\SampleEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\UIGroupTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Procedures\GameProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\SoundExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\StaticUIComponent.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\ItemsInfoItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AAAGame\Scripts\link.xml" />

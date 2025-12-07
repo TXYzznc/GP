@@ -5,14 +5,17 @@
 public static class ResourceIds
 {
     #region UI背景图片 (1000-1999)
-    public const int BACKGROUND_MAIN = 1001;
-
+    public const int MENU_BACKGROUND = 1001;
+    public const int MENU_NAME = 1002;
+    public const int MENU_NAME_EN = 1003;
+    public const int MENU_YUN = 1004;
     #endregion
 
     #region UI图标 (2000-2999)
-    public const int ICON_COIN = 2001;
-    public const int ICON_DIAMOND = 2002;
-    public const int ICON_ENERGY = 2003;
+    public const int ITEM_ICON_1 = 2001;
+    public const int ITEM_ICON_2 = 2002;
+    public const int ITEM_ICON_3 = 2003;
+    public const int ITEM_ICON_4 = 2004;
     #endregion
 
     #region 角色头像 (3000-3999)
@@ -26,8 +29,9 @@ public static class ResourceIds
     #endregion
 
     #region UI预制体 (5000-5999)
-    public const int PREFAB_ITEM_CELL = 5001;
-    public const int PREFAB_REWARD_POPUP = 5002;
+    public const int PREFAB_PLAYER_INFO_ITEM = 5001;
+    public const int PREFAB_ITEMS_INFO_ITEM = 5002;
+    public const int PREFAB_TIME_INFO_ITEM = 5003;
     #endregion
 
     #region 材质 (6000-6999)
