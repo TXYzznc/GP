@@ -100,7 +100,6 @@
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\CompressTool\SubPanel\CreateAtlasPanel.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\CompressTool\CompressToolSubPanel.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorUtilityExtension.cs" />
-    <Compile Include="Assets\后处理\后处理外轮廓渲染\Editor\OutlineQuickSetup.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\StripLinkConfigTool.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableCodeGenerator.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\UI\UIItemBaseInspector.cs" />
@@ -117,7 +116,7 @@
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\CompressTool\CompressToolEditor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\BatchOperateTool\BatchOperateToolEditor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\UnityEditorToolbar.cs" />
-    <Compile Include="Assets\后处理\后处理外轮廓渲染\Editor\OutlineRenderFeatureHelper.cs" />
+    <Compile Include="Assets\Editor\OutlineDisplayManagerEditor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.TypeProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.QuaternionProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.GenericDataProcessor.cs" />
@@ -134,6 +133,7 @@
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\StripLinkConfigEditor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\UtilitySubToolBase.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.DoubleProcessor.cs" />
+    <Compile Include="Assets\Editor\NoiseGenerater.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Vector3ArrayProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.FloatProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.ByteProcessor.cs" />

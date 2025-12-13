@@ -14,5 +14,6 @@ public enum UIViews : int
 	CommonDialog = 8,
 	LanguagesDialog = 9,
 	ToastTips = 10,
-	CloudArchiveUI = 11
+	CloudArchiveUI = 11,
+	NewGameUI = 12
 }

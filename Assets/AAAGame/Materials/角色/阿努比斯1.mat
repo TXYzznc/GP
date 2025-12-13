@@ -8,10 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: "\u963F\u52AA\u6BD4\u65AF1"
-  m_Shader: {fileID: 4800000, guid: d6b2346e28485cf4a96765234e7acd89, type: 3}
+  m_Shader: {fileID: 4800000, guid: 962ea77f97e77a040a256fe5c4432e6c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _DISSOLVE_MODE_SINGLE
   m_InvalidKeywords:
   - _METALLICSPECGLOSSMAP
   - _NORMALMAP
@@ -43,6 +44,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DissolveTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -86,7 +91,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AmbientStrength: 0.9
+    - _AmbientStrength: 1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -94,8 +99,12 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DISSOLVE_MODE: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DissolveEdgeWidth: 0.1
+    - _DissolveEnabled: 0
+    - _DissolveThreshold: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
@@ -104,10 +113,16 @@ Material:
     - _GlossyReflections: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OutlineDistanceCurve: 1
+    - _OutlineDistanceMax: 2
+    - _OutlineDistanceMin: 20
     - _OutlineWidth: 0.003
+    - _OutlineWidthMax: 0.03
+    - _OutlineWidthMin: 0.005
     - _OutlineZOffset: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
+    - _RainbowIntensity: 2
     - _RampSmooth: 0.5
     - _RampThreshold: 0.4
     - _ReceiveShadows: 1
@@ -118,12 +133,17 @@ Material:
     - _SrcBlendAlpha: 1
     - _Surface: 0
     - _ToonSteps: 5
+    - _UseDistanceOutline: 0
     - _UseSmoothNormal: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _DissolveEdgeColor: {r: 3, g: 1, b: 0, a: 2}
+    - _DissolveInnerColor: {r: 1, g: 0, b: 0, a: 1}
+    - _DissolveMidColor: {r: 3, g: 1, b: 0, a: 2}
+    - _DissolveOuterColor: {r: 5, g: 5, b: 2, a: 2}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}

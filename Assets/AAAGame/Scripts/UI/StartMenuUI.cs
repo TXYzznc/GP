@@ -87,7 +87,8 @@ public partial class StartMenuUI : UIFormBase
     {
         Log.Info("点击了新游戏按钮");
 
-        StartNewGame();
+        GF.UI.OpenUIForm(UIViews.NewGameUI);
+
     }
 
     /// <summary>

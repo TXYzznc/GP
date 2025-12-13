@@ -1,0 +1,5 @@
+﻿#	LanguageTextTable						
+#	ID		TextKey	TypeSpeed	TextType 	ChineseSimplified 	English 
+#	int		string	float	int	string	string
+#		备注	文本Key	打字机速度	文本类型	中文简体	英文
+	1		Story_Welcome	0.05	1	欢迎来到诸神之战的世界...在这里，你将扮演一位英雄，踏上史诗般的冒险旅程。准备好开始你的传奇了吗？	Welcome to the world of Clash of Gods... Here, you will play as a hero and embark on an epic adventure. Are you ready to start your legend?
