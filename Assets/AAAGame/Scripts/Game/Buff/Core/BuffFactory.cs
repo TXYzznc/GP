@@ -35,10 +35,8 @@ public static class BuffFactory
         Register(3003, () => new BleedBuff());
 
         // 狂战士技能 Buff
-        Register(4001, () => new StatModBuff());   // 战意激昂·攻速提升
-        Register(4002, () => new StatModBuff());   // 战意激昂·伤害提升
-        Register(4003, () => new StatModBuff());   // 狂怒之心·伤害提升（基础档）
-        Register(4004, () => new StatModBuff());   // 狂怒之心·伤害翻倍（极低血量档）
+        Register(4001, () => new StatModBuff());      // 战意激昂（攻速+20% 伤害+15%，配置驱动）
+        Register(4003, () => new BerserkerRageBuff()); // 狂怒之心（普通单位+15%，召唤师+30%）
 
         DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
     }

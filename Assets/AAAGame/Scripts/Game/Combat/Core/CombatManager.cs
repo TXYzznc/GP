@@ -191,6 +191,8 @@ public class CombatManager : SingletonBase<CombatManager>
         {
             RuntimeData = SummonerRuntimeDataManager.Instance,
             EntityTracker = CombatEntityTracker.Instance,
+            // GetAllies 不含召唤师自身，单独拿其 BuffManager
+            SummonerBuffManager = playerCharacter.GetComponent<BuffManager>(),
         };
 
         // 获取或创建 SummonerSkillManager

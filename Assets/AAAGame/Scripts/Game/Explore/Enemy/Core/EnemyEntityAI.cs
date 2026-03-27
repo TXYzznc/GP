@@ -288,13 +288,12 @@ public class EnemyEntityAI
     /// </summary>
     private void FindPlayer()
     {
-        // 通过Tag查找玩家
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
+        var pcm = PlayerCharacterManager.Instance;
+        var playerGo = pcm != null ? pcm.CurrentPlayerCharacter : null;
+        if (playerGo != null)
         {
-            m_PlayerTransform = playerObj.transform;
-            DebugEx.LogModule("EnemyEntityAI",
-                $"{m_Entity.Config.Name} 找到玩家");
+            m_PlayerTransform = playerGo.transform;
+            DebugEx.LogModule("EnemyEntityAI", $"{m_Entity.Config.Name} 找到玩家");
         }
         // 不输出警告，因为玩家可能还没生成
     }

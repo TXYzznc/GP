@@ -9,4 +9,10 @@ public class SummonerSkillContext
 
     /// <summary>战斗实体追踪器（获取全体友方/敌方棋子）</summary>
     public CombatEntityTracker EntityTracker;
+
+    /// <summary>
+    /// 召唤师自身的 BuffManager（GetAllies 不含召唤师，需单独引用）
+    /// 在 CombatManager.InitializeSummonerSkillSystem 中赋值
+    /// </summary>
+    public BuffManager SummonerBuffManager;
 }

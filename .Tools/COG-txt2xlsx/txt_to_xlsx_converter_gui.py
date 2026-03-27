@@ -52,18 +52,50 @@ except ImportError as e:
     sys.exit(1)
 
 
-class DragDropLineEdit(QLineEdit):
-    """支持拖拽的输入框"""
-    file_dropped = pyqtSignal(str)
-    
+class DragDropTextEdit(QTextEdit):
+    """支持多文件拖拽的输入框"""
+    files_dropped = pyqtSignal(list)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
-    
+        self.setReadOnly(False)
+        self.setPlaceholderText("拖拽一个或多个 TXT 文件/文件夹到此，或点击按钮选择...")
+        self.setMinimumHeight(80)
+        self.setMaximumHeight(120)
+        self._file_paths = []
+
+    def get_paths(self):
+        return self._file_paths
+
+    def set_paths(self, paths: list):
+        self._file_paths = paths
+        self.setText("\n".join(paths))
+
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
-    
+
+    def dropEvent(self, event: QDropEvent):
+        urls = event.mimeData().urls()
+        if urls:
+            paths = [u.toLocalFile() for u in urls]
+            self.set_paths(paths)
+            self.files_dropped.emit(paths)
+
+
+class DragDropLineEdit(QLineEdit):
+    """支持拖拽的输入框（用于输出目录）"""
+    file_dropped = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
     def dropEvent(self, event: QDropEvent):
         urls = event.mimeData().urls()
         if urls:
@@ -98,22 +130,27 @@ class TxtToXlsxConverterGUI(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         
         # ===== 输入文件/文件夹 =====
-        input_label = QLabel("输入文件或文件夹:")
+        input_label = QLabel("输入文件或文件夹（支持多选）:")
         input_label.setFont(self._bold_font())
         main_layout.addWidget(input_label)
-        
-        input_layout = QHBoxLayout()
-        self.input_edit = DragDropLineEdit()
-        self.input_edit.setPlaceholderText("拖拽文件/文件夹到此，或点击按钮选择...")
-        self.input_edit.file_dropped.connect(self.on_input_dropped)
-        input_layout.addWidget(self.input_edit)
-        
-        input_btn = QPushButton("选择")
-        input_btn.setMaximumWidth(80)
+
+        self.input_edit = DragDropTextEdit()
+        self.input_edit.files_dropped.connect(self.on_input_dropped)
+        main_layout.addWidget(self.input_edit)
+
+        input_btn_layout = QHBoxLayout()
+        input_btn = QPushButton("选择文件")
+        input_btn.setMaximumWidth(100)
         input_btn.clicked.connect(self.select_input)
-        input_layout.addWidget(input_btn)
-        
-        main_layout.addLayout(input_layout)
+        input_btn_layout.addWidget(input_btn)
+
+        input_dir_btn = QPushButton("选择文件夹")
+        input_dir_btn.setMaximumWidth(100)
+        input_dir_btn.clicked.connect(self.select_input_dir)
+        input_btn_layout.addWidget(input_dir_btn)
+
+        input_btn_layout.addStretch()
+        main_layout.addLayout(input_btn_layout)
         
         # ===== 输出文件夹 =====
         output_label = QLabel("输出文件夹:")
@@ -225,15 +262,23 @@ class TxtToXlsxConverterGUI(QMainWindow):
         )
     
     def select_input(self):
-        """选择输入文件或文件夹"""
+        """选择输入文件（支持多选）"""
         dialog = QFileDialog(self)
-        dialog.setWindowTitle("选择输入文件或文件夹")
-        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
-        
+        dialog.setWindowTitle("选择输入 TXT 文件（可多选）")
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dialog.setNameFilter("TXT 文件 (*.txt);;所有文件 (*)")
+
         if dialog.exec() == QFileDialog.DialogCode.Accepted:
-            path = dialog.selectedFiles()[0]
-            self.input_edit.setText(path)
-            self.log(f"[成功] 已选择输入: {path}")
+            paths = dialog.selectedFiles()
+            self.input_edit.set_paths(paths)
+            self.log(f"[成功] 已选择 {len(paths)} 个文件")
+
+    def select_input_dir(self):
+        """选择输入文件夹"""
+        folder = QFileDialog.getExistingDirectory(self, "选择输入文件夹")
+        if folder:
+            self.input_edit.set_paths([folder])
+            self.log(f"[成功] 已选择文件夹: {folder}")
     
     def select_output(self):
         """选择输出文件夹"""
@@ -246,9 +291,9 @@ class TxtToXlsxConverterGUI(QMainWindow):
             self.output_edit.setText(folder)
             self.log(f"[成功] 已选择输出: {folder}")
     
-    def on_input_dropped(self, path: str):
+    def on_input_dropped(self, paths: list):
         """处理输入拖拽"""
-        self.log(f"[成功] 已拖拽输入: {path}")
+        self.log(f"[成功] 已拖拽 {len(paths)} 个路径")
     
     def on_output_dropped(self, path: str):
         """处理输出拖拽"""
@@ -262,16 +307,17 @@ class TxtToXlsxConverterGUI(QMainWindow):
     
     def start_conversion(self):
         """开始转换"""
-        input_path = self.input_edit.text().strip()
+        input_paths = self.input_edit.get_paths()
         output_dir = self.output_edit.text().strip()
-        
+
         # 验证输入
-        if not input_path:
+        if not input_paths:
             QMessageBox.warning(self, "警告", "请选择输入文件或文件夹")
             return
-        
-        if not os.path.exists(input_path):
-            QMessageBox.warning(self, "警告", f"输入路径不存在: {input_path}")
+
+        missing = [p for p in input_paths if not os.path.exists(p)]
+        if missing:
+            QMessageBox.warning(self, "警告", f"以下路径不存在:\n" + "\n".join(missing))
             return
         
         if not output_dir:
@@ -296,69 +342,55 @@ class TxtToXlsxConverterGUI(QMainWindow):
         self.log("=" * 50)
         
         # 执行转换（同步，不使用线程）
-        self.perform_conversion(input_path, output_dir)
+        self.perform_conversion(input_paths, output_dir)
     
-    def perform_conversion(self, input_path: str, output_dir: str):
-        """执行转换"""
-        output_files = []
-        
-        try:
+    def perform_conversion(self, input_paths: list, output_dir: str):
+        """执行转换，支持多文件/多文件夹"""
+        # 收集所有待转换的 txt 文件
+        all_txt_files = []
+        for input_path in input_paths:
             if os.path.isfile(input_path):
-                # 单文件转换
-                self.log(f"处理文件: {os.path.basename(input_path)}")
+                if input_path.endswith('.txt'):
+                    all_txt_files.append(input_path)
+                else:
+                    self.log(f"[跳过] 非 TXT 文件: {os.path.basename(input_path)}")
+            elif os.path.isdir(input_path):
+                found = [os.path.join(input_path, f) for f in os.listdir(input_path) if f.endswith('.txt')]
+                self.log(f"[文件夹] {os.path.basename(input_path)} 找到 {len(found)} 个 TXT 文件")
+                all_txt_files.extend(found)
+            else:
+                self.log(f"[跳过] 路径无效: {input_path}")
+
+        if not all_txt_files:
+            self.on_conversion_failed("[错误] 没有找到可转换的 TXT 文件")
+            return
+
+        self.log(f"共 {len(all_txt_files)} 个文件待转换")
+        output_files = []
+        success_count = 0
+
+        try:
+            for i, txt_path in enumerate(all_txt_files, 1):
+                name = os.path.basename(txt_path)
+                self.log(f"[{i}/{len(all_txt_files)}] 转换 {name}...")
                 try:
-                    success = self.converter.convert_file_with_processor(
-                        input_path, 
-                        output_dir
-                    )
-                    
-                    if success:
-                        base_name = os.path.splitext(os.path.basename(input_path))[0]
+                    if self.converter.convert_file_with_processor(txt_path, output_dir):
+                        success_count += 1
+                        base_name = os.path.splitext(name)[0]
                         output_file = os.path.join(output_dir, f"{base_name}.xlsx")
                         if os.path.exists(output_file):
                             output_files.append(output_file)
-                        self.on_conversion_success(output_files)
                     else:
-                        self.on_conversion_failed("[错误] 转换失败，请检查输入文件格式")
+                        self.log(f"[警告] {name} 转换失败")
                 except Exception as e:
-                    self.log(f"[错误] 转换异常: {str(e)}")
-                    import traceback
-                    self.log(traceback.format_exc())
-                    self.on_conversion_failed(f"[错误] 转换异常: {str(e)}")
-            
-            elif os.path.isdir(input_path):
-                # 目录批量转换
-                txt_files = [f for f in os.listdir(input_path) if f.endswith('.txt')]
-                self.log(f"找到 {len(txt_files)} 个 TXT 文件")
-                
-                if not txt_files:
-                    self.on_conversion_failed("[错误] 目录中没有找到 TXT 文件")
-                    return
-                
-                success_count = 0
-                for i, txt_file in enumerate(txt_files, 1):
-                    self.log(f"[{i}/{len(txt_files)}] 转换 {txt_file}...")
-                    txt_path = os.path.join(input_path, txt_file)
-                    try:
-                        if self.converter.convert_file_with_processor(txt_path, output_dir):
-                            success_count += 1
-                            base_name = os.path.splitext(txt_file)[0]
-                            output_file = os.path.join(output_dir, f"{base_name}.xlsx")
-                            if os.path.exists(output_file):
-                                output_files.append(output_file)
-                    except Exception as e:
-                        self.log(f"[警告] {txt_file} 转换失败: {str(e)}")
-                
-                msg = f"[成功] 批量转换完成！\n成功: {success_count}/{len(txt_files)}"
-                self.log(msg)
-                
-                if success_count > 0:
-                    self.on_conversion_success(output_files)
-                else:
-                    self.on_conversion_failed("[错误] 所有文件转换失败")
+                    self.log(f"[警告] {name} 转换异常: {str(e)}")
+
+            self.log(f"[完成] 成功: {success_count}/{len(all_txt_files)}")
+            if success_count > 0:
+                self.on_conversion_success(output_files)
             else:
-                self.on_conversion_failed("[错误] 输入路径无效")
-        
+                self.on_conversion_failed("[错误] 所有文件转换失败")
+
         except Exception as e:
             import traceback
             self.log(f"[错误] 未预期的异常: {str(e)}")
@@ -370,17 +402,11 @@ class TxtToXlsxConverterGUI(QMainWindow):
         self.log("=" * 50)
         self.log("[成功] 转换完成！")
         self.log("=" * 50)
-        
-        # 启用按钮
+
         self.convert_btn.setEnabled(True)
         self.progress_bar.setVisible(False)
-        
-        # 显示消息框
-        QMessageBox.information(self, "成功", "转换完成！")
-        
-        # 打开输出文件夹并选中文件
-        if output_files:
-            self.open_output_folder_with_files(output_files)
+
+        QMessageBox.information(self, "成功", f"转换完成！共生成 {len(output_files)} 个文件")
     
     def on_conversion_failed(self, message: str):
         """转换失败"""

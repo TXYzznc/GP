@@ -29,6 +29,7 @@
 	1503		1	UI/Icons/Skill_Bomb.png	爆裂弹-角色技能图标
 	1601		1	Equipment/SunsetBow.png	落日弓-棋子装备图标
 	1701		1	占位.png	狂怒之心-召唤师技能图标
+	1702		1	占位.png	战意激昂-召唤师技能图标
 	1801		1	Skill/1.png	日落长弓-后羿技能图标
 	1802		1	Skill/2.png	后羿普攻-后羿技能图标
 	1803		1	Skill/3.png	神力-后羿技能图标
@@ -76,6 +77,10 @@
 	6001		6	Skills/SkillParamRegistry	技能参数注册表
 	10102		1	Buff/3002.png	偷袭·致命眩晕图标
 	10103		1	Buff/3003.png	偷袭·致命流血图标
+	14001		1	Buff/4001.png	战意激昂·攻速提升图标
+	14002		1	Buff/4002.png	战意激昂·伤害提升图标
+	14003		1	Buff/4003.png	狂怒之心·基础档图标
+	14004		1	Buff/4004.png	狂怒之心·翻倍档图标
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4

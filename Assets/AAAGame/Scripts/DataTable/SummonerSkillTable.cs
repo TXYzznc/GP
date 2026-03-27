@@ -182,18 +182,18 @@ public partial class SummonerSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 释放时附加到目标的BuffID数组
+        /// 释放/条件触发时施加的Buff列表，格式"buffId:targetType,..."。targetType:1=召唤师自身 2=全体友方(不含召唤师) 3=全体友方(含召唤师) 4=全体敌方 5=命中目标(单体)
         /// </summary>
-        public int[] BuffIds
+        public string InstantBuffs
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 释放时附加到自身的BuffID数组
+        /// 命中目标时施加的Buff列表，格式同InstantBuffs
         /// </summary>
-        public int[] SelfBuffIds
+        public string HitBuffs
         {
             get;
             private set;
@@ -282,8 +282,8 @@ public partial class SummonerSkillTable : DataRowBase
             ProjectilePrefabId = int.Parse(columnStrings[index++]);
             ProjectileSpeed = float.Parse(columnStrings[index++]);
             HitCount = int.Parse(columnStrings[index++]);
-            BuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            SelfBuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            InstantBuffs = columnStrings[index++];
+            HitBuffs = columnStrings[index++];
             Params = DataTableExtension.ParseArray<float>(columnStrings[index++]);
             EffectId = int.Parse(columnStrings[index++]);
             HitEffectId = int.Parse(columnStrings[index++]);
@@ -318,8 +318,8 @@ public partial class SummonerSkillTable : DataRowBase
                     ProjectilePrefabId = binaryReader.Read7BitEncodedInt32();
                     ProjectileSpeed = binaryReader.ReadSingle();
                     HitCount = binaryReader.Read7BitEncodedInt32();
-                    BuffIds = binaryReader.ReadArray<int>();
-                    SelfBuffIds = binaryReader.ReadArray<int>();
+                    InstantBuffs = binaryReader.ReadString();
+                    HitBuffs = binaryReader.ReadString();
                     Params = binaryReader.ReadArray<float>();
                     EffectId = binaryReader.Read7BitEncodedInt32();
                     HitEffectId = binaryReader.Read7BitEncodedInt32();

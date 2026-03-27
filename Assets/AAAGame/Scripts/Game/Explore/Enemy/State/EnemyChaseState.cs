@@ -14,6 +14,7 @@ public class EnemyChaseState : IEnemyState
     private const float PATH_UPDATE_INTERVAL = 0.5f;  // 路径更新间隔
 
     private bool m_HasBroadcasted;  // 确保只广播一次
+    private PostCombatStealth m_PlayerStealth;
 
     #endregion
 
@@ -40,6 +41,10 @@ public class EnemyChaseState : IEnemyState
 
         m_UpdatePathTimer = 0f;
         m_HasBroadcasted = false;  // 重置广播标志
+
+        var pcm = PlayerCharacterManager.Instance;
+        var playerGo = pcm != null ? pcm.CurrentPlayerCharacter : null;
+        m_PlayerStealth = playerGo != null ? playerGo.GetComponent<PostCombatStealth>() : null;
 
         // 立即更新路径
         UpdatePath();
@@ -76,10 +81,8 @@ public class EnemyChaseState : IEnemyState
         if (distanceToPlayer <= config.CombatDistance)
         {
             // 保底屏蔽或玩家处于隐身状态时放弃追击，返回巡逻
-            var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
-            var stealth = playerGo?.GetComponent<PostCombatStealth>();
             bool blocked = (EnemyEntityManager.Instance != null && EnemyEntityManager.Instance.IsDetectionBlocked)
-                           || (stealth != null && stealth.IsActive);
+                           || (m_PlayerStealth != null && m_PlayerStealth.IsActive);
             if (blocked)
             {
                 DebugEx.LogModule("EnemyChaseState",

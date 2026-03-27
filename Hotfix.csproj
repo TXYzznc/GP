@@ -236,6 +236,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Utils\Game\EntityPositionHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\SummonChessStateUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Skills\BerserkerActiveSkill.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\BuffTargetEntry.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\OutOfGameState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemyFormationManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextAnimationLibrary.cs" />
@@ -273,6 +274,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatEntityTracker.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIParams.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Core\EnemyChessState.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\BerserkerRageBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessAttribute.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\StateAwareUIForm.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\AimUI.cs" />
@@ -389,6 +391,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\PlayerInfoItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\SummonChessStateUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\ChessOutlineController.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerBuffHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PlayerDataTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineRenderFeature.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerManager.cs" />

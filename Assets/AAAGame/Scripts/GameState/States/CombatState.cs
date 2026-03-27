@@ -65,9 +65,6 @@ public class CombatState : FsmState<InGameState>
         await ChessStateUIWorldManager.EnsureExistsAsync();
         await ChessStateUIWorldManager.Instance.EnterCombatAsync();
 
-        // 触发战斗进入事件
-        GF.Event.Fire(this, ReferencePool.Acquire<CombatEnterEventArgs>());
-
         // 订阅战斗结束事件
         GF.Event.Subscribe(CombatEndEventArgs.EventId, OnCombatEnd);
 
@@ -87,8 +84,11 @@ public class CombatState : FsmState<InGameState>
         CombatVFXUpdater.EnsureExists();
         DebugEx.LogModule("CombatState", "战斗特效管理器已初始化");
 
-        // 初始化完成后再开始战斗
+        // 初始化完成后再开始战斗（技能系统在此初始化，必须在 CombatEnterEventArgs 之前）
         StartCombat();
+
+        // 触发战斗进入事件（此时 SummonerSkillManager 已就绪，CombatUI 可正确刷新技能按钮）
+        GF.Event.Fire(this, ReferencePool.Acquire<CombatEnterEventArgs>());
     }
 
     protected override async void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
