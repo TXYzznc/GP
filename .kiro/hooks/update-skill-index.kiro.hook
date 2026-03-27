@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "更新 SKILL 索引",
+  "description": "手动触发更新 SKILL 智能索引钩子,扫描 .kiro/skills 目录下所有 SKILL.md 文件,提取技能名称、描述和关键词,然后更新 skill-auto-indexer 钩子的提示词",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "请执行以下任务来更新 SKILL 智能索引：\n\n1. **扫描技能目录**：读取项目目录下所有的 SKILL.md 文件\n\n2. **提取技能信息**：从每个 SKILL.md 的 frontmatter 中提取：\n   - name: 技能名称\n   - description: 技能描述\n   - keywords: 关键词列表（如果有）\n\n3. **分析技能用途**：从 description 和文档内容中识别：\n   - 主要功能关键词\n   - 适用场景关键词\n   - 相关技术关键词\n\n4. **更新索引钩子**：修改 `.kiro/hooks/skill-auto-indexer.kiro.hook` 文件：\n   - 保持现有的 GitNexus 技能触发词\n   - 更新\"其他技能触发词\"部分，包含所有扫描到的技能\n   - 格式：`\"关键词1\"、\"关键词2\"、\"关键词3\" → 推荐 技能名称`\n   - 每个技能一行，按字母顺序排列\n\n5. **生成更新报告**：输出更新的技能列表和新增的关键词\n\n注意事项：\n- 不要修改 GitNexus 相关的技能触发词\n- 保持钩子的 JSON 格式正确\n- 确保所有技能都被正确索引\n- 如果某个技能没有明确的关键词，从描述中智能提取\n\n开始执行更新任务。"
+  },
+  "workspaceFolderName": "Clash_Of_Gods",
+  "shortName": "update-skill-index"
+}

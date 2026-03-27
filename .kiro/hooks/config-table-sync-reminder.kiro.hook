@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "配置表同步提醒",
+  "description": "修改配置表相关代码后，提醒是否需要同步更新 Excel 配置文件",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "Assets/AAAGame/Scripts/DataTable/**/*.cs"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "刚才修改了配置表相关代码。请提醒：\n1. 是否需要更新对应的 Excel 配置文件（AAAGameData/DataTables/）\n2. 是否需要重新生成配置表代码\n3. 是否需要通知策划同步更新配置\n保持简洁，只提醒必要的操作。"
+  }
+}

@@ -1,0 +1,12 @@
+﻿#	SummonChessSkillTable																									
+#	ID		Name	SkillType	DamageType	DamageCoeff	EffectHitType	ProjectilePrefabId	BuffTriggerType	BaseDamage	MpCost	MpRestore	Cooldown	CastRange	AreaRadius	Duration	HitCount	PenetrationCount	BuffIds	SelfBuffIds	ProjectileSpeed	IconId	EffectId	EffectSpawnHeight	HitEffectId	Desc
+#	int		string	int	int	double	int	int	int	double	double	double	double	double	double	double	int	int	int[]	int[]	double	int	int	float	int	string
+#	技能唯一ID	备注	技能名称	技能类型：1=被动 2=普攻效果 3=主动技能 4=大招	伤害类型：0=无伤害 1=物理 2=魔法 3=真实	伤害系数:（基于攻击力/法强的百分比）如1.5=150%）	效果命中类型：0=瞬发1=近2=投射物 3=AO4=射线	投射物预制体ID（AttackHitType=2时使用）	Buff触发类型：0=执行时（动画执行帧）应用1=命中时应用2=完成某种条件进行应用	基础固定伤害值	法力消耗	法力回复	冷却时间（秒）	施法/生效范围	AOE半径（0=单体）	持续时间（引导类技能）	触发次数（多段伤害）表示一次技能触发效果的次数	穿透数量（投射物穿透）表示投射物可以穿透并命中的敌人数量	释放时附加的BuffID数组	释放时给自身附加的BuffID数组	投射物速度（0=即时命中）	技能图标资源ID	技能特效资源ID	特效播放的相对位置	受击特效资源ID	技能描述
+	11		日落长弓	1	0	0	0	0	2	0	0	0	0	0	0	0	0	1	0	5	0	1801	0	0	0	后羿被动：白天伤害+15%，射程+30%
+	12		后羿普攻	2	1	1	2	3002	1	0	0	10	0	0	0	0	1	1	0	0	20	1802	0	0	0	后羿普攻：物理伤害
+	13		神力	3	0	0	0	0	0	0	30	0	10	0	0	8	0	1	1	4	0	1803	3001	0.05	0	后羿技能一：普攻附带灼烧，攻击力+25%
+	14		日陨	4	1	2.5	2	3003	1	50	80	0	0	15	2	0	1	9	1	0	20	1804	0	0	0	后羿大招：直线穿透，无衰减，+2层灼烧
+	21		九天玄冰	1	0	0	0	0	2	0	0	0	0	0	0	0	0	1	6	0	0	1805	0	0	0	嫦娥被动：被攻击减速敌人，夜晚法强+40，攻击附带寒霜
+	22		嫦娥普攻	2	2	0.8	2	3004	1	0	0	10	0	0	0	0	1	1	2	0	15	1806	0	0	0	嫦娥普攻：魔法伤害，附带寒霜
+	23		朔月飞轮	3	2	1.2	2	0	1	30	40	0	8	8	1.5	0	1	9	0	0	25	1807	0	0	0	嫦娥技能一：月形冰刃往返，命中两次
+	24		月华天倾	4	2	0.6	3	0	1	20	80	0	0	6	4	5	10	1	0	0	100	1808	0	0	0	嫦娥大招：持续5s范围多段轰击

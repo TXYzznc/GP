@@ -1,0 +1,17 @@
+{
+  "project_root": "D:/unity/UnityProject/GP/Clash_Of_Gods",
+  "paths": {
+    "AI_workspace": "D:/unity/UnityProject/GP/Clash_Of_Gods/AI工作区",
+    "assets": "D:/unity/UnityProject/GP/Clash_Of_Gods/Assets",
+    "data_tables": "D:/unity/UnityProject/GP/Clash_Of_Gods/Assets/AAAGame/DataTable",
+    "game_data": "D:/unity/UnityProject/GP/Clash_Of_Gods/AAAGameData",
+    "scripts": "D:/unity/UnityProject/GP/Clash_Of_Gods/Assets/AAAGame/Scripts",
+    "ab_working": "D:/unity/UnityProject/GP/Clash_Of_Gods/AB/Working",
+    "knowledge_base": "D:/unity/UnityProject/GP/Clash_Of_Gods/项目知识库（AI）",
+    "kiro_config": "D:/unity/UnityProject/GP/Clash_Of_Gods/.kiro",
+    "kiro_skills": "D:/unity/UnityProject/GP/Clash_Of_Gods/.kiro/skills"
+  },
+  "last_updated": "2026-03-23T15:53:25",
+  "version": "1.0",
+  "description": "项目路径配置文件 - 提供快速路径查找，避免慢速文件夹遍历"
+}

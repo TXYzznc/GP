@@ -1,0 +1,5 @@
+﻿#	SummonerSkillTable												
+#	ID		Name	SkillType	Cooldown	SpiritCost	EffectType	EffectValue	Duration	Range	RangeType	Description	SpritePath
+#	int		string	int	float	float	int	float	float	float	int	string	int
+#	技能ID	备注	技能名称	技能类型(1=被动，2=主动)	冷却时间	灵力消耗	效果类型（1=Buff,2=Debuff,3=伤害,4=治疗）	效果值	持续时间（0表示条件触发，无持续时间）	作用范围	范围类型（0=作用于自己，1=单体，2=直线，3=群体）	描述	图标路径
+	1		狂怒之心	1	1	0	1	0.2	0	0	0	半血时攻速+20%	1701

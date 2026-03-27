@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b0f19b5d34f28649910d85a7c727c23, type: 3}
+  m_Name: ToolHubSettings
+  m_EditorClassIdentifier: 
+  locked: 0
+  selectedIndex: 6
+  tools:
+  - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u566A\u58F0\u56FE\u751F\u6210\u5668"
+    description: "\u57FA\u4E8EFastNoiseLite\u7684\u9AD8\u6027\u80FD\u566A\u58F0\u7EB9\u7406\u751F\u6210\u5DE5\u5177"
+  - typeName: SmoothNormalPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u6CD5\u7EBF\u5E73\u6ED1\u5DE5\u5177"
+    description: "\u6279\u91CF\u5904\u7406\u6A21\u578B\u7684\u5E73\u6ED1\u6CD5\u7EBF\u5E76\u70D8\u7119\u5230\u5207\u7EBF\u7A7A\u95F4"
+  - typeName: ObjectSpawnerPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u5BF9\u8C61\u751F\u6210\u5668\uFF08\u6027\u80FD\u6D4B\u8BD5\uFF09"
+    description: "\u5FEB\u901F\u6279\u91CF\u751F\u6210\u6D4B\u8BD5\u5BF9\u8C61\u5230\u573A\u666F\u4E2D"
+  - typeName: PrefabCityGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    displayName: "\u57CE\u5E02\u751F\u6210\u5668"
+    description: "\u5FEB\u901F\u751F\u6210\u57CE\u5E02\u8857\u9053\u3001\u5EFA\u7B51\u548C\u4EA4\u901A\u7CFB\u7EDF"
+  - typeName: PlayerSkillGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    displayName: "\u73A9\u5BB6\u6280\u80FD\u811A\u672C\u751F\u6210\u5668"
+    description: "\u4E00\u952E\u751F\u6210\u6280\u80FD\u903B\u8F91\u811A\u672C\u4E0E\u5BF9\u5E94\u7684
+      ScriptableObject \u6570\u636E\u914D\u7F6E\u7C7B"
+  - typeName: PWBControlPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: PWBControl
+    description: "PWB\u96C6\u6210\u63A7\u5236\u4E2D\u5FC3\uFF0C\u5FEB\u901F\u5207\u6362\u7B14\u5237\u5DE5\u5177\u3002"
+  - typeName: FindMissingScriptPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u7F3A\u5931\u811A\u672C\u626B\u63CF"
+    description: "\u626B\u63CF\u9884\u5236\u4F53\u4E2D\u7684\u7F3A\u5931\u811A\u672CGUID\u5F15\u7528"

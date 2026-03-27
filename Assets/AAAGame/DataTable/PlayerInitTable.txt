@@ -1,0 +1,5 @@
+﻿#	PlayerInitTable																
+#	ID		InitLevel	InitExp	InitGold	InitDiamond	InitHolyWater	InitSummonerId	InitUnitCards	InitStrategyCards	InitTechs	InitInventorySize	ExpMultiplier	EliteSpawnRate	Desc		
+#	int		int	int	int	int	int	int	int[]	int[]	int[]	int	float	float	string		
+#	配置ID	备注	初始等级	初始经验	初始金币	初始钻石	初始圣水	初始召唤师	初始棋子卡	初始策略卡	初始科技	背包容量	经验倍率	精英怪概率	描述		
+	1		1	0	100	0	2	1001	1,4			20	1	0.1	暂无		

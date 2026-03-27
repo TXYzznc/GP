@@ -1,0 +1,5 @@
+﻿#	SynergyTable							
+#	Id		Name	Type	Description	RequireCount	RequireIds	EffectId
+#	int		string	int	string	int	int[]	int
+#	羁绊ID	备注	羁绊名称	羁绊类型	羁绊描述	激活所需数量	需要的物品ID列表	羁绊效果ID
+	3001		三神器	2	集齐日本三神器（八尺琼勾玉、天丛云剑、八咫镜），获得神之力量：全属性+20%，攻击时有20%概率造成三倍伤害	3	8,9,10	3004

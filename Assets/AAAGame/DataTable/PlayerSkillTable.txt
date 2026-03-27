@@ -1,0 +1,7 @@
+﻿#	PlayerSkillTable							
+#	ID		Cooldown	Cost	Name	Desc	IconId	SlotIndex
+#	int		float	float	string	string	int	int
+#	技能ID	备注	冷却时间	灵力消耗	技能名称	技能描述	图标资源ID	槽位索引
+	1		2	0	Dash	飞雷神	1501	1
+	2		5	10	Heal	治疗术	1502	2
+	3		8	20	Bomb	爆裂弹	1503	3

@@ -1,0 +1,704 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityGameFramework.Runtime;
+using GameFramework;
+using Cysharp.Threading.Tasks;
+
+#if ENABLE_OBFUZ
+[Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
+#endif
+public partial class CombatPreparationUI : UIFormBase
+{
+    #region 字段
+
+    /// <summary>倒计时剩余时间</summary>
+    private float m_CountdownRemain;
+
+    /// <summary>是否已准备完毕</summary>
+    private bool m_IsReady;
+
+    /// <summary>已生成的棋子UI项</summary>
+    private List<GameObject> m_SpawnedChessItems = new List<GameObject>();
+
+    /// <summary>实例ID到棋子UI的映射</summary>
+    private Dictionary<string, ChessItemUI> m_ChessItemUIDict = new Dictionary<string, ChessItemUI>();
+
+    /// <summary>已生成的Buff UI项</summary>
+    private List<GameObject> m_SpawnedBuffItems = new List<GameObject>();
+
+    /// <summary>可选的Buff ID列表（用于三选一）</summary>
+    private List<int> m_AvailableBuffIds = new List<int>();
+
+    /// <summary>选中的Buff ID</summary>
+    private int m_SelectedBuffId;
+
+    /// <summary>当前Buff选择模式</summary>
+    private BuffSelectionMode m_BuffSelectionMode;
+
+    /// <summary>敌方先手Buff通知的取消令牌</summary>
+    private System.Threading.CancellationTokenSource m_NotificationCts;
+
+    #endregion
+
+    #region 枚举
+
+    /// <summary>Buff选择模式</summary>
+    private enum BuffSelectionMode
+    {
+        None,           // 无
+        SneakDebuff,    // 偷袭Debuff三选一
+        InitiativeBuff  // 先手Buff三选一
+    }
+
+    #endregion
+
+    #region 生命周期
+
+    protected override void OnInit(object userData)
+    {
+        base.OnInit(userData);
+        Log.Info("CombatPreparationUI: 初始化");
+    }
+
+    protected override void OnOpen(object userData)
+    {
+        base.OnOpen(userData);
+        Log.Info("CombatPreparationUI: 已打开");
+
+        // 隐藏Buff选择面板（正常情况下应隐藏，只在触发偷袭或先手效果时显示）
+        if (varBuffSelection != null)
+        {
+            varBuffSelection.alpha = 0f;
+            varBuffSelection.interactable = false;
+            varBuffSelection.blocksRaycasts = false;
+            Log.Info("CombatPreparationUI: Buff选择面板已隐藏");
+        }
+
+        // 隐藏敌方先手Buff通知（正常情况下应隐藏，只有敌方先手时才显示）
+        if (varInitiativeBuffNotification != null)
+        {
+            varInitiativeBuffNotification.alpha = 0f;
+            varInitiativeBuffNotification.interactable = false;
+            varInitiativeBuffNotification.blocksRaycasts = false;
+            Log.Info("CombatPreparationUI: 敌方先手Buff通知已隐藏");
+        }
+
+        // 重置状态
+        var ruleRow = DataTableExtension.GetRowById<CombatRuleTable>(1);
+        float preparationSeconds = ruleRow != null ? ruleRow.PreparationDurationSeconds : 30f;
+        m_CountdownRemain = Mathf.Max(0f, preparationSeconds);
+        m_IsReady = false;
+
+        // 订阅棋子库存事件
+        ChessDeploymentTracker.Instance.OnChessDeployed += OnChessDeployedHandler;
+        ChessDeploymentTracker.Instance.OnChessRecalled += OnChessRecalledHandler;
+
+        // 刷新各个面板
+        RefreshBuffPanel();
+        RefreshEquipmentPanel();
+        RefreshChessPanel();
+
+        // 更新准备按钮状态
+        UpdateReadyButton(false);
+
+        // 更新倒计时显示
+        UpdateCountdownText();
+    }
+
+    protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
+    {
+        base.OnUpdate(elapseSeconds, realElapseSeconds);
+
+        if (m_IsReady)
+            return;
+
+        // 倒计时
+        m_CountdownRemain -= elapseSeconds;
+        UpdateCountdownText();
+
+        // 倒计时结束，自动准备完毕
+        if (m_CountdownRemain <= 0f)
+        {
+            m_CountdownRemain = 0f;
+            OnPreparationComplete();
+        }
+    }
+
+    protected override void OnClose(bool isShutdown, object userData)
+    {
+        // 取消订阅
+        ChessDeploymentTracker.Instance.OnChessDeployed -= OnChessDeployedHandler;
+        ChessDeploymentTracker.Instance.OnChessRecalled -= OnChessRecalledHandler;
+
+        // 清理生成的UI项
+        ClearSpawnedItems();
+
+        base.OnClose(isShutdown, userData);
+        Log.Info("CombatPreparationUI: 已关闭");
+    }
+
+    #endregion
+
+    #region 按钮事件
+
+    protected override void OnButtonClick(object sender, Button btSelf)
+    {
+        base.OnButtonClick(sender, btSelf);
+
+        if (btSelf == varReadyBtn)
+        {
+            OnReadyButtonClick();
+        }
+    }
+
+    /// <summary>
+    /// 准备按钮点击
+    /// </summary>
+    private void OnReadyButtonClick()
+    {
+        if (m_IsReady)
+            return;
+
+        Log.Info("CombatPreparationUI: 玩家点击准备完毕");
+        OnPreparationComplete();
+    }
+
+    #endregion
+
+    #region Buff 面板
+
+    /// <summary>
+    /// 刷新全局Buff面板
+    /// </summary>
+    private void RefreshBuffPanel()
+    {
+        // 清理生成的Buff项
+        ClearBuffItems();
+
+        // TODO: 从全局Buff管理器获取当前生效的全局Buff列表
+        // 目前暂时没有全局Buff系统，跳过
+        // 示例代码：
+        // var globalBuffs = GlobalBuffManager.Instance.GetActiveBuffs();
+        // foreach (var buff in globalBuffs)
+        // {
+        //     var item = SpawnItem<UIItemObject>(varBuffItem, varBuffPanel.transform);
+        //     (item.itemLogic as BuffItem).SetData(buff.Id);
+        //     m_SpawnedBuffItems.Add(item.gameObject);
+        // }
+
+        DebugEx.LogModule("CombatPreparationUI", "Buff面板已刷新（当前无全局Buff）");
+    }
+
+    #endregion
+
+    #region 装备面板
+
+    /// <summary>
+    /// 刷新装备面板
+    /// </summary>
+    private void RefreshEquipmentPanel()
+    {
+        // TODO: 从装备系统获取当前装备列表
+        // 目前装备系统尚未实现，跳过
+        // 实现时应使用 Instantiate(varEquipSlotItem) 创建实例，而非隐藏模板
+
+        DebugEx.LogModule("CombatPreparationUI", "装备面板已刷新（当前无装备）");
+    }
+
+    #endregion
+
+    #region 棋子面板
+
+    /// <summary>
+    /// 刷新备战棋子面板
+    /// </summary>
+    private void RefreshChessPanel()
+    {
+        // 获取所有棋子实例
+        var allChess = ChessDeploymentTracker.Instance.GetAllChessInstances();
+
+        if (allChess.Count == 0)
+        {
+            Log.Warning("CombatPreparationUI: 没有棋子");
+            return;
+        }
+
+        // 第一次打开，创建所有棋子UI
+        if (m_ChessItemUIDict.Count == 0)
+        {
+            foreach (var instance in allChess)
+            {
+                // 验证配置是否存在
+                if (!ChessDataManager.Instance.HasConfig(instance.ChessId))
+                {
+                    Log.Warning($"CombatPreparationUI: 棋子配置不存在 Id={instance.ChessId}，跳过");
+                    continue;
+                }
+
+                var item = SpawnItem<UIItemObject>(varChessItemUI, varChessPanel.transform);
+                var chessItemUI = item.itemLogic as ChessItemUI;
+
+                if (chessItemUI != null)
+                {
+                    // 设置数据和回调
+                    chessItemUI.SetData(
+                        instance.InstanceId,
+                        instance.ChessId,
+                        OnChessItemSelected,    // 选中回调
+                        OnChessItemDragEnd      // 拖拽结束回调
+                    );
+
+                    // 设置出战状态
+                    chessItemUI.SetDeployedState();
+
+                    // 保存到字典
+                    m_ChessItemUIDict[instance.InstanceId] = chessItemUI;
+                }
+
+                m_SpawnedChessItems.Add(item.gameObject);
+            }
+
+            Log.Info($"CombatPreparationUI: 棋子面板初始化完成，共 {m_SpawnedChessItems.Count} 个棋子");
+        }
+        else
+        {
+            // 后续刷新，只更新状态（不重新创建）
+            foreach (var instance in allChess)
+            {
+                if (m_ChessItemUIDict.TryGetValue(instance.InstanceId, out var chessItemUI))
+                {
+                    // 更新出战状态（显示/隐藏灰色）
+                    chessItemUI.SetDeployedState();
+                }
+            }
+
+            Log.Info($"CombatPreparationUI: 棋子面板状态已更新");
+        }
+    }
+
+    /// <summary>
+    /// 棋子选中回调（点击或拖拽开始时触发）
+    /// </summary>
+    private void OnChessItemSelected(string instanceId)
+    {
+        Log.Info($"CombatPreparationUI: 选中棋子 instanceId={instanceId}");
+
+        // 开始放置，显示预览（进入放置状态）
+        if (ChessPlacementManager.Instance != null)
+        {
+            ChessPlacementManager.Instance.StartPlacement(instanceId);
+        }
+    }
+
+    /// <summary>
+    /// 棋子拖拽结束回调
+    /// </summary>
+    private void OnChessItemDragEnd(string instanceId)
+    {
+        Log.Info($"CombatPreparationUI: 拖拽结束 instanceId={instanceId}");
+
+        // 拖拽结束时确认放置
+        if (ChessPlacementManager.Instance != null)
+        {
+            ChessPlacementManager.Instance.ConfirmPlacementFromDrag();
+        }
+    }
+
+    #endregion
+
+    #region 倒计时与准备
+
+    /// <summary>
+    /// 更新倒计时文本
+    /// </summary>
+    private void UpdateCountdownText()
+    {
+        if (varCountdownText != null)
+        {
+            int seconds = Mathf.CeilToInt(m_CountdownRemain);
+            varCountdownText.text = $"{seconds}s";
+        }
+    }
+
+    /// <summary>
+    /// 更新准备按钮状态
+    /// </summary>
+    private void UpdateReadyButton(bool isReady)
+    {
+        if (varReadyTxt != null)
+        {
+            varReadyTxt.text = isReady ? "已准备" : "准备完毕";
+        }
+
+        if (varReadyBtn != null)
+        {
+            varReadyBtn.interactable = !isReady;
+        }
+    }
+
+    /// <summary>
+    /// 准备完毕（玩家点击或倒计时结束）
+    /// </summary>
+    private void OnPreparationComplete()
+    {
+        if (m_IsReady)
+            return;
+
+        m_IsReady = true;
+        UpdateReadyButton(true);
+
+        Log.Info("CombatPreparationUI: 准备完毕，通知战斗系统");
+
+        // 触发准备完成事件
+        GF.Event.Fire(this, ReferencePool.Acquire<CombatPreparationReadyEventArgs>());
+
+        // 关闭准备界面
+        GF.UI.CloseUIForm(this.UIForm);
+    }
+
+    #endregion
+
+    #region Buff 选择（先手Buff/偷袭Debuff）
+
+    /// <summary>
+    /// 显示偷袭Debuff三选一
+    /// </summary>
+    public void ShowSneakDebuffSelection(List<int> debuffIds)
+    {
+        m_AvailableBuffIds = debuffIds;
+        m_BuffSelectionMode = BuffSelectionMode.SneakDebuff;
+        ShowBuffSelectionPanel();
+        SetupBuffSelectionOptions("选择一个Debuff应用到敌人");
+    }
+
+    /// <summary>
+    /// 显示先手Buff三选一
+    /// </summary>
+    public void ShowInitiativeBuffSelection(List<int> buffIds)
+    {
+        m_AvailableBuffIds = buffIds;
+        m_BuffSelectionMode = BuffSelectionMode.InitiativeBuff;
+        ShowBuffSelectionPanel();
+        SetupBuffSelectionOptions("选择一个先手Buff");
+    }
+
+    /// <summary>
+    /// 显示Buff选择面板
+    /// </summary>
+    private void ShowBuffSelectionPanel()
+    {
+        if (varBuffSelection != null)
+        {
+            varBuffSelection.alpha = 1f;
+            varBuffSelection.interactable = true;
+            varBuffSelection.blocksRaycasts = true;
+            Log.Info("CombatPreparationUI: Buff选择面板已显示");
+        }
+    }
+
+    /// <summary>
+    /// 隐藏Buff选择面板
+    /// </summary>
+    private void HideBuffSelectionPanel()
+    {
+        if (varBuffSelection != null)
+        {
+            varBuffSelection.alpha = 0f;
+            varBuffSelection.interactable = false;
+            varBuffSelection.blocksRaycasts = false;
+            Log.Info("CombatPreparationUI: Buff选择面板已隐藏");
+        }
+    }
+
+    /// <summary>
+    /// 显示敌方先手Buff通知
+    /// </summary>
+    public void ShowEnemyInitiativeBuffNotification(int buffId)
+    {
+        // 取消之前的通知
+        if (m_NotificationCts != null)
+        {
+            m_NotificationCts.Cancel();
+            m_NotificationCts.Dispose();
+        }
+
+        m_NotificationCts = new System.Threading.CancellationTokenSource();
+        DisplayEnemyBuffNotificationAsync(buffId, m_NotificationCts.Token);
+    }
+
+    /// <summary>
+    /// 设置效果选择选项UI
+    /// </summary>
+    private void SetupBuffSelectionOptions(string title)
+    {
+        if (m_AvailableBuffIds == null || m_AvailableBuffIds.Count == 0)
+        {
+            DebugEx.WarningModule("CombatPreparationUI", "没有可用的效果");
+            return;
+        }
+
+        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
+        if (specialEffectTable == null)
+        {
+            DebugEx.WarningModule("CombatPreparationUI", "SpecialEffectTable未加载");
+            return;
+        }
+
+        // TODO: 清空之前的选项并生成新选项
+        // 使用 varBuffChooseItem 模板创建最多3个选项
+
+        int count = m_AvailableBuffIds.Count > 3 ? 3 : m_AvailableBuffIds.Count;
+        for (int i = 0; i < count; i++)
+        {
+            int effectId = m_AvailableBuffIds[i];
+            var effect = specialEffectTable.GetDataRow(effectId);
+
+            if (effect == null)
+            {
+                DebugEx.WarningModule("CombatPreparationUI", $"特殊效果配置未找到: ID={effectId}");
+                continue;
+            }
+
+            // TODO: 创建效果选择项并绑定点击事件
+            // 点击时调用 OnBuffItemSelected(effectId)
+        }
+
+        Log.Info($"CombatPreparationUI: {title} - {count}个选项");
+    }
+
+    /// <summary>
+    /// Buff选项被选中
+    /// </summary>
+    public void OnBuffItemSelected(int buffId)
+    {
+        m_SelectedBuffId = buffId;
+        Log.Info($"CombatPreparationUI: 选中Buff {buffId}，模式={m_BuffSelectionMode}");
+
+        // 应用Buff
+        ApplySelectedBuff();
+
+        // 隐藏选择面板
+        HideBuffSelectionPanel();
+        m_BuffSelectionMode = BuffSelectionMode.None;
+    }
+
+    /// <summary>
+    /// 应用选中的效果
+    /// </summary>
+    private void ApplySelectedBuff()
+    {
+        if (m_SelectedBuffId <= 0)
+            return;
+
+        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
+        if (specialEffectTable == null)
+            return;
+
+        var effect = specialEffectTable.GetDataRow(m_SelectedBuffId);
+        if (effect == null)
+            return;
+
+        // 根据模式应用效果中的Buff
+        if (m_BuffSelectionMode == BuffSelectionMode.SneakDebuff)
+        {
+            // 偷袭效果应用到敌人（全体）
+            var context = CombatTriggerManager.Instance.CurrentContext;
+            if (context != null && context.TriggerEnemy != null)
+            {
+                // 从效果中解析并应用所有Buff到敌人方（全体）
+                ApplyBuffsFromSpecialEffect(effect, context.TriggerEnemy);
+                Log.Info($"CombatPreparationUI: 应用偷袭效果 {m_SelectedBuffId}({effect.Name}) 到敌人");
+            }
+        }
+        else if (m_BuffSelectionMode == BuffSelectionMode.InitiativeBuff)
+        {
+            // 先手效果应用到玩家
+            // TODO: 获取玩家实体，应用效果中的所有Buff到玩家方（全体）
+            Log.Info($"CombatPreparationUI: 应用先手效果 {m_SelectedBuffId}({effect.Name}) 到玩家");
+        }
+    }
+
+    /// <summary>
+    /// 从特殊效果中应用所有包含的Buff到目标
+    /// BuffIds: 应用到目标方（全体）
+    /// SelfBuffIds: 玩家偷袭时应用到敌人的自身Buff
+    /// </summary>
+    private void ApplyBuffsFromSpecialEffect(SpecialEffectTable effect, EnemyEntity targetEnemy)
+    {
+        if (effect == null || targetEnemy == null)
+            return;
+
+        // 应用给目标的Buff（BuffIds）- 偷袭效果的主要debuff
+        if (effect.BuffIds != null && effect.BuffIds.Length > 0)
+        {
+            foreach (int buffId in effect.BuffIds)
+            {
+                if (buffId > 0)
+                {
+                    BuffApplyHelper.ApplyBuff(buffId, targetEnemy.gameObject, true, null);
+                    Log.Info($"CombatPreparationUI:   应用Buff {buffId} 到敌人(全体-TargetBuff)");
+                }
+            }
+        }
+
+        // 应用给自身的Buff（SelfBuffIds）- 玩家获得的增益buff
+        if (effect.SelfBuffIds != null && effect.SelfBuffIds.Length > 0)
+        {
+            foreach (int buffId in effect.SelfBuffIds)
+            {
+                if (buffId > 0)
+                {
+                    // TODO: 获取玩家实体，应用Buff到玩家方（全体）
+                    // BuffApplyHelper.ApplyBuff(buffId, playerEntity, true, null);
+                    Log.Info($"CombatPreparationUI:   应用Buff {buffId} 到玩家(全体-SelfBuff)");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 异步显示敌方先手效果通知
+    /// </summary>
+    private async void DisplayEnemyBuffNotificationAsync(int effectId, System.Threading.CancellationToken cancellationToken)
+    {
+        try
+        {
+            var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
+            if (specialEffectTable == null)
+            {
+                Log.Error($"[DisplayEnemyBuffNotificationAsync] SpecialEffectTable 未加载");
+                return;
+            }
+
+            var effect = specialEffectTable.GetDataRow(effectId);
+            if (effect == null)
+            {
+                Log.Error($"[DisplayEnemyBuffNotificationAsync] 未找到 EffectId={effectId}");
+                return;
+            }
+
+            // 显示敌方先手效果通知UI
+            if (varInitiativeBuffNotification != null)
+            {
+                // 更新文本显示效果信息
+                if (varBuffName != null)
+                    varBuffName.text = effect.Name;
+                if (varBuffDescription != null)
+                    varBuffDescription.text = effect.Description;
+
+                // 加载和设置Icon到Image对象（使用UniTask版本）
+                if (varBuffIcon != null && effect.IconId > 0)
+                {
+                    await GameExtension.ResourceExtension.LoadSpriteAsync(effect.IconId, varBuffIcon, 1f, null);
+                }
+
+                // 淡入动画（0 -> 1）
+                varInitiativeBuffNotification.alpha = 0f;
+                float fadeInDuration = 0.3f;
+                float elapsed = 0f;
+                while (elapsed < fadeInDuration && !cancellationToken.IsCancellationRequested)
+                {
+                    elapsed += Time.deltaTime;
+                    varInitiativeBuffNotification.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
+                    await UniTask.Yield(cancellationToken: cancellationToken);
+                }
+                varInitiativeBuffNotification.alpha = 1f;
+
+                Log.Info($"CombatPreparationUI: 敌方先手效果显示 {effect.Name}");
+
+                // 显示3秒钟
+                await UniTask.Delay(3000, cancellationToken: cancellationToken);
+
+                // 淡出动画（1 -> 0）
+                float fadeOutDuration = 0.3f;
+                elapsed = 0f;
+                while (elapsed < fadeOutDuration && !cancellationToken.IsCancellationRequested)
+                {
+                    elapsed += Time.deltaTime;
+                    varInitiativeBuffNotification.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+                    await UniTask.Yield(cancellationToken: cancellationToken);
+                }
+                varInitiativeBuffNotification.alpha = 0f;
+
+                Log.Info($"CombatPreparationUI: 敌方Buff通知隐藏");
+            }
+        }
+        catch (System.OperationCanceledException)
+        {
+            Log.Info("CombatPreparationUI: 敌方Buff通知被取消");
+        }
+    }
+
+    #endregion
+
+    #region 清理
+
+    /// <summary>
+    /// 清理所有已生成的UI项
+    /// </summary>
+    private void ClearSpawnedItems()
+    {
+        ClearChessItems();
+        ClearBuffItems();
+
+        // 清理Buff通知任务
+        if (m_NotificationCts != null)
+        {
+            m_NotificationCts.Cancel();
+            m_NotificationCts.Dispose();
+            m_NotificationCts = null;
+        }
+    }
+
+    /// <summary>
+    /// 清理棋子UI项
+    /// </summary>
+    private void ClearChessItems()
+    {
+        if (varChessItemUI != null && m_SpawnedChessItems.Count > 0)
+        {
+            UnspawnAllItem<UIItemObject>(varChessItemUI);
+            m_SpawnedChessItems.Clear();
+            m_ChessItemUIDict.Clear();
+        }
+    }
+
+    /// <summary>
+    /// 清理Buff UI项
+    /// </summary>
+    private void ClearBuffItems()
+    {
+        if (varBuffItem != null && m_SpawnedBuffItems.Count > 0)
+        {
+            UnspawnAllItem<UIItemObject>(varBuffItem);
+            m_SpawnedBuffItems.Clear();
+        }
+    }
+
+    #endregion
+
+    #region 库存事件处理
+
+    /// <summary>
+    /// 棋子出战事件处理
+    /// </summary>
+    private void OnChessDeployedHandler(ChessDeploymentTracker.ChessInstanceData instance)
+    {
+        Log.Info($"CombatPreparationUI: 棋子已出战 instanceId={instance.InstanceId}");
+        // 刷新棋子面板
+        RefreshChessPanel();
+    }
+
+    /// <summary>
+    /// 棋子撤回事件处理
+    /// </summary>
+    private void OnChessRecalledHandler(ChessDeploymentTracker.ChessInstanceData instance)
+    {
+        Log.Info($"CombatPreparationUI: 棋子已撤回 instanceId={instance.InstanceId}");
+        // 刷新棋子面板
+        RefreshChessPanel();
+    }
+
+    #endregion
+}

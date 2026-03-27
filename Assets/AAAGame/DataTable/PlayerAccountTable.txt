@@ -1,0 +1,4 @@
+﻿#	PlayerAccountTable																										
+#	PlayerId		Index	PlayerName	CreateTime	LastLoginTime	GlobalLevel	CurrentExp	CurrentSummonerId	UnlockedSummonerInfo	SummonerPhases	OwnedUnitCardIds	OwnedStrategyCardIds	UnlockedTechIds	Gold	MagicalStone	HolyWater	InventoryItems	InventoryCapacity	SavedDecks	CurrentDeckIndex	CompletedQuestIds	HasCompletedTutorial	CurrentSceneId	Settings	Statistics	PlayerPos
+#	int		int	string	double	double	int	int	int	string	int	int[]	int[]	int[]	int	int	int	string	int	string	int[]	int[]	bool	int	string	string	Vector3
+#	玩家ID	备注	存档索引	玩家名称	创建时间	最后登录	全局等级	当前经验	当前召唤师	已解锁召唤师信息	当前召唤师阶段	拥有棋子卡	拥有策略卡	已解锁科技	金币	灵石	圣水	背包物品	背包容量	卡组数据	当前卡组	已完成任务	是否完成新手引导	当前所在场景ID	设置数据	统计数据	玩家坐标

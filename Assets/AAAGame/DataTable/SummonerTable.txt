@@ -1,0 +1,8 @@
+﻿#	SummonerTable																		
+#	ID		Name	SummonChessId	ClassType	Phase	BaseHP	BaseMP	MPRegen	MoveSpeed	PlayerMoveSpeed	PassiveSkillIds	ActiveSkillIds	AdvanceType	AdvanceValue	NextPhaseId	Description	PrefabId	PortraitId
+#	int		string	int	int	int	float	float	float	float	float	int[]	int[]	int	int	int	string	int	int
+#	召唤师ID	备注	职业名称	对应 SummonChessTable 中召唤师的棋子行 ID	职业类型	阶段	基础生命	基础灵力	灵力恢复	召唤师移速	玩家移速	被动技能ID	主动技能ID	进阶条件类型	进阶条件值	下一阶段ID	描述	预制体资源ID	立绘资源ID
+	1001		狂战士	1001	1	1	100	50	2	5	5	1		1	10	1002	生命越低，伤害越高	2101	1105
+	2001		术士	2001	2	1	90	60	2.5	5	5			1	10	2002	远程施法，爆发伤害	2102	1106
+	3001		混沌	3001	3	1	100	50	2	5	5			1	10	3002	上帝会摇骰子吗？	2103	1107
+	4001		德鲁伊	4001	4	1	90	60	2	5	5			1	10	4002	自然会庇护一切。。。也能摧毁一切	2104	1108

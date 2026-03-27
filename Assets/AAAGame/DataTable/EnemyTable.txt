@@ -1,0 +1,5 @@
+﻿#	EnemyTable											
+#	BattleConfigId		EnemyName	MinPopulation	MaxPopulation	WaveCount	ChessIds	FormationType	Spacing	DifficultyMultiplier	RewardMultiplier	TimeLimit
+#	int		string	int	int	int	int[]	int	float	float	float	int
+#	敌人关联的战斗配置ID	备注	敌人名称	（对战时）最小人口数	（对战时）最大人口数	波次数量	棋子ID列表	阵型类型（1=横排，2=竖排，3=矩形）	棋子间距（米）	难度倍率（影响棋子属性）	奖励倍率	战斗时间限制（秒，0=无限制）
+	1		后羿测试	1	2	1	9	1	2.5	1	1	0

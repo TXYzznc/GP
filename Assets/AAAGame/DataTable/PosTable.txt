@@ -1,0 +1,5 @@
+﻿#	PosTable			
+#	ID		Position	Description
+#	int		Vector3	string
+#		备注	坐标	描述
+	1		0,1,-7	玩家第一次进入游戏的出生点

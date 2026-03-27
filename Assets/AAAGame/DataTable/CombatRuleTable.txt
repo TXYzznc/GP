@@ -1,0 +1,5 @@
+﻿#	CombatRuleTable										
+#	Id		PreparationDurationSeconds	EnterCombatTipDisplayDurationSeconds	EnterCombatTipCloseTimeoutSeconds	DefeatCorruptionAdd	VictoryTreasureDelaySeconds	DefeatAutoReturnDelaySeconds	MinItemAwardCount	MaxItemAwardCount	CameraView
+#	int		float	float	float	float	float	float	int	int	int
+#	规则ID	备注	准备阶段倒计时秒数	进入战斗提示展示时长秒数	等待进入战斗提示关闭超时秒数	失败污染值增加	胜利宝箱延迟显示秒数	失败自动返回探索延迟秒数	胜利物品奖励最小数量	胜利物品奖励最大数量	战斗时相机视野
+	1	Global	30	1	5	50	0.3	1	2	6	35

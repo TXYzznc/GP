@@ -1,0 +1,5 @@
+﻿#	EquipmentTable				
+#	ID		Name	SpritePath	Desc
+#	int		string	int	string
+#		备注			
+	1		落日弓	1601	充满了后羿神力的长弓

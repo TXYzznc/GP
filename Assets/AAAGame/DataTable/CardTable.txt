@@ -1,0 +1,5 @@
+﻿#	CardTable				
+#	ID		Name	SpriteId	Desc
+#	int		string	int	string
+#		备注	卡牌名称	卡牌图标资源ID	卡牌描述
+	1		群体圣光	1201	所有队友回复20点HP

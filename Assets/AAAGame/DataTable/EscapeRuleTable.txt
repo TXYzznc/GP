@@ -1,0 +1,7 @@
+﻿#	EscapeRuleTable								
+#	Id		EnemyType	BaseSuccessRate	TimeBonus	MaxSuccessRate	CorruptionCost	HealthLossPenalty	CooldownTurns
+#	int		int	double	double	double	int	double	int
+#	规则ID	备注	敌人类型：0=普通, 1=精英, 2=Boss	基础成功率(0-1)	每回合成功率增长(0-1)	最大成功率上限(0-1)	脱战成功消耗的污染值	脱战失败时的生命值损失比例(0-1)	脱战失败后的冷却回合数
+	1		0	0.6	0.05	0.9	10	0.2	2
+	2		1	0.4	0.03	0.8	15	0.3	3
+	3		2	0.2	0.02	0.6	25	0.4	5

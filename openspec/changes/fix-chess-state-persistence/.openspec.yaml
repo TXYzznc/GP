@@ -1,0 +1,5 @@
+name: fix-chess-state-persistence
+title: 修复棋子状态持久化问题
+description: 棋子在战斗中死亡后，下一次战斗时状态没有正确同步，血量恢复了但状态应该全局继承
+status: active
+created: 2026-03-24

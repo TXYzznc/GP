@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "编译错误检查",
+  "description": "保存 C# 脚本时自动检查编译错误和警告，确保代码质量",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.cs"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "检查刚才保存的 C# 脚本是否有编译错误或警告。如果有错误，请指出问题并提供修复建议。如果没有错误，简单回复\"✅ 编译通过\"即可。"
+  }
+}

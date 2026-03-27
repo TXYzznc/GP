@@ -1,0 +1,305 @@
+﻿using GameFramework.Fsm;
+using UnityGameFramework.Runtime;
+using GameFramework;
+using GameFramework.Event;
+using System.Reflection;
+
+/// <summary>
+/// 局内状态 - 游戏进行中
+/// </summary>
+public class InGameState : FsmState<GameStateManager>
+{
+    #region 字段
+
+    private IFsm<InGameState> m_SubFsm;
+
+    #endregion
+
+    #region 属性
+
+    /// <summary>
+    /// 获取当前子状态
+    /// </summary>
+    public InGameStateType CurrentSubState
+    {
+        get
+        {
+            if (m_SubFsm == null || m_SubFsm.CurrentState == null)
+                return InGameStateType.Exploration;
+
+            if (m_SubFsm.CurrentState is ExplorationState)
+                return InGameStateType.Exploration;
+
+            if (m_SubFsm.CurrentState is CombatPreparationState)
+                return InGameStateType.CombatPreparation;
+
+            if (m_SubFsm.CurrentState is CombatState)
+                return InGameStateType.Combat;
+
+            return InGameStateType.Exploration;
+        }
+    }
+
+    #endregion
+
+    #region FSM 生命周期
+
+    protected override void OnInit(IFsm<GameStateManager> fsm)
+    {
+        base.OnInit(fsm);
+        DebugEx.LogModule("InGameState", "初始化");
+    }
+
+    protected override void OnEnter(IFsm<GameStateManager> fsm)
+    {
+        base.OnEnter(fsm);
+        DebugEx.LogModule("InGameState", "进入局内状态");
+
+        // 初始化玩家运行时数据管理器
+        PlayerRuntimeDataManager.Instance.Initialize();
+
+        // 订阅战斗结束事件
+        GF.Event.Subscribe(CombatEndEventArgs.EventId, OnCombatEnd);
+
+        // 创建子状态机
+        CreateSubStateMachine();
+
+        // 触发进入局内状态事件
+        GF.Event.Fire(this, ReferencePool.Acquire<InGameEnterEventArgs>());
+
+        // 子状态机启动，默认进入探索状态
+        if (m_SubFsm != null)
+        {
+            m_SubFsm.Start<ExplorationState>();
+        }
+    }
+
+    protected override void OnLeave(IFsm<GameStateManager> fsm, bool isShutdown)
+    {
+        DebugEx.LogModule("InGameState", "离开局内状态");
+
+        // 取消订阅战斗结束事件
+        GF.Event.Unsubscribe(CombatEndEventArgs.EventId, OnCombatEnd);
+
+        // 停止并销毁子状态机
+        if (!isShutdown)
+        {
+            DestroySubStateMachine();
+        }
+
+        // 清理玩家运行时数据管理器
+        PlayerRuntimeDataManager.Instance.Cleanup();
+
+        // 回到基地（局外）：恢复所有棋子血量到满值（含已死亡棋子）
+        GlobalChessManager.Instance.RestoreAllChessHP();
+
+        // 触发离开局内状态事件
+        GF.Event.Fire(this, ReferencePool.Acquire<InGameLeaveEventArgs>());
+
+        base.OnLeave(fsm, isShutdown);
+    }
+
+    protected override void OnDestroy(IFsm<GameStateManager> fsm)
+    {
+        DebugEx.LogModule("InGameState", "销毁");
+        base.OnDestroy(fsm);
+    }
+
+    #endregion
+
+    #region 事件处理
+
+    /// <summary>
+    /// 处理战斗结束事件
+    /// </summary>
+    private void OnCombatEnd(object sender, GameEventArgs e)
+    {
+        CombatEndEventArgs eventArgs = (CombatEndEventArgs)e;
+        DebugEx.LogModule("InGameState", $"收到战斗结束事件 - {(eventArgs.IsVictory ? "胜利" : "失败")}");
+
+        // ⭐ 在切换状态前先恢复玩家位置
+        if (PlayerCharacterManager.Instance != null)
+        {
+            PlayerCharacterManager.Instance.RestorePositionAfterCombat();
+        }
+
+        var uiParams = UIParams.Create(false);
+        uiParams.Set<VarBoolean>(EndCombatUI.P_IsVictory, eventArgs.IsVictory);
+        int formId = GF.UI.OpenUIForm(UIViews.EndCombatUI, uiParams);
+        if (formId == -1)
+        {
+            SwitchToExploration();
+        }
+    }
+
+    #endregion
+
+    #region 子状态机管理
+
+    /// <summary>
+    /// 创建子状态机
+    /// </summary>
+    private void CreateSubStateMachine()
+    {
+        if (m_SubFsm != null)
+        {
+            DebugEx.WarningModule("InGameState", "子状态机已存在");
+            return;
+        }
+
+        // 创建子状态
+        FsmState<InGameState>[] subStates = new FsmState<InGameState>[]
+        {
+            new ExplorationState(),
+            new CombatPreparationState(),
+            new CombatState()
+        };
+
+        // 创建子状态机
+        m_SubFsm = GF.Fsm.CreateFsm(this, subStates);
+
+        DebugEx.LogModule("InGameState", "子状态机已创建");
+    }
+
+    /// <summary>
+    /// 销毁子状态机
+    /// </summary>
+    private void DestroySubStateMachine()
+    {
+        if (m_SubFsm == null)
+            return;
+
+        GF.Fsm.DestroyFsm(m_SubFsm);
+        m_SubFsm = null;
+
+        DebugEx.LogModule("InGameState", "子状态机已销毁");
+    }
+
+    #endregion
+
+    #region 状态切换
+
+    /// <summary>
+    /// 切换到探索状态
+    /// </summary>
+    public void SwitchToExploration()
+    {
+        if (m_SubFsm == null)
+        {
+            DebugEx.ErrorModule("InGameState", "子状态机未初始化");
+            return;
+        }
+
+        DebugEx.LogModule("InGameState", "切换到探索状态");
+
+        // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
+        if (!m_SubFsm.IsRunning)
+        {
+            m_SubFsm.Start<ExplorationState>();
+        }
+        else
+        {
+            ChangeSubStateByReflection<ExplorationState>();
+        }
+    }
+
+    /// <summary>
+    /// 切换到战斗准备状态（外部触发战斗时调用）
+    /// </summary>
+    public void SwitchToCombatPreparation()
+    {
+        if (m_SubFsm == null)
+        {
+            DebugEx.ErrorModule("InGameState", "子状态机未初始化");
+            return;
+        }
+
+        DebugEx.LogModule("InGameState", "切换到战斗准备状态");
+
+        if (!m_SubFsm.IsRunning)
+        {
+            m_SubFsm.Start<CombatPreparationState>();
+        }
+        else
+        {
+            ChangeSubStateByReflection<CombatPreparationState>();
+        }
+    }
+
+    /// <summary>
+    /// 切换到战斗状态
+    /// </summary>
+    public void SwitchToCombat()
+    {
+        if (m_SubFsm == null)
+        {
+            DebugEx.ErrorModule("InGameState", "子状态机未初始化");
+            return;
+        }
+
+        DebugEx.LogModule("InGameState", "切换到战斗状态");
+
+        // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
+        if (!m_SubFsm.IsRunning)
+        {
+            m_SubFsm.Start<CombatState>();
+        }
+        else
+        {
+            ChangeSubStateByReflection<CombatState>();
+        }
+    }
+
+    #endregion
+
+    #region 私有方法
+
+    /// <summary>
+    /// 通过反射调用子状态机的 ChangeState 方法
+    /// </summary>
+    private void ChangeSubStateByReflection<TState>() where TState : FsmState<InGameState>
+    {
+        try
+        {
+            // 获取 Fsm<T> 类型
+            var fsmType = m_SubFsm.GetType();
+
+            // 获取所有 ChangeState 方法
+            var methods = fsmType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            // 查找无参数的泛型 ChangeState 方法
+            MethodInfo targetMethod = null;
+            foreach (var method in methods)
+            {
+                if (method.Name == "ChangeState" &&
+                    method.IsGenericMethodDefinition &&
+                    method.GetParameters().Length == 0)
+                {
+                    targetMethod = method;
+                    break;
+                }
+            }
+
+            if (targetMethod != null)
+            {
+                // 构造泛型方法
+                var genericMethod = targetMethod.MakeGenericMethod(typeof(TState));
+
+                // 调用方法
+                genericMethod.Invoke(m_SubFsm, null);
+
+                DebugEx.LogModule("InGameState", $"成功切换到子状态 {typeof(TState).Name}");
+            }
+            else
+            {
+                DebugEx.ErrorModule("InGameState", "未找到 ChangeState<T>() 方法");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            DebugEx.ErrorModule("InGameState", $"切换子状态失败 - {ex.Message}");
+        }
+    }
+
+    #endregion
+}

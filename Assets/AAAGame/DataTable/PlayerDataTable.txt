@@ -1,0 +1,6 @@
+﻿#	PlayerDataTable									
+#	ID		Level	RequiredExp	MaxDomination	InventorySize	MaxHolyWater	UnlockFeature	RewardItemId	RewardCount
+#	int		int	int	int	int	int	string	int	int
+#		备注	玩家等级	所需经验	统御力上限	背包容量	圣水携带上限	解锁功能	奖励道具ID	奖励数量
+	1		1	100	3	20	2	""	0	0
+	2		2	100	3	22	2	""	0	0

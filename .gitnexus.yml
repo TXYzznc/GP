@@ -1,0 +1,40 @@
+# GitNexus 配置文件
+# 只索引 Assets/AAAGame/Scripts 文件夹
+
+# 包含的路径模式
+include:
+  - "Assets/AAAGame/Scripts/**/*.cs"
+  - "Assets/AAAGame/Scripts/**/*.csx"
+
+# 排除的路径模式
+exclude:
+  - "**/bin/**"
+  - "**/obj/**"
+  - "**/.vs/**"
+  - "**/Library/**"
+  - "**/Temp/**"
+  - "**/Build/**"
+  - "**/*.meta"
+
+# 索引配置
+index:
+  # 最大文件大小（字节）
+  max_file_size: 2097152  # 2MB
+  
+  # 是否索引测试文件
+  include_tests: true
+  
+  # 语言配置
+  languages:
+    - csharp
+
+# 仓库配置
+repository:
+  # 仓库名称
+  name: "Clash_Of_Gods"
+  
+  # 仓库路径
+  path: "."
+  
+  # 分支
+  branch: "main"
