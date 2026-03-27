@@ -21,7 +21,7 @@ public partial class SummonerSkillTable : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 技能ID
+    /// 技能唯一ID
     /// </summary>
     public override int Id
     {
@@ -38,7 +38,16 @@ public partial class SummonerSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 技能类型(1=被动，2=主动)
+        /// 所属召唤师职业 1=狂战 2=术士 3=混沌 4=德鲁伊
+        /// </summary>
+        public int SummonerClass
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 技能类型 1=被动 2=主动
         /// </summary>
         public int SkillType
         {
@@ -47,7 +56,25 @@ public partial class SummonerSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 冷却时间
+        /// 解锁阶段 1=初始 3=第三阶 4=第四阶 5=第五阶
+        /// </summary>
+        public int UnlockTier
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 分支ID 0=固定技能 1=路线一 2=路线二
+        /// </summary>
+        public int BranchId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 冷却时间（秒）
         /// </summary>
         public float Cooldown
         {
@@ -65,25 +92,7 @@ public partial class SummonerSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果类型（1=Buff,2=Debuff,3=伤害,4=治疗）
-        /// </summary>
-        public int EffectType
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 效果值
-        /// </summary>
-        public float EffectValue
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 持续时间（0表示条件触发，无持续时间）
+        /// 持续时间（秒）
         /// </summary>
         public float Duration
         {
@@ -92,36 +101,153 @@ public partial class SummonerSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 作用范围
+        /// 施法/生效范围
         /// </summary>
-        public float Range
+        public float CastRange
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 范围类型（0=作用于自己，1=单体，2=直线，3=群体）
+        /// AOE半径（0=单体）
         /// </summary>
-        public int RangeType
+        public float AreaRadius
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 描述
+        /// 伤害类型 0=无 1=物理 2=魔法 3=真实
         /// </summary>
-        public string Description
+        public int DamageType
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 图标路径
+        /// 伤害系数（基于攻击力/法强 如1.5=150%）
         /// </summary>
-        public int SpritePath
+        public float DamageCoeff
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 基础固定伤害
+        /// </summary>
+        public float BaseDamage
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 命中类型 0=瞬发 1=近战 2=投射物 3=AoE 4=射线
+        /// </summary>
+        public int EffectHitType
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 投射物预制体ID（0=无）
+        /// </summary>
+        public int ProjectilePrefabId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 投射物速度（0=即时命中）
+        /// </summary>
+        public float ProjectileSpeed
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 命中/触发次数
+        /// </summary>
+        public int HitCount
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 释放时附加到目标的BuffID数组
+        /// </summary>
+        public int[] BuffIds
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 释放时附加到自身的BuffID数组
+        /// </summary>
+        public int[] SelfBuffIds
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 技能专属参数数组（含义由各技能代码定义 见Desc备注）
+        /// </summary>
+        public float[] Params
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 技能特效资源ID
+        /// </summary>
+        public int EffectId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 受击特效资源ID
+        /// </summary>
+        public int HitEffectId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 特效生成高度偏移
+        /// </summary>
+        public float EffectSpawnHeight
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 技能图标资源ID
+        /// </summary>
+        public int IconId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 技能描述
+        /// </summary>
+        public string Desc
         {
             get;
             private set;
@@ -140,16 +266,30 @@ public partial class SummonerSkillTable : DataRowBase
             m_Id = int.Parse(columnStrings[index++]);
             index++;
             Name = columnStrings[index++];
+            SummonerClass = int.Parse(columnStrings[index++]);
             SkillType = int.Parse(columnStrings[index++]);
+            UnlockTier = int.Parse(columnStrings[index++]);
+            BranchId = int.Parse(columnStrings[index++]);
             Cooldown = float.Parse(columnStrings[index++]);
             SpiritCost = float.Parse(columnStrings[index++]);
-            EffectType = int.Parse(columnStrings[index++]);
-            EffectValue = float.Parse(columnStrings[index++]);
             Duration = float.Parse(columnStrings[index++]);
-            Range = float.Parse(columnStrings[index++]);
-            RangeType = int.Parse(columnStrings[index++]);
-            Description = columnStrings[index++];
-            SpritePath = int.Parse(columnStrings[index++]);
+            CastRange = float.Parse(columnStrings[index++]);
+            AreaRadius = float.Parse(columnStrings[index++]);
+            DamageType = int.Parse(columnStrings[index++]);
+            DamageCoeff = float.Parse(columnStrings[index++]);
+            BaseDamage = float.Parse(columnStrings[index++]);
+            EffectHitType = int.Parse(columnStrings[index++]);
+            ProjectilePrefabId = int.Parse(columnStrings[index++]);
+            ProjectileSpeed = float.Parse(columnStrings[index++]);
+            HitCount = int.Parse(columnStrings[index++]);
+            BuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            SelfBuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            Params = DataTableExtension.ParseArray<float>(columnStrings[index++]);
+            EffectId = int.Parse(columnStrings[index++]);
+            HitEffectId = int.Parse(columnStrings[index++]);
+            EffectSpawnHeight = float.Parse(columnStrings[index++]);
+            IconId = int.Parse(columnStrings[index++]);
+            Desc = columnStrings[index++];
 
             return true;
         }
@@ -162,16 +302,30 @@ public partial class SummonerSkillTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
+                    SummonerClass = binaryReader.Read7BitEncodedInt32();
                     SkillType = binaryReader.Read7BitEncodedInt32();
+                    UnlockTier = binaryReader.Read7BitEncodedInt32();
+                    BranchId = binaryReader.Read7BitEncodedInt32();
                     Cooldown = binaryReader.ReadSingle();
                     SpiritCost = binaryReader.ReadSingle();
-                    EffectType = binaryReader.Read7BitEncodedInt32();
-                    EffectValue = binaryReader.ReadSingle();
                     Duration = binaryReader.ReadSingle();
-                    Range = binaryReader.ReadSingle();
-                    RangeType = binaryReader.Read7BitEncodedInt32();
-                    Description = binaryReader.ReadString();
-                    SpritePath = binaryReader.Read7BitEncodedInt32();
+                    CastRange = binaryReader.ReadSingle();
+                    AreaRadius = binaryReader.ReadSingle();
+                    DamageType = binaryReader.Read7BitEncodedInt32();
+                    DamageCoeff = binaryReader.ReadSingle();
+                    BaseDamage = binaryReader.ReadSingle();
+                    EffectHitType = binaryReader.Read7BitEncodedInt32();
+                    ProjectilePrefabId = binaryReader.Read7BitEncodedInt32();
+                    ProjectileSpeed = binaryReader.ReadSingle();
+                    HitCount = binaryReader.Read7BitEncodedInt32();
+                    BuffIds = binaryReader.ReadArray<int>();
+                    SelfBuffIds = binaryReader.ReadArray<int>();
+                    Params = binaryReader.ReadArray<float>();
+                    EffectId = binaryReader.Read7BitEncodedInt32();
+                    HitEffectId = binaryReader.Read7BitEncodedInt32();
+                    EffectSpawnHeight = binaryReader.ReadSingle();
+                    IconId = binaryReader.Read7BitEncodedInt32();
+                    Desc = binaryReader.ReadString();
                 }
             }
 

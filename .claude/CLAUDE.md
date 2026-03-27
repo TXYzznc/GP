@@ -37,6 +37,7 @@ Unity 回合制 RPG，GameFramework 框架，支持热修复。始终用**中文
 - **DOTween**：UI 动画
 - **DataTable**：Excel → 自动生成 .cs + .bytes（不要手改生成文件）
 - **热修复**：`Assets/AAAGame/Scripts/` 下的代码在 `Hotfix.asmdef` 程序集内
+- **输入方式**：所有按键输入必须走PlayerInputManager。
 
 ## 命名规范
 

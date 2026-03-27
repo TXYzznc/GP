@@ -51,6 +51,8 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     // 添加：检测右键按下
     public bool RightMouseButtonDown { get; private set; }
     private bool[] skillDown = new bool[10];
+    private bool[] summonerSkillDown = new bool[4];         // 槽位 1-3：Q/E/R 键盘
+    private readonly bool[] m_SummonerSkillButtonPending = new bool[4]; // 槽位 1-3：UI 按钮触发
     private IPlayerInputSource source;
 
     private void Awake()
@@ -89,6 +91,8 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
             SprintDown = false;
             for (int i = 0; i < skillDown.Length; i++)
                 skillDown[i] = false;
+            for (int i = 0; i < summonerSkillDown.Length; i++)
+                summonerSkillDown[i] = false;
             return;
         }
 
@@ -120,6 +124,11 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         // 技能输入
         for (int slot = 1; slot <= 3; slot++)
             skillDown[slot] = source.GetSkillDown(slot);
+
+        // 召唤师技能输入（Q/E/R → 槽位 1/2/3）
+        summonerSkillDown[1] = Input.GetKeyDown(KeyCode.Q);
+        summonerSkillDown[2] = Input.GetKeyDown(KeyCode.E);
+        summonerSkillDown[3] = Input.GetKeyDown(KeyCode.R);
     }
 
     /// <summary>
@@ -216,6 +225,22 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     }
 
     public bool SkillDown(int slot) => skillDown[slot];
+
+    /// <summary>召唤师技能按键（slot 1=Q, 2=E, 3=R），键盘或 UI 按钮均可触发，按钮触发消耗后清除</summary>
+    public bool SummonerSkillDown(int slot)
+    {
+        if (slot < 1 || slot > 3) return false;
+        bool result = summonerSkillDown[slot] || m_SummonerSkillButtonPending[slot];
+        m_SummonerSkillButtonPending[slot] = false;
+        return result;
+    }
+
+    /// <summary>由 UI 按钮调用，在下一次 SummonerSkillDown 查询时触发一次技能释放</summary>
+    public void TriggerSummonerSkill(int slot)
+    {
+        if (slot >= 1 && slot <= 3)
+            m_SummonerSkillButtonPending[slot] = true;
+    }
 
     public void SetEnable(bool v) => enableInput = v;
 }

@@ -1,5 +1,8 @@
-﻿#	SummonerSkillTable												
-#	ID		Name	SkillType	Cooldown	SpiritCost	EffectType	EffectValue	Duration	Range	RangeType	Description	SpritePath
-#	int		string	int	float	float	int	float	float	float	int	string	int
-#	技能ID	备注	技能名称	技能类型(1=被动，2=主动)	冷却时间	灵力消耗	效果类型（1=Buff,2=Debuff,3=伤害,4=治疗）	效果值	持续时间（0表示条件触发，无持续时间）	作用范围	范围类型（0=作用于自己，1=单体，2=直线，3=群体）	描述	图标路径
-	1		狂怒之心	1	1	0	1	0.2	0	0	0	半血时攻速+20%	1701
+﻿#	SummonerSkillTable																										
+#	ID		Name	SummonerClass	SkillType	UnlockTier	BranchId	Cooldown	SpiritCost	Duration	CastRange	AreaRadius	DamageType	DamageCoeff	BaseDamage	EffectHitType	ProjectilePrefabId	ProjectileSpeed	HitCount	BuffIds	SelfBuffIds	Params	EffectId	HitEffectId	EffectSpawnHeight	IconId	Desc
+#	int		string	int	int	int	int	float	float	float	float	float	int	float	float	int	int	float	int	int[]	int[]	float[]	int	int	float	int	string
+#	技能唯一ID	备注	技能名称	所属召唤师职业 1=狂战 2=术士 3=混沌 4=德鲁伊	技能类型 1=被动 2=主动	解锁阶段 1=初始 3=第三阶 4=第四阶 5=第五阶	分支ID 0=固定技能 1=路线一 2=路线二	冷却时间（秒）	灵力消耗	持续时间（秒）	施法/生效范围	AOE半径（0=单体）	伤害类型 0=无 1=物理 2=魔法 3=真实	伤害系数（基于攻击力/法强 如1.5=150%）	基础固定伤害	命中类型 0=瞬发 1=近战 2=投射物 3=AoE 4=射线	投射物预制体ID（0=无）	投射物速度（0=即时命中）	命中/触发次数	释放时附加到目标的BuffID数组	释放时附加到自身的BuffID数组	技能专属参数数组（含义由各技能代码定义 见Desc备注）	技能特效资源ID	受击特效资源ID	特效生成高度偏移	技能图标资源ID	技能描述
+	101		狂怒之心	1	1	1	0	0	0	0	0	0	0	0	0	0	0	0	1	4003,4004	0	0.5,0.4,0.15,2.0	0	0	0	2101	狂战固定被动。Params[0]=友方低血阈值(0.5) Params[1]=自身低血阈值(0.4) Params[2]=基础伤害提升(0.15) Params[3]=翻倍系数(2.0)。BuffIds[0]=基础伤害Buff BuffIds[1]=翻倍伤害Buff
+	102		战意激昂	1	2	1	0	30	0	10	0	0	0	0	0	0	0	0	1	4001,4002	0	20,0.20,0.15	2102	0	0	2103	狂战固定主动。Params[0]=HP消耗(20) Params[1]=攻速提升(0.20) Params[2]=伤害提升(0.15)。BuffIds[0]=攻速Buff BuffIds[1]=伤害Buff
+	201		暗影咒体	2	1	1	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0.1,0.8,0.3	0	0	0	2201	术士固定被动。Params[0]=伤害提升(0.1) Params[1]=受伤诅咒概率(0.8) Params[2]=造伤诅咒概率(0.3)
+	202		生命虹吸	2	2	1	0	20	30	5	10	5	2	0.3	0	0	0	0	1	3003	0	0,0.20,0.15	2202	0	0.05	2203	术士固定主动。Params[0]=每秒吸血量（0=按法强计算）Params[1]=目标虚弱移速降低(0.20) Params[2]=虚弱攻速降低(0.15)

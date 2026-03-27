@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
@@ -376,6 +378,9 @@ public partial class CombatUI : StateAwareUIForm
             }
         }
 
+        // 加载技能图标（异步）
+        RefreshSummonerSkillButtonsAsync().Forget();
+
         // 设置消耗数值
         if (varConsumeNum_Population != null)
         {
@@ -446,12 +451,53 @@ public partial class CombatUI : StateAwareUIForm
     }
 
     /// <summary>
-    /// 召唤师技能按钮点击回调
+    /// 召唤师技能按钮点击回调（slot = index+1，所有输入走 PlayerInputManager）
     /// </summary>
     private void OnSummonerSkillClicked(int index)
     {
-        DebugEx.LogModule("CombatUI", $"点击了召唤师技能按钮 {index}");
-        // TODO: 使用召唤师技能
+        int slot = index + 1;
+        DebugEx.LogModule("CombatUI", $"点击了召唤师技能按钮，slot={slot}");
+        PlayerInputManager.Instance?.TriggerSummonerSkill(slot);
+    }
+
+    /// <summary>
+    /// 刷新召唤师技能按钮图标与可用状态
+    /// </summary>
+    private async UniTaskVoid RefreshSummonerSkillButtonsAsync()
+    {
+        if (varBtn1Arr == null || varBtn1Arr.Length == 0)
+            return;
+
+        // 从玩家角色上取 SummonerSkillManager
+        var playerCharacter = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        var skillManager = playerCharacter != null
+            ? playerCharacter.GetComponent<SummonerSkillManager>()
+            : null;
+
+        var skillTable = GF.DataTable.GetDataTable<SummonerSkillTable>();
+
+        for (int i = 0; i < varBtn1Arr.Length; i++)
+        {
+            var btn = varBtn1Arr[i];
+            if (btn == null) continue;
+
+            // 有对应主动技能时才显示并加载图标
+            bool hasSkill = skillManager != null && i < skillManager.Skills.Count;
+            btn.gameObject.SetActive(hasSkill);
+
+            if (!hasSkill || skillTable == null) continue;
+
+            int skillId = skillManager.Skills[i].SkillId;
+            var row = skillTable.GetDataRow(skillId);
+            if (row == null) continue;
+
+            // 加载技能图标到按钮的 Image
+            var btnImage = btn.GetComponent<Image>();
+            if (btnImage != null && row.IconId > 0)
+            {
+                await GameExtension.ResourceExtension.LoadSpriteAsync(row.IconId, btnImage, 1f, null);
+            }
+        }
     }
 
     #endregion

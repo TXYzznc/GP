@@ -895,7 +895,7 @@ public partial class NewGameUI : UIFormBase
             Log.Info($"准备显示技能提示: {skill.Name}");
 
             // 构建提示文本
-            string tooltipText = $"<b>{skill.Name}</b>\n{skill.Description}";
+            string tooltipText = $"<b>{skill.Name}</b>\n{skill.Desc}";
 
             // 获取技能图标的 RectTransform
             var skillIcon = varSkillArr[skillIndex].GetComponent<RectTransform>();

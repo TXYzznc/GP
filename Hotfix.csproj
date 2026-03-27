@@ -35,13 +35,14 @@
   </PropertyGroup>
   <PropertyGroup>
     <UnityProjectGenerator>Package</UnityProjectGenerator>
-    <UnityProjectGeneratorVersion>1.0.0</UnityProjectGeneratorVersion>
+    <UnityProjectGeneratorVersion>2.0.23</UnityProjectGeneratorVersion>
     <UnityProjectGeneratorStyle>SDK</UnityProjectGeneratorStyle>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2022.3.62f3c1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="C:\Users\WIN10\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.1\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -109,6 +110,7 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatEndEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\LanguagesDialog.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\World\IChessStateUIProfile.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Interface\ISummonerPassive.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIViews.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\TimeInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\ModelController.cs" />
@@ -127,6 +129,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemySpawnManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Camera\ThirdPersonCamera.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatLeaveEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerPassiveBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DOTweenExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataModel\PlayerAccountData.cs" />
@@ -138,6 +141,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSM\ChessAIState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\EnemyMask.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSMMeleeAI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Procedures\ChangeSceneProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\GF.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyTable.cs" />
@@ -189,6 +193,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Data\GlobalChessState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillParamRegistrySO.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\CameraManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillsSO\DashParamSO.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\PlayerSkillUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\RatingDialog.cs" />
@@ -230,6 +235,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\NewGameUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\Game\EntityPositionHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\SummonChessStateUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Skills\BerserkerActiveSkill.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\OutOfGameState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemyFormationManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextAnimationLibrary.cs" />
@@ -261,6 +267,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Procedures\GameOverProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\ItemManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\CardSlotItem.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Common\UIAnimationEventDispatcher.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\InventorySlotUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatEntityTracker.cs" />
@@ -295,6 +302,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Common\Core\Const.Groups.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSM\ChessAIBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\RaycastHitDetector.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Interface\ISummonerSkill.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PlayerSkillSlot.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\GameTestManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\GameUIForm.Variables.cs" />
@@ -418,6 +426,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Detection\PlayerDetectionInfo.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\UITopbar.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\BuffChooseItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Effects\DissolveController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\PlayerSkillUI.cs" />
@@ -427,6 +436,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\AffixEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\CombatTestController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Effects\DissolveTransitionManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Skills\BerserkerPassive.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessCombatController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\StunBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\GameItem.Variables.cs" />

@@ -225,6 +225,7 @@ public class PreloadProcedure : ProcedureBase
     {
         GF.Log("初始化技能系统...");
         SkillFactory.RegisterAll();
+        SummonerSkillFactory.RegisterAll();
         GF.Log("技能系统初始化完成");
     }
 

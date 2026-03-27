@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameFramework;
 using UnityEngine;
 using UnityGameFramework.Runtime;
@@ -164,6 +165,51 @@ public class CombatManager : SingletonBase<CombatManager>
         // TODO: 初始化战斗数据
         // TODO: 生成战斗单位
         // TODO: 开始战斗
+
+        // 初始化召唤师技能系统
+        InitializeSummonerSkillSystem();
+    }
+
+    /// <summary>
+    /// 初始化召唤师技能系统（战斗开始时调用）
+    /// </summary>
+    private void InitializeSummonerSkillSystem()
+    {
+        var playerCharacter = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        if (playerCharacter == null)
+            return;
+
+        var summonerConfig = PlayerAccountDataManager.Instance?.GetCurrentSummonerConfig();
+        if (summonerConfig == null)
+        {
+            DebugEx.WarningModule("CombatManager", "未找到召唤师配置，跳过技能系统初始化");
+            return;
+        }
+
+        // 构建技能上下文
+        var ctx = new SummonerSkillContext
+        {
+            RuntimeData = SummonerRuntimeDataManager.Instance,
+            EntityTracker = CombatEntityTracker.Instance,
+        };
+
+        // 获取或创建 SummonerSkillManager
+        var skillManager = playerCharacter.GetComponent<SummonerSkillManager>();
+        skillManager ??= playerCharacter.AddComponent<SummonerSkillManager>();
+
+        skillManager.SetContext(ctx);
+
+        // 合并被动技能 ID 和主动技能 ID
+        var allSkillIds = new List<int>();
+        if (summonerConfig.PassiveSkillIds != null)
+            allSkillIds.AddRange(summonerConfig.PassiveSkillIds);
+        if (summonerConfig.ActiveSkillIds != null)
+            allSkillIds.AddRange(summonerConfig.ActiveSkillIds);
+
+        skillManager.UpdateSkillsFromData(allSkillIds);
+        skillManager.SetActive(true);
+
+        DebugEx.LogModule("CombatManager", $"召唤师技能系统已启动，共 {allSkillIds.Count} 个技能");
     }
 
     /// <summary>
@@ -181,7 +227,15 @@ public class CombatManager : SingletonBase<CombatManager>
         m_IsInCombat = false;
         Log.Info($"CombatManager: 战斗结束 - {(isVictory ? "胜利" : "失败")}");
 
-        // 0. 战斗结束前先回写棋子血量、清除所有 Buff（在销毁实体之前）
+        // 0. 停用召唤师技能系统（Dispose 所有被动 Buff）
+        var playerCharacterForSkill = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        if (playerCharacterForSkill != null)
+        {
+            var skillManager = playerCharacterForSkill.GetComponent<SummonerSkillManager>();
+            skillManager?.SetActive(false);
+        }
+
+        // 0.1 战斗结束前先回写棋子血量、清除所有 Buff（在销毁实体之前）
         BattleChessManager.Instance.OnBattleEnd();
 
         // 1. 销毁场上所有棋子 GameObject
