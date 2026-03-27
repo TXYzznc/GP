@@ -198,6 +198,7 @@ Color palette: [色彩代码]
 [光效描述]
 Background: [背景描述]
 [质感和细节]
+No border, no frame, no rounded corners, full bleed image filling the entire canvas
 Professional game art style, similar to Clash of Gods, [主题]
 ```
 
@@ -227,6 +228,7 @@ Intense magical glow with impact waves and earth-shattering effect
 Background: Catastrophic earthquake with massive ground cracks, debris flying, dust storm, destruction
 High saturation, devastating earth energy, glowing edges with impact effect
 Detailed stone texture with multiple layers, cracks spreading, debris particles, shockwave
+No border, no frame, no rounded corners, full bleed image filling the entire canvas
 Professional game art style, similar to Clash of Gods, earth disaster theme
 ```
 
@@ -254,6 +256,7 @@ Intense magical glow with water flow and spiral effect
 Background: Ocean environment with massive whirlpool, waves swirling, water currents, deep sea atmosphere
 High saturation, fluid water energy, glowing edges with spiral effect
 Detailed water texture with flowing patterns, water particles, spiral trails
+No border, no frame, no rounded corners, full bleed image filling the entire canvas
 Professional game art style, similar to Clash of Gods, oceanic theme
 ```
 
