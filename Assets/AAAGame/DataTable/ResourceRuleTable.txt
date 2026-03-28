@@ -1,0 +1,5 @@
+﻿#	ResourceRuleTable						
+#	Id		InitInventorySlots	MaxExtendSlots	ExtendBaseCost	ExtendSlotsPerUpgrade	InitWarehouseSlots
+#	int		int	int	int	int	int
+#	规则ID	备注	初始背包格数	最大扩展格数	扩展基础费用	每次升级增加格数	初始仓库格数
+	1		20	50	100	5	30

@@ -119,6 +119,15 @@ public partial class PlayerInitTable : DataRowBase
         }
 
         /// <summary>
+        /// 初始仓库容量
+        /// </summary>
+        public int InitWarehouseCapacity
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 经验倍率
         /// </summary>
         public float ExpMultiplier
@@ -167,11 +176,10 @@ public partial class PlayerInitTable : DataRowBase
             InitStrategyCards = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             InitTechs = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             InitInventorySize = int.Parse(columnStrings[index++]);
+            InitWarehouseCapacity = int.Parse(columnStrings[index++]);
             ExpMultiplier = float.Parse(columnStrings[index++]);
             EliteSpawnRate = float.Parse(columnStrings[index++]);
             Desc = columnStrings[index++];
-            index++;
-            index++;
 
             return true;
         }
@@ -193,6 +201,7 @@ public partial class PlayerInitTable : DataRowBase
                     InitStrategyCards = binaryReader.ReadArray<int>();
                     InitTechs = binaryReader.ReadArray<int>();
                     InitInventorySize = binaryReader.Read7BitEncodedInt32();
+                    InitWarehouseCapacity = binaryReader.Read7BitEncodedInt32();
                     ExpMultiplier = binaryReader.ReadSingle();
                     EliteSpawnRate = binaryReader.ReadSingle();
                     Desc = binaryReader.ReadString();

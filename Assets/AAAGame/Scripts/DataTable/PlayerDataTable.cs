@@ -21,7 +21,7 @@ public partial class PlayerDataTable : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 
+    /// 配置ID
     /// </summary>
     public override int Id
     {
@@ -100,6 +100,24 @@ public partial class PlayerDataTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 玩家负重限制(克)
+        /// </summary>
+        public int WeightLimit
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 负重移速系数
+        /// </summary>
+        public float WeightMoveSpeedEffect
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -120,6 +138,8 @@ public partial class PlayerDataTable : DataRowBase
             UnlockFeature = columnStrings[index++];
             RewardItemId = int.Parse(columnStrings[index++]);
             RewardCount = int.Parse(columnStrings[index++]);
+            WeightLimit = int.Parse(columnStrings[index++]);
+            WeightMoveSpeedEffect = float.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -139,6 +159,8 @@ public partial class PlayerDataTable : DataRowBase
                     UnlockFeature = binaryReader.ReadString();
                     RewardItemId = binaryReader.Read7BitEncodedInt32();
                     RewardCount = binaryReader.Read7BitEncodedInt32();
+                    WeightLimit = binaryReader.Read7BitEncodedInt32();
+                    WeightMoveSpeedEffect = binaryReader.ReadSingle();
                 }
             }
 

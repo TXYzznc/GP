@@ -199,6 +199,33 @@ public partial class ItemTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 重量(克)
+        /// </summary>
+        public int Weight
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最大耐久度
+        /// </summary>
+        public int MaxDurability
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 稀有度
+        /// </summary>
+        public int Rarity
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -230,6 +257,9 @@ public partial class ItemTable : DataRowBase
             SynergyIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             BaseAttributes = columnStrings[index++];
             SellPrice = int.Parse(columnStrings[index++]);
+            Weight = int.Parse(columnStrings[index++]);
+            MaxDurability = int.Parse(columnStrings[index++]);
+            Rarity = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -260,6 +290,9 @@ public partial class ItemTable : DataRowBase
                     SynergyIds = binaryReader.ReadArray<int>();
                     BaseAttributes = binaryReader.ReadString();
                     SellPrice = binaryReader.Read7BitEncodedInt32();
+                    Weight = binaryReader.Read7BitEncodedInt32();
+                    MaxDurability = binaryReader.Read7BitEncodedInt32();
+                    Rarity = binaryReader.Read7BitEncodedInt32();
                 }
             }
 

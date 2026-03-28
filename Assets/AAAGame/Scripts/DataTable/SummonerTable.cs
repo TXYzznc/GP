@@ -164,6 +164,15 @@ public partial class SummonerTable : DataRowBase
         }
 
         /// <summary>
+        /// 创建角色时展示的技能
+        /// </summary>
+        public int[] ShowSkills
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 预制体资源ID
         /// </summary>
         public int PrefabId
@@ -208,6 +217,7 @@ public partial class SummonerTable : DataRowBase
             AdvanceValue = int.Parse(columnStrings[index++]);
             NextPhaseId = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
+            ShowSkills = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             PrefabId = int.Parse(columnStrings[index++]);
             PortraitId = int.Parse(columnStrings[index++]);
 
@@ -236,6 +246,7 @@ public partial class SummonerTable : DataRowBase
                     AdvanceValue = binaryReader.Read7BitEncodedInt32();
                     NextPhaseId = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
+                    ShowSkills = binaryReader.ReadArray<int>();
                     PrefabId = binaryReader.Read7BitEncodedInt32();
                     PortraitId = binaryReader.Read7BitEncodedInt32();
                 }

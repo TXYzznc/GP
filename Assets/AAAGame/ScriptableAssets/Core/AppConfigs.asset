@@ -31,6 +31,7 @@ MonoBehaviour:
   - PlayerSkillTable
   - PosTable
   - ResourceConfigTable
+  - ResourceRuleTable
   - SceneTable
   - SpecialEffectTable
   - SummonChessSkillTable

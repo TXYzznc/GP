@@ -15,6 +15,7 @@ public static class ResourceIds
     public const int ICON_GOLD = 1101;
     public const int ICON_MAGICAL_STONE = 1102;
     public const int ICON_HOLY_WATER = 1103;
+
     /// <summary>战斗中棋子放置预览图片</summary>
     public const int ICON_PLACEMENT_PREVIEW = 1104;
     #endregion
@@ -25,12 +26,14 @@ public static class ResourceIds
 
     #region 棋子图标 (1300-1399)
     public const int ICON_CHESS_HOUYI = 1301;
+
     // 注意：缺失嫦娥棋子图标
     public const int ICON_CHESS_CHANGE = 1304;
     #endregion
 
     #region Buff图标 (1400-1499)
     public const int ICON_BUFF_Fire = 1401;
+
     // 注意：缺失冰霜Buff图标
     public const int ICON_BUFF_FROST = 1402;
     public const int ICON_BUFF_MELT = 1403;
@@ -50,7 +53,19 @@ public static class ResourceIds
     #endregion
 
     #region 召唤师技能图标 (1700-1799)
-    public const int ICON_SKILL_SUMMONER_RAGE = 1701;
+    // 狂战士技能图标
+    public const int ICON_SKILL_SUMMONER_BERSERKER_PASSIVE = 1701; // 狂怒之心（被动）
+    public const int ICON_SKILL_SUMMONER_BERSERKER_ACTIVE = 1702; // 战意激昂（主动）
+    public const int ICON_SKILL_SUMMONER_ROYAL_COMMAND = 1703; // 王者号令（3阶，路线一）
+    public const int ICON_SKILL_SUMMONER_IRON_TORRENT = 1704; // 钢铁洪流（4阶，路线一）
+    public const int ICON_SKILL_SUMMONER_CALAMITY_DESCENDS = 1705; // 天灾降临（5阶，路线一）
+    public const int ICON_SKILL_SUMMONER_ANNIHILATION_SLASH = 1706; // 寂灭斩（3阶，路线二）
+    public const int ICON_SKILL_SUMMONER_LONE_SHADOW = 1707; // 孤影（4阶，路线二）
+    public const int ICON_SKILL_SUMMONER_JUDGMENT_MOMENT = 1708; // 裁决之刻（5阶，路线二）
+
+    // 术士技能图标
+    public const int ICON_SKILL_SUMMONER_SHADOW_CURSE_BODY = 1711; // 暗影咒体（被动）
+    public const int ICON_SKILL_SUMMONER_LIFE_DRAIN = 1712; // 生命虹吸（主动）
     #endregion
 
     // 注意：以下是棋子技能图标配置
@@ -85,6 +100,7 @@ public static class ResourceIds
 
     #region 神话角色预制体 (2300-2399)
     public const int PREFAB_CHAR_HOUYI = 2301;
+
     // 注意：缺失嫦娥棋子预制体
     public const int PREFAB_CHAR_CHANGE = 2304;
     #endregion

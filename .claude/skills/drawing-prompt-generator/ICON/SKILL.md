@@ -153,6 +153,21 @@ description: |
 - 冻结技能 = 冰风暴 + 冰晶 + 寒气 + 冷静感
 - 石化被动 = 岩石地形 + 裂纹 + 尘埃 + 沉重感
 
+## 重要约束
+
+### 文本内容禁止规则
+
+**生成的图片中严禁包含任何文本内容**，包括但不限于：
+- 技能名称、数字、符号
+- 任何可读的字母或汉字
+- 标签、标记、注释
+- 水印或签名
+
+**实现方式**：
+- 在提示词中明确添加 `No text, no numbers, no symbols, no letters` 的约束
+- 确保所有视觉表现完全通过图形、色彩、效果、构图来传达
+- 图标应该通过纯视觉元素让玩家理解技能效果
+
 ## 提示词生成流程
 
 ### 第一步：信息收集与分析
@@ -198,6 +213,7 @@ Color palette: [色彩代码]
 [光效描述]
 Background: [背景描述]
 [质感和细节]
+No text, no numbers, no symbols, no letters, no words
 No border, no frame, no rounded corners, full bleed image filling the entire canvas
 Professional game art style, similar to Clash of Gods, [主题]
 ```
@@ -228,6 +244,7 @@ Intense magical glow with impact waves and earth-shattering effect
 Background: Catastrophic earthquake with massive ground cracks, debris flying, dust storm, destruction
 High saturation, devastating earth energy, glowing edges with impact effect
 Detailed stone texture with multiple layers, cracks spreading, debris particles, shockwave
+No text, no numbers, no symbols, no letters, no words
 No border, no frame, no rounded corners, full bleed image filling the entire canvas
 Professional game art style, similar to Clash of Gods, earth disaster theme
 ```
@@ -256,6 +273,7 @@ Intense magical glow with water flow and spiral effect
 Background: Ocean environment with massive whirlpool, waves swirling, water currents, deep sea atmosphere
 High saturation, fluid water energy, glowing edges with spiral effect
 Detailed water texture with flowing patterns, water particles, spiral trails
+No text, no numbers, no symbols, no letters, no words
 No border, no frame, no rounded corners, full bleed image filling the entire canvas
 Professional game art style, similar to Clash of Gods, oceanic theme
 ```
@@ -297,6 +315,7 @@ Professional game art style, similar to Clash of Gods, oceanic theme
 - **考虑效果** - 效果决定了视觉表现
 - **考虑规模** - 技能类型决定了背景规模
 - **保持一致性** - 同一职业的技能应有视觉连贯性
+- **纯视觉表达** - 完全通过图形、色彩、效果、构图来传达技能含义，不依赖文本
 
 ### ❌ 应该避免
 
@@ -306,6 +325,7 @@ Professional game art style, similar to Clash of Gods, oceanic theme
 - **色彩冲突** - 背景应衬托主体
 - **不合理的背景** - 背景应与效果相符
 - **忽视技能类型** - 被动和大招的表现方式完全不同
+- **添加任何文本** - 严禁在图片中包含文字、数字、符号等文本内容
 
 ## 工作流程总结
 

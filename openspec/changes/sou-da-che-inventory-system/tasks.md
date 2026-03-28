@@ -1,9 +1,9 @@
 ## 1. 配置表扩展（DataTable）
 
-- [ ] 1.1 确认 `ItemTable.xlsx` 是否已有 Weight、MaxStack、Rarity、MaxDurability 字段；如无则新增
-- [ ] 1.2 在 `PlayerDataTable.xlsx` 新增 `WeightLimit`（int）、`WeightMoveSpeedEffect`（float）字段
-- [ ] 1.3 在 `PlayerInitTable.xlsx` 新增 `InitWarehouseCapacity`（int）字段
-- [ ] 1.4 新建 `ResourceRuleTable.xlsx`，包含字段：`InitInventorySlots`、`MaxExtendSlots`、`ExtendBaseCost`、`ExtendSlotsPerUpgrade`、`InitWarehouseSlots`，填入初始数据
+- [x] 1.1 确认 `ItemTable.xlsx` 是否已有 Weight、MaxStack、Rarity、MaxDurability 字段；如无则新增
+- [x] 1.2 在 `PlayerDataTable.xlsx` 新增 `WeightLimit`（int）、`WeightMoveSpeedEffect`（float）字段
+- [x] 1.3 在 `PlayerInitTable.xlsx` 新增 `InitWarehouseCapacity`（int）字段
+- [x] 1.4 新建 `ResourceRuleTable.xlsx`，包含字段：`InitInventorySlots`、`MaxExtendSlots`、`ExtendBaseCost`、`ExtendSlotsPerUpgrade`、`InitWarehouseSlots`，填入初始数据
 - [ ] 1.5 运行 DataTableGenerator，生成 `ResourceRuleTable.cs` / `.bytes` 及更新 `PlayerDataTable.cs`、`PlayerInitTable.cs`、`ItemTable.cs`
 
 ## 2. 运行时数据层（InventoryManager）

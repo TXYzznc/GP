@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using GameExtension;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -43,6 +44,10 @@ public partial class NewGameUI : UIFormBase
     // 技能提示相关
     private int m_HoveredSkillIndex = -1;
     private int m_CurrentFloatingTipId = -1; // 当前显示的浮动提示框ID
+
+    // 技能按钮数组（8个技能：2个固定 + 3个路线一 + 3个路线二）
+    private Button[] m_SkillButtons = null;
+    private List<int> m_CurrentSkillIds = new List<int>(); // 当前召唤师的技能ID列表
     #endregion
 
     #region 生命周期
@@ -51,19 +56,22 @@ public partial class NewGameUI : UIFormBase
     {
         base.OnInit(userData);
 
-        Log.Info("NewGameUI 初始化");
+        DebugEx.Log("NewGameUI", "初始化开始");
 
         // 初始化隐藏提示按钮
         SetActive(varTips2?.gameObject, false);
 
+        // 初始化技能按钮数组
+        InitializeSkillButtons();
+
         // 测试：检查 varName 是否为 null
         if (varName == null)
         {
-            Log.Error("varName 为 null，请在 Unity Inspector 中是否正确赋值");
+            DebugEx.Error("NewGameUI", "varName 为 null，请在 Unity Inspector 中是否正确赋值");
         }
         else
         {
-            Log.Info("varName 已正确赋值");
+            DebugEx.Log("NewGameUI", "varName 已正确赋值");
 
             // 监听输入文本变化
             varName.onValueChanged.AddListener(OnNameInputChanged);
@@ -87,13 +95,14 @@ public partial class NewGameUI : UIFormBase
             storyTypewriter.onTypingComplete.AddListener(OnStoryTypingComplete);
             storyTypewriter.onFadeOutComplete.AddListener(OnStoryFadeOutComplete);
 
-            Log.Info(
+            DebugEx.Log(
+                "NewGameUI",
                 $"打字机事件监听器已添加，监听器数量: {storyTypewriter.onTypingComplete.GetPersistentEventCount()}"
             );
         }
         else
         {
-            Log.Error("varStoryText 为 null！");
+            DebugEx.Error("NewGameUI", "varStoryText 为 null！");
         }
 
         // 初始化模型查看器
@@ -392,25 +401,40 @@ public partial class NewGameUI : UIFormBase
         if (skillTable == null)
             return;
 
-        // 合并被动技能和主动技能ID
-        var allSkillIds = new List<int>();
-        if (summoner.PassiveSkillIds != null)
+        // 使用ShowSkills字段获取所有要显示的技能
+        m_CurrentSkillIds.Clear();
+        if (summoner.ShowSkills != null && summoner.ShowSkills.Length > 0)
         {
-            allSkillIds.AddRange(summoner.PassiveSkillIds);
+            m_CurrentSkillIds.AddRange(summoner.ShowSkills);
+            DebugEx.Log("NewGameUI", $"使用ShowSkills字段，总技能数: {m_CurrentSkillIds.Count}");
         }
-        if (summoner.ActiveSkillIds != null)
+        else
         {
-            allSkillIds.AddRange(summoner.ActiveSkillIds);
+            // 如果ShowSkills为空，则使用被动技能和主动技能ID作为备选
+            if (summoner.PassiveSkillIds != null)
+            {
+                m_CurrentSkillIds.AddRange(summoner.PassiveSkillIds);
+            }
+            if (summoner.ActiveSkillIds != null)
+            {
+                m_CurrentSkillIds.AddRange(summoner.ActiveSkillIds);
+            }
+            DebugEx.Warning(
+                "NewGameUI",
+                $"ShowSkills为空，使用PassiveSkillIds和ActiveSkillIds，总技能数: {m_CurrentSkillIds.Count}"
+            );
         }
+
+        DebugEx.Log("NewGameUI", $"更新技能显示，总技能数: {m_CurrentSkillIds.Count}");
 
         // 更新技能名称文本显示
         if (varSkillNameArr != null)
         {
             for (int i = 0; i < varSkillNameArr.Length; i++)
             {
-                if (i < allSkillIds.Count)
+                if (i < m_CurrentSkillIds.Count)
                 {
-                    var skill = skillTable.GetDataRow(allSkillIds[i]);
+                    var skill = skillTable.GetDataRow(m_CurrentSkillIds[i]);
                     if (skill != null && varSkillNameArr[i] != null)
                     {
                         varSkillNameArr[i].text = skill.Name;
@@ -424,16 +448,65 @@ public partial class NewGameUI : UIFormBase
             }
         }
 
-        // 更新技能图标显示（待完善）
-        if (varSkillArr != null)
+        // 更新技能图标显示
+        if (m_SkillButtons != null)
         {
-            for (int i = 0; i < varSkillArr.Length; i++)
+            for (int i = 0; i < m_SkillButtons.Length; i++)
             {
-                if (varSkillArr[i] != null)
+                if (m_SkillButtons[i] != null)
                 {
-                    varSkillArr[i].gameObject.SetActive(i < allSkillIds.Count);
+                    if (i < m_CurrentSkillIds.Count)
+                    {
+                        var skill = skillTable.GetDataRow(m_CurrentSkillIds[i]);
+                        if (skill != null)
+                        {
+                            // 加载技能图标到按钮
+                            LoadSkillIcon(m_SkillButtons[i], skill.IconId, i);
+                            m_SkillButtons[i].gameObject.SetActive(true);
+                        }
+                    }
+                    else
+                    {
+                        m_SkillButtons[i].gameObject.SetActive(false);
+                    }
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// 加载技能图标到按钮
+    /// </summary>
+    private void LoadSkillIcon(Button skillButton, int iconId, int skillIndex)
+    {
+        if (skillButton == null)
+        {
+            DebugEx.Warning("NewGameUI", $"技能按钮为空: 按钮索引={skillIndex}");
+            return;
+        }
+
+        var image = skillButton.GetComponent<Image>();
+        if (image == null)
+        {
+            DebugEx.Error("NewGameUI", $"技能按钮 {skillIndex} 没有 Image 组件");
+            return;
+        }
+
+        try
+        {
+            DebugEx.Log("NewGameUI", $"开始加载技能图标: ID={iconId}, 按钮索引={skillIndex}");
+
+            // 使用 ResourceExtension 异步加载图标（fire-and-forget）
+            _ = ResourceExtension.LoadSpriteAsync(iconId, image);
+
+            DebugEx.Log("NewGameUI", $"技能图标加载请求已发送: ID={iconId}, 按钮索引={skillIndex}");
+        }
+        catch (System.Exception ex)
+        {
+            DebugEx.Error(
+                "NewGameUI",
+                $"技能图标加载异常: ID={iconId}, 按钮索引={skillIndex}, 错误={ex.Message}"
+            );
         }
     }
 
@@ -803,6 +876,50 @@ public partial class NewGameUI : UIFormBase
 
     #endregion
 
+    #region 技能按钮管理
+
+    /// <summary>
+    /// 初始化技能按钮数组
+    /// </summary>
+    private void InitializeSkillButtons()
+    {
+        // 创建技能按钮数组（8个技能）
+        m_SkillButtons = new Button[]
+        {
+            varSkill1, // 固定技能1（被动）
+            varSkill2, // 固定技能2（主动）
+            varSkill_A3, // 路线一技能3
+            varSkill_A4, // 路线一技能4
+            varSkill_A5, // 路线一技能5
+            varSkill_B3, // 路线二技能3
+            varSkill_B4, // 路线二技能4
+            varSkill_B5, // 路线二技能5
+        };
+
+        // 为每个技能按钮添加点击事件
+        for (int i = 0; i < m_SkillButtons.Length; i++)
+        {
+            if (m_SkillButtons[i] != null)
+            {
+                int index = i; // 闭包捕获
+                m_SkillButtons[i].onClick.AddListener(() => OnSkillButtonClick(index));
+            }
+        }
+
+        DebugEx.Log("NewGameUI", "技能按钮数组初始化完成");
+    }
+
+    /// <summary>
+    /// 技能按钮点击事件
+    /// </summary>
+    private void OnSkillButtonClick(int skillIndex)
+    {
+        DebugEx.Log("NewGameUI", $"点击技能按钮: {skillIndex}");
+        ShowSkillTooltip(skillIndex);
+    }
+
+    #endregion
+
     #region 技能悬停提示
 
     /// <summary>
@@ -810,21 +927,20 @@ public partial class NewGameUI : UIFormBase
     /// </summary>
     private void HandleSkillHover()
     {
-        if (varSkillArr == null)
+        if (m_SkillButtons == null)
             return;
 
         int newHoveredIndex = -1;
 
-        for (int i = 0; i < varSkillArr.Length; i++)
+        for (int i = 0; i < m_SkillButtons.Length; i++)
         {
-            if (varSkillArr[i] == null || !varSkillArr[i].gameObject.activeSelf)
+            if (m_SkillButtons[i] == null || !m_SkillButtons[i].gameObject.activeSelf)
                 continue;
 
-            var rectTransform = varSkillArr[i].GetComponent<RectTransform>();
+            var rectTransform = m_SkillButtons[i].GetComponent<RectTransform>();
             if (rectTransform != null && IsPointerOverRectTransform(rectTransform))
             {
                 newHoveredIndex = i;
-                //Log.Info($"鼠标悬停在技能图标 {i} 上");
                 break;
             }
         }
@@ -832,7 +948,10 @@ public partial class NewGameUI : UIFormBase
         // 检测状态变化
         if (newHoveredIndex != m_HoveredSkillIndex)
         {
-            Log.Info($"悬停状态变化: {m_HoveredSkillIndex} -> {newHoveredIndex}");
+            DebugEx.Log(
+                "NewGameUI",
+                $"技能悬停状态变化: {m_HoveredSkillIndex} -> {newHoveredIndex}"
+            );
 
             if (m_HoveredSkillIndex >= 0)
             {
@@ -853,62 +972,49 @@ public partial class NewGameUI : UIFormBase
     /// </summary>
     private void ShowSkillTooltip(int skillIndex)
     {
-        Log.Info($"ShowSkillTooltip 被调用: skillIndex={skillIndex}");
+        DebugEx.Log("NewGameUI", $"显示技能提示: skillIndex={skillIndex}");
 
-        var summoner = GetCurrentSummoner();
-        if (summoner == null)
+        if (skillIndex < 0 || skillIndex >= m_CurrentSkillIds.Count)
         {
-            Log.Warning("GetCurrentSummoner 返回 null");
+            DebugEx.Warning("NewGameUI", $"技能索引越界: {skillIndex} / {m_CurrentSkillIds.Count}");
             return;
         }
 
-        // 合并被动技能和主动技能ID
-        var allSkillIds = new List<int>();
-        if (summoner.PassiveSkillIds != null)
-        {
-            allSkillIds.AddRange(summoner.PassiveSkillIds);
-        }
-        if (summoner.ActiveSkillIds != null)
-        {
-            allSkillIds.AddRange(summoner.ActiveSkillIds);
-        }
-
-        Log.Info($"技能总数: {allSkillIds.Count}");
-
-        if (skillIndex < 0 || skillIndex >= allSkillIds.Count)
-        {
-            Log.Warning($"技能索引越界: {skillIndex} / {allSkillIds.Count}");
-            return;
-        }
-
-        int skillId = allSkillIds[skillIndex];
+        int skillId = m_CurrentSkillIds[skillIndex];
         var skillTable = GF.DataTable.GetDataTable<SummonerSkillTable>();
         if (skillTable == null)
         {
-            Log.Error("SummonerSkillTable 未加载");
+            DebugEx.Error("NewGameUI", "SummonerSkillTable 未加载");
             return;
         }
 
         var skill = skillTable.GetDataRow(skillId);
-        if (skill != null && varSkillArr != null && skillIndex < varSkillArr.Length)
+        if (skill != null && m_SkillButtons != null && skillIndex < m_SkillButtons.Length)
         {
-            Log.Info($"准备显示技能提示: {skill.Name}");
+            DebugEx.Log("NewGameUI", $"准备显示技能提示: {skill.Name}");
 
             // 构建提示文本
             string tooltipText = $"<b>{skill.Name}</b>\n{skill.Desc}";
 
-            // 获取技能图标的 RectTransform
-            var skillIcon = varSkillArr[skillIndex].GetComponent<RectTransform>();
-            if (skillIcon == null)
+            // 获取技能按钮的 RectTransform
+            var skillButton = m_SkillButtons[skillIndex];
+            if (skillButton == null)
             {
-                Log.Error($"技能图标 {skillIndex} 的 RectTransform 为 null");
+                DebugEx.Error("NewGameUI", $"技能按钮 {skillIndex} 为 null");
+                return;
+            }
+
+            var rectTransform = skillButton.GetComponent<RectTransform>();
+            if (rectTransform == null)
+            {
+                DebugEx.Error("NewGameUI", $"技能按钮 {skillIndex} 的 RectTransform 为 null");
                 return;
             }
 
             // 回收旧的提示框
             if (m_CurrentFloatingTipId != -1)
             {
-                Log.Info($"回收旧的提示框: {m_CurrentFloatingTipId}");
+                DebugEx.Log("NewGameUI", $"回收旧的提示框: {m_CurrentFloatingTipId}");
                 var oldForm = GF.UI.GetUIForm(m_CurrentFloatingTipId);
                 if (oldForm != null)
                 {
@@ -916,19 +1022,23 @@ public partial class NewGameUI : UIFormBase
                 }
             }
 
-            // 显示技能提示框（在技能图标的右上方）
+            // 显示技能提示框（在技能按钮的右上方）
             m_CurrentFloatingTipId = GF.UI.ShowFloatingTipAt(
                 tooltipText,
-                skillIcon,
+                rectTransform,
                 new Vector2(10f, 0f)
             );
 
-            Log.Info($"技能提示已显示: {skill.Name}, FormId={m_CurrentFloatingTipId}");
+            DebugEx.Log(
+                "NewGameUI",
+                $"技能提示已显示: {skill.Name}, FormId={m_CurrentFloatingTipId}"
+            );
         }
         else
         {
-            Log.Warning(
-                $"技能数据无效: skill={skill}, varSkillArr={varSkillArr}, skillIndex={skillIndex}"
+            DebugEx.Warning(
+                "NewGameUI",
+                $"技能数据无效: skill={skill}, m_SkillButtons={m_SkillButtons}, skillIndex={skillIndex}"
             );
         }
     }
@@ -941,7 +1051,7 @@ public partial class NewGameUI : UIFormBase
         // 回收当前显示的浮动提示框（不销毁，只回收）
         if (m_CurrentFloatingTipId != -1)
         {
-            Log.Info($"隐藏技能提示框: {m_CurrentFloatingTipId}");
+            DebugEx.Log("NewGameUI", $"隐藏技能提示框: {m_CurrentFloatingTipId}");
             var uiForm = GF.UI.GetUIForm(m_CurrentFloatingTipId);
             if (uiForm != null)
             {
