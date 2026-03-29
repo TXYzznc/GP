@@ -8,11 +8,11 @@
 
 ## 2. 运行时数据层（InventoryManager）
 
-- [ ] 2.1 定义 `InventoryItem` 运行时类（ItemId, Count, Durability, SlotIndex）
-- [ ] 2.2 创建 `InventoryManager.cs`，实现 `AddItem()`、`RemoveItem()`、`MoveItem(slotA, slotB)`、`OnInventoryChanged` 事件
-- [ ] 2.3 在 `InventoryManager` 中实现负重计算：`CalculateCurrentWeight()` 并在物品变动时触发移速更新
-- [ ] 2.4 实现一键整理算法：`SortInventory()`（堆叠 → ItemType 分组 → Rarity 降序）
-- [ ] 2.5 创建 `WarehouseManager.cs`，实现仓库存取逻辑（`StoreItem()`、`RetrieveItem()`、`StoreAll()`）
+- [x] 2.1 定义 `InventoryItem` 运行时类（ItemId, Count, Durability, SlotIndex）
+- [x] 2.2 创建 `InventoryManager.cs`，实现 `AddItem()`、`RemoveItem()`、`MoveItem(slotA, slotB)`、`OnInventoryChanged` 事件
+- [x] 2.3 在 `InventoryManager` 中实现负重计算：`CalculateCurrentWeight()` 并在物品变动时触发移速更新
+- [x] 2.4 实现一键整理算法：`SortInventory()`（堆叠 → ItemType 分组 → Rarity 降序）
+- [x] 2.5 创建 `WarehouseManager.cs`，实现仓库存取逻辑（`StoreItem()`、`RetrieveItem()`、`StoreAll()`）
 
 ## 3. 背包 UI（InventoryUIForm）
 

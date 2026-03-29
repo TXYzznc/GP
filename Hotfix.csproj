@@ -98,6 +98,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Manager\SceneStateManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyCombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerEvents.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\InventoryItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Preparation\BattleLoadoutProvider.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\EquipmentItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\Skills\DashSkill.cs" />
@@ -172,6 +173,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelStorageBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeSkill1.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IPlayerInputSource.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventoryDragHandler.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\FunctionItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\StartMenuUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessGhostPreview.cs" />
@@ -269,7 +271,6 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\CardSlotItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Common\UIAnimationEventDispatcher.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\InventorySlotUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatEntityTracker.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIParams.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Core\EnemyChessState.cs" />
@@ -406,11 +407,12 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\ExplorationState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\SoundGroupTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatPreparationReadyEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\WarehouseManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyChaseState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataModel\PlayerDataModel.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SceneTableExtensions.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\System\EnemyRewardSystem.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\Item\InventorySlotUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\InventorySlotUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CurrencyUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\OutsiderFunctionUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\NewGameUI.Variables.cs" />
