@@ -120,17 +120,6 @@ public static class DebugEx
     }
 
     /// <summary>
-    /// 带颜色的警告日志
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void WarningColor(object message, string color)
-    {
-        if (!EnableWarning)
-            return;
-        UnityEngine.Debug.LogWarning($"<color={color}>{message}</color>");
-    }
-
-    /// <summary>
     /// 带模块标签的警告日志
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
@@ -139,17 +128,6 @@ public static class DebugEx
         if (!EnableWarning)
             return;
         UnityEngine.Debug.LogWarning($"[{module}] {message}");
-    }
-
-    /// <summary>
-    /// 带模块标签和颜色的警告日志
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void WarningModule(string module, object message, string color)
-    {
-        if (!EnableWarning)
-            return;
-        UnityEngine.Debug.LogWarning($"<color={color}>[{module}] {message}</color>");
     }
 
     /// <summary>
@@ -178,16 +156,6 @@ public static class DebugEx
     }
 
     /// <summary>
-    /// 带颜色的错误日志
-    /// </summary>
-    public static void ErrorColor(object message, string color)
-    {
-        if (!EnableError)
-            return;
-        UnityEngine.Debug.LogError($"<color={color}>{message}</color>");
-    }
-
-    /// <summary>
     /// 带模块标签的错误日志
     /// </summary>
     public static void ErrorModule(string module, object message)
@@ -195,16 +163,6 @@ public static class DebugEx
         if (!EnableError)
             return;
         UnityEngine.Debug.LogError($"[{module}] {message}");
-    }
-
-    /// <summary>
-    /// 带模块标签和颜色的错误日志
-    /// </summary>
-    public static void ErrorModule(string module, object message, string color)
-    {
-        if (!EnableError)
-            return;
-        UnityEngine.Debug.LogError($"<color={color}>[{module}] {message}</color>");
     }
 
     /// <summary>
@@ -222,15 +180,6 @@ public static class DebugEx
     #region 便捷方法
 
     /// <summary>
-    /// 成功日志（绿色）
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Success(object message)
-    {
-        LogColor(message, Color.Green);
-    }
-
-    /// <summary>
     /// 成功日志（绿色，带模块标签）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
@@ -240,39 +189,12 @@ public static class DebugEx
     }
 
     /// <summary>
-    /// 失败日志（红色）
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Fail(object message)
-    {
-        LogColor(message, Color.Red);
-    }
-
-    /// <summary>
     /// 失败日志（红色，带模块标签）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
     public static void Fail(string module, object message)
     {
         LogModule(module, message, Color.Red);
-    }
-
-    /// <summary>
-    /// 信息日志（青色）
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Info(object message)
-    {
-        LogColor(message, Color.Cyan);
-    }
-
-    /// <summary>
-    /// 信息日志（青色，带模块标签）
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Info(string module, object message)
-    {
-        LogModule(module, message, Color.Cyan);
     }
 
     /// <summary>

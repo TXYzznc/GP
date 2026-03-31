@@ -112,7 +112,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 打开背包UI
     /// </summary>
-    [ContextMenu("打开背包")]
     public void OpenInventoryUI()
     {
         DebugEx.LogModule(
@@ -129,7 +128,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 关闭背包UI
     /// </summary>
-    [ContextMenu("关闭背包")]
     public void CloseInventoryUI()
     {
         DebugEx.LogModule(
@@ -164,7 +162,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 测试添加物品
     /// </summary>
-    [ContextMenu("测试添加物品")]
     public void TestAddItems()
     {
         DebugEx.LogModule(
@@ -208,42 +205,52 @@ public class InventoryTester : MonoBehaviour
             $"可堆叠物品数量:{m_StackableItemIds.Count}, 不可堆叠物品数量:{m_NonStackableItemIds.Count}"
         );
 
-        // 测试添加可堆叠物品
-        int stackableCount = Mathf.Min(3, m_StackableItemIds.Count);
+        // 随机添加各种类型的物品
+        var allItemIds = new List<int>();
+        allItemIds.AddRange(m_StackableItemIds);
+        allItemIds.AddRange(m_NonStackableItemIds);
 
-        for (int i = 0; i < stackableCount; i++)
+        if (allItemIds.Count == 0)
         {
-            int itemId = m_StackableItemIds[i];
-            bool success = InventoryManager.Instance.AddItem(itemId, m_TestAddCount);
+            DebugEx.Warning("InventoryTester", "没有可用物品来添加");
+            return;
+        }
+
+        DebugEx.LogModule("InventoryTester", "随机添加物品...");
+
+        // 随机添加 5-10 种物品
+        int itemTypesToAdd = Random.Range(5, Mathf.Min(11, allItemIds.Count + 1));
+        var selectedItems = new List<int>();
+
+        // 随机选择不同的物品
+        for (int i = 0; i < itemTypesToAdd; i++)
+        {
+            int randomIdx = Random.Range(0, allItemIds.Count);
+            selectedItems.Add(allItemIds[randomIdx]);
+        }
+
+        // 添加选中的物品
+        foreach (int itemId in selectedItems)
+        {
+            // 判断是否可堆叠，随机确定数量
+            bool isStackable = m_StackableItemIds.Contains(itemId);
+            int addCount = isStackable ? Random.Range(1, m_TestAddCount + 1) : 1;
+
+            bool success = InventoryManager.Instance.AddItem(itemId, addCount);
             var itemData = ItemManager.Instance?.GetItemData(itemId);
             string itemName = itemData != null ? itemData.Name : $"ID:{itemId}";
             DebugEx.LogModule(
                 "InventoryTester",
-                $"添加物品 {itemName} x{m_TestAddCount} - {(success ? "成功" : "失败")}"
+                $"添加物品 {itemName} x{addCount} - {(success ? "成功" : "失败")}"
             );
         }
 
-        // 测试添加不可堆叠物品
-        int nonStackableCount = Mathf.Min(3, m_NonStackableItemIds.Count);
-        for (int i = 0; i < nonStackableCount; i++)
-        {
-            int itemId = m_NonStackableItemIds[i];
-            bool success = InventoryManager.Instance.AddItem(itemId, 1);
-            var itemData = ItemManager.Instance?.GetItemData(itemId);
-            string itemName = itemData != null ? itemData.Name : $"ID:{itemId}";
-            DebugEx.LogModule(
-                "InventoryTester",
-                $"添加物品 {itemName} x1 - {(success ? "成功" : "失败")}"
-            );
-        }
-
-        DebugEx.Success("InventoryTester", "添加物品测试完成");
+        DebugEx.Success("InventoryTester", $"添加物品测试完成 (共 {selectedItems.Count} 种物品)");
     }
 
     /// <summary>
     /// 测试移除物品
     /// </summary>
-    [ContextMenu("测试移除物品")]
     public void TestRemoveItems()
     {
         DebugEx.LogModule(
@@ -280,7 +287,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 测试使用物品
     /// </summary>
-    [ContextMenu("测试使用物品")]
     public void TestUseItem()
     {
         DebugEx.LogModule(
@@ -319,7 +325,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 测试可堆叠物品
     /// </summary>
-    [ContextMenu("测试可堆叠物品")]
     public void TestStackableItems()
     {
         DebugEx.LogModule(
@@ -363,7 +368,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 测试背包满的情况
     /// </summary>
-    [ContextMenu("测试背包满")]
     public void TestFullInventory()
     {
         DebugEx.LogModule(
@@ -413,7 +417,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 测试存档与读档
     /// </summary>
-    [ContextMenu("测试存档与读档")]
     public void TestSaveAndLoad()
     {
         DebugEx.LogModule(
@@ -450,7 +453,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 测试边界情况
     /// </summary>
-    [ContextMenu("测试边界情况")]
     public void TestEdgeCases()
     {
         DebugEx.LogModule(
@@ -519,7 +521,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 打印背包状态
     /// </summary>
-    [ContextMenu("打印背包状态")]
     public void PrintInventoryStatus()
     {
         DebugEx.LogModule(
@@ -570,7 +571,6 @@ public class InventoryTester : MonoBehaviour
     /// <summary>
     /// 清空所有物品
     /// </summary>
-    [ContextMenu("清空背包")]
     public void ClearAllItems()
     {
         DebugEx.LogModule("InventoryTester", "========== 清空背包 ==========", DebugEx.Color.Red);
@@ -601,85 +601,18 @@ public class InventoryTester : MonoBehaviour
             base.OnInspectorGUI();
             EditorGUILayout.Space();
 
-            InventoryTester tester = (InventoryTester)target;
+            EditorGUILayout.HelpBox(
+                "所有测试功能已移至 Tools > Clash of Gods > Test Manager 窗口\n" +
+                "在该窗口中管理所有测试功能",
+                MessageType.Info
+            );
 
-            EditorGUILayout.LabelField("背包测试按钮", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            // 第一行：打开背包 | 关闭背包
-            EditorGUILayout.BeginHorizontal();
-            GUI.backgroundColor = Color.green;
-            if (GUILayout.Button("打开背包", GUILayout.Height(30)))
+            if (GUILayout.Button("打开 Test Manager", GUILayout.Height(35)))
             {
-                tester.OpenInventoryUI();
+                EditorWindow.GetWindow(System.Type.GetType("GameTestWindow,Assembly-CSharp-Editor"));
             }
-            GUI.backgroundColor = Color.yellow;
-            if (GUILayout.Button("关闭背包", GUILayout.Height(30)))
-            {
-                tester.CloseInventoryUI();
-            }
-            GUI.backgroundColor = Color.white;
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(5);
-
-            // 第二行：添加物品 | 移除物品
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("添加物品", GUILayout.Height(30)))
-            {
-                tester.TestAddItems();
-            }
-            if (GUILayout.Button("移除物品", GUILayout.Height(30)))
-            {
-                tester.TestRemoveItems();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            // 第三行：使用物品 | 可堆叠测试
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("使用物品", GUILayout.Height(30)))
-            {
-                tester.TestUseItem();
-            }
-            if (GUILayout.Button("可堆叠测试", GUILayout.Height(30)))
-            {
-                tester.TestStackableItems();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            // 第四行：背包满测试 | 存档读档
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("背包满测试", GUILayout.Height(30)))
-            {
-                tester.TestFullInventory();
-            }
-            if (GUILayout.Button("存档读档", GUILayout.Height(30)))
-            {
-                tester.TestSaveAndLoad();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            // 第五行：边界测试 | 打印状态
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("边界测试", GUILayout.Height(30)))
-            {
-                tester.TestEdgeCases();
-            }
-            if (GUILayout.Button("打印状态", GUILayout.Height(30)))
-            {
-                tester.PrintInventoryStatus();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            // 第六行：清空背包
-            EditorGUILayout.BeginHorizontal();
-            GUI.backgroundColor = Color.red;
-            if (GUILayout.Button("清空背包", GUILayout.Height(30)))
-            {
-                tester.ClearAllItems();
-            }
-            GUI.backgroundColor = Color.white;
-            EditorGUILayout.EndHorizontal();
 
             serializedObject.Update();
             serializedObject.ApplyModifiedProperties();

@@ -78,8 +78,8 @@ fsWrite("AI工作区/配置表/TableName.txt", content)
 
 **TXT格式要求**：
 ```
-#	TableName													
-#	ID		Field1	Field2	Field3
+#	TableName					
+#	Id		Field1	Field2	Field3
 #	int		type1	type2	type3
 #	ID编号	备注	说明1	说明2	说明3
 	1		value1	value2	value3
@@ -89,11 +89,12 @@ fsWrite("AI工作区/配置表/TableName.txt", content)
 - Tab分隔符（\t）
 - 第1列：行标记（#表示元数据行，空表示数据行）
 - 第2列：ID字段（主键）
-- 第3列：**备注列（固定为空，用于分隔ID和其他字段）,需要用Tab进行分隔**
-- 第4列及以后：其他有效字段
+- 第3列：**备注列（固定为空，用于分隔ID和其他字段），必须用Tab进行分隔**
+- 第4列及以后：其他有效字段（ColorName、ColorHex、Description 等）
 - 数据行第1列为空，第3列为空
 - 元数据行第1列是#，第3列为空
 - ⚠️ **重要**：表名行（第1行）末尾不要有多余的Tab，否则会生成多余的空列
+- ⚠️ **重要**：第3列（备注列）必须存在但为空，用Tab分隔，这样第4列才是第一个有效字段
 - ⚠️ **数组分隔符规则**：
   - **数组元素必须使用英文逗号 `,` 分隔**
   - **禁止使用中文顿号 `、` 或其他分隔符**

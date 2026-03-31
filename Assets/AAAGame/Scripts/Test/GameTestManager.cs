@@ -57,10 +57,10 @@ public class GameTestManager : SingletonBase<GameTestManager>
 
     private void Update()
     {
-        if (!m_EnableHotkeys)
-            return;
-
-        HandleStateTestKeys();
+        // 快捷键已移至 Tools > Clash of Gods > Test Manager 窗口管理
+        // if (!m_EnableHotkeys)
+        //     return;
+        // HandleStateTestKeys();
     }
 
     #endregion

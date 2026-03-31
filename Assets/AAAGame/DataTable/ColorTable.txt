@@ -1,8 +1,12 @@
-﻿#	颜色表		
-#	Id		ColorHex
-#	int		string
-#		备注	
-	1	Green	#61F34A
-	2	Orange	#F3AA38
-	3	Red	#F3534B
-	4	Purple	#A100FF
+﻿#	ColorTable				
+#	Id		ColorName	ColorHex	Description
+#	int		string	string	string
+#	ID编号	备注	颜色名称	十六进制色值（支持RGB和RGBA格式：#RGB、#RRGGBB、#RGBA、#RRGGBBAA）	颜色描述/用途
+	1		Green	#61F34A	稀有度1-绿色（普通物品）
+	2		Orange	#F3AA38	稀有度2-橙色（稀有物品）
+	3		Red	#F3534B	稀有度3-红色（史诗物品）
+	4		Purple	#A100FF	稀有度4-紫色（传奇物品）
+	5		White	#FFFFFF	白色（普通/默认）
+	6		Black	#000000	黑色（背景/禁用）
+	7		Yellow	#FFFF00	黄色（警告/重要）
+	8		Gray	#808080	灰色（禁用/不可用）

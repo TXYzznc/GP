@@ -58,6 +58,9 @@ public class InGameState : FsmState<GameStateManager>
         // 初始化玩家运行时数据管理器
         PlayerRuntimeDataManager.Instance.Initialize();
 
+        // 初始化背包与仓库（容量从 PlayerInitTable 读取）
+        InitInventoryAndWarehouse();
+
         // 订阅战斗结束事件
         GF.Event.Subscribe(CombatEndEventArgs.EventId, OnCombatEnd);
 
@@ -89,6 +92,9 @@ public class InGameState : FsmState<GameStateManager>
 
         // 清理玩家运行时数据管理器
         PlayerRuntimeDataManager.Instance.Cleanup();
+
+        // 清理仓库数据（WarehouseManager 是纯 C# 单例，需手动清理）
+        WarehouseManager.Instance.Cleanup();
 
         // 回到基地（局外）：恢复所有棋子血量到满值（含已死亡棋子）
         GlobalChessManager.Instance.RestoreAllChessHP();
@@ -253,6 +259,27 @@ public class InGameState : FsmState<GameStateManager>
     #endregion
 
     #region 私有方法
+
+    /// <summary>
+    /// 初始化背包与仓库，容量从 PlayerInitTable 读取
+    /// </summary>
+    private void InitInventoryAndWarehouse()
+    {
+        int warehouseCapacity = 50; // 默认值
+
+        var initTable = GF.DataTable.GetDataTable<PlayerInitTable>();
+        if (initTable != null)
+        {
+            var initConfig = initTable.GetDataRow(1);
+            if (initConfig != null)
+                warehouseCapacity = initConfig.InitWarehouseCapacity;
+        }
+
+        // InventoryManager 是 MonoBehaviour 单例，在 Awake 中自动初始化，无需手动调用
+        WarehouseManager.Instance.Initialize(warehouseCapacity);
+
+        DebugEx.LogModule("InGameState", $"仓库初始化完成 - 容量:{warehouseCapacity}");
+    }
 
     /// <summary>
     /// 通过反射调用子状态机的 ChangeState 方法

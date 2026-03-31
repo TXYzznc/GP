@@ -50,37 +50,38 @@ public class ChessTestInput : MonoBehaviour
 
     #region Unity 生命周期
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    private void Update()
-    {
-        if (!m_IsSelected || m_Entity == null) return;
-        if (m_Animator != null && m_Animator.IsDead) return;
+// 快捷键已移至 Tools > Clash of Gods > Test Manager 窗口管理
+// #if UNITY_EDITOR || DEVELOPMENT_BUILD
+//     private void Update()
+//     {
+//         if (!m_IsSelected || m_Entity == null) return;
+//         if (m_Animator != null && m_Animator.IsDead) return;
 
-        // 空格 - 普攻
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            DoNormalAttack();
-        }
+//         // 空格 - 普攻
+//         if (Input.GetKeyDown(KeyCode.Space))
+//         {
+//             DoNormalAttack();
+//         }
 
-        // 1 - 技能1
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            DoSkill1();
-        }
+//         // 1 - 技能1
+//         if (Input.GetKeyDown(KeyCode.Alpha1))
+//         {
+//             DoSkill1();
+//         }
 
-        // 2 - 技能2/大招
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            DoSkill2();
-        }
+//         // 2 - 技能2/大招
+//         if (Input.GetKeyDown(KeyCode.Alpha2))
+//         {
+//             DoSkill2();
+//         }
 
-        // 3 - 死亡
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            DoDeath();
-        }
-    }
-#endif
+//         // 3 - 死亡
+//         if (Input.GetKeyDown(KeyCode.Alpha3))
+//         {
+//             DoDeath();
+//         }
+//     }
+// #endif
 
     #endregion
 

@@ -104,10 +104,11 @@ public class EnemyTestController : MonoBehaviour
 
     private void Update()
     {
+        // 快捷键已移至 Tools > Clash of Gods > Test Manager 窗口管理
         // 只在开发模式下启用
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        HandleTestInput();
-#endif
+        // #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // HandleTestInput();
+        // #endif
     }
 
     private void OnDestroy()
@@ -194,13 +195,12 @@ public class EnemyTestController : MonoBehaviour
     /// <summary>
     /// 生成测试敌人
     /// </summary>
-    [ContextMenu("生成敌人")]
     public async void SpawnTestEnemy()
     {
         // 如果启用批量生成模式
         if (m_EnableBatchSpawn)
         {
-            await SpawnBatchEnemies();
+            await SpawnBatchEnemiesInternal();
             return;
         }
 
@@ -235,7 +235,15 @@ public class EnemyTestController : MonoBehaviour
     /// <summary>
     /// 批量生成敌人
     /// </summary>
-    private async UniTask SpawnBatchEnemies()
+    public async void SpawnEnemiesBatch()
+    {
+        await SpawnBatchEnemiesInternal();
+    }
+
+    /// <summary>
+    /// 批量生成敌人（内部方法）
+    /// </summary>
+    private async UniTask SpawnBatchEnemiesInternal()
     {
         // 清理旧的敌人
         DestroyAllEnemies();
@@ -337,7 +345,6 @@ public class EnemyTestController : MonoBehaviour
     /// <summary>
     /// 执行攻击
     /// </summary>
-    [ContextMenu("攻击")]
     public void DoAttack()
     {
         if (m_CurrentEnemy == null || m_CurrentEnemy.Animator == null)
@@ -350,7 +357,6 @@ public class EnemyTestController : MonoBehaviour
     /// <summary>
     /// 释放技能1
     /// </summary>
-    [ContextMenu("技能1")]
     public void DoSkill1()
     {
         if (m_CurrentEnemy == null)
@@ -425,7 +431,6 @@ public class EnemyTestController : MonoBehaviour
     /// <summary>
     /// 清理所有敌人
     /// </summary>
-    [ContextMenu("清理所有敌人")]
     public void ClearAllEnemies()
     {
         DestroyAllEnemies();
@@ -482,7 +487,7 @@ public class EnemyTestController : MonoBehaviour
     /// <summary>
     /// 销毁所有批量生成的敌人
     /// </summary>
-    private void DestroyAllEnemies()
+    public void DestroyAllEnemies()
     {
         // 销毁单个敌人
         DestroyCurrentEnemy();

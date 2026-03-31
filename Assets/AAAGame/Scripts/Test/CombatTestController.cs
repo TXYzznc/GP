@@ -47,7 +47,6 @@ public class CombatTestController : MonoBehaviour
     /// <summary>
     /// 测试配置加载
     /// </summary>
-    [ContextMenu("测试配置加载")]
     public void TestConfigLoading()
     {
         DebugEx.LogModule("CombatTestController", $"开始测试配置加载 ID={m_TestBattleConfigId}");
@@ -81,7 +80,6 @@ public class CombatTestController : MonoBehaviour
     /// <summary>
     /// 生成战斗场地
     /// </summary>
-    [ContextMenu("生成战斗场地")]
     public async void SpawnBattleArena()
     {
         DebugEx.LogModule("CombatTestController", "开始生成战斗场地");

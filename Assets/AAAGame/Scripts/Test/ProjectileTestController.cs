@@ -189,7 +189,8 @@ public class ProjectileTestController : MonoBehaviour
 
     private void Update()
     {
-        HandleInput();
+        // 快捷键已移至 Tools > Clash of Gods > Test Manager 窗口管理
+        // HandleInput();
 
         // 自动发射
         if (m_IsAutoFiring)
@@ -474,7 +475,7 @@ public class ProjectileTestController : MonoBehaviour
     /// <summary>
     /// 发射投射物
     /// </summary>
-    private void FireProjectile()
+    public void FireProjectile()
     {
         if (m_CurrentProjectilePrefab == null)
         {
@@ -674,6 +675,11 @@ public class ProjectileTestController : MonoBehaviour
     /// <summary>
     /// 重置统计数据
     /// </summary>
+    public void ResetStats()
+    {
+        ResetStatistics();
+    }
+
     private void ResetStatistics()
     {
         m_TotalFiredCount = 0;

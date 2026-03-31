@@ -35,6 +35,20 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     public CameraViewMode ViewMode { get; private set; } = CameraViewMode.ThirdPerson;
     public bool ViewModeSwitchTriggered { get; private set; } // 视角切换触发
 
+    // 背包开关
+    public bool InventoryToggleTriggered { get; private set; }
+
+    // 仓库开关
+    public bool WarehouseToggleTriggered { get; private set; }
+
+    // 背包翻页（A=上一页，D=下一页，仅背包打开时使用）
+    public bool InventoryPagePrevTriggered { get; private set; }
+    public bool InventoryPageNextTriggered { get; private set; }
+
+    // 快捷栏数字键 1-5（index 0 = Alpha1 ... index 4 = Alpha5）
+    private readonly bool[] m_HotbarKeyDown = new bool[5];
+    public bool GetHotbarKeyDown(int slot) => slot >= 1 && slot <= 5 && m_HotbarKeyDown[slot - 1];
+
     // 鼠标灵敏度属性
     public float MouseSensitivityX
     {
@@ -70,11 +84,15 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
     private void Update()
     {
-        // 按下 Tab 键切换鼠标锁定
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            ToggleCursorLock();
-        }
+        // Tab 键：背包开关
+        InventoryToggleTriggered = Input.GetKeyDown(KeyCode.Tab);
+
+        // G 键：仓库开关
+        WarehouseToggleTriggered = Input.GetKeyDown(KeyCode.G);
+
+        // 背包翻页（A/D，仅背包打开时生效，由 InventoryUI 自行判断）
+        InventoryPagePrevTriggered = Input.GetKeyDown(KeyCode.A);
+        InventoryPageNextTriggered = Input.GetKeyDown(KeyCode.D);
 
         // 按下 I 键切换视角模式
         ViewModeSwitchTriggered = Input.GetKeyDown(KeyCode.I);
@@ -129,6 +147,13 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         summonerSkillDown[1] = Input.GetKeyDown(KeyCode.Q);
         summonerSkillDown[2] = Input.GetKeyDown(KeyCode.E);
         summonerSkillDown[3] = Input.GetKeyDown(KeyCode.R);
+
+        // 快捷栏 1-5
+        m_HotbarKeyDown[0] = Input.GetKeyDown(KeyCode.Alpha1);
+        m_HotbarKeyDown[1] = Input.GetKeyDown(KeyCode.Alpha2);
+        m_HotbarKeyDown[2] = Input.GetKeyDown(KeyCode.Alpha3);
+        m_HotbarKeyDown[3] = Input.GetKeyDown(KeyCode.Alpha4);
+        m_HotbarKeyDown[4] = Input.GetKeyDown(KeyCode.Alpha5);
     }
 
     /// <summary>

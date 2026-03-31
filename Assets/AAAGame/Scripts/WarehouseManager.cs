@@ -168,13 +168,13 @@ public class WarehouseManager
         }
 
         // 检查是否可堆叠
-        if (itemData.MaxStack > 1)
+        if (itemData.MaxStackCount > 1)
         {
             var existingItem = GetItemById(itemId);
-            if (existingItem != null && existingItem.Count < itemData.MaxStack)
+            if (existingItem != null && existingItem.Count < itemData.MaxStackCount)
             {
                 // 堆叠到现有物品
-                int addCount = Mathf.Min(count, itemData.MaxStack - existingItem.Count);
+                int addCount = Mathf.Min(count, itemData.MaxStackCount - existingItem.Count);
                 int oldCount = existingItem.Count;
                 existingItem.Count += addCount;
 
@@ -236,26 +236,30 @@ public class WarehouseManager
             return false;
         }
 
-        var allItems = inventoryManager.GetAllItems();
+        var allSlots = inventoryManager.GetAllSlots();
         int successCount = 0;
         int failCount = 0;
 
-        foreach (var item in allItems)
+        // 先收集需要存入的物品（避免遍历时修改集合）
+        var toStore = new System.Collections.Generic.List<(int itemId, int count)>();
+        foreach (var slot in allSlots)
         {
-            if (StoreItem(item.ItemId, item.Count, item.Durability))
-            {
-                successCount++;
-            }
-            else
-            {
-                failCount++;
-            }
+            if (!slot.IsEmpty)
+                toStore.Add((slot.ItemId, slot.Count));
         }
 
-        // 从背包中移除已存入的物品
-        foreach (var item in allItems)
+        foreach (var (itemId, count) in toStore)
         {
-            inventoryManager.RemoveItem(item.ItemId, item.Count);
+            if (StoreItem(itemId, count, 0))
+                successCount++;
+            else
+                failCount++;
+        }
+
+        // 从背包中移除已处理的物品
+        foreach (var (itemId, count) in toStore)
+        {
+            inventoryManager.RemoveItem(itemId, count);
         }
 
         DebugEx.Log("WarehouseManager", $"一键存入完成 - 成功:{successCount}, 失败:{failCount}");
@@ -302,7 +306,7 @@ public class WarehouseManager
         }
 
         // 尝试添加到背包
-        if (!inventoryManager.AddItem(itemId, count, item.Durability))
+        if (!inventoryManager.AddItem(itemId, count))
         {
             DebugEx.Warning("WarehouseManager", $"背包已满，无法取出物品 ID={itemId}");
             return false;

@@ -35,6 +35,9 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public int MaxSlotCount => m_MaxSlotCount;
 
+    /// <summary>是否已初始化</summary>
+    public bool IsInitialized => m_IsInitialized;
+
     /// <summary>
     /// 当前使用的格子数量
     /// </summary>
@@ -249,6 +252,59 @@ public class InventoryManager : SingletonBase<InventoryManager>
     }
 
     /// <summary>
+    /// 交换两个格子的物品
+    /// </summary>
+    public bool MoveItem(int fromSlot, int toSlot)
+    {
+        if (fromSlot < 0 || fromSlot >= m_Slots.Count || toSlot < 0 || toSlot >= m_Slots.Count)
+        {
+            DebugEx.Error("InventoryManager", $"MoveItem 格子索引越界: {fromSlot} -> {toSlot}");
+            return false;
+        }
+
+        var from = m_Slots[fromSlot];
+        var to = m_Slots[toSlot];
+
+        // 交换格子内容
+        var tempStack = from.ItemStack;
+        int tempCount = from.Count;
+
+        if (to.IsEmpty)
+        {
+            to.SetItem(from.ItemStack?.Item, from.Count);
+            from.Clear();
+        }
+        else
+        {
+            // 同种物品且可堆叠，尝试合并
+            if (from.ItemId == to.ItemId && from.ItemStack?.Item?.MaxStackCount > 1)
+            {
+                int canAdd = to.ItemStack.Item.MaxStackCount - to.Count;
+                int add = Math.Min(canAdd, from.Count);
+                to.AddItem(add);
+                from.RemoveItem(add);
+            }
+            else
+            {
+                // 互换
+                var fromItem = from.ItemStack?.Item;
+                int fromCount = from.Count;
+                var toItem = to.ItemStack?.Item;
+                int toCount = to.Count;
+
+                from.Clear();
+                to.Clear();
+                from.SetItem(toItem, toCount);
+                to.SetItem(fromItem, fromCount);
+            }
+        }
+
+        DebugEx.Log("InventoryManager", $"物品移动: {fromSlot} -> {toSlot}");
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
     /// 检查是否拥有物品
     /// </summary>
     public bool HasItem(int itemId, int count = 1)
@@ -274,6 +330,80 @@ public class InventoryManager : SingletonBase<InventoryManager>
     public List<InventorySlot> GetAllSlots()
     {
         return m_Slots;
+    }
+
+    /// <summary>
+    /// 一键整理：先堆叠同种物品，再按 ItemType 分组、Rarity 降序排列
+    /// </summary>
+    public void SortInventory()
+    {
+        // 1. 收集所有非空堆叠
+        var stacks = new List<ItemStack>();
+        foreach (var slot in m_Slots)
+        {
+            if (!slot.IsEmpty)
+                stacks.Add(slot.ItemStack);
+        }
+
+        // 2. 堆叠合并：同 ItemId 且可堆叠的合并到同一堆
+        var merged = new List<ItemStack>();
+        foreach (var stack in stacks)
+        {
+            var existing = merged.Find(s =>
+                s.ItemId == stack.ItemId && !s.IsFull
+            );
+            if (existing != null)
+            {
+                int canAdd = existing.Item.MaxStackCount - existing.Count;
+                int add = Math.Min(canAdd, stack.Count);
+                existing.Add(add);
+                stack.Remove(add);
+                if (stack.Count > 0)
+                    merged.Add(stack);
+            }
+            else
+            {
+                merged.Add(stack);
+            }
+        }
+
+        // 3. 按 ItemType 升序，Quality 降序，ItemId 升序 排序
+        merged.Sort((a, b) =>
+        {
+            int typeCompare = a.Item.ItemData.Type.CompareTo(b.Item.ItemData.Type);
+            if (typeCompare != 0)
+                return typeCompare;
+            int qualityCompare = b.Item.ItemData.Quality.CompareTo(a.Item.ItemData.Quality);
+            if (qualityCompare != 0)
+                return qualityCompare;
+            return a.ItemId.CompareTo(b.ItemId);
+        });
+
+        // 4. 重新填回格子
+        for (int i = 0; i < m_Slots.Count; i++)
+        {
+            if (i < merged.Count)
+                m_Slots[i].SetItemStack(merged[i]);
+            else
+                m_Slots[i].Clear();
+        }
+
+        DebugEx.Success("InventoryManager", "背包整理完成");
+        OnInventoryChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 计算当前总负重（Weight 字段待 DataTable 配置化后接入，当前每件物品计 1 重量）
+    /// </summary>
+    public float CalculateCurrentWeight()
+    {
+        float total = 0f;
+        foreach (var slot in m_Slots)
+        {
+            if (!slot.IsEmpty)
+                total += slot.Count; // TODO: 改为 slot.ItemStack.Item.ItemData.Weight * slot.Count
+        }
+        return total;
     }
 
     #endregion
@@ -358,16 +488,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public void LoadInventory(List<InventoryItemSaveData> saveDataList)
     {
+        // 先清空当前背包（无论saveDataList是否为空）
+        ClearInventory();
+
         if (saveDataList == null || saveDataList.Count == 0)
         {
-            DebugEx.Log("InventoryManager", "存档中没有背包数据，跳过加载");
+            DebugEx.Log("InventoryManager", "存档中没有背包数据，背包已清空");
+            OnInventoryChanged?.Invoke();
             return;
         }
 
         DebugEx.Log("InventoryManager", $"开始加载背包数据，共 {saveDataList.Count} 个物品");
-
-        // 清空当前背包
-        ClearInventory();
 
         // 加载每个物品
         int successCount = 0;
@@ -398,6 +529,9 @@ public class InventoryManager : SingletonBase<InventoryManager>
             "InventoryManager",
             $"背包数据加载完成，成功加载 {successCount}/{saveDataList.Count} 个物品"
         );
+
+        // 触发背包变化事件，刷新UI
+        OnInventoryChanged?.Invoke();
     }
 
     /// <summary>

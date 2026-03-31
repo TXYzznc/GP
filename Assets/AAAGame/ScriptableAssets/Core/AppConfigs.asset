@@ -17,6 +17,7 @@ MonoBehaviour:
   - AffixTable
   - BuffTable
   - CardTable
+  - ColorTable
   - CombatRuleTable
   - DamageFloatingTextTable
   - EnemyEntityTable

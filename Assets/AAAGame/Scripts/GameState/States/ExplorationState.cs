@@ -56,6 +56,23 @@ public class ExplorationState : FsmState<InGameState>
         base.OnLeave(fsm, isShutdown);
     }
 
+    protected override void OnUpdate(IFsm<InGameState> fsm, float elapseSeconds, float realElapseSeconds)
+    {
+        base.OnUpdate(fsm, elapseSeconds, realElapseSeconds);
+
+        // Tab 键开关背包
+        if (PlayerInputManager.Instance != null && PlayerInputManager.Instance.InventoryToggleTriggered)
+        {
+            ToggleInventory();
+        }
+
+        // G 键开关仓库
+        if (PlayerInputManager.Instance != null && PlayerInputManager.Instance.WarehouseToggleTriggered)
+        {
+            ToggleWarehouse();
+        }
+    }
+
     protected override void OnDestroy(IFsm<InGameState> fsm)
     {
         DebugEx.LogModule("ExplorationState", "销毁");
@@ -173,6 +190,47 @@ public class ExplorationState : FsmState<InGameState>
         {
             PlayerInputManager.Instance.SetCursorLock(true);
             DebugEx.LogModule("ExplorationState", "光标已锁定");
+        }
+    }
+
+    #endregion
+
+    #region 背包 / 仓库开关
+
+    private int m_InventoryFormId = -1;
+    private int m_WarehouseFormId = -1;
+
+    private void ToggleWarehouse()
+    {
+        if (GF.UI.HasUIForm(m_WarehouseFormId))
+        {
+            GF.UI.CloseUIForm(m_WarehouseFormId);
+            m_WarehouseFormId = -1;
+            PlayerInputManager.Instance.SetCursorLock(true);
+            DebugEx.LogModule("ExplorationState", "关闭仓库");
+        }
+        else
+        {
+            m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
+            PlayerInputManager.Instance.SetCursorLock(false);
+            DebugEx.LogModule("ExplorationState", "打开仓库");
+        }
+    }
+
+    private void ToggleInventory()
+    {
+        if (GF.UI.HasUIForm(m_InventoryFormId))
+        {
+            GF.UI.CloseUIForm(m_InventoryFormId);
+            m_InventoryFormId = -1;
+            PlayerInputManager.Instance.SetCursorLock(true);
+            DebugEx.LogModule("ExplorationState", "关闭背包");
+        }
+        else
+        {
+            m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
+            PlayerInputManager.Instance.SetCursorLock(false);
+            DebugEx.LogModule("ExplorationState", "打开背包");
         }
     }
 
