@@ -342,56 +342,7 @@ public class ProjectileTestController : MonoBehaviour
 
     #endregion
 
-    #region 输入处理
-
-    /// <summary>
-    /// 处理输入
-    /// </summary>
-    private void HandleInput()
-    {
-        // Space - 发射单发
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            FireProjectile();
-        }
-
-        // A - 切换自动发射
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            m_IsAutoFiring = !m_IsAutoFiring;
-            m_AutoFireTimer = 0f;
-        }
-
-        // R - 重置统计
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            ResetStatistics();
-        }
-
-        // H - 显示/隐藏UI
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            m_ShowDebugUI = !m_ShowDebugUI;
-        }
-
-        // 左右方向键 - 切换投射物
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            SwitchProjectile(-1);
-        }
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            SwitchProjectile(1);
-        }
-
-        // T - 切换追踪模式
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            ToggleHoming();
-        }
-    }
-
-    #endregion
+    // 键盘输入已移至 GameTestWindow，此方法已删除
 
     #region 投射物切换
 

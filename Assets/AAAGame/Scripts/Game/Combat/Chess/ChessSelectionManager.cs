@@ -114,8 +114,12 @@ public class ChessSelectionManager
         if (!m_IsEnabled)
             return;
 
+        var inputManager = PlayerInputManager.Instance;
+        if (inputManager == null)
+            return;
+
         // 左键点击
-        if (Input.GetMouseButtonDown(0))
+        if (inputManager.LeftMouseButtonDown)
         {
             // 检查是否点击 UI 上
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
@@ -134,7 +138,7 @@ public class ChessSelectionManager
         }
 
         // 右键点击 - 召回棋子
-        if (Input.GetMouseButtonDown(1))
+        if (inputManager.RightMouseButtonDown)
         {
             HandleRightClick();
         }

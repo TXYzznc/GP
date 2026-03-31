@@ -19,6 +19,7 @@ public class GameTestWindow : EditorWindow
     #region 字段
 
     private Vector2 m_ScrollPosition;
+    private Vector2 m_LogScrollPosition;
     private InventoryTester m_InventoryTester;
     private CombatTestController m_CombatTestController;
     private EnemyTestController m_EnemyTestController;
@@ -26,6 +27,12 @@ public class GameTestWindow : EditorWindow
 
     // 游戏状态
     private GameTestManager m_GameTestManager;
+
+    // 日志相关
+    private bool m_ShowLogs = true;
+    private bool m_ShowInfo = true;
+    private bool m_ShowWarning = true;
+    private bool m_ShowError = true;
 
     #endregion
 
@@ -62,6 +69,10 @@ public class GameTestWindow : EditorWindow
 
         // 游戏状态测试
         DrawGameStateTestSection();
+        EditorGUILayout.Space(15);
+
+        // 日志系统
+        DrawLogsSection();
 
         EditorGUILayout.EndScrollView();
     }
@@ -254,6 +265,111 @@ public class GameTestWindow : EditorWindow
             }
         }
         EditorGUILayout.EndHorizontal();
+    }
+
+    #endregion
+
+    #region 日志系统
+
+    private void DrawLogsSection()
+    {
+        EditorGUILayout.LabelField("📋 日志系统", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("捕获和导出游戏日志", MessageType.Info);
+
+        // 启动/停止日志捕获
+        var logBuffer = TestLogBuffer.Instance;
+        if (logBuffer == null)
+        {
+            EditorGUILayout.HelpBox("日志缓冲器未初始化", MessageType.Warning);
+            return;
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        GUI.backgroundColor = logBuffer.IsListening ? Color.green : Color.red;
+        string buttonText = logBuffer.IsListening ? "停止捕获" : "启动捕获";
+        if (GUILayout.Button(buttonText, GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            if (logBuffer.IsListening)
+                logBuffer.StopListening();
+            else
+                logBuffer.StartListening();
+        }
+        GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+
+        // 日志过滤选项
+        EditorGUILayout.BeginHorizontal();
+        m_ShowInfo = EditorGUILayout.Toggle("Info", m_ShowInfo, GUILayout.Width(60));
+        m_ShowWarning = EditorGUILayout.Toggle("Warning", m_ShowWarning, GUILayout.Width(80));
+        m_ShowError = EditorGUILayout.Toggle("Error", m_ShowError, GUILayout.Width(60));
+        EditorGUILayout.EndHorizontal();
+
+        // 日志统计
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField($"总日志: {logBuffer.Logs.Count}");
+        EditorGUILayout.LabelField($"Info: {logBuffer.GetLogCountByType(LogType.Log)}");
+        EditorGUILayout.LabelField($"Warning: {logBuffer.GetLogCountByType(LogType.Warning)}");
+        EditorGUILayout.LabelField($"Error: {logBuffer.GetLogCountByType(LogType.Error)}");
+        EditorGUILayout.EndHorizontal();
+
+        // 日志显示区域
+        EditorGUILayout.LabelField("日志内容", EditorStyles.boldLabel);
+        m_LogScrollPosition = EditorGUILayout.BeginScrollView(m_LogScrollPosition, EditorStyles.helpBox, GUILayout.Height(200));
+
+        foreach (var log in logBuffer.Logs)
+        {
+            // 按类型筛选
+            if (!ShouldShowLog(log.Type))
+                continue;
+
+            // 根据类型设置颜色
+            GUI.color = GetLogColor(log.Type);
+            EditorGUILayout.LabelField(log.ToString(), EditorStyles.wordWrappedLabel);
+            GUI.color = Color.white;
+        }
+
+        EditorGUILayout.EndScrollView();
+
+        // 操作按钮
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("导出日志", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            string filePath = logBuffer.ExportLogsToFile();
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                EditorUtility.RevealInFinder(filePath);
+            }
+        }
+
+        GUI.backgroundColor = Color.red;
+        if (GUILayout.Button("清空日志", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            if (EditorUtility.DisplayDialog("确认", "确定要清空所有日志吗？", "确定", "取消"))
+            {
+                logBuffer.ClearLogs();
+            }
+        }
+        GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+    }
+
+    private bool ShouldShowLog(LogType type)
+    {
+        return (type == LogType.Log && m_ShowInfo) ||
+               (type == LogType.Warning && m_ShowWarning) ||
+               ((type == LogType.Error || type == LogType.Exception) && m_ShowError);
+    }
+
+    private Color GetLogColor(LogType type)
+    {
+        return type switch
+        {
+            LogType.Log => Color.white,
+            LogType.Warning => new Color(1, 0.9f, 0),
+            LogType.Error => Color.red,
+            LogType.Exception => Color.red,
+            _ => Color.white
+        };
     }
 
     #endregion

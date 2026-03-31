@@ -319,25 +319,29 @@ public class ChessPlacementManager
         // 处理输入（仅非拖拽模式）
         if (!m_IsDragMode)
         {
-            if (Input.GetMouseButtonDown(0))
+            var inputManager = PlayerInputManager.Instance;
+            if (inputManager != null)
             {
-                // 检查是否点击 UI 上
-                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                if (inputManager.LeftMouseButtonDown)
                 {
-                    // 点击在 UI 上 → 取消放置
-                    Log.Info("ChessPlacementManager: 点击在UI上，取消放置");
+                    // 检查是否点击 UI 上
+                    if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                    {
+                        // 点击在 UI 上 → 取消放置
+                        Log.Info("ChessPlacementManager: 点击在UI上，取消放置");
+                        CancelPlacement();
+                    }
+                    else
+                    {
+                        // 点击在场景中 → 尝试放置
+                        TryConfirmPlacement();
+                    }
+                }
+                else if (inputManager.RightMouseButtonDown)
+                {
+                    // 右键取消
                     CancelPlacement();
                 }
-                else
-                {
-                    // 点击在场景中 → 尝试放置
-                    TryConfirmPlacement();
-                }
-            }
-            else if (Input.GetMouseButtonDown(1))
-            {
-                // 右键取消
-                CancelPlacement();
             }
         }
     }

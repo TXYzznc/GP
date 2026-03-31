@@ -104,11 +104,8 @@ public class EnemyTestController : MonoBehaviour
 
     private void Update()
     {
-        // 快捷键已移至 Tools > Clash of Gods > Test Manager 窗口管理
-        // 只在开发模式下启用
-        // #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // HandleTestInput();
-        // #endif
+        // 键盘输入已禁用，所有测试功能已集中到 GameTestWindow
+        // 如需恢复键盘快捷键测试，请修改此处
     }
 
     private void OnDestroy()

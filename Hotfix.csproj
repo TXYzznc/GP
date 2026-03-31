@@ -395,6 +395,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\SynergyData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Animation\AnimationExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\TestLogBuffer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EscapeResultUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeNormalAttack.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\CloudArchiveUI.cs" />

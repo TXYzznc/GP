@@ -22,15 +22,22 @@ public class WorldItemPickup : MonoBehaviour
 
     private void OnMouseDown()
     {
+        var inputManager = PlayerInputManager.Instance;
+        if (inputManager == null)
+            return;
+
         // 右键：直接使用（可使用物品）
-        if (Input.GetMouseButtonDown(1))
+        if (inputManager.RightMouseButtonDown)
         {
             TryUseDirectly();
             return;
         }
 
         // 左键：拾取到背包
-        TryPickup();
+        if (inputManager.LeftMouseButtonDown)
+        {
+            TryPickup();
+        }
     }
 
     private void TryPickup()

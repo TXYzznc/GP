@@ -135,6 +135,7 @@
     <None Include="Assets\AAAGame\Config\GameConfig.txt" />
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260331_113817.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260331_165629.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\HDRP URP Gamma Readme.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessSkillTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />

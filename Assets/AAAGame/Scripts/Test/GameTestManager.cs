@@ -12,26 +12,9 @@ public class GameTestManager : SingletonBase<GameTestManager>
     #region 字段
 
     [Header("测试开关")]
-    [Tooltip("是否启用快捷键测试")]
-    [SerializeField]
-    private bool m_EnableHotkeys = true;
-
     [Tooltip("是否启用战斗自动结束（进入战斗后3秒自动胜利结束）")]
     [SerializeField]
     private bool m_AutoEndCombat = false;
-
-    [Header("快捷键配置")]
-    [SerializeField]
-    private KeyCode m_ExplorationKey = KeyCode.U;
-
-    [SerializeField]
-    private KeyCode m_CombatPreparationKey = KeyCode.O;
-
-    [SerializeField]
-    private KeyCode m_ChessTestKey = KeyCode.P;
-
-    [SerializeField]
-    private KeyCode m_RuntimeDataTestKey = KeyCode.R;
 
     // 性能优化：缓存单例引用
     private GameStateManager m_GameStateManager;
@@ -53,73 +36,6 @@ public class GameTestManager : SingletonBase<GameTestManager>
     protected override void OnDestroy()
     {
         base.OnDestroy();
-    }
-
-    private void Update()
-    {
-        // 快捷键已移至 Tools > Clash of Gods > Test Manager 窗口管理
-        // if (!m_EnableHotkeys)
-        //     return;
-        // HandleStateTestKeys();
-    }
-
-    #endregion
-
-    #region 快捷键处理
-
-    /// <summary>
-    /// 处理状态切换测试快捷键
-    /// </summary>
-    private void HandleStateTestKeys()
-    {
-        // 使用缓存的引用，避免每帧访问单例
-        if (m_GameStateManager == null)
-        {
-            m_GameStateManager = GameStateManager.Instance;
-            if (m_GameStateManager == null)
-                return;
-        }
-
-        // U键：切换到探索状态
-        if (Input.GetKeyDown(m_ExplorationKey))
-        {
-            m_GameStateManager.SwitchToExploration();
-        }
-
-        // O键：切换到战斗准备状态
-        if (Input.GetKeyDown(m_CombatPreparationKey))
-        {
-            // 检查当前状态，避免重复切换
-            if (m_GameStateManager.CurrentState == GameStateType.InGame)
-            {
-                var inGameState = m_GameStateManager.GetInGameState();
-                if (
-                    inGameState != null
-                    && inGameState.CurrentSubState == InGameStateType.CombatPreparation
-                )
-                {
-                    return;
-                }
-            }
-
-            // 测试设置：确保有已解锁的棋子可以显示
-            EnsureTestChessUnlocked();
-
-            // 直接切换到战斗准备状态，让CombatPreparationState内部处理提示UI
-            m_GameStateManager.SwitchToCombatPreparation();
-        }
-
-        // P键：测试棋子系统初始化
-        if (Input.GetKeyDown(m_ChessTestKey))
-        {
-            TestChessSystem();
-        }
-
-        // R键：测试运行时数据管理系统
-        if (Input.GetKeyDown(m_RuntimeDataTestKey))
-        {
-            TestRuntimeDataSystem();
-        }
     }
 
     #endregion

@@ -62,8 +62,13 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         set => mouseSensitivityY = Mathf.Max(0.1f, value);
     }
 
-    // 添加：检测右键按下
+    // 鼠标按钮输入
+    public bool LeftMouseButtonDown { get; private set; }
     public bool RightMouseButtonDown { get; private set; }
+
+    // 空格键输入（用于交互/触发事件）
+    public bool SpaceKeyDown { get; private set; }
+
     private bool[] skillDown = new bool[10];
     private bool[] summonerSkillDown = new bool[4];         // 槽位 1-3：Q/E/R 键盘
     private readonly bool[] m_SummonerSkillButtonPending = new bool[4]; // 槽位 1-3：UI 按钮触发
@@ -136,8 +141,12 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         // 获取冲刺输入
         SprintDown = Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
 
-        // 每帧检测获取右键按下
+        // 鼠标按钮输入
+        LeftMouseButtonDown = Input.GetMouseButtonDown(0); // 0 = 左键
         RightMouseButtonDown = Input.GetMouseButtonDown(1); // 1 = 右键
+
+        // 空格键输入
+        SpaceKeyDown = Input.GetKeyDown(KeyCode.Space);
 
         // 技能输入
         for (int slot = 1; slot <= 3; slot++)

@@ -118,7 +118,8 @@ public class CombatOpportunityDetector : MonoBehaviour
         DetectCombatOpportunities();
 
         // 检测空格键触发战斗
-        if (Input.GetKeyDown(KeyCode.Space) && m_CurrentTarget != null)
+        var inputManager = PlayerInputManager.Instance;
+        if (inputManager != null && inputManager.SpaceKeyDown && m_CurrentTarget != null)
         {
             TriggerCombat();
         }
