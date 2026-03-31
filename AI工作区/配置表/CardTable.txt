@@ -1,0 +1,16 @@
+#	CardTable																		
+#	Id		Name	Desc	IconId	PrefabConfig	SpiritCost	TargetType	CastRange	AreaRadius	DamageType	DamageCoeff	BaseDamage	InstantBuffs	HitBuffs	ParamsConfig	EffectId	HitEffectId	EffectSpawnHeight	Rarity	UnlockCondition
+#	int		string	string	int	string	float	int	float	float	int	float	float	string	string	string	int	int	float	int	string
+#	卡牌ID	备注	卡牌名称	卡牌描述	卡牌图标资源ID	预制体配置JSON	灵力消耗	目标类型(1=自身 2=友方单体 3=友方全体 4=敌方单体 5=敌方全体 6=全场)	施法范围(0=无限制)	AOE半径(0=单体)	伤害类型(0=无 1=物理 2=魔法 3=真实)	伤害系数	基础固定伤害	释放时施加的Buff列表	命中目标时施加的Buff列表	策略卡参数配置JSON	技能特效资源ID	受击特效资源ID	特效生成高度偏移	稀有度(1=普通 2=稀有 3=史诗 4=传说)	解锁条件
+	1001		神圣庇护	为所有友方单位提供护盾，吸收伤害	1202	{"effectPrefab":20101}	30	3	0	0	0	0	0	10301:3		{"shieldAmount":100,"duration":5}	30101	0	1.5	2	
+	1002		烈焰风暴	对敌方全体造成魔法伤害	1203	{"effectPrefab":20102}	50	5	0	5	2	0	150	0	10302:5	{"burnDuration":3}	30102	30201	1.0	3	
+	1003		时间回溯	使一个友方单位恢复到3秒前的状态	1204	{"effectPrefab":20103}	40	2	10	0	0	0	0	0		{"rewindSeconds":3}	30103	0	1.5	3	
+	1004		战争号角	提升全体友方攻击力和移动速度	1205	{"effectPrefab":20104}	35	3	0	0	0	0	0	10303:3,10304:3		{"atkBonus":0.3,"spdBonus":0.2,"duration":8}	30104	0	1.0	2	
+	1005		暗影突袭	对单个敌人造成高额物理伤害并眩晕	1206	{"effectPrefab":20105,"projectilePrefab":20106}	45	4	15	0	1	2.5	0	0	10305:5	{"stunDuration":2}	30105	30202	1.2	3	
+	1006		生命汲取	对敌方全体造成伤害并为自身回复生命	1207	{"effectPrefab":20107}	55	5	0	8	2	0	120	0	10306:5	{"healRatio":0.5}	30106	30203	1.0	3	
+	1007		冰霜新星	冰冻范围内所有敌人	1208	{"effectPrefab":20108}	40	5	0	6	0	0	0	0	10307:5	{"freezeDuration":3}	30107	30204	0.5	2	
+	1008		狂暴	使自身进入狂暴状态，大幅提升攻击力但降低防御	1209	{"effectPrefab":20109}	25	1	0	0	0	0	0	10308:1		{"atkBonus":0.8,"defPenalty":-0.3,"duration":10}	30108	0	1.5	2	
+	1009		群体治疗	恢复所有友方单位的生命值	1210	{"effectPrefab":20110}	45	3	0	0	0	0	0	10309:3		{"healAmount":150}	30109	0	1.0	2	
+	1010		雷霆一击	召唤闪电对单个敌人造成真实伤害	1211	{"effectPrefab":20111}	60	4	20	0	3	0	200	0		{}	30110	30205	2.0	4	
+	1011		混乱诅咒	使敌方全体陷入混乱，有概率攻击队友	1212	{"effectPrefab":20112}	50	5	0	0	0	0	0	0	10310:5	{"confuseDuration":4,"confuseChance":0.3}	30111	30206	1.0	3	
+	1012		不屈意志	复活一个阵亡的友方单位	1213	{"effectPrefab":20113}	80	2	10	0	0	0	0	10311:5		{"reviveHpRatio":0.5}	30112	0	1.5	4	

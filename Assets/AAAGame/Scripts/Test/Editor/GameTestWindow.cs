@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using UnityGameFramework.Runtime;
@@ -31,7 +31,7 @@ public class GameTestWindow : EditorWindow
 
     #region EditorWindow 生命周期
 
-    [MenuItem("Tools/Clash of Gods/Test Manager")]
+    [MenuItem("工具/Clash of Gods/Test Manager")]
     public static void ShowWindow()
     {
         GetWindow<GameTestWindow>("测试管理");
@@ -177,7 +177,7 @@ public class GameTestWindow : EditorWindow
 
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("生成敌人", GUILayout.Height(BUTTON_HEIGHT)))
-            m_EnemyTestController.SpawnEnemy();
+            m_EnemyTestController.SpawnTestEnemy();
         if (GUILayout.Button("批量生成", GUILayout.Height(BUTTON_HEIGHT)))
             m_EnemyTestController.SpawnEnemiesBatch();
         EditorGUILayout.EndHorizontal();
@@ -249,7 +249,7 @@ public class GameTestWindow : EditorWindow
                 var inGameState = gm.GetInGameState();
                 if (inGameState != null && inGameState.CurrentSubState != InGameStateType.CombatPreparation)
                 {
-                    inGameState.SwitchToCombatPreparationState();
+                    inGameState.SwitchToCombatPreparation();
                 }
             }
         }

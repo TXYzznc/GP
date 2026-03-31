@@ -459,6 +459,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\AOEHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SynergyTable.Ext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\UIModelViewer.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\Editor\GameTestWindow.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\ShopUIForm.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessSelectionManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatSessionData.cs" />

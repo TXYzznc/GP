@@ -14,7 +14,7 @@
 	1106		1	Summoner/狂战士.png	召唤师-术士立绘
 	1107		1	Summoner/狂战士.png	召唤师-混沌立绘
 	1108		1	Summoner/狂战士.png	召唤师-德鲁伊立绘
-	1201		1	Card/HolyLight.png	群体圣光-策略卡图标
+	1201		1	Card/HolyLight.png	神圣庇护-策略卡图标
 	1301		1	Chess/后羿/后羿立绘.png	棋子-后羿图标
 	1304		1	Chess/嫦娥/嫦娥立绘.png	棋子-嫦娥图标
 	1399		1	Chess/靶子.png	棋子-靶子图标

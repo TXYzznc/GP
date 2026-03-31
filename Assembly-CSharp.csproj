@@ -67,6 +67,7 @@
     <Compile Include="Assets\特效\子弹特效\Scripts\UniqueProjectiles\CameraShakeSimpleScript.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\测试输出日志\snapshot_20260331_143833.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\AAAGame\DataTable\Core\LanguagesTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SynergyTable.txt" />
@@ -77,6 +78,7 @@
     <None Include="Assets\AAAGame\DataTable\SpecialEffectTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Credits.txt" />
     <None Include="Assets\AAAGame\DataTable\ColorTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260331_143756.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\Additive_Scroll01.shader" />
     <None Include="Assets\AAAGame\DataTable\Core\EntityGroupTable.txt" />
     <None Include="Assets\AAAGame\DataTable\ItemTable.txt" />
