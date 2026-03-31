@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:一只靓仔的电脑
+//更新自:DESKTOP-7JQ11GM
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,4 +29,5 @@ public partial class CombatUI
 	[SerializeField] private Text varMpText = null;
 	[SerializeField] private Button varBtn_Population = null;
 	[SerializeField] private Button varBtn_Refresh = null;
+	[SerializeField] private Image varCardSlotAdsorptionArea = null;
 }

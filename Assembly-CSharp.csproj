@@ -85,6 +85,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260331_175237.txt" />
     <None Include="Assets\测试输出日志\snapshot_20260331_112356.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\LevelTable.txt" />
@@ -158,6 +159,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_back.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerDataTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260331_175531.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\AAAGame\DataTable\SceneTable.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatUnitTable.txt" />
@@ -173,6 +175,7 @@
     <None Include="Assets\AAAGame\DataTable\ResourceRuleTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerSkillTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260331_175407.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -183,6 +183,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\StartMenuUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessGhostPreview.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\InventoryManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\WarehouseTester.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\UIUtils.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\LevelTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiSkill1.cs" />

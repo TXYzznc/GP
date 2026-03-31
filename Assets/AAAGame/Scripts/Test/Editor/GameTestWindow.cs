@@ -21,6 +21,7 @@ public class GameTestWindow : EditorWindow
     private Vector2 m_ScrollPosition;
     private Vector2 m_LogScrollPosition;
     private InventoryTester m_InventoryTester;
+    private object m_WarehouseTester; // 使用 object 避免程序集问题
     private CombatTestController m_CombatTestController;
     private EnemyTestController m_EnemyTestController;
     private ProjectileTestController m_ProjectileTestController;
@@ -53,6 +54,10 @@ public class GameTestWindow : EditorWindow
 
         // 背包系统测试
         DrawInventoryTestSection();
+        EditorGUILayout.Space(15);
+
+        // 仓库系统测试
+        DrawWarehouseTestSection();
         EditorGUILayout.Space(15);
 
         // 战斗系统测试
@@ -136,6 +141,77 @@ public class GameTestWindow : EditorWindow
         GUI.backgroundColor = Color.red;
         if (GUILayout.Button("清空背包", GUILayout.Height(BUTTON_HEIGHT)))
             m_InventoryTester.ClearAllItems();
+        GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+    }
+
+    #endregion
+
+    #region 仓库系统测试
+
+    private void DrawWarehouseTestSection()
+    {
+        EditorGUILayout.LabelField("🏪 仓库系统", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("仓库、物品存取、容量管理测试功能", MessageType.Info);
+
+        // 获取 WarehouseTester（使用反射避免程序集问题）
+        if (m_WarehouseTester == null)
+        {
+            var type = System.Type.GetType("WarehouseTester");
+            if (type != null)
+            {
+                m_WarehouseTester = FindObjectOfType(type);
+            }
+        }
+
+        if (m_WarehouseTester == null)
+        {
+            EditorGUILayout.HelpBox("场景中未找到 WarehouseTester 组件，请先添加到场景", MessageType.Warning);
+            return;
+        }
+
+        // 按钮布局：2列
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("打开仓库", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "OpenWarehouseUI");
+        if (GUILayout.Button("关闭仓库", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "CloseWarehouseUI");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("初始化仓库", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "InitializeWarehouse");
+        if (GUILayout.Button("存入物品", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "TestStoreItem");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("取出物品", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "TestRetrieveItem");
+        if (GUILayout.Button("一键存入", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "TestStoreAll");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("扩展容量", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "TestExpandCapacity");
+        if (GUILayout.Button("打印状态", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "PrintWarehouseStatus");
+        EditorGUILayout.EndHorizontal();
+
+        // 背包和仓库交互测试
+        EditorGUILayout.LabelField("交互与管理", EditorStyles.boldLabel);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("交互流程测试", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "TestBackpackWarehouseInteraction");
+        if (GUILayout.Button("容量管理测试", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "TestWarehouseCapacityManagement");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        GUI.backgroundColor = Color.red;
+        if (GUILayout.Button("清空仓库", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_WarehouseTester, "ClearWarehouse");
         GUI.backgroundColor = Color.white;
         EditorGUILayout.EndHorizontal();
     }
@@ -299,17 +375,22 @@ public class GameTestWindow : EditorWindow
 
         // 日志过滤选项
         EditorGUILayout.BeginHorizontal();
-        m_ShowInfo = EditorGUILayout.Toggle("Info", m_ShowInfo, GUILayout.Width(60));
-        m_ShowWarning = EditorGUILayout.Toggle("Warning", m_ShowWarning, GUILayout.Width(80));
-        m_ShowError = EditorGUILayout.Toggle("Error", m_ShowError, GUILayout.Width(60));
+        m_ShowInfo = EditorGUILayout.Toggle("Info", m_ShowInfo);
+        GUILayout.Space(10);
+        m_ShowWarning = EditorGUILayout.Toggle("Warning", m_ShowWarning);
+        GUILayout.Space(10);
+        m_ShowError = EditorGUILayout.Toggle("Error", m_ShowError);
         EditorGUILayout.EndHorizontal();
 
-        // 日志统计
+        // 日志统计（两行显示）
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField($"总日志: {logBuffer.Logs.Count}");
-        EditorGUILayout.LabelField($"Info: {logBuffer.GetLogCountByType(LogType.Log)}");
-        EditorGUILayout.LabelField($"Warning: {logBuffer.GetLogCountByType(LogType.Warning)}");
-        EditorGUILayout.LabelField($"Error: {logBuffer.GetLogCountByType(LogType.Error)}");
+        EditorGUILayout.LabelField($"总日志: {logBuffer.Logs.Count}", GUILayout.Width(100));
+        EditorGUILayout.LabelField($"Info: {logBuffer.GetLogCountByType(LogType.Log)}", GUILayout.Width(100));
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField($"Warning: {logBuffer.GetLogCountByType(LogType.Warning)}", GUILayout.Width(100));
+        EditorGUILayout.LabelField($"Error: {logBuffer.GetLogCountByType(LogType.Error)}", GUILayout.Width(100));
         EditorGUILayout.EndHorizontal();
 
         // 日志显示区域
@@ -380,6 +461,21 @@ public class GameTestWindow : EditorWindow
     {
         // 检测场景中的组件是否改变
         Repaint();
+    }
+
+    /// <summary>
+    /// 通过反射调用对象的方法
+    /// </summary>
+    private void InvokeMethod(object target, string methodName)
+    {
+        if (target == null)
+            return;
+
+        var method = target.GetType().GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        if (method != null)
+        {
+            method.Invoke(target, null);
+        }
     }
 
     #endregion
