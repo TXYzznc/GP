@@ -12,7 +12,14 @@ public class WarehouseTester : MonoBehaviour
     /// <summary>打开仓库UI</summary>
     public void OpenWarehouseUI()
     {
-        var uiForm = GF.UI.GetUIForm(UIViews.WarehouseUI);
+        string uiAssetName = GF.UI.GetUIFormAssetName(UIViews.WarehouseUI);
+        if (string.IsNullOrEmpty(uiAssetName))
+        {
+            DebugEx.Error("WarehouseTester", "无法获取仓库UI资源名称");
+            return;
+        }
+
+        var uiForm = GF.UI.GetUIForm(uiAssetName);
         if (uiForm != null)
         {
             DebugEx.Log("WarehouseTester", "仓库UI已打开");
@@ -26,7 +33,14 @@ public class WarehouseTester : MonoBehaviour
     /// <summary>关闭仓库UI</summary>
     public void CloseWarehouseUI()
     {
-        var uiForm = GF.UI.GetUIForm(UIViews.WarehouseUI);
+        string uiAssetName = GF.UI.GetUIFormAssetName(UIViews.WarehouseUI);
+        if (string.IsNullOrEmpty(uiAssetName))
+        {
+            DebugEx.Error("WarehouseTester", "无法获取仓库UI资源名称");
+            return;
+        }
+
+        var uiForm = GF.UI.GetUIForm(uiAssetName);
         if (uiForm == null)
         {
             DebugEx.Warning("WarehouseTester", "仓库UI未打开");
