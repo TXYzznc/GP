@@ -10,7 +10,6 @@ public partial class WarehouseUI
 	[Header("UI Variables:")]
 	[SerializeField] private Button varCloseBtn = null;
 	[SerializeField] private Button varStoreAllBtn = null;
-	[SerializeField] private ScrollRect varScrollView = null;
 	[SerializeField] private GridLayoutGroup varContent = null;
 	[SerializeField] private GameObject varInventorySlotUI = null;
 }

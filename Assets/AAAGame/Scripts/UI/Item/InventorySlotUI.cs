@@ -83,4 +83,25 @@ public partial class InventorySlotUI : UIItemBase
     }
 
     public InventoryItemUI GetItemUI() => m_ItemUI;
+
+    /// <summary>
+    /// 设置格子数据（一站式处理数据和UI刷新）
+    /// </summary>
+    public void SetData(ItemStack itemStack)
+    {
+        var itemUI = GetItemUI();
+        if (itemUI == null)
+            return;
+
+        // 设置物品数据
+        itemUI.SetData(itemStack);
+
+        // 自动设置背景颜色（根据物品品质）
+        int quality = 0;
+        if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
+        {
+            quality = (int)itemStack.Item.Quality;
+        }
+        SetRarity(quality);
+    }
 }

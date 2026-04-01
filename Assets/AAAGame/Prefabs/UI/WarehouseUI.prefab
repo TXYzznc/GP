@@ -115,11 +115,6 @@ MonoBehaviour:
     - {fileID: 3134819165859994123}
     VarType: UnityEngine.UI.Button
     VarPrefix: 0
-  - VarName: varScrollView
-    Targets:
-    - {fileID: 6915566928976779797}
-    VarType: UnityEngine.UI.ScrollRect
-    VarPrefix: 0
   - VarName: varContent
     Targets:
     - {fileID: 6172746939118069934}
@@ -138,7 +133,9 @@ MonoBehaviour:
   m_CloseAnimationName: 
   varCloseBtn: {fileID: 6373142615964315639}
   varStoreAllBtn: {fileID: 8668075936503610545}
-  varWarehouseContent: {fileID: 8731098738413967832}
+  varScrollView: {fileID: 7548532927496843406}
+  varContent: {fileID: 8731098738413967832}
+  varInventorySlotUI: {fileID: 1296400950039012804, guid: fff3a5aa7932dfe46a3cda139b071891, type: 3}
 --- !u!1 &1044890647775629488
 GameObject:
   m_ObjectHideFlags: 0

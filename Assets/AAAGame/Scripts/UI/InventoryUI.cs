@@ -262,7 +262,6 @@ public partial class InventoryUI : UIFormBase
         var allSlots = m_InventoryManager.GetAllSlots();
         int pageStart = m_CurrentPage * SLOTS_PER_PAGE;
         int pageEnd   = pageStart + SLOTS_PER_PAGE;
-        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
         int inventorySize = GetPlayerInventorySize();
 
         DebugEx.Log("InventoryUI", $"RefreshInventory: allSlots.Count={allSlots.Count}, inventorySize={inventorySize}, m_InventorySlots.Count={m_InventorySlots.Count}, currentPage={m_CurrentPage}");
@@ -275,44 +274,27 @@ public partial class InventoryUI : UIFormBase
             if (!inPage) continue;
 
             var slotUI = m_InventorySlots[i];
-            var itemUI = slotUI.GetItemUI();
-            if (itemUI == null)
-            {
-                DebugEx.Warning("InventoryUI", $"RefreshInventory: slot[{i}].GetItemUI() 返回 null");
-                continue;
-            }
 
             // 更新格子可用性（是否已解锁）
             bool available = i < inventorySize;
             slotUI.SetAvailable(available);
 
-            // 如果格子未解锁，不显示物品
+            // 如果格子未解锁，清空显示
             if (!available)
             {
-                itemUI.Clear();
-                slotUI.SetRarity(0);
+                slotUI.SetData(null);
                 continue;
             }
 
-            // 格子已解锁，显示物品或清空
+            // 格子已解锁，设置物品数据（格子自动处理刷新）
+            ItemStack itemStack = null;
             if (i < allSlots.Count && !allSlots[i].IsEmpty)
             {
-                var stack = allSlots[i].ItemStack;
-                DebugEx.Log("InventoryUI", $"显示物品: slot[{i}] = {stack.Item.Name} x{stack.Count}");
-                itemUI.SetData(stack);
-                int rarity = 0;
-                if (stack.Item != null)
-                {
-                    var row = itemTable?.GetDataRow(stack.Item.ItemId);
-                    if (row != null) rarity = row.Quality;
-                }
-                slotUI.SetRarity(rarity);
+                itemStack = allSlots[i].ItemStack;
+                DebugEx.Log("InventoryUI", $"显示物品: slot[{i}] = {itemStack.Item.Name} x{itemStack.Count}");
             }
-            else
-            {
-                itemUI.Clear();
-                slotUI.SetRarity(0);
-            }
+
+            slotUI.SetData(itemStack);
         }
 
         DebugEx.Success("InventoryUI", "RefreshInventory 完成");

@@ -84,6 +84,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CurrencyItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\Core\EntityBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\CombatPreparationUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Extension\Component\ExtendedLayoutElement.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\SummonerRuntimeDataManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\EntityGroupTable.cs" />
