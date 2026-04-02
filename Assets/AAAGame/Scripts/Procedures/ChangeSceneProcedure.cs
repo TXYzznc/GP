@@ -113,7 +113,7 @@ public class ChangeSceneProcedure : ProcedureBase
     // TODO: 加载界面隐藏延迟目前为固定 1s，后续应替换为监听"场景各系统初始化完成"信号来精确控制
     private async Cysharp.Threading.Tasks.UniTaskVoid HideLoadingProgressAsync()
     {
-        await Cysharp.Threading.Tasks.UniTask.Delay(1000);
+        await Cysharp.Threading.Tasks.UniTask.Delay(300);//0.3s
         GFBuiltin.BuiltinView.HideLoadingProgress();
         loadSceneOver = true;
     }

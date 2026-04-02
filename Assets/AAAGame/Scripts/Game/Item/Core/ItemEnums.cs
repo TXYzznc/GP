@@ -7,7 +7,6 @@ using System;
 /// </summary>
 public enum ItemType
 {
-    None = 0,
     Consumable = 1, // 消耗品
     Quest = 2, // 任务道具
     Treasure = 3, // 宝物

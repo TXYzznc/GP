@@ -44,7 +44,7 @@ public abstract class ItemBase
     /// <summary>
     /// 物品类型
     /// </summary>
-    public ItemType Type => m_ItemData?.Type ?? ItemType.None;
+    public ItemType Type => m_ItemData.Type;
 
     /// <summary>
     /// 物品品质

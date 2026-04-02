@@ -157,10 +157,10 @@ public partial class ItemContextMenu : UIItemBase
         int itemType = m_CurrentItemRow.Type;
 
         // 根据物品类型显示不同的选项
-        // 物品类型：0=消耗品, 1=装备, 2=宝物, 3=任务道具
+        // 物品类型：1=消耗品, 2=任务道具, 3=宝物, 4=装备
         switch (itemType)
         {
-            case 0: // 消耗品
+            case 1: // 消耗品
                 ShowButton(m_UseBtn, "使用", OnClickUse);
                 if (m_CurrentItemStack.Count > 1)
                 {
@@ -169,19 +169,19 @@ public partial class ItemContextMenu : UIItemBase
                 ShowButton(m_DiscardBtn, "丢弃", OnClickDiscard);
                 break;
 
-            case 1: // 装备
-                ShowButton(m_UseBtn, "装备", OnClickUse);
-                ShowButton(m_DiscardBtn, "丢弃", OnClickDiscard);
-                break;
-
-            case 2: // 宝物
-                ShowButton(m_DiscardBtn, "丢弃", OnClickDiscard);
-                break;
-
-            case 3: // 任务道具
+            case 2: // 任务道具
                 // 任务道具隐藏菜单背景
                 if (varMenuBg != null) varMenuBg.SetActive(false);
                 DebugEx.Log("ItemContextMenu", "任务道具，隐藏菜单背景");
+                break;
+
+            case 3: // 宝物
+                ShowButton(m_DiscardBtn, "丢弃", OnClickDiscard);
+                break;
+
+            case 4: // 装备
+                ShowButton(m_UseBtn, "装备", OnClickUse);
+                ShowButton(m_DiscardBtn, "丢弃", OnClickDiscard);
                 break;
 
             default:

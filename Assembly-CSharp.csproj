@@ -75,6 +75,7 @@
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\AAAGame\DataTable\SpecialEffectTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260402_182645.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Credits.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_164109.txt" />
     <None Include="Assets\AAAGame\DataTable\ColorTable.txt" />
@@ -93,6 +94,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260402_165943.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_164310.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceConfigTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260402_182242.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\AAAGame\DataTable\AffixTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_142518.txt" />

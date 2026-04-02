@@ -200,13 +200,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        // 任务道具不显示右键菜单
-        if (itemStack.Item.Type == ItemType.Quest)
-        {
-            DebugEx.Log("InventorySlotUI", "[OnRightClick] 任务道具，跳过右键菜单");
-            return;
-        }
-
         DebugEx.Log("InventorySlotUI", $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 位置={mousePosition}");
 
         ShowContextMenu(itemStack, SlotIndex, mousePosition, GetComponent<RectTransform>());
