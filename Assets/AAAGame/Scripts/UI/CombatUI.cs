@@ -21,6 +21,10 @@ public partial class CombatUI : StateAwareUIForm
 
         // 订阅运行时数据变化事件
         SubscribeRuntimeDataEvents();
+
+        // 订阅棋子选中事件
+        ChessSelectionManager.OnChessSelected += OnChessSelectedForDetail;
+        ChessSelectionManager.OnChessDeselected += OnChessDeselectedForDetail;
     }
 
     protected override void UnsubscribeEvents()
@@ -31,6 +35,10 @@ public partial class CombatUI : StateAwareUIForm
 
         // 取消订阅运行时数据变化事件
         UnsubscribeRuntimeDataEvents();
+
+        // 取消订阅棋子选中事件
+        ChessSelectionManager.OnChessSelected -= OnChessSelectedForDetail;
+        ChessSelectionManager.OnChessDeselected -= OnChessDeselectedForDetail;
     }
 
     /// <summary>
@@ -124,6 +132,31 @@ public partial class CombatUI : StateAwareUIForm
     }
 
 
+
+    /// <summary>
+    /// 战斗阶段棋子被选中，显示详情
+    /// </summary>
+    private void OnChessSelectedForDetail(ChessEntity entity)
+    {
+        var detailUI = GetDetailInfoUI();
+        if (detailUI == null) return;
+
+        detailUI.SetChessUnitData(entity);
+        detailUI.RefreshUI();
+        detailUI.ShowWithAnimation();
+        DebugEx.LogModule("CombatUI", $"显示棋子详情: {entity.Config?.Name}");
+    }
+
+    /// <summary>
+    /// 战斗阶段棋子取消选中，隐藏详情
+    /// </summary>
+    private void OnChessDeselectedForDetail()
+    {
+        if (varDetailInfoUI != null)
+        {
+            varDetailInfoUI.SetActive(false);
+        }
+    }
 
     /// <summary>
     /// 召唤师HP变化回调
@@ -340,43 +373,12 @@ public partial class CombatUI : StateAwareUIForm
                 CreateCardSlot(cards[i], i);
             }
 
-            // 播放卡牌重排动画
-            PlayCardRearrangeAnimation();
-
             DebugEx.LogModule("CombatUI", $"刷新卡牌槽完成，共 {cards.Count} 张卡牌");
         }
         else
         {
             DebugEx.WarningModule("CombatUI", "CardManager 未初始化");
         }
-    }
-
-    /// <summary>
-    /// 播放卡牌重排动画
-    /// </summary>
-    private void PlayCardRearrangeAnimation()
-    {
-        if (varCardSlots == null)
-            return;
-
-        // 对所有卡牌槽播放滑入动画
-        for (int i = 0; i < varCardSlots.transform.childCount; i++)
-        {
-            var child = varCardSlots.transform.GetChild(i);
-            if (child.gameObject == varCardSlotItem)
-                continue;
-
-            var rectTransform = child.GetComponent<RectTransform>();
-            if (rectTransform != null)
-            {
-                // 从左侧滑入
-                var originalPos = rectTransform.anchoredPosition;
-                rectTransform.anchoredPosition = originalPos + new Vector2(-100, 0);
-                rectTransform.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutQuad).SetDelay(i * 0.05f);
-            }
-        }
-
-        DebugEx.LogModule("CombatUI", "播放卡牌重排动画");
     }
 
     /// <summary>

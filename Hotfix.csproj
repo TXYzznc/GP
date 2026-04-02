@@ -264,10 +264,12 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\OutOfGameState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemyFormationManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextAnimationLibrary.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventoryClickHandler.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\Core\BuffManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EscapeRuleTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UITopbar.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\InventoryItemUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\GameState\States\MenuState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\MenuUIForm.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\CSPacketHeader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EnterCombatTip.cs" />

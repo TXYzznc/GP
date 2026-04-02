@@ -29,4 +29,5 @@ public partial class InventoryUI
 	[SerializeField] private Text varWeightText = null;
 	[SerializeField] private Text varDescriptionText = null;
 	[SerializeField] private Text varWeightStateText = null;
+	[SerializeField] private GameObject varItemContextMenu = null;
 }

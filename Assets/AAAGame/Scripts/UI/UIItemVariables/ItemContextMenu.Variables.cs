@@ -1,4 +1,4 @@
-﻿//---------------------------------
+//---------------------------------
 //此文件由工具自动生成,请勿手动修改
 //更新自:DESKTOP-7JQ11GM
 //---------------------------------
@@ -11,4 +11,5 @@ public partial class ItemContextMenu
 	[SerializeField] private Button varUseBtnTemplate = null;
 	[SerializeField] private Button varSplitBtnTemplate = null;
 	[SerializeField] private Button varDiscardBtnTemplate = null;
+	[SerializeField] private GameObject varMenuBg = null;
 }

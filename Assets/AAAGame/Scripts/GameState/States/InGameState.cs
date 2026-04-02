@@ -58,6 +58,14 @@ public class InGameState : FsmState<GameStateManager>
         // 初始化玩家运行时数据管理器
         PlayerRuntimeDataManager.Instance.Initialize();
 
+        // ⭐ 新增：初始化棋子库存（进入局内时就加载备战阵容）
+        ChessDeploymentTracker.Instance.Initialize();
+        DebugEx.LogModule("InGameState", "棋子库存已初始化");
+
+        // ⭐ 新增：为所有棋子初始化全局状态（满血）
+        // 这样在准备阶段选中棋子时已有全局状态，无需临时创建
+        InitializeAllChessGlobalStates();
+
         // 初始化背包与仓库（容量从 PlayerInitTable 读取）
         InitInventoryAndWarehouse();
 
@@ -259,6 +267,36 @@ public class InGameState : FsmState<GameStateManager>
     #endregion
 
     #region 私有方法
+
+    /// <summary>
+    /// 为所有棋子初始化全局状态（满血）
+    /// 进入局内时为所有备战棋子创建全局状态，确保准备阶段有真实的全局数据
+    /// </summary>
+    private void InitializeAllChessGlobalStates()
+    {
+        var allInstances = ChessDeploymentTracker.Instance.GetAllChessInstances();
+        if (allInstances == null || allInstances.Count == 0)
+        {
+            DebugEx.WarningModule("InGameState", "没有棋子实例，无法初始化全局状态");
+            return;
+        }
+
+        int initializedCount = 0;
+        foreach (var instance in allInstances)
+        {
+            if (ChessDataManager.Instance.TryGetConfig(instance.ChessId, out var config))
+            {
+                // 如果还没注册过，就注册满血状态
+                if (GlobalChessManager.Instance.GetChessState(instance.ChessId) == null)
+                {
+                    GlobalChessManager.Instance.RegisterChess(instance.ChessId, config.MaxHp);
+                    initializedCount++;
+                }
+            }
+        }
+
+        DebugEx.LogModule("InGameState", $"棋子全局状态初始化完成 - 共{initializedCount}个棋子");
+    }
 
     /// <summary>
     /// 初始化背包与仓库，容量从 PlayerInitTable 读取

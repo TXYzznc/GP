@@ -64,6 +64,9 @@ public class SceneStateManager : SingletonBase<SceneStateManager>
     {
         switch (sceneType)
         {
+            case SceneType.Menu:
+                return GameStateType.Menu;
+
             case SceneType.Base:
                 return GameStateType.OutOfGame;
 
@@ -76,6 +79,31 @@ public class SceneStateManager : SingletonBase<SceneStateManager>
                 Log.Warning($"未知场景类型: {sceneType}，默认返回局外状态");
                 return GameStateType.OutOfGame;
         }
+    }
+
+    /// <summary>
+    /// 根据场景名获取游戏状态
+    /// </summary>
+    public GameStateType GetGameStateBySceneName(string sceneName)
+    {
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null)
+        {
+            Log.Error("SceneStateManager: 场景配置表未加载");
+            return GameStateType.OutOfGame;
+        }
+
+        var allRows = sceneTable.GetAllDataRows();
+        foreach (var row in allRows)
+        {
+            if (row.SceneName == sceneName)
+            {
+                return GetGameStateBySceneType(row.GetSceneTypeEnum());
+            }
+        }
+
+        Log.Error($"SceneStateManager: 未找到场景 {sceneName}");
+        return GameStateType.OutOfGame;
     }
 
     /// <summary>
@@ -126,14 +154,9 @@ public class SceneStateManager : SingletonBase<SceneStateManager>
             return 3; // TutorialScene
         }
 
-        // 如果已完成引导，进入基地
+        // 如果已完成引导，直接进入基地场景
         if (saveData.HasCompletedTutorial)
         {
-            // 如果有保存的场景ID，优先使用
-            if (saveData.CurrentSceneId > 0)
-            {
-                return saveData.CurrentSceneId;
-            }
             return 1; // BaseScene
         }
 

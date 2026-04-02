@@ -29,8 +29,28 @@ public partial class ItemContextMenu : UIItemBase
 
         DebugEx.Log("ItemContextMenu", "物品上下文菜单初始化");
 
+        // 查找或初始化菜单按钮
+        InitializeButtons();
+
         // 初始状态隐藏
         gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// 初始化菜单按钮（从子物体中查找）
+    /// </summary>
+    private void InitializeButtons()
+    {
+        var buttons = GetComponentsInChildren<Button>(true);
+
+        if (buttons.Length > 0)
+            m_UseBtn = buttons[0];
+        if (buttons.Length > 1)
+            m_SplitBtn = buttons[1];
+        if (buttons.Length > 2)
+            m_DiscardBtn = buttons[2];
+
+        DebugEx.Log("ItemContextMenu", $"按钮初始化完成：UseBtn={m_UseBtn != null}, SplitBtn={m_SplitBtn != null}, DiscardBtn={m_DiscardBtn != null}");
     }
 
     #endregion
@@ -40,7 +60,7 @@ public partial class ItemContextMenu : UIItemBase
     /// <summary>
     /// 显示上下文菜单
     /// </summary>
-    public void ShowContextMenu(ItemStack itemStack, int slotIndex, Vector2 position)
+    public void ShowContextMenu(ItemStack itemStack, int slotIndex, Vector2 position, RectTransform slotRect = null)
     {
         if (itemStack == null || itemStack.IsEmpty)
         {
@@ -73,7 +93,32 @@ public partial class ItemContextMenu : UIItemBase
         var rectTransform = GetComponent<RectTransform>();
         if (rectTransform != null)
         {
-            rectTransform.position = position;
+            if (slotRect != null)
+            {
+                var parentCanvas = GetComponentInParent<Canvas>();
+                var canvasRect = parentCanvas != null ? parentCanvas.GetComponent<RectTransform>() : null;
+                if (canvasRect == null)
+                {
+                    DebugEx.Error("ItemContextMenu", "未找到 Canvas");
+                    return;
+                }
+
+                // 格子中心的屏幕坐标
+                Camera cam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : parentCanvas.worldCamera;
+                Vector2 slotScreenPos = RectTransformUtility.WorldToScreenPoint(cam, slotRect.position);
+
+                // 偏移规则：(格子宽度 + 菜单宽度) / 2 + 5，在屏幕坐标里偏移像素
+                float offsetX = (slotRect.rect.width + rectTransform.rect.width) / 2f;
+                // rect.width 是 Unity 单位，需要乘以 canvas scale 转换为屏幕像素
+                float canvasScale = canvasRect.localScale.x;
+                Vector2 menuScreenPos = slotScreenPos + new Vector2(offsetX * canvasScale, 0);
+
+                // 屏幕坐标转 Canvas 本地坐标，设置 anchoredPosition
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, menuScreenPos, cam, out var localPos);
+                rectTransform.anchoredPosition = localPos;
+
+                DebugEx.Log("ItemContextMenu", $"格子屏幕坐标: {slotScreenPos}, 偏移(px): {offsetX * canvasScale}, 菜单屏幕坐标: {menuScreenPos}, anchoredPosition: {localPos}");
+            }
         }
 
         gameObject.SetActive(true);
@@ -105,8 +150,9 @@ public partial class ItemContextMenu : UIItemBase
         if (m_CurrentItemRow == null)
             return;
 
-        // 隐藏所有按钮
+        // 隐藏所有按钮，确保 MenuBg 显示
         HideAllButtons();
+        if (varMenuBg != null) varMenuBg.SetActive(true);
 
         int itemType = m_CurrentItemRow.Type;
 
@@ -133,8 +179,9 @@ public partial class ItemContextMenu : UIItemBase
                 break;
 
             case 3: // 任务道具
-                // 任务道具不可丢弃，不显示任何选项
-                DebugEx.Log("ItemContextMenu", "任务道具不可操作");
+                // 任务道具隐藏菜单背景
+                if (varMenuBg != null) varMenuBg.SetActive(false);
+                DebugEx.Log("ItemContextMenu", "任务道具，隐藏菜单背景");
                 break;
 
             default:
@@ -220,11 +267,57 @@ public partial class ItemContextMenu : UIItemBase
         var inventoryManager = InventoryManager.Instance;
         if (inventoryManager != null)
         {
-            inventoryManager.RemoveItem(m_CurrentSlotIndex, m_CurrentItemStack.Count);
-            DebugEx.Success("ItemContextMenu", $"丢弃物品: {m_CurrentItemStack.Item.Name}");
+            bool success = inventoryManager.RemoveItem(m_CurrentItemStack.Item.ItemId, m_CurrentItemStack.Count);
+            if (success)
+            {
+                DebugEx.Success("ItemContextMenu", $"丢弃物品: {m_CurrentItemStack.Item.Name} x{m_CurrentItemStack.Count}");
+            }
+            else
+            {
+                DebugEx.Warning("ItemContextMenu", $"丢弃物品失败: {m_CurrentItemStack.Item.Name}");
+            }
         }
 
         HideContextMenu();
+    }
+
+    /// <summary>
+    /// 限制菜单位置在屏幕范围内
+    /// </summary>
+    private void ClampMenuPositionToScreen(RectTransform menuRT, RectTransform canvasRT)
+    {
+        if (menuRT == null || canvasRT == null)
+            return;
+
+        var menuSize = menuRT.sizeDelta;
+        var canvasSize = canvasRT.sizeDelta;
+        var pos = menuRT.anchoredPosition;
+
+        // 右边界检查
+        if (pos.x + menuSize.x / 2 > canvasSize.x / 2)
+        {
+            pos.x = canvasSize.x / 2 - menuSize.x / 2;
+        }
+
+        // 左边界检查
+        if (pos.x - menuSize.x / 2 < -canvasSize.x / 2)
+        {
+            pos.x = -canvasSize.x / 2 + menuSize.x / 2;
+        }
+
+        // 上边界检查
+        if (pos.y + menuSize.y / 2 > canvasSize.y / 2)
+        {
+            pos.y = canvasSize.y / 2 - menuSize.y / 2;
+        }
+
+        // 下边界检查
+        if (pos.y - menuSize.y / 2 < -canvasSize.y / 2)
+        {
+            pos.y = -canvasSize.y / 2 + menuSize.y / 2;
+        }
+
+        menuRT.anchoredPosition = pos;
     }
 
     #endregion

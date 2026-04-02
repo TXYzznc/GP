@@ -12,4 +12,5 @@ public partial class WarehouseUI
 	[SerializeField] private Button varStoreAllBtn = null;
 	[SerializeField] private GridLayoutGroup varContent = null;
 	[SerializeField] private GameObject varInventorySlotUI = null;
+	[SerializeField] private GameObject varItemContextMenu = null;
 }

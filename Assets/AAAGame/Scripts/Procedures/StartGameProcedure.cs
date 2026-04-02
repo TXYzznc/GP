@@ -20,9 +20,9 @@ public class StartGameProcedure : ProcedureBase
 
         GF.Log("进入游戏流程 - StartGame");
 
-        // 初始化游戏状态管理器，切换到游戏外状态
-        GameStateManager.Instance.SwitchToOutOfGame();
-        Log.Info("StartGameProcedure: 已切换到游戏外状态");
+        // 初始化游戏状态管理器，切换到主菜单状态
+        GameStateManager.Instance.SwitchToMenu();
+        Log.Info("StartGameProcedure: 已切换到主菜单状态");
 
         // TODO: 这里可以添加其他游戏开始的逻辑
         // 例如：

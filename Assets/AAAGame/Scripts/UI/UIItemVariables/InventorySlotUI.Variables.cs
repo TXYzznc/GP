@@ -11,4 +11,5 @@ public partial class InventorySlotUI
 	[SerializeField] private Image varBg = null;
 	[SerializeField] private GameObject varInventoryItemUI = null;
 	[SerializeField] private GameObject varLock = null;
+	[SerializeField] private Image varHighLightImg = null;
 }

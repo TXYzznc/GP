@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 2046909375784439163}
   - component: {fileID: 8663528893675437592}
   - component: {fileID: 6756675683730106492}
+  - component: {fileID: 1485978023561793073}
   m_Layer: 5
   m_Name: MenuBg
   m_TagString: Untagged
@@ -159,8 +160,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 80, y: 160}
+  m_AnchoredPosition: {x: 0, y: -2.057}
+  m_SizeDelta: {x: 80, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2046909375784439163
 CanvasRenderer:
@@ -215,9 +216,9 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 6
-    m_Bottom: 0
-  m_ChildAlignment: 1
+    m_Top: 5
+    m_Bottom: 5
+  m_ChildAlignment: 4
   m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
@@ -226,6 +227,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1485978023561793073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 682978221699247119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &2944080398971859787
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,9 +464,15 @@ MonoBehaviour:
     - {fileID: 614964507683233609}
     VarType: UnityEngine.UI.Button
     VarPrefix: 0
+  - VarName: varMenuBg
+    Targets:
+    - {fileID: 682978221699247119}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
   varUseBtnTemplate: {fileID: 8723940597383892721}
   varSplitBtnTemplate: {fileID: 3684350379060450928}
   varDiscardBtnTemplate: {fileID: 8541808953735862208}
+  varMenuBg: {fileID: 682978221699247119}
 --- !u!1 &7263251712859721880
 GameObject:
   m_ObjectHideFlags: 0

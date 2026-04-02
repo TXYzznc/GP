@@ -32,6 +32,9 @@ public class GameStateManager : SingletonBase<GameStateManager>
             if (m_MainFsm == null || m_MainFsm.CurrentState == null)
                 return GameStateType.OutOfGame;
 
+            if (m_MainFsm.CurrentState is MenuState)
+                return GameStateType.Menu;
+
             if (m_MainFsm.CurrentState is OutOfGameState)
                 return GameStateType.OutOfGame;
 
@@ -99,6 +102,7 @@ public class GameStateManager : SingletonBase<GameStateManager>
         // 创建主状态机
         FsmState<GameStateManager>[] states = new FsmState<GameStateManager>[]
         {
+            new MenuState(),
             new OutOfGameState(),
             new InGameState(),
         };
@@ -157,6 +161,30 @@ public class GameStateManager : SingletonBase<GameStateManager>
         else
         {
             ChangeStateByReflection<InGameState>();
+        }
+    }
+
+    /// <summary>
+    /// 切换到主菜单状态
+    /// </summary>
+    public void SwitchToMenu()
+    {
+        if (m_MainFsm == null)
+        {
+            DebugEx.ErrorModule("GameStateManager", "状态机未初始化");
+            return;
+        }
+
+        DebugEx.LogModule("GameStateManager", "切换到主菜单状态");
+
+        // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
+        if (!m_MainFsm.IsRunning)
+        {
+            m_MainFsm.Start<MenuState>();
+        }
+        else
+        {
+            ChangeStateByReflection<MenuState>();
         }
     }
 

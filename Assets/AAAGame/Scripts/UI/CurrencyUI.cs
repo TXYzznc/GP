@@ -19,7 +19,11 @@ public partial class CurrencyUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        Log.Info("CurrencyUI: 订阅局内和战斗状态事件");
+        Log.Info("CurrencyUI: 订阅局内、局外和战斗状态事件");
+        // 订阅局外事件（进入基地 → 显示）
+        GF.Event.Subscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
+        GF.Event.Subscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
+
         // 订阅局内事件（进入 → 显示）
         GF.Event.Subscribe(InGameEnterEventArgs.EventId, OnInGameEnter);
         GF.Event.Subscribe(InGameLeaveEventArgs.EventId, OnInGameLeave);
@@ -34,7 +38,11 @@ public partial class CurrencyUI : StateAwareUIForm
 
     protected override void UnsubscribeEvents()
     {
-        Log.Info("CurrencyUI: 取消订阅局内和战斗状态事件");
+        Log.Info("CurrencyUI: 取消订阅局内、局外和战斗状态事件");
+        // 取消订阅局外事件
+        GF.Event.Unsubscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
+        GF.Event.Unsubscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
+
         // 取消订阅局内事件
         GF.Event.Unsubscribe(InGameEnterEventArgs.EventId, OnInGameEnter);
         GF.Event.Unsubscribe(InGameLeaveEventArgs.EventId, OnInGameLeave);
@@ -50,6 +58,19 @@ public partial class CurrencyUI : StateAwareUIForm
     #endregion
 
     #region 事件处理
+
+    private void OnOutOfGameEnter(object sender, GameEventArgs e)
+    {
+        Log.Info("CurrencyUI: 收到局外进入事件 → 显示UI");
+        ShowUI();
+        RefreshCurrency();
+    }
+
+    private void OnOutOfGameLeave(object sender, GameEventArgs e)
+    {
+        Log.Info("CurrencyUI: 收到局外离开事件 → 隐藏UI");
+        HideUI();
+    }
 
     private void OnInGameEnter(object sender, GameEventArgs e)
     {

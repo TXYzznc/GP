@@ -180,12 +180,6 @@ public partial class BuffTable : DataRowBase
             MutexGroup = int.Parse(columnStrings[index++]);
             MutexType = int.Parse(columnStrings[index++]);
             EffectId = int.Parse(columnStrings[index++]);
-            index++;
-            index++;
-            index++;
-            index++;
-            index++;
-            index++;
 
             return true;
         }

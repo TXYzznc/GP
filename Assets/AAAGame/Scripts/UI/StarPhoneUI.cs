@@ -12,7 +12,11 @@ public partial class StarPhoneUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        Log.Info("StarPhoneUI: 订阅局内和探索状态事件");
+        Log.Info("StarPhoneUI: 订阅局外、局内和探索状态事件");
+        // 订阅局外事件（进入基地 → 显示）
+        GF.Event.Subscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
+        GF.Event.Subscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
+
         // 订阅局内事件（进入 → 显示）
         GF.Event.Subscribe(InGameEnterEventArgs.EventId, OnInGameEnter);
         GF.Event.Subscribe(InGameLeaveEventArgs.EventId, OnInGameLeave);
@@ -24,7 +28,11 @@ public partial class StarPhoneUI : StateAwareUIForm
 
     protected override void UnsubscribeEvents()
     {
-        Log.Info("StarPhoneUI: 取消订阅局内和探索状态事件");
+        Log.Info("StarPhoneUI: 取消订阅局外、局内和探索状态事件");
+        // 取消订阅局外事件
+        GF.Event.Unsubscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
+        GF.Event.Unsubscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
+
         // 取消订阅局内事件
         GF.Event.Unsubscribe(InGameEnterEventArgs.EventId, OnInGameEnter);
         GF.Event.Unsubscribe(InGameLeaveEventArgs.EventId, OnInGameLeave);
@@ -38,6 +46,19 @@ public partial class StarPhoneUI : StateAwareUIForm
 
     #region 事件处理
 
+    private void OnOutOfGameEnter(object sender, GameEventArgs e)
+    {
+        DebugEx.Log("StarPhoneUI", "收到局外进入事件 → 显示UI");
+        ShowUI();
+        RefreshStarPhone();
+    }
+
+    private void OnOutOfGameLeave(object sender, GameEventArgs e)
+    {
+        DebugEx.Log("StarPhoneUI", "收到局外离开事件 → 隐藏UI");
+        HideUI();
+    }
+
     private void OnInGameEnter(object sender, GameEventArgs e)
     {
         DebugEx.Log("StarPhoneUI", "收到局内进入事件 → 显示UI");
@@ -47,9 +68,8 @@ public partial class StarPhoneUI : StateAwareUIForm
 
     private void OnInGameLeave(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到局内离开事件 → 保持显示（星盘始终可见）");
-        // 注释：星盘在局内外都保持显示，不再隐藏
-        // HideUI();
+        DebugEx.Log("StarPhoneUI", "收到局内离开事件 → 隐藏UI");
+        HideUI();
     }
 
     private void OnExplorationEnter(object sender, GameEventArgs e)

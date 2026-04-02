@@ -1268,6 +1268,11 @@ MonoBehaviour:
     - {fileID: 4318177787927982265}
     VarType: UnityEngine.UI.Text
     VarPrefix: 0
+  - VarName: varItemContextMenu
+    Targets:
+    - {fileID: 6332430937416777796, guid: b08627778fba8f7429eaae53843ed78c, type: 3}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
@@ -1300,6 +1305,7 @@ MonoBehaviour:
   varWeightText: {fileID: 2985032811655710741}
   varDescriptionText: {fileID: 8195676165444813382}
   varWeightStateText: {fileID: 1295927266669637462}
+  varItemContextMenu: {fileID: 6332430937416777796, guid: b08627778fba8f7429eaae53843ed78c, type: 3}
 --- !u!1 &4318177787927982265
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,7 +36,8 @@ public static class BuffFactory
 
         // 狂战士技能 Buff
         Register(4001, () => new StatModBuff());      // 战意激昂（攻速+20% 伤害+15%，配置驱动）
-        Register(4003, () => new BerserkerRageBuff()); // 狂怒之心（普通单位+15%，召唤师+30%）
+        Register(4002, () => new BerserkerRageBuff()); // 狂怒之心（普通单位+15%，召唤师+30%）
+        // Register(4003, ...); // 暗影咒体，设计未完成暂不注册
 
         DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
     }

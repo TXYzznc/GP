@@ -20,10 +20,12 @@ public partial class DetailInfoUI : UIItemBase
 
     private CardData m_CardData;
     private ChessEntity m_ChessEntity;
+    private SummonChessConfig m_ChessConfig;
+    private GlobalChessState m_GlobalState;
     private RectTransform m_RectTransform;
     private Tween m_SlideInTween;
     private System.Collections.Generic.Dictionary<int, BuffItem> m_BuffItems = new System.Collections.Generic.Dictionary<int, BuffItem>();
-    private int m_CurrentMode = 0; // 0=卡牌, 1=棋子
+    private int m_CurrentMode = 0; // 0=卡牌, 1=棋子实体（战斗阶段）, 2=棋子配置（准备阶段）
 
     #endregion
 
@@ -54,14 +56,29 @@ public partial class DetailInfoUI : UIItemBase
     }
 
     /// <summary>
-    /// 设置棋子数据
+    /// 设置棋子数据（战斗阶段）
     /// </summary>
     public void SetChessUnitData(ChessEntity chessEntity)
     {
         m_ChessEntity = chessEntity;
         m_CardData = null;
+        m_ChessConfig = null;
+        m_GlobalState = null;
         m_CurrentMode = 1;
         DebugEx.LogModule("DetailInfoUI", $"设置棋子数据: {chessEntity?.Config?.Name ?? "null"}");
+    }
+
+    /// <summary>
+    /// 设置棋子配置数据（准备阶段）
+    /// </summary>
+    public void SetChessConfig(SummonChessConfig config, GlobalChessState globalState)
+    {
+        m_ChessConfig = config;
+        m_GlobalState = globalState;
+        m_ChessEntity = null;
+        m_CardData = null;
+        m_CurrentMode = 2;
+        DebugEx.LogModule("DetailInfoUI", $"设置棋子配置: {config?.Name ?? "null"}");
     }
 
     #endregion
@@ -81,6 +98,10 @@ public partial class DetailInfoUI : UIItemBase
         {
             RefreshChessUnitUI();
         }
+        else if (m_CurrentMode == 2)
+        {
+            RefreshChessConfigUI();
+        }
     }
 
     /// <summary>
@@ -94,36 +115,22 @@ public partial class DetailInfoUI : UIItemBase
             return;
         }
 
-        // 隐藏Buff显示面板
-        if (varBuffBg != null)
-        {
-            varBuffBg.gameObject.SetActive(false);
-        }
+        if (varBuffBg != null) varBuffBg.gameObject.SetActive(false);
 
-        // 显示卡牌名称
         if (varTitleText != null)
-        {
             varTitleText.text = m_CardData.Name;
-        }
 
-        // 显示卡牌描述
-        if (varDescText != null)
-        {
-            varDescText.text = m_CardData.Desc;
-        }
+        if (varDesc_1Text != null)
+            varDesc_1Text.text = $"灵力消耗: {m_CardData.SpiritCost}  范围: {m_CardData.AreaRadius}";
 
-        // 显示其他信息（灵力消耗、目标类型等）
-        if (varOtherText != null)
-        {
-            string otherInfo = $"灵力消耗: {m_CardData.SpiritCost}\n范围: {m_CardData.AreaRadius}";
-            varOtherText.text = otherInfo;
-        }
+        if (varDesc_2Text != null)
+            varDesc_2Text.text = m_CardData.Desc;
 
         DebugEx.LogModule("DetailInfoUI", $"卡牌UI已刷新: {m_CardData.Name}");
     }
 
     /// <summary>
-    /// 刷新棋子UI显示
+    /// 刷新棋子UI显示（战斗阶段，包含Buff）
     /// </summary>
     private void RefreshChessUnitUI()
     {
@@ -133,37 +140,64 @@ public partial class DetailInfoUI : UIItemBase
             return;
         }
 
-        // 显示Buff显示面板
-        if (varBuffBg != null)
-        {
-            varBuffBg.gameObject.SetActive(true);
-        }
+        if (varBuffBg != null) varBuffBg.gameObject.SetActive(true);
 
         var config = m_ChessEntity.Config;
+        var attr = m_ChessEntity.Attribute;
 
-        // 显示棋子名称 + 星级
         if (varTitleText != null)
+            varTitleText.text = $"{config.Name} {new string('★', config.StarLevel)}";
+
+        if (varDesc_1Text != null)
         {
-            string starText = new string('★', config.StarLevel);
-            varTitleText.text = $"{config.Name} {starText}";
+            varDesc_1Text.text = $"HP: {attr.CurrentHp:F0}/{attr.MaxHp:F0}\n"
+                               + $"MP: {attr.CurrentMp:F0}/{config.MaxMp:F0}\n"
+                               + $"攻击: {attr.AtkDamage:F0}  护甲: {attr.Armor:F0}\n"
+                               + $"魔抗: {attr.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
+                               + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
         }
 
-        // 显示棋子描述
-        if (varDescText != null)
-        {
-            varDescText.text = config.Description;
-        }
+        if (varDesc_2Text != null)
+            varDesc_2Text.text = config.Description;
 
-        // OtherText暂时不显示（可设置为空或隐藏）
-        if (varOtherText != null)
-        {
-            varOtherText.text = "";
-        }
-
-        // 刷新Buff显示
         RefreshAllBuffs();
 
         DebugEx.LogModule("DetailInfoUI", $"棋子UI已刷新: {config.Name}");
+    }
+
+    /// <summary>
+    /// 刷新棋子配置UI显示（准备阶段，不含Buff）
+    /// </summary>
+    private void RefreshChessConfigUI()
+    {
+        if (m_ChessConfig == null || m_GlobalState == null)
+        {
+            DebugEx.WarningModule("DetailInfoUI", "棋子配置或全局状态为空，无法刷新UI");
+            return;
+        }
+
+        if (varBuffBg != null) varBuffBg.gameObject.SetActive(false);
+
+        var config = m_ChessConfig;
+        var state = m_GlobalState;
+
+        if (varTitleText != null)
+            varTitleText.text = $"{config.Name} {new string('★', config.StarLevel)}";
+
+        if (varDesc_1Text != null)
+        {
+            varDesc_1Text.text = $"等级: {state.Level}  经验: {state.Experience}\n"
+                               + $"HP: {state.CurrentHp:F0}/{state.MaxHp:F0}\n"
+                               + $"MP: {config.InitialMp:F0}/{config.MaxMp:F0}\n"
+                               + $"攻击: {config.AtkDamage:F0}  护甲: {config.Armor:F0}\n"
+                               + $"魔抗: {config.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
+                               + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+        }
+
+        if (varDesc_2Text != null)
+            varDesc_2Text.text = config.Description;
+
+        DebugEx.LogModule("DetailInfoUI", $"棋子配置UI已刷新: {config.Name}");
     }
 
     #endregion

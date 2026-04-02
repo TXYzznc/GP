@@ -4,7 +4,12 @@
 public enum GameStateType
 {
     /// <summary>
-    /// 局外状态（主菜单、角色选择等）
+    /// 主菜单状态
+    /// </summary>
+    Menu,
+
+    /// <summary>
+    /// 局外状态（基地、城镇等）
     /// </summary>
     OutOfGame,
 

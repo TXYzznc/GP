@@ -9,8 +9,8 @@ public partial class DetailInfoUI
 	[Space(10)]
 	[Header("UI Variables:")]
 	[SerializeField] private Text varTitleText = null;
-	[SerializeField] private Text varDescText = null;
-	[SerializeField] private Text varOtherText = null;
 	[SerializeField] private GridLayoutGroup varBuffBg = null;
 	[SerializeField] private GameObject varBuffItem = null;
+	[SerializeField] private Text varDesc_1Text = null;
+	[SerializeField] private Text varDesc_2Text = null;
 }

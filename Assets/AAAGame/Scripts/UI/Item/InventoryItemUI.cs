@@ -3,9 +3,8 @@ using Cysharp.Threading.Tasks;
 using GameExtension;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
-public partial class InventoryItemUI : UIItemBase, IPointerClickHandler
+public partial class InventoryItemUI : UIItemBase
 {
     #region 字段
 
@@ -25,22 +24,8 @@ public partial class InventoryItemUI : UIItemBase, IPointerClickHandler
 
     #region 事件处理
 
-    /// <summary>
-    /// 处理指针点击事件（IPointerClickHandler接口）
-    /// </summary>
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            // 左键点击：显示物品详情
-            OnItemClick();
-        }
-        else if (eventData.button == PointerEventData.InputButton.Right)
-        {
-            // 右键点击：显示上下文菜单
-            OnItemRightClick(eventData);
-        }
-    }
+    // 点击事件处理已移至 InventorySlotUI（OnLeftClick/OnRightClick）
+    // 由 InventoryClickHandler 分发处理
 
     #endregion
 
@@ -171,99 +156,9 @@ public partial class InventoryItemUI : UIItemBase, IPointerClickHandler
         }
     }
 
-    /// <summary>
-    /// 物品点击事件
-    /// </summary>
-    private void OnItemClick()
-    {
-        if (m_ItemStack == null || m_ItemStack.IsEmpty)
-        {
-            return;
-        }
-
-        var item = m_ItemStack.Item;
-
-        DebugEx.Log("InventoryItemUI", $"点击物品: {item.Name}");
-
-        // 显示物品详情面板
-        ShowItemDetailPanel();
-    }
-
-    /// <summary>
-    /// 显示物品详情面板
-    /// </summary>
-    private void ShowItemDetailPanel()
-    {
-        if (m_ItemStack == null || m_ItemStack.IsEmpty)
-        {
-            return;
-        }
-
-        // 获取 InventoryUI 并调用其显示详情方法
-        var inventoryUI = GetComponentInParent<InventoryUI>();
-        if (inventoryUI != null)
-        {
-            inventoryUI.ShowItemDetail(m_ItemStack);
-            DebugEx.Success("InventoryItemUI", $"显示物品详情: {m_ItemStack.Item.Name}");
-        }
-        // 注意：仓库物品点击时无法获取 InventoryUI（在 WarehouseUI 下），暂时不显示详情
-        // 如需支持仓库物品详情显示，需要扩展该方法或使用统一的详情显示机制
-    }
-
-    /// <summary>
-    /// 物品右键点击事件
-    /// </summary>
-    private void OnItemRightClick(PointerEventData eventData)
-    {
-        if (m_ItemStack == null || m_ItemStack.IsEmpty)
-            return;
-
-        var item = m_ItemStack.Item;
-
-        DebugEx.Log("InventoryItemUI", $"右键点击物品: {item.Name}");
-
-        // 显示上下文菜单
-        ShowContextMenu(eventData.position);
-    }
-
-    /// <summary>
-    /// 显示上下文菜单
-    /// </summary>
-    private void ShowContextMenu(Vector2 position)
-    {
-        if (m_ItemStack == null || m_ItemStack.IsEmpty)
-            return;
-
-        // 获取或创建上下文菜单
-        var contextMenu = GetItemContextMenu();
-        if (contextMenu != null)
-        {
-            // 获取格子索引
-            var slotUI = GetComponentInParent<InventorySlotUI>();
-            int slotIndex = slotUI != null ? slotUI.SlotIndex : -1;
-
-            contextMenu.ShowContextMenu(m_ItemStack, slotIndex, position);
-            DebugEx.Success("InventoryItemUI", $"显示上下文菜单: {m_ItemStack.Item.Name}");
-        }
-        else
-        {
-            DebugEx.Error("InventoryItemUI", "无法获取上下文菜单");
-        }
-    }
-
-    /// <summary>
-    /// 获取物品上下文菜单（从 InventoryUI 获取）
-    /// </summary>
-    private ItemContextMenu GetItemContextMenu()
-    {
-        var inventoryUI = GetComponentInParent<InventoryUI>();
-        if (inventoryUI != null)
-        {
-            return inventoryUI.GetItemContextMenu();
-        }
-
-        return null;
-    }
+    // 点击事件处理已移至 InventorySlotUI
+    // InventorySlotUI.OnLeftClick() → 显示物品详情
+    // InventorySlotUI.OnRightClick(position) → 显示上下文菜单
 
     #endregion
 }

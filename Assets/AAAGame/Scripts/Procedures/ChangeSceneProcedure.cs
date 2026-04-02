@@ -51,6 +51,7 @@ public class ChangeSceneProcedure : ProcedureBase
         // 根据场景名获取场景信息并设置
         SetSceneInfoByName(nextScene);
 
+        GFBuiltin.BuiltinView.SetLoadingProgress(0f);
         GF.Scene.LoadScene(UtilityBuiltin.AssetsPath.GetScenePath(nextScene), this);
     }
 
@@ -93,8 +94,7 @@ public class ChangeSceneProcedure : ProcedureBase
         {
             return;
         }
-        // Log.Info("场景加载进度:{0}, {1}", arg.Progress, arg.SceneAssetName);
-        // TODO 显示场景加载进度
+        GFBuiltin.BuiltinView.SetLoadingProgress(arg.Progress);
     }
 
     private void OnLoadSceneSuccess(object sender, GameEventArgs e)
@@ -105,7 +105,15 @@ public class ChangeSceneProcedure : ProcedureBase
             return;
         }
         Log.Info("场景资源加载成功:{0}", arg.SceneAssetName);
-        // 场景资源加载成功，隐藏加载进度条
+        GFBuiltin.BuiltinView.SetLoadingProgress(1f);
+        loadSceneOver = true;
+        HideLoadingProgressAsync().Forget();
+    }
+
+    // TODO: 加载界面隐藏延迟目前为固定 1s，后续应替换为监听"场景各系统初始化完成"信号来精确控制
+    private async Cysharp.Threading.Tasks.UniTaskVoid HideLoadingProgressAsync()
+    {
+        await Cysharp.Threading.Tasks.UniTask.Delay(1000);
         GFBuiltin.BuiltinView.HideLoadingProgress();
         loadSceneOver = true;
     }

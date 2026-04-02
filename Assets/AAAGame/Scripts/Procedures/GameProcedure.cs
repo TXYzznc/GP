@@ -345,28 +345,54 @@ public class GameProcedure : ProcedureBase
     /// </summary>
     private void OpenGameUIs()
     {
-        // 打开经常通用UI（左上角 - 游戏信息）
-        GF.UI.OpenUIForm(UIViews.GamePlayInfoUI);
-        Log.Info("GameProcedure: 已打开 GamePlayInfoUI");
+        var gameState = GameStateManager.Instance.CurrentState;
 
-        // 打开经常通用UI（右上角 - 货币显示）
-        GF.UI.OpenUIForm(UIViews.CurrencyUI);
-        Log.Info("GameProcedure: 已打开 CurrencyUI");
+        // 局外状态UI（基地场景）
+        if (gameState == GameStateType.OutOfGame)
+        {
+            // 打开经常通用UI（右上角 - 货币显示）
+            GF.UI.OpenUIForm(UIViews.CurrencyUI);
+            Log.Info("GameProcedure: 已打开 CurrencyUI");
 
-        // 探索UI（右下角 - 星机）
-        GF.UI.OpenUIForm(UIViews.StarPhoneUI);
-        Log.Info("GameProcedure: 已打开 StarPhoneUI");
+            // 打开游戏信息UI
+            GF.UI.OpenUIForm(UIViews.GamePlayInfoUI);
+            Log.Info("GameProcedure: 已打开 GamePlayInfoUI");
 
-        // 战斗UI（开始隐藏，等待战斗状态事件）
-        GF.UI.OpenUIForm(UIViews.CombatUI);
-        Log.Info("GameProcedure: 已打开 CombatUI");
+            // 打开星机UI
+            GF.UI.OpenUIForm(UIViews.StarPhoneUI);
+            Log.Info("GameProcedure: 已打开 StarPhoneUI");
 
-        // 打开技能UI（底部中间 - 技能快捷栏）
-        GF.UI.OpenUIForm(UIViews.PlayerSkillUI);
-        Log.Info("GameProcedure: 已打开 PlayerSkillUI");
+            // 打开局外功能UI
+            GF.UI.OpenUIForm(UIViews.OutsiderFunctionUI);
+            Log.Info("GameProcedure: 已打开 OutsiderFunctionUI");
+        }
+        // 局内状态UI（探索/战斗场景）
+        else if (gameState == GameStateType.InGame)
+        {
+            // 打开经常通用UI（左上角 - 游戏信息）
+            GF.UI.OpenUIForm(UIViews.GamePlayInfoUI);
+            Log.Info("GameProcedure: 已打开 GamePlayInfoUI");
 
-        // 注意：这些UI打开后会被隐藏（SetActive(false)）
-        // 在状态切换时，它们会根据订阅的事件自动显示/隐藏
+            // 打开经常通用UI（右上角 - 货币显示）
+            GF.UI.OpenUIForm(UIViews.CurrencyUI);
+            Log.Info("GameProcedure: 已打开 CurrencyUI");
+
+            // 探索UI（右下角 - 星机）
+            GF.UI.OpenUIForm(UIViews.StarPhoneUI);
+            Log.Info("GameProcedure: 已打开 StarPhoneUI");
+
+            // 战斗UI（开始隐藏，等待战斗状态事件）
+            GF.UI.OpenUIForm(UIViews.CombatUI);
+            Log.Info("GameProcedure: 已打开 CombatUI");
+
+            // 打开技能UI（底部中间 - 技能快捷栏）
+            GF.UI.OpenUIForm(UIViews.PlayerSkillUI);
+            Log.Info("GameProcedure: 已打开 PlayerSkillUI");
+
+            // 注意：背包UI不在这里打开，由玩家手动打开
+            // 注意：这些UI打开后会被隐藏（SetActive(false)）
+            // 在状态切换时，它们会根据订阅的事件自动显示/隐藏
+        }
     }
 
     #endregion

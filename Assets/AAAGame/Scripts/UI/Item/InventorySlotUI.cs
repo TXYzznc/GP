@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 格子所属的容器类型
@@ -16,7 +17,7 @@ public enum SlotContainerType
 /// 只负责格子容器（背景槽位），InventoryItemUI 已作为子对象预置在 varInventoryItemUI 下
 /// 关键：这个格子知道自己属于哪个容器（业务逻辑上），通过 m_Container 引用
 /// </summary>
-public partial class InventorySlotUI : UIItemBase
+public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointerExitHandler
 {
     /// <summary>缓存的 InventoryItemUI 组件</summary>
     private InventoryItemUI m_ItemUI;
@@ -123,4 +124,149 @@ public partial class InventorySlotUI : UIItemBase
         }
         SetRarity(quality);
     }
+
+    #region 鼠标交互
+
+    /// <summary>
+    /// 鼠标进入格子时显示高亮
+    /// </summary>
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (varHighLightImg != null && varHighLightImg.gameObject.activeSelf == false)
+        {
+            varHighLightImg.gameObject.SetActive(true);
+            DebugEx.Log("InventorySlotUI", $"格子 {SlotIndex} 高亮显示");
+        }
+    }
+
+    /// <summary>
+    /// 鼠标离开格子时隐藏高亮
+    /// </summary>
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (varHighLightImg != null && varHighLightImg.gameObject.activeSelf == true)
+        {
+            varHighLightImg.gameObject.SetActive(false);
+            DebugEx.Log("InventorySlotUI", $"格子 {SlotIndex} 高亮隐藏");
+        }
+    }
+
+    #endregion
+
+    #region 点击事件处理
+
+    /// <summary>
+    /// 处理左键点击（显示物品详情）
+    /// 由 InventoryClickHandler 分发调用
+    /// </summary>
+    public void OnLeftClick()
+    {
+        var itemUI = GetItemUI();
+        if (itemUI == null || !itemUI.HasItem())
+        {
+            DebugEx.Warning("InventorySlotUI", $"[OnLeftClick] 格子 {SlotIndex} 无物品");
+            return;
+        }
+
+        var itemStack = itemUI.GetItemStack();
+        if (itemStack == null || itemStack.IsEmpty)
+        {
+            DebugEx.Warning("InventorySlotUI", $"[OnLeftClick] 物品堆叠为空");
+            return;
+        }
+
+        DebugEx.Log("InventorySlotUI", $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}");
+
+        ShowItemDetailPanel(itemStack);
+    }
+
+    /// <summary>
+    /// 处理右键点击（显示上下文菜单）
+    /// 由 InventoryClickHandler 分发调用
+    /// </summary>
+    public void OnRightClick(Vector2 mousePosition)
+    {
+        var itemUI = GetItemUI();
+        if (itemUI == null || !itemUI.HasItem())
+        {
+            DebugEx.Warning("InventorySlotUI", $"[OnRightClick] 格子 {SlotIndex} 无物品");
+            return;
+        }
+
+        var itemStack = itemUI.GetItemStack();
+        if (itemStack == null || itemStack.IsEmpty)
+        {
+            DebugEx.Warning("InventorySlotUI", $"[OnRightClick] 物品堆叠为空");
+            return;
+        }
+
+        // 任务道具不显示右键菜单
+        if (itemStack.Item.Type == ItemType.Quest)
+        {
+            DebugEx.Log("InventorySlotUI", "[OnRightClick] 任务道具，跳过右键菜单");
+            return;
+        }
+
+        DebugEx.Log("InventorySlotUI", $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 位置={mousePosition}");
+
+        ShowContextMenu(itemStack, SlotIndex, mousePosition, GetComponent<RectTransform>());
+    }
+
+    /// <summary>
+    /// 显示物品详情面板
+    /// </summary>
+    private void ShowItemDetailPanel(ItemStack itemStack)
+    {
+        if (itemStack == null || itemStack.IsEmpty)
+        {
+            DebugEx.Warning("InventorySlotUI", "[ShowItemDetailPanel] 物品堆叠为空");
+            return;
+        }
+
+        // 获取 InventoryUI（背包是包含此格子的 UI）
+        var inventoryUI = GetComponentInParent<InventoryUI>();
+        if (inventoryUI != null)
+        {
+            inventoryUI.ShowItemDetail(itemStack);
+            DebugEx.Success("InventorySlotUI", $"[ShowItemDetailPanel] 显示物品详情: {itemStack.Item.Name}");
+        }
+        else
+        {
+            DebugEx.Warning("InventorySlotUI", "[ShowItemDetailPanel] 无法获取 InventoryUI");
+        }
+    }
+
+    /// <summary>
+    /// 显示上下文菜单
+    /// </summary>
+    private void ShowContextMenu(ItemStack itemStack, int slotIndex, Vector2 position, RectTransform slotRect)
+    {
+        if (itemStack == null || itemStack.IsEmpty)
+        {
+            DebugEx.Warning("InventorySlotUI", "[ShowContextMenu] 物品堆叠为空");
+            return;
+        }
+
+        // 尝试获取 InventoryUI
+        var inventoryUI = GetComponentInParent<InventoryUI>();
+        if (inventoryUI != null)
+        {
+            inventoryUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
+            DebugEx.Success("InventorySlotUI", $"[ShowContextMenu] 显示上下文菜单（来自InventoryUI）: {itemStack.Item.Name}");
+            return;
+        }
+
+        // 尝试获取 WarehouseUI
+        var warehouseUI = GetComponentInParent<WarehouseUI>();
+        if (warehouseUI != null)
+        {
+            warehouseUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
+            DebugEx.Success("InventorySlotUI", $"[ShowContextMenu] 显示上下文菜单（来自WarehouseUI）: {itemStack.Item.Name}");
+            return;
+        }
+
+        DebugEx.Error("InventorySlotUI", "[ShowContextMenu] 无法获取 InventoryUI 或 WarehouseUI");
+    }
+
+    #endregion
 }

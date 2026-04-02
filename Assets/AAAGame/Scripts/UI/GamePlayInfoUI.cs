@@ -14,7 +14,11 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        DebugEx.LogModule("GamePlayInfoUI", "订阅局内和战斗状态事件");
+        DebugEx.LogModule("GamePlayInfoUI", "订阅局内、局外和战斗状态事件");
+        // 订阅局外事件（进入基地 → 显示）
+        GF.Event.Subscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
+        GF.Event.Subscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
+
         // 订阅局内事件（进入 → 显示）
         GF.Event.Subscribe(InGameEnterEventArgs.EventId, OnInGameEnter);
         GF.Event.Subscribe(InGameLeaveEventArgs.EventId, OnInGameLeave);
@@ -35,6 +39,10 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     protected override void UnsubscribeEvents()
     {
         DebugEx.LogModule("GamePlayInfoUI", "取消订阅局内和战斗状态事件");
+        // 取消订阅局外事件
+        GF.Event.Unsubscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
+        GF.Event.Unsubscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
+
         // 取消订阅局内事件
         GF.Event.Unsubscribe(InGameEnterEventArgs.EventId, OnInGameEnter);
         GF.Event.Unsubscribe(InGameLeaveEventArgs.EventId, OnInGameLeave);
@@ -173,6 +181,19 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     #region 事件处理
 
+    private void OnOutOfGameEnter(object sender, GameEventArgs e)
+    {
+        DebugEx.LogModule("GamePlayInfoUI", "收到局外进入事件 → 显示UI");
+        ShowUI();
+        RefreshGameInfo();
+    }
+
+    private void OnOutOfGameLeave(object sender, GameEventArgs e)
+    {
+        DebugEx.LogModule("GamePlayInfoUI", "收到局外离开事件 → 隐藏UI");
+        HideUI();
+    }
+
     private void OnInGameEnter(object sender, GameEventArgs e)
     {
         DebugEx.LogModule("GamePlayInfoUI", "收到局内进入事件 → 显示UI");
@@ -281,10 +302,11 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     /// </summary>
     private void RefreshGameInfo()
     {
-        // 刷新地点信息
+        // 刷新地点信息 - 从当前场景获取
         if (varLocationText != null)
         {
-            varLocationText.text = "玩家基地";  // TODO: 从游戏数据获取
+            string locationName = GetCurrentSceneDisplayName();
+            varLocationText.text = locationName;
         }
 
         // 刷新时间信息
@@ -307,6 +329,30 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         RefreshCorruption();
 
         DebugEx.LogModule("GamePlayInfoUI", "游戏信息已刷新");
+    }
+
+    /// <summary>
+    /// 获取当前场景的显示名称（本地化）
+    /// </summary>
+    private string GetCurrentSceneDisplayName()
+    {
+        var currentSceneId = SceneStateManager.Instance.CurrentSceneId;
+        if (currentSceneId <= 0)
+            return "未知";
+
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null)
+            return "未知";
+
+        var sceneRow = sceneTable.GetDataRow(currentSceneId);
+        if (sceneRow == null)
+            return "未知";
+
+        // 获取本地化字符串，如果本地化未设置则返回Key
+        string localizationKey = sceneRow.DisplayName;
+        string displayName = GF.Localization.GetString(localizationKey);
+
+        return string.IsNullOrEmpty(displayName) ? localizationKey : displayName;
     }
 
     /// <summary>

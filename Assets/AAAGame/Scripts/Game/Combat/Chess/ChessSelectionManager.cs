@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityGameFramework.Runtime;
 
@@ -8,6 +9,11 @@ using UnityGameFramework.Runtime;
 /// </summary>
 public class ChessSelectionManager
 {
+    /// <summary>棋子被选中时触发（参数：选中的棋子实体）</summary>
+    public static event Action<ChessEntity> OnChessSelected;
+
+    /// <summary>棋子被取消选中时触发</summary>
+    public static event Action OnChessDeselected;
     #region 单例
 
     private static ChessSelectionManager s_Instance;
@@ -320,6 +326,9 @@ public class ChessSelectionManager
             entity.OutlineController.SetSelected(true);
         }
 
+        // 通知UI显示棋子详情
+        OnChessSelected?.Invoke(entity);
+
         // 通知测试输入组件（已选中）
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (entity.TestInput != null)
@@ -354,6 +363,9 @@ public class ChessSelectionManager
 
             Log.Info($"ChessSelectionManager: 取消选中 {m_SelectedChess.Config.Name}");
             m_SelectedChess = null;
+
+            // 通知UI隐藏棋子详情
+            OnChessDeselected?.Invoke();
         }
     }
 

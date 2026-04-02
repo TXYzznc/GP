@@ -54,6 +54,7 @@ MonoBehaviour:
   - French
   - Japanese
   - Korean
+  - Vietnamese
   mProcedures:
   - ChangeSceneProcedure
   - GameProcedure

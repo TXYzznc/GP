@@ -237,9 +237,9 @@ public class CombatPreparationState : FsmState<InGameState>
             DebugEx.LogModule("CombatPreparationState", "已创建 SummonChessManager");
         }
 
-        // 初始化棋子库存
-        ChessDeploymentTracker.Instance.Initialize();
-        DebugEx.LogModule("CombatPreparationState", "棋子库存已初始化");
+        // ⭐ 注意：棋子库存已在 InGameState.OnEnter() 时初始化，这里不需要重复初始化
+        // ChessDeploymentTracker.Instance.Initialize(); // 已移除
+        DebugEx.LogModule("CombatPreparationState", "使用已初始化的棋子库存");
 
         // 初始化战斗管理器
         InitializeCombatManagers();

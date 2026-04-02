@@ -1,4 +1,4 @@
-﻿#	ResourceConfigTable				
+#	ResourceConfigTable
 #	ID		Type	Path	Name
 #	int		int	string	string
 #	资源ID	1：Assets/AAAGame/Sprites/2：Assets/AAAGame/Prefabs/3：Assets/AAAGame/Entities/4：Assets/AAAGame/Materials/5：Assets/AAAGame/Textures/6：Assets/AAAGame/Config/备注：大型资源和通用资源放这里	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）	资源路径	资源名称

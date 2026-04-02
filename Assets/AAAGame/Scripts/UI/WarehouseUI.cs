@@ -175,4 +175,55 @@ public partial class WarehouseUI : UIFormBase
     }
 
     #endregion
+
+    #region 物品上下文菜单
+
+    private ItemContextMenu m_CachedContextMenu;
+
+    /// <summary>
+    /// 显示物品上下文菜单（动态加载预制体版本）
+    /// </summary>
+    public void ShowItemContextMenu(ItemStack itemStack, int slotIndex, RectTransform slotRect)
+    {
+        if (itemStack == null || itemStack.IsEmpty)
+        {
+            DebugEx.Warning("WarehouseUI", "ShowItemContextMenu: 物品为空");
+            return;
+        }
+
+        // 获取或加载菜单预制体
+        if (m_CachedContextMenu == null)
+        {
+            if (varItemContextMenu == null)
+            {
+                DebugEx.Error("WarehouseUI", "ShowItemContextMenu: varItemContextMenu 预制体未设置");
+                return;
+            }
+
+            // 动态加载菜单预制体到 Canvas（不是 Content）
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                DebugEx.Error("WarehouseUI", "ShowItemContextMenu: 未找到 Canvas");
+                return;
+            }
+
+            var menuGO = Instantiate(varItemContextMenu, canvas.transform);
+            m_CachedContextMenu = menuGO.GetComponent<ItemContextMenu>();
+
+            if (m_CachedContextMenu == null)
+            {
+                DebugEx.Error("WarehouseUI", "ShowItemContextMenu: 菜单预制体中没有 ItemContextMenu 组件");
+                Destroy(menuGO);
+                return;
+            }
+
+            DebugEx.Log("WarehouseUI", "ShowItemContextMenu: 菜单预制体已加载");
+        }
+
+        // 显示菜单
+        m_CachedContextMenu.ShowContextMenu(itemStack, slotIndex, Vector2.zero, slotRect);
+    }
+
+    #endregion
 }

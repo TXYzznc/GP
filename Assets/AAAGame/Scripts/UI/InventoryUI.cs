@@ -662,14 +662,13 @@ public partial class InventoryUI : UIFormBase
     /// </summary>
     public ItemContextMenu GetItemContextMenu()
     {
-        var contextMenu = GetComponentInChildren<ItemContextMenu>(true);
-        
-        if (contextMenu == null)
+        if (varItemContextMenu == null)
         {
-            DebugEx.Warning("InventoryUI", "未找到 ItemContextMenu 组件，请确保已在 Prefab 中添加");
+            DebugEx.Warning("InventoryUI", "varItemContextMenu 未设置");
+            return null;
         }
 
-        return contextMenu;
+        return varItemContextMenu.GetComponent<ItemContextMenu>();
     }
 
     #endregion
@@ -769,6 +768,57 @@ public partial class InventoryUI : UIFormBase
         RefreshAll();
 
         DebugEx.Success("InventoryUI", "背包整理完成");
+    }
+
+    #endregion
+
+    #region 物品上下文菜单
+
+    private ItemContextMenu m_CachedContextMenu;
+
+    /// <summary>
+    /// 显示物品上下文菜单（动态加载预制体版本）
+    /// </summary>
+    public void ShowItemContextMenu(ItemStack itemStack, int slotIndex, RectTransform slotRect)
+    {
+        if (itemStack == null || itemStack.IsEmpty)
+        {
+            DebugEx.Warning("InventoryUI", "ShowItemContextMenu: 物品为空");
+            return;
+        }
+
+        // 获取或加载菜单预制体
+        if (m_CachedContextMenu == null)
+        {
+            if (varItemContextMenu == null)
+            {
+                DebugEx.Error("InventoryUI", "ShowItemContextMenu: varItemContextMenu 预制体未设置");
+                return;
+            }
+
+            // 动态加载菜单预制体到 Canvas（不是 InventoryContent）
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                DebugEx.Error("InventoryUI", "ShowItemContextMenu: 未找到 Canvas");
+                return;
+            }
+
+            var menuGO = Instantiate(varItemContextMenu, canvas.transform);
+            m_CachedContextMenu = menuGO.GetComponent<ItemContextMenu>();
+
+            if (m_CachedContextMenu == null)
+            {
+                DebugEx.Error("InventoryUI", "ShowItemContextMenu: 菜单预制体中没有 ItemContextMenu 组件");
+                Destroy(menuGO);
+                return;
+            }
+
+            DebugEx.Log("InventoryUI", "ShowItemContextMenu: 菜单预制体已加载");
+        }
+
+        // 显示菜单
+        m_CachedContextMenu.ShowContextMenu(itemStack, slotIndex, Vector2.zero, slotRect);
     }
 
     #endregion

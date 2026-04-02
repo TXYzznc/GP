@@ -26,7 +26,12 @@ public enum SceneType
     /// <summary>
     /// 特殊副本场景（局内）
     /// </summary>
-    Dungeon = 4
+    Dungeon = 4,
+
+    /// <summary>
+    /// 主菜单场景
+    /// </summary>
+    Menu = 5
 }
 
 /// <summary>

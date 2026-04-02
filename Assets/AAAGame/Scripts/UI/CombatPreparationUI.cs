@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using GameFramework;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -26,6 +27,12 @@ public partial class CombatPreparationUI : UIFormBase
 
     /// <summary>当前选中的棋子实例ID</summary>
     private string m_SelectedChessInstanceId = string.Empty;
+
+    /// <summary>选中棋子卡片的位置偏移</summary>
+    private const float SELECTED_OFFSET = 20f;
+
+    /// <summary>选中动画时长</summary>
+    private const float SELECTED_ANIMATION_DURATION = 0.3f;
 
     /// <summary>已生成的Buff UI项</summary>
     private List<GameObject> m_SpawnedBuffItems = new List<GameObject>();
@@ -342,21 +349,29 @@ public partial class CombatPreparationUI : UIFormBase
             var detailUI = varDetailInfoUI.GetComponent<DetailInfoUI>();
             if (detailUI != null)
             {
-                // 获取棋子实体数据（未部署时为null，但卡片信息仍可显示）
-                if (instance.Entity != null)
+                // ⭐ 修改：棋子全局状态已在 InGameState.OnEnter() 时初始化，直接使用
+                if (ChessDataManager.Instance.TryGetConfig(instance.ChessId, out var config))
                 {
-                    detailUI.SetChessUnitData(instance.Entity);
-                }
-                else
-                {
-                    // 如果还没有部署，可以从配置表获取信息
-                    DebugEx.LogModule("CombatPreparationUI", $"棋子未部署，使用配置表信息 chessId={instance.ChessId}");
-                }
+                    var globalState = GlobalChessManager.Instance.GetChessState(instance.ChessId);
 
-                detailUI.RefreshUI();
-                detailUI.ShowWithAnimation();
+                    if (globalState != null)
+                    {
+                        detailUI.SetChessConfig(config, globalState);
+                        detailUI.RefreshUI();
+                        detailUI.ShowWithAnimation();
+                    }
+                    else
+                    {
+                        // 不应该出现这个情况（如果出现说明InGameState初始化有问题）
+                        DebugEx.ErrorModule("CombatPreparationUI",
+                            $"棋子 {config.Name} (ID={instance.ChessId}) 全局状态未初始化");
+                    }
+                }
             }
         }
+
+        // 播放选中动效
+        PlayChessSelectAnimation(instanceId);
     }
 
     /// <summary>
@@ -372,11 +387,75 @@ public partial class CombatPreparationUI : UIFormBase
 
         Log.Info($"CombatPreparationUI: 取消选中棋子 instanceId={previousInstanceId}");
 
+        // 播放取消选中动效
+        PlayChessDeselectAnimation(previousInstanceId);
+
         // 隐藏 DetailInfoUI
         if (varDetailInfoUI != null)
         {
             varDetailInfoUI.SetActive(false);
         }
+    }
+
+    /// <summary>
+    /// 播放棋子选中动效（参考策略卡）
+    /// </summary>
+    private void PlayChessSelectAnimation(string instanceId)
+    {
+        if (!m_ChessItemUIDict.TryGetValue(instanceId, out var chessItemUI))
+            return;
+
+        var varBtn = chessItemUI.GetComponent<Button>();
+        if (varBtn == null)
+            return;
+
+        var btnRectTransform = varBtn.GetComponent<RectTransform>();
+        if (btnRectTransform == null)
+            return;
+
+        // 保存原始位置
+        Vector3 originalPos = btnRectTransform.anchoredPosition;
+        Vector3 targetPos = originalPos;
+        targetPos.y += SELECTED_OFFSET;
+
+        // 播放位置动画
+        btnRectTransform.DOAnchorPos(targetPos, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
+
+        // 播放脉冲动效
+        var btnTransform = varBtn.transform;
+        var sequence = DOTween.Sequence();
+        sequence.Append(btnTransform.DOScale(new Vector3(1.1f, 1.1f, 1f), SELECTED_ANIMATION_DURATION * 0.5f).SetEase(Ease.OutQuad));
+        sequence.Append(btnTransform.DOScale(Vector3.one, SELECTED_ANIMATION_DURATION * 0.5f).SetEase(Ease.InQuad));
+
+        DebugEx.LogModule("CombatPreparationUI", $"播放选中动效: instanceId={instanceId}");
+    }
+
+    /// <summary>
+    /// 播放棋子取消选中动效
+    /// </summary>
+    private void PlayChessDeselectAnimation(string instanceId)
+    {
+        if (!m_ChessItemUIDict.TryGetValue(instanceId, out var chessItemUI))
+            return;
+
+        var varBtn = chessItemUI.GetComponent<Button>();
+        if (varBtn == null)
+            return;
+
+        var btnRectTransform = varBtn.GetComponent<RectTransform>();
+        if (btnRectTransform == null)
+            return;
+
+        // 恢复原始位置
+        Vector3 originalPos = btnRectTransform.anchoredPosition;
+        originalPos.y -= SELECTED_OFFSET;
+        btnRectTransform.DOAnchorPos(originalPos, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
+
+        // 恢复缩放
+        var btnTransform = varBtn.transform;
+        btnTransform.DOScale(Vector3.one, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
+
+        DebugEx.LogModule("CombatPreparationUI", $"播放取消选中动效: instanceId={instanceId}");
     }
 
     /// <summary>

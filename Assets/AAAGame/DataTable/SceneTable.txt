@@ -5,3 +5,4 @@
 	1		BaseScene	1	scene.base.name	scene.base.desc	1	1001	1	1
 	2		WorldScene	2	scene.world.name	scene.world.desc	1	2001	1	1
 	3		TutorialScene	3	scene.tutorial.name	scene.tutorial.desc	0	3001	1	1
+	0		StartGame	5	scene.menu.name	scene.menu.desc	0		0	1

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8087160959479530007}
   - component: {fileID: 5701518887903349020}
   m_Layer: 5
-  m_Name: DescBg
+  m_Name: Desc_1Bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: -1
+  m_MinHeight: 300
   m_PreferredWidth: -1
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 296470329382424584}
   - component: {fileID: 157047386092330191}
   m_Layer: 5
-  m_Name: DescText
+  m_Name: Desc_1Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -164,11 +164,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 22
+    m_FontSize: 18
     m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 1
-    m_MaxSize: 40
+    m_BestFit: 1
+    m_MinSize: 16
+    m_MaxSize: 22
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -389,6 +389,7 @@ GameObject:
   - component: {fileID: 8151531335904139939}
   - component: {fileID: 6106032115052287071}
   - component: {fileID: 6669968547183686259}
+  - component: {fileID: 2228740154050028421}
   m_Layer: 5
   m_Name: DetailInfoBg
   m_TagString: Untagged
@@ -414,10 +415,10 @@ RectTransform:
   - {fileID: 5340402414880284808}
   m_Father: {fileID: 4914284569294859816}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -180, y: -100}
-  m_SizeDelta: {x: 360, y: 900}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8151531335904139939
 CanvasRenderer:
@@ -477,12 +478,26 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_Spacing: 10
   m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 1
+  m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &2228740154050028421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4234004236173789548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &4308250069457370800
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,7 +510,7 @@ GameObject:
   - component: {fileID: 9183624624613558429}
   - component: {fileID: 1388550199134675056}
   m_Layer: 5
-  m_Name: OtherText
+  m_Name: Desc_2Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -586,7 +601,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5053453657492381175}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -594,10 +609,10 @@ RectTransform:
   - {fileID: 9220801367722874568}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 440}
-  m_SizeDelta: {x: 360, y: 700}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -100}
+  m_SizeDelta: {x: 360, y: -380}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1792359838999648186
 MonoBehaviour:
@@ -617,16 +632,6 @@ MonoBehaviour:
     - {fileID: 1193772129627342526}
     VarType: UnityEngine.UI.Text
     VarPrefix: 0
-  - VarName: varDescText
-    Targets:
-    - {fileID: 631142038643575907}
-    VarType: UnityEngine.UI.Text
-    VarPrefix: 0
-  - VarName: varOtherText
-    Targets:
-    - {fileID: 4308250069457370800}
-    VarType: UnityEngine.UI.Text
-    VarPrefix: 0
   - VarName: varBuffBg
     Targets:
     - {fileID: 1089108457763560876}
@@ -637,11 +642,21 @@ MonoBehaviour:
     - {fileID: 8878832983170476596}
     VarType: UnityEngine.GameObject
     VarPrefix: 0
+  - VarName: varDesc_1Text
+    Targets:
+    - {fileID: 631142038643575907}
+    VarType: UnityEngine.UI.Text
+    VarPrefix: 0
+  - VarName: varDesc_2Text
+    Targets:
+    - {fileID: 4308250069457370800}
+    VarType: UnityEngine.UI.Text
+    VarPrefix: 0
   varTitleText: {fileID: 8952256038101913117}
-  varDescText: {fileID: 157047386092330191}
-  varOtherText: {fileID: 1388550199134675056}
   varBuffBg: {fileID: 8788480617371710790}
   varBuffItem: {fileID: 8878832983170476596}
+  varDesc_1Text: {fileID: 157047386092330191}
+  varDesc_2Text: {fileID: 1388550199134675056}
 --- !u!1 &7484128291209035650
 GameObject:
   m_ObjectHideFlags: 0
@@ -752,7 +767,7 @@ GameObject:
   - component: {fileID: 6920544861518186118}
   - component: {fileID: 6758943854122214031}
   m_Layer: 5
-  m_Name: OtherBg
+  m_Name: Desc_2Bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
