@@ -9,10 +9,17 @@ public partial class WarehouseUI : UIFormBase
 {
     private readonly List<InventorySlotUI> m_Slots = new();
     private WarehouseManager m_WarehouseManager;
+    private WarehouseSlotContainerImpl m_WarehouseSlotContainer;
 
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
+
+        // 初始化仓库容器组件
+        m_WarehouseSlotContainer = GetComponent<WarehouseSlotContainerImpl>();
+        if (m_WarehouseSlotContainer == null)
+            m_WarehouseSlotContainer = gameObject.AddComponent<WarehouseSlotContainerImpl>();
+
         BindButtonEvents();
         DebugEx.Success("WarehouseUI", "仓库UI初始化完成");
     }
@@ -79,6 +86,7 @@ public partial class WarehouseUI : UIFormBase
             {
                 slot.SetSlotIndex(i);
                 slot.SetContainerType(SlotContainerType.Warehouse);
+                slot.SetSlotContainer(m_WarehouseSlotContainer);
                 // 初始化格子背景颜色为默认
                 slot.SetRarity(0);
                 m_Slots.Add(slot);

@@ -9,6 +9,5 @@ public partial class InventoryItemUI
 	[Space(10)]
 	[Header("UI Variables:")]
 	[SerializeField] private Image varItemImg = null;
-	[SerializeField] private Button varItemBtn = null;
 	[SerializeField] private Text varCountText = null;
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
@@ -65,6 +66,16 @@ public partial class CombatUI : StateAwareUIForm
     private void OnCombatEnter(object sender, GameEventArgs e)
     {
         DebugEx.LogModule("CombatUI", "收到战斗进入事件");
+        
+        // 初始化 CardManager
+        if (CardManager.Instance != null)
+        {
+            CardManager.Instance.InitializeForCombat();
+            // 订阅卡牌移除事件，自动刷新卡槽
+            CardManager.Instance.OnCardRemoved += OnCardRemoved;
+            DebugEx.LogModule("CombatUI", "CardManager 已初始化");
+        }
+        
         ShowUI();
         RefreshCombatUI();
     }
@@ -72,8 +83,47 @@ public partial class CombatUI : StateAwareUIForm
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
         DebugEx.LogModule("CombatUI", "收到战斗离开事件");
+        
+        // 清理 CardManager
+        if (CardManager.Instance != null)
+        {
+            CardManager.Instance.OnCardRemoved -= OnCardRemoved;
+            CardManager.Instance.Clear();
+            DebugEx.LogModule("CombatUI", "CardManager 已清理");
+        }
+        
         HideUI();
     }
+
+    /// <summary>
+    /// 卡牌移除事件回调
+    /// </summary>
+    private void OnCardRemoved(int cardId)
+    {
+        DebugEx.LogModule("CombatUI", $"卡牌已移除: ID={cardId}，刷新卡槽");
+        RefreshCardSlots();
+    }
+    /// <summary>
+    /// 获取详情UI
+    /// </summary>
+    public DetailInfoUI GetDetailInfoUI()
+    {
+        if (varDetailInfoUI != null)
+        {
+            return varDetailInfoUI.GetComponent<DetailInfoUI>();
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 获取卡槽吸附区域
+    /// </summary>
+    public Image GetCardSlotAdsorptionArea()
+    {
+        return varCardSlotAdsorptionArea;
+    }
+
+
 
     /// <summary>
     /// 召唤师HP变化回调
@@ -281,29 +331,67 @@ public partial class CombatUI : StateAwareUIForm
             }
         }
 
-        // TODO: 从战斗数据获取卡牌列表并创建卡牌槽
-        // 示例：创建5个卡牌槽
-        for (int i = 0; i < 5; i++)
+        // 从 CardManager 获取卡牌列表并创建卡牌槽
+        if (CardManager.Instance != null)
         {
-            CreateCardSlot(i);
+            var cards = CardManager.Instance.GetAvailableCards();
+            for (int i = 0; i < cards.Count; i++)
+            {
+                CreateCardSlot(cards[i], i);
+            }
+
+            // 播放卡牌重排动画
+            PlayCardRearrangeAnimation();
+
+            DebugEx.LogModule("CombatUI", $"刷新卡牌槽完成，共 {cards.Count} 张卡牌");
         }
+        else
+        {
+            DebugEx.WarningModule("CombatUI", "CardManager 未初始化");
+        }
+    }
+
+    /// <summary>
+    /// 播放卡牌重排动画
+    /// </summary>
+    private void PlayCardRearrangeAnimation()
+    {
+        if (varCardSlots == null)
+            return;
+
+        // 对所有卡牌槽播放滑入动画
+        for (int i = 0; i < varCardSlots.transform.childCount; i++)
+        {
+            var child = varCardSlots.transform.GetChild(i);
+            if (child.gameObject == varCardSlotItem)
+                continue;
+
+            var rectTransform = child.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                // 从左侧滑入
+                var originalPos = rectTransform.anchoredPosition;
+                rectTransform.anchoredPosition = originalPos + new Vector2(-100, 0);
+                rectTransform.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutQuad).SetDelay(i * 0.05f);
+            }
+        }
+
+        DebugEx.LogModule("CombatUI", "播放卡牌重排动画");
     }
 
     /// <summary>
     /// 创建卡牌槽
     /// </summary>
-    private void CreateCardSlot(int index)
+    private void CreateCardSlot(CardData cardData, int index)
     {
         GameObject slotGo = Instantiate(varCardSlotItem, varCardSlots.transform);
-        // ✅ 隐藏实例而非模板
         slotGo.SetActive(true);
         slotGo.name = $"CardSlot_{index}";
 
         CardSlotItem slotItem = slotGo.GetComponent<CardSlotItem>();
         if (slotItem != null)
         {
-            // TODO: 设置卡牌数据
-            slotItem.SetData(index);
+            slotItem.SetData(cardData);
         }
     }
 

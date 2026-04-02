@@ -62,6 +62,9 @@ public class CombatState : FsmState<InGameState>
         // 启用战斗管理器
         EnableCombatManager();
 
+        // 初始化卡牌系统（动态添加 CardManager 并初始化卡牌）
+        InitializeCardSystem();
+
         await ChessStateUIWorldManager.EnsureExistsAsync();
         await ChessStateUIWorldManager.Instance.EnterCombatAsync();
 
@@ -183,16 +186,19 @@ public class CombatState : FsmState<InGameState>
         // 15. 清理战斗特效管理器
         CleanupCombatVFX();
 
-        // 16. 清理战斗管理器
+        // 16. 清理卡牌系统
+        CleanupCardSystem();
+
+        // 17. 清理战斗管理器
         CleanupCombatManagers();
 
-        // 17. 清理召唤师运行时数据管理器
+        // 18. 清理召唤师运行时数据管理器
         SummonerRuntimeDataManager.Instance.Cleanup();
 
-        // 18. 清理临时数据
+        // 19. 清理临时数据
         CombatSessionData.Instance.Clear();
 
-        // 19. 触发战斗离开事件
+        // 20. 触发战斗离开事件
         GF.Event.Fire(this, ReferencePool.Acquire<CombatLeaveEventArgs>());
 
         base.OnLeave(fsm, isShutdown);
@@ -319,6 +325,40 @@ public class CombatState : FsmState<InGameState>
     #endregion
 
     #region 私有方法
+
+    /// <summary>
+    /// 初始化卡牌系统
+    /// </summary>
+    private void InitializeCardSystem()
+    {
+        // 如果 CardManager 不存在，动态添加
+        if (CardManager.Instance == null)
+        {
+            GameObject cardManagerObj = new GameObject("CardManager");
+            cardManagerObj.AddComponent<CardManager>();
+            DebugEx.LogModule("CombatState", "动态添加 CardManager");
+        }
+        else
+        {
+            DebugEx.LogModule("CombatState", "CardManager 已存在");
+        }
+
+        // 初始化卡牌（随机加载 8 张）
+        CardManager.Instance.InitializeForCombat();
+        DebugEx.LogModule("CombatState", "卡牌系统已初始化");
+    }
+
+    /// <summary>
+    /// 清理卡牌系统
+    /// </summary>
+    private void CleanupCardSystem()
+    {
+        if (CardManager.Instance != null)
+        {
+            CardManager.Instance.Clear();
+            DebugEx.LogModule("CombatState", "卡牌系统已清理");
+        }
+    }
 
     /// <summary>
     /// 清理战斗管理器

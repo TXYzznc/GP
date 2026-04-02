@@ -1,196 +1,124 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// 扩展的 Layout Element，支持 Max Width 和 Max Height 限制
-/// 继承自 LayoutElement，保持所有原有功能，添加最大值限制
-///
-/// 使用方法：
-/// 1. 在需要限制最大尺寸的组件上添加此脚本（而不是 LayoutElement）
-/// 2. 设置 Max Width 和/或 Max Height（-1 表示不限制）
-/// 3. 其他设置与 LayoutElement 相同
-/// </summary>
-[AddComponentMenu("Layout/Extended Layout Element", 141)]
-[RequireComponent(typeof(RectTransform))]
-public class ExtendedLayoutElement : LayoutElement
+namespace Assets.AAAGame.Scripts.Extension.Component
 {
-    #region 字段
-
-    [SerializeField]
-    [Tooltip("最大宽度，-1 表示不限制")]
-    private float m_MaxWidth = -1f;
-
-    [SerializeField]
-    [Tooltip("最大高度，-1 表示不限制")]
-    private float m_MaxHeight = -1f;
-
-    private RectTransform m_RectTransform;
-    private bool m_LayoutDirty = false;
-
-    #endregion
-
-    #region 属性
-
     /// <summary>
-    /// 最大宽度（-1 表示不限制）
+    /// 扩展的Layout Element，支持高度最大最小值限制
+    /// 通过LateUpdate拦截并调整高度来实现约束
     /// </summary>
-    public float maxWidth
+    [RequireComponent(typeof(RectTransform))]
+    public class ExtendedLayoutElement : MonoBehaviour, ILayoutElement
     {
-        get => m_MaxWidth;
-        set
+        [SerializeField]
+        private bool m_EnableHeightConstraint = false;
+
+        [SerializeField]
+        private float m_MinHeight = 0;
+
+        [SerializeField]
+        private float m_MaxHeight = float.MaxValue;
+
+        private RectTransform m_RectTransform;
+        private LayoutGroup m_ParentLayoutGroup;
+
+        public float minWidth => -1;
+        public float preferredWidth => -1;
+        public float maxWidth => -1;
+
+        public float minHeight => -1;
+        public float preferredHeight => -1;
+        public float maxHeight => -1;
+
+        public float flexibleWidth => -1;
+        public float flexibleHeight => -1;
+        public int layoutPriority => 0;
+
+        public void CalculateLayoutInputHorizontal() { }
+        public void CalculateLayoutInputVertical() { }
+
+        private void OnEnable()
         {
-            if (Mathf.Approximately(m_MaxWidth, value))
-                return;
-            m_MaxWidth = value;
-            SetDirty();
+            m_RectTransform = GetComponent<RectTransform>();
+            m_ParentLayoutGroup = GetComponentInParent<LayoutGroup>();
+
+            if (m_ParentLayoutGroup != null)
+            {
+                LayoutRebuilder.MarkLayoutForRebuild(m_ParentLayoutGroup.GetComponent<RectTransform>());
+            }
         }
-    }
 
-    /// <summary>
-    /// 最大高度（-1 表示不限制）
-    /// </summary>
-    public float maxHeight
-    {
-        get => m_MaxHeight;
-        set
+        private void OnDisable()
         {
-            if (Mathf.Approximately(m_MaxHeight, value))
-                return;
-            m_MaxHeight = value;
-            SetDirty();
+            if (m_ParentLayoutGroup != null)
+            {
+                LayoutRebuilder.MarkLayoutForRebuild(m_ParentLayoutGroup.GetComponent<RectTransform>());
+            }
         }
-    }
 
-    #endregion
-
-    #region Unity 生命周期
-
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        m_RectTransform = GetComponent<RectTransform>();
-        SetDirty();
-    }
-
-    protected override void OnDisable()
-    {
-        if (m_RectTransform != null)
-            LayoutRebuilder.MarkLayoutForRebuild(m_RectTransform);
-        base.OnDisable();
-    }
-
-    /// <summary>
-    /// 编辑器中实时预览
-    /// </summary>
-    protected override void OnValidate()
-    {
-        // 在编辑器中验证数值范围
-        if (!enabled)
-            return;
-
-        m_MaxWidth = Mathf.Max(-1f, m_MaxWidth);
-        m_MaxHeight = Mathf.Max(-1f, m_MaxHeight);
-
-        // 标记需要重建
-        if (IsActive())
+        private void LateUpdate()
         {
-            m_LayoutDirty = true;
+            ApplyHeightConstraint();
+        }
+
 #if UNITY_EDITOR
+        private void OnValidate()
+        {
+            // 在编辑模式下立刻生效，但不能在OnValidate中修改RectTransform
             if (!Application.isPlaying)
             {
-                // 编辑器中立即应用
-                ApplyMaxConstraints();
-                var rt = GetComponent<RectTransform>();
-                if (rt != null)
-                    LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
+                m_RectTransform = GetComponent<RectTransform>();
+                m_ParentLayoutGroup = GetComponentInParent<LayoutGroup>();
+
+                if (m_ParentLayoutGroup != null)
+                {
+                    LayoutRebuilder.MarkLayoutForRebuild(m_ParentLayoutGroup.GetComponent<RectTransform>());
+                }
             }
-#endif
         }
-    }
-
-    /// <summary>
-    /// LateUpdate 中应用最大值限制
-    /// </summary>
-    private void LateUpdate()
-    {
-        if (m_LayoutDirty)
-        {
-            ApplyMaxConstraints();
-            m_LayoutDirty = false;
-        }
-    }
-
-#if UNITY_EDITOR
-    /// <summary>
-    /// 编辑器更新，用于实时预览
-    /// </summary>
-    private void Update()
-    {
-        if (!Application.isPlaying && m_LayoutDirty)
-        {
-            ApplyMaxConstraints();
-            m_LayoutDirty = false;
-        }
-    }
 #endif
 
-    #endregion
-
-    #region Layout 约束应用
-
-    /// <summary>
-    /// 应用最大值约束
-    /// </summary>
-    private void ApplyMaxConstraints()
-    {
-        if (m_RectTransform == null)
-            m_RectTransform = GetComponent<RectTransform>();
-
-        if (m_RectTransform == null)
-            return;
-
-        Vector2 sizeDelta = m_RectTransform.sizeDelta;
-        bool changed = false;
-
-        // 应用最大宽度
-        if (m_MaxWidth > 0 && sizeDelta.x > m_MaxWidth)
+        private void ApplyHeightConstraint()
         {
-            sizeDelta.x = m_MaxWidth;
-            changed = true;
+            if (!m_EnableHeightConstraint || m_RectTransform == null)
+                return;
+
+            var sizeDelta = m_RectTransform.sizeDelta;
+            float currentHeight = sizeDelta.y;
+
+            // 应用高度约束
+            float constrainedHeight = currentHeight;
+            if (currentHeight < m_MinHeight)
+            {
+                constrainedHeight = m_MinHeight;
+            }
+            else if (currentHeight > m_MaxHeight)
+            {
+                constrainedHeight = m_MaxHeight;
+            }
+
+            // 只在高度改变时更新
+            if (!Mathf.Approximately(currentHeight, constrainedHeight))
+            {
+                m_RectTransform.sizeDelta = new Vector2(sizeDelta.x, constrainedHeight);
+            }
         }
 
-        // 应用最大高度
-        if (m_MaxHeight > 0 && sizeDelta.y > m_MaxHeight)
+        public void SetHeightConstraint(float minHeight, float maxHeight)
         {
-            sizeDelta.y = m_MaxHeight;
-            changed = true;
+            m_EnableHeightConstraint = true;
+            m_MinHeight = minHeight;
+            m_MaxHeight = maxHeight;
+
+            if (m_RectTransform == null)
+                m_RectTransform = GetComponent<RectTransform>();
+
+            ApplyHeightConstraint();
         }
 
-        // 如果有变化，应用到 RectTransform
-        if (changed)
+        public void DisableHeightConstraint()
         {
-            m_RectTransform.sizeDelta = sizeDelta;
+            m_EnableHeightConstraint = false;
         }
     }
-
-    #endregion
-
-    #region 辅助方法
-
-    /// <summary>
-    /// 标记布局需要重建
-    /// </summary>
-    private void SetDirty()
-    {
-        if (!IsActive())
-            return;
-
-        m_LayoutDirty = true;
-        if (m_RectTransform == null)
-            m_RectTransform = GetComponent<RectTransform>();
-        if (m_RectTransform != null)
-            LayoutRebuilder.MarkLayoutForRebuild(m_RectTransform);
-    }
-
-    #endregion
 }

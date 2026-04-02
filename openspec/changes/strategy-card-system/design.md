@@ -110,7 +110,56 @@
 - CardSlotItem 使用后通知 CardManager 移除卡牌
 - CardManager 触发事件，CombatUI 监听并刷新 UI
 
-### 5. 目标选择机制
+### 6. 卡牌选中交互
+
+**决策**：使用单选模式，左键点击切换选中状态，选中时显示详情 UI
+
+**理由**：
+- 简化交互逻辑，同时最多选中一张卡
+- 选中状态提供视觉反馈（向上移动 20 单位）
+- 与 DetailInfoUI 联动，显示卡牌详细信息
+
+**替代方案**：
+- ❌ 多选模式：增加复杂度，不符合当前需求
+- ❌ 悬停显示详情：移动端不支持悬停
+
+**实现细节**：
+- CardSlotItem 维护 isSelected 状态
+- 点击未选中卡牌：设为选中，向上移动 20 单位，显示 DetailInfoUI
+- 点击已选中卡牌：取消选中，恢复位置，隐藏 DetailInfoUI
+- 选中新卡牌时自动取消之前选中的卡牌
+- DetailInfoUI 调用 SetData(cardData) 和 RefreshUI() 显示信息
+
+### 7. 卡牌图标显示
+
+**决策**：CardSlotItem 的 Btn 中的 Image 组件显示卡牌图标
+
+**理由**：
+- 直观显示卡牌内容
+- 使用 ResourceExtension.LoadSpriteAsync() 异步加载
+- 与现有资源加载方式一致
+
+**实现细节**：
+- 在 SetData() 中加载 CardTable.IconId 对应的图标
+- 使用 ResourceExtension.LoadSpriteAsync(iconId, btnImage) 直接加载到 Image
+- 加载失败时使用默认占位图
+
+### 5. DetailInfoUI 集成
+
+**决策**：使用 CombatUI.varDetailInfoUI 显示选中卡牌的详细信息
+
+**理由**：
+- 复用现有 DetailInfoUI 组件
+- 统一的信息展示方式
+- 减少重复开发
+
+**实现细节**：
+- CardSlotItem 选中时调用 DetailInfoUI.SetData(cardData)
+- 调用 DetailInfoUI.RefreshUI() 刷新显示
+- 显示 DetailInfoUI（SetActive(true)）
+- 取消选中时清除数据并隐藏 DetailInfoUI
+
+### 8. 目标选择机制
 
 **决策**：根据 TargetType 自动选择目标，无需手动点选
 

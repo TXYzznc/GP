@@ -14,9 +14,6 @@ public partial class InventoryUI : UIFormBase
     private readonly List<InventorySlotUI> m_InventorySlots = new();
     private readonly List<InventorySlotUI> m_FastSlots = new();   // 快捷栏（预置 5 格）
 
-    // 快捷栏：每个槽绑定的背包 slotIndex（-1 = 空）
-    private readonly int[] m_HotbarBoundSlots = new int[5] { -1, -1, -1, -1, -1 };
-
     private const int COLUMNS_PER_ROW = 6;
     private const int SLOTS_PER_PAGE = 42;       // 每页格子数（6列×7行）
 
@@ -25,6 +22,12 @@ public partial class InventoryUI : UIFormBase
     private static readonly UnityEngine.Color s_TabNormalColor   = UnityEngine.Color.white;
 
     private InventoryManager m_InventoryManager;
+    private FastBarManager m_FastBarManager;
+
+    // 容器组件
+    private InventorySlotContainerImpl m_InventorySlotContainer;
+    private FastBarSlotContainerImpl m_FastBarSlotContainer;
+    private EquipSlotContainerImpl m_EquipSlotContainer;
 
     // 分页
     private int m_CurrentPage = 0;
@@ -40,6 +43,19 @@ public partial class InventoryUI : UIFormBase
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
+
+        // 初始化容器组件
+        m_InventorySlotContainer = GetComponent<InventorySlotContainerImpl>();
+        if (m_InventorySlotContainer == null)
+            m_InventorySlotContainer = gameObject.AddComponent<InventorySlotContainerImpl>();
+
+        m_FastBarSlotContainer = GetComponent<FastBarSlotContainerImpl>();
+        if (m_FastBarSlotContainer == null)
+            m_FastBarSlotContainer = gameObject.AddComponent<FastBarSlotContainerImpl>();
+
+        m_EquipSlotContainer = GetComponent<EquipSlotContainerImpl>();
+        if (m_EquipSlotContainer == null)
+            m_EquipSlotContainer = gameObject.AddComponent<EquipSlotContainerImpl>();
 
         ConfigureScrollRect();
         ConfigureGridLayout();
@@ -58,6 +74,23 @@ public partial class InventoryUI : UIFormBase
         if (m_InventoryManager != null)
             m_InventoryManager.OnInventoryChanged += OnInventoryChanged;
 
+        m_FastBarManager = FastBarManager.Instance;
+        if (!m_FastBarManager.IsInitialized)
+            m_FastBarManager.Initialize();
+        if (m_FastBarManager != null)
+        {
+            m_FastBarManager.OnItemStored += OnFastBarChanged;
+            m_FastBarManager.OnItemRetrieved += OnFastBarChanged;
+            m_FastBarManager.OnSlotCleared += OnFastBarSlotCleared;
+        }
+
+        var warehouseManager = WarehouseManager.Instance;
+        if (warehouseManager != null)
+        {
+            warehouseManager.OnItemStored += OnWarehouseChanged;
+            warehouseManager.OnItemRetrieved += OnWarehouseChanged;
+        }
+
         m_CurrentPage = 0;
         BuildPageLabels();
         RefreshAll();
@@ -71,8 +104,28 @@ public partial class InventoryUI : UIFormBase
         if (m_InventoryManager != null)
             m_InventoryManager.OnInventoryChanged -= OnInventoryChanged;
 
+        if (m_FastBarManager != null)
+        {
+            m_FastBarManager.OnItemStored -= OnFastBarChanged;
+            m_FastBarManager.OnItemRetrieved -= OnFastBarChanged;
+            m_FastBarManager.OnSlotCleared -= OnFastBarSlotCleared;
+        }
+
+        var warehouseManager = WarehouseManager.Instance;
+        if (warehouseManager != null)
+        {
+            warehouseManager.OnItemStored -= OnWarehouseChanged;
+            warehouseManager.OnItemRetrieved -= OnWarehouseChanged;
+        }
+
         LockPlayerMovement(false);
     }
+
+    private void OnFastBarChanged(int _, InventorySlot __) => RefreshAll();
+
+    private void OnFastBarSlotCleared(int _) => RefreshAll();
+
+    private void OnWarehouseChanged(InventoryItem _) => RefreshAll();
 
     protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
     {
@@ -131,6 +184,8 @@ public partial class InventoryUI : UIFormBase
                 // 手动放置的格子，直接收集
                 foreach (var slot in existingSlots)
                 {
+                    slot.SetContainerType(SlotContainerType.Inventory);
+                    slot.SetSlotContainer(m_InventorySlotContainer);
                     m_InventorySlots.Add(slot);
                 }
             }
@@ -147,6 +202,7 @@ public partial class InventoryUI : UIFormBase
                     {
                         slot.SetSlotIndex(i);
                         slot.SetContainerType(SlotContainerType.Inventory);
+                        slot.SetSlotContainer(m_InventorySlotContainer);
 
                         // 设置是否可用（前 inventorySize 个可用，之后的锁定）
                         bool available = i < inventorySize;
@@ -169,7 +225,8 @@ public partial class InventoryUI : UIFormBase
                 if (go != null && go.TryGetComponent<InventorySlotUI>(out var slotUI))
                 {
                     slotUI.SetSlotIndex(i);
-                    slotUI.SetContainerType(SlotContainerType.Inventory);
+                    slotUI.SetContainerType(SlotContainerType.FastBar);
+                    slotUI.SetSlotContainer(m_FastBarSlotContainer);
                     slotUI.SetAvailable(true);
                     m_FastSlots.Add(slotUI);
                 }
@@ -233,6 +290,7 @@ public partial class InventoryUI : UIFormBase
 
             slotUI.SetSlotIndex(i);
             slotUI.SetContainerType(SlotContainerType.Equip);
+            slotUI.SetSlotContainer(m_EquipSlotContainer);
             slotUI.gameObject.SetActive(true);  // 始终激活
             m_EquipSlots.Add(slotUI);
         }
@@ -249,6 +307,7 @@ public partial class InventoryUI : UIFormBase
         RefreshInventory();
         RefreshHotbar();
         RefreshEquipSlots();
+        RefreshWeightState();
     }
 
     private void RefreshInventory()
@@ -302,32 +361,39 @@ public partial class InventoryUI : UIFormBase
 
     private void RefreshHotbar()
     {
-        for (int i = 0; i < m_FastSlots.Count; i++)
-            RefreshHotbarSlot(i);
+        DebugEx.Log("InventoryUI", "开始刷新快捷栏");
+        if (m_FastBarManager != null && m_FastBarManager.IsInitialized)
+        {
+            for (int i = 0; i < m_FastSlots.Count; i++)
+                RefreshHotbarSlot(i);
+        }
+        DebugEx.Success("InventoryUI", "快捷栏刷新完成");
     }
 
     private void RefreshHotbarSlot(int hotbarIndex)
     {
-        if (hotbarIndex >= m_FastSlots.Count)
+        if (hotbarIndex >= m_FastSlots.Count || m_FastBarManager == null)
             return;
 
-        var itemUI = m_FastSlots[hotbarIndex].GetItemUI();
-        if (itemUI == null)
+        var slotUI = m_FastSlots[hotbarIndex];
+        if (slotUI == null)
             return;
 
-        int invSlot = m_HotbarBoundSlots[hotbarIndex];
-        if (invSlot >= 0)
+        var fastBarSlot = m_FastBarManager.GetSlot(hotbarIndex);
+        ItemStack itemStack = null;
+
+        if (fastBarSlot != null && !fastBarSlot.IsEmpty)
         {
-            var slot = m_InventoryManager != null ? m_InventoryManager.GetSlot(invSlot) : null;
-            if (slot != null && !slot.IsEmpty)
-            {
-                itemUI.SetData(slot.ItemStack);
-                return;
-            }
-            m_HotbarBoundSlots[hotbarIndex] = -1;
+            itemStack = fastBarSlot.ItemStack;
+            DebugEx.Log("InventoryUI", $"快捷栏[{hotbarIndex}] 显示物品: {itemStack.Item.Name}");
+        }
+        else
+        {
+            DebugEx.Log("InventoryUI", $"快捷栏[{hotbarIndex}] 为空");
         }
 
-        itemUI.Clear();
+        // 统一使用 SetData，格子自动处理UI刷新和背景颜色
+        slotUI.SetData(itemStack);
     }
 
     /// <summary>
@@ -393,13 +459,9 @@ public partial class InventoryUI : UIFormBase
 
             var equipSlot = m_EquipSlots[displayIndex];
             equipSlot.gameObject.SetActive(true);
-            var itemUI = equipSlot.GetItemUI();
-            if (itemUI != null)
-            {
-                itemUI.SetData(slot.ItemStack);
-                int rarity = row.Quality;
-                equipSlot.SetRarity(rarity);
-            }
+
+            // 统一使用 SetData，格子自动处理UI刷新和背景颜色
+            equipSlot.SetData(slot.ItemStack);
             displayIndex++;
         }
 
@@ -407,12 +469,32 @@ public partial class InventoryUI : UIFormBase
         for (int i = displayIndex; i < m_EquipSlots.Count; i++)
         {
             m_EquipSlots[i].gameObject.SetActive(true);  // 始终激活，不隐藏
-            var itemUI = m_EquipSlots[i].GetItemUI();
-            if (itemUI != null)
-                itemUI.Clear();  // 清空显示但保持激活
+
+            // 统一使用 SetData(null) 清空显示
+            m_EquipSlots[i].SetData(null);
         }
 
         DebugEx.Success("InventoryUI", $"装备栏刷新完成: 显示 {displayIndex} 个装备，总槽位 {m_EquipSlots.Count}");
+    }
+
+    private void RefreshWeightState()
+    {
+        if (varWeightStateText == null)
+        {
+            DebugEx.Warning("InventoryUI", "RefreshWeightState: varWeightStateText 未连接");
+            return;
+        }
+
+        if (m_InventoryManager == null)
+        {
+            varWeightStateText.text = "负重: 0";
+            DebugEx.Warning("InventoryUI", "RefreshWeightState: m_InventoryManager 为空");
+            return;
+        }
+
+        float currentWeight = m_InventoryManager.CalculateCurrentWeight();
+        varWeightStateText.text = $"负重: {currentWeight:F0}";
+        DebugEx.Log("InventoryUI", $"RefreshWeightState: 负重 = {currentWeight}");
     }
 
     #endregion
@@ -420,33 +502,30 @@ public partial class InventoryUI : UIFormBase
     #region 快捷栏操作
 
     /// <summary>
-    /// 绑定背包格子到快捷槽（拖拽时由外部调用）
+    /// 获取指定快捷栏槽位的物品（供外部查询）
     /// </summary>
-    public void BindHotbarSlot(int hotbarIndex, int inventorySlotIndex)
+    public InventorySlot GetFastBarSlot(int hotbarIndex)
     {
-        if (hotbarIndex < 0 || hotbarIndex >= m_FastSlots.Count)
-            return;
-
-        m_HotbarBoundSlots[hotbarIndex] = inventorySlotIndex;
-        RefreshHotbarSlot(hotbarIndex);
+        if (m_FastBarManager == null)
+            return null;
+        return m_FastBarManager.GetSlot(hotbarIndex);
     }
 
     private void UseHotbarSlot(int hotbarIndex)
     {
-        int invSlot = m_HotbarBoundSlots[hotbarIndex];
-        if (invSlot < 0 || m_InventoryManager == null)
+        if (m_FastBarManager == null || m_InventoryManager == null)
             return;
 
-        var slot = m_InventoryManager.GetSlot(invSlot);
-        if (slot == null || slot.IsEmpty)
-        {
-            m_HotbarBoundSlots[hotbarIndex] = -1;
-            RefreshHotbarSlot(hotbarIndex);
+        var fastSlot = m_FastBarManager.GetSlot(hotbarIndex);
+        if (fastSlot == null || fastSlot.IsEmpty)
             return;
-        }
 
-        if (m_InventoryManager.UseItem(invSlot))
-            RefreshHotbarSlot(hotbarIndex);
+        var item = fastSlot.ItemStack.Item;
+        // TODO: 调用物品使用逻辑
+        DebugEx.Log("InventoryUI", $"使用快捷栏物品: {item.Name}");
+
+        // 使用后刷新快捷栏显示
+        RefreshHotbarSlot(hotbarIndex);
     }
 
     #endregion

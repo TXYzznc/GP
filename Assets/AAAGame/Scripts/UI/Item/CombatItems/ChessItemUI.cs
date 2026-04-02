@@ -12,7 +12,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     #region 字段
 
     private string m_InstanceId; // 棋子实例ID
-    private Action<string> m_OnSelectCallback; // 选中回调（点击或拖拽开始）
+    private Action<string> m_OnSelectCallback; // 点击回调
+    private Action<string> m_OnDragBeginCallback; // 拖拽开始回调
     private Action<string> m_OnDragEndCallback; // 拖拽结束回调
     private CanvasGroup m_CanvasGroup;
     private bool m_IsDragging; // 是否正在拖拽
@@ -107,17 +108,20 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     /// </summary>
     /// <param name="instanceId">棋子实例ID</param>
     /// <param name="chessId">棋子配置ID</param>
-    /// <param name="onSelectCallback">选中回调（点击或拖拽开始时触发）</param>
+    /// <param name="onSelectCallback">点击回调</param>
     /// <param name="onDragEndCallback">拖拽结束回调</param>
+    /// <param name="onDragBeginCallback">拖拽开始回调</param>
     public void SetData(
         string instanceId,
         int chessId,
         Action<string> onSelectCallback = null,
-        Action<string> onDragEndCallback = null
+        Action<string> onDragEndCallback = null,
+        Action<string> onDragBeginCallback = null
     )
     {
         m_InstanceId = instanceId;
         m_OnSelectCallback = onSelectCallback;
+        m_OnDragBeginCallback = onDragBeginCallback;
         m_OnDragEndCallback = onDragEndCallback;
 
         // 获取配置
@@ -309,6 +313,9 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
 
         // 设置半透明
         m_CanvasGroup.alpha = 0.6f;
+
+        // 触发拖拽开始回调
+        m_OnDragBeginCallback?.Invoke(m_InstanceId);
 
         // 拖拽开始时，直接调用 ChessPlacementManager 并标记为拖拽模式
         if (ChessPlacementManager.Instance != null)

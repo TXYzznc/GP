@@ -8,11 +8,13 @@ public enum SlotContainerType
     Inventory,
     Warehouse,
     Equip,
+    FastBar,
 }
 
 /// <summary>
 /// 背包/仓库格子UI
 /// 只负责格子容器（背景槽位），InventoryItemUI 已作为子对象预置在 varInventoryItemUI 下
+/// 关键：这个格子知道自己属于哪个容器（业务逻辑上），通过 m_Container 引用
 /// </summary>
 public partial class InventorySlotUI : UIItemBase
 {
@@ -24,6 +26,9 @@ public partial class InventorySlotUI : UIItemBase
 
     /// <summary>所属容器类型（由 InventoryUI / WarehouseUI 初始化时设置）</summary>
     public SlotContainerType ContainerType { get; private set; }
+
+    /// <summary>业务逻辑上的容器引用（真正操作数据的容器）</summary>
+    public ISlotContainer SlotContainer { get; private set; }
 
     /// <summary>该格子是否已解锁可用（背包锁定格子为false，库存栏/快捷栏无此状态）</summary>
     public bool IsAvailable { get; private set; } = true;
@@ -50,6 +55,20 @@ public partial class InventorySlotUI : UIItemBase
     public void SetContainerType(SlotContainerType type)
     {
         ContainerType = type;
+    }
+
+    /// <summary>
+    /// 设置业务逻辑上的容器引用
+    /// 这个方法在创建格子时调用，绑定格子到实际的容器
+    /// </summary>
+    public void SetSlotContainer(ISlotContainer container)
+    {
+        SlotContainer = container;
+        if (container != null && container.ContainerType != ContainerType)
+        {
+            DebugEx.Warning("InventorySlotUI",
+                $"格子容器类型不匹配: ContainerType={ContainerType}, Container.Type={container.ContainerType}");
+        }
     }
 
     /// <summary>

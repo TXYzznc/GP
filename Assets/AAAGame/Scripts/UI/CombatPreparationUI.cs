@@ -24,6 +24,9 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>实例ID到棋子UI的映射</summary>
     private Dictionary<string, ChessItemUI> m_ChessItemUIDict = new Dictionary<string, ChessItemUI>();
 
+    /// <summary>当前选中的棋子实例ID</summary>
+    private string m_SelectedChessInstanceId = string.Empty;
+
     /// <summary>已生成的Buff UI项</summary>
     private List<GameObject> m_SpawnedBuffItems = new List<GameObject>();
 
@@ -82,6 +85,13 @@ public partial class CombatPreparationUI : UIFormBase
             varInitiativeBuffNotification.interactable = false;
             varInitiativeBuffNotification.blocksRaycasts = false;
             Log.Info("CombatPreparationUI: 敌方先手Buff通知已隐藏");
+        }
+
+        // 隐藏棋子详细信息面板（正常情况下应隐藏，只在点击棋子时显示）
+        if (varDetailInfoUI != null)
+        {
+            varDetailInfoUI.SetActive(false);
+            Log.Info("CombatPreparationUI: 棋子详细信息面板已隐藏");
         }
 
         // 重置状态
@@ -245,8 +255,9 @@ public partial class CombatPreparationUI : UIFormBase
                     chessItemUI.SetData(
                         instance.InstanceId,
                         instance.ChessId,
-                        OnChessItemSelected,    // 选中回调
-                        OnChessItemDragEnd      // 拖拽结束回调
+                        OnChessItemSelected,    // 点击回调（选中/取消选中）
+                        OnChessItemDragEnd,     // 拖拽结束回调
+                        OnChessItemDragBegin    // 拖拽开始回调
                     );
 
                     // 设置出战状态
@@ -278,16 +289,107 @@ public partial class CombatPreparationUI : UIFormBase
     }
 
     /// <summary>
-    /// 棋子选中回调（点击或拖拽开始时触发）
+    /// 棋子选中回调（点击时触发，实现选中/取消选中切换）
     /// </summary>
     private void OnChessItemSelected(string instanceId)
     {
+        Log.Info($"CombatPreparationUI: 棋子点击 instanceId={instanceId}");
+
+        if (string.IsNullOrEmpty(instanceId))
+            return;
+
+        // 如果点击的是已选中的棋子，则取消选中
+        if (m_SelectedChessInstanceId == instanceId)
+        {
+            DeselectChess();
+            return;
+        }
+
+        // 取消之前选中的棋子
+        if (!string.IsNullOrEmpty(m_SelectedChessInstanceId))
+        {
+            DeselectChess();
+        }
+
+        // 选中新棋子
+        SelectChess(instanceId);
+    }
+
+    /// <summary>
+    /// 选中棋子
+    /// </summary>
+    private void SelectChess(string instanceId)
+    {
+        if (string.IsNullOrEmpty(instanceId))
+            return;
+
+        m_SelectedChessInstanceId = instanceId;
+
+        // 获取棋子实例数据
+        var instance = ChessDeploymentTracker.Instance.GetInstance(instanceId);
+        if (instance == null)
+        {
+            DebugEx.ErrorModule("CombatPreparationUI", $"无法找到棋子实例: {instanceId}");
+            m_SelectedChessInstanceId = string.Empty;
+            return;
+        }
+
         Log.Info($"CombatPreparationUI: 选中棋子 instanceId={instanceId}");
+
+        // 显示棋子信息到 DetailInfoUI
+        if (varDetailInfoUI != null)
+        {
+            var detailUI = varDetailInfoUI.GetComponent<DetailInfoUI>();
+            if (detailUI != null)
+            {
+                // 获取棋子实体数据（未部署时为null，但卡片信息仍可显示）
+                if (instance.Entity != null)
+                {
+                    detailUI.SetChessUnitData(instance.Entity);
+                }
+                else
+                {
+                    // 如果还没有部署，可以从配置表获取信息
+                    DebugEx.LogModule("CombatPreparationUI", $"棋子未部署，使用配置表信息 chessId={instance.ChessId}");
+                }
+
+                detailUI.RefreshUI();
+                detailUI.ShowWithAnimation();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 取消选中棋子
+    /// </summary>
+    private void DeselectChess()
+    {
+        if (string.IsNullOrEmpty(m_SelectedChessInstanceId))
+            return;
+
+        var previousInstanceId = m_SelectedChessInstanceId;
+        m_SelectedChessInstanceId = string.Empty;
+
+        Log.Info($"CombatPreparationUI: 取消选中棋子 instanceId={previousInstanceId}");
+
+        // 隐藏 DetailInfoUI
+        if (varDetailInfoUI != null)
+        {
+            varDetailInfoUI.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 棋子拖拽开始回调（进入放置模式）
+    /// </summary>
+    private void OnChessItemDragBegin(string instanceId)
+    {
+        Log.Info($"CombatPreparationUI: 拖拽开始 instanceId={instanceId}");
 
         // 开始放置，显示预览（进入放置状态）
         if (ChessPlacementManager.Instance != null)
         {
-            ChessPlacementManager.Instance.StartPlacement(instanceId);
+            ChessPlacementManager.Instance.StartPlacement(instanceId, true); // isDragMode = true
         }
     }
 
@@ -642,6 +744,9 @@ public partial class CombatPreparationUI : UIFormBase
         ClearChessItems();
         ClearBuffItems();
 
+        // 清理选中状态
+        m_SelectedChessInstanceId = string.Empty;
+
         // 清理Buff通知任务
         if (m_NotificationCts != null)
         {
@@ -685,7 +790,14 @@ public partial class CombatPreparationUI : UIFormBase
     /// </summary>
     private void OnChessDeployedHandler(ChessDeploymentTracker.ChessInstanceData instance)
     {
-        Log.Info($"CombatPreparationUI: 棋子已出战 instanceId={instance.InstanceId}");
+        Log.Info($"CombatPreparationUI: 棋子已部署 instanceId={instance.InstanceId}");
+
+        // 如果部署的是当前选中的棋子，清除选中状态并隐藏 DetailInfoUI
+        if (m_SelectedChessInstanceId == instance.InstanceId)
+        {
+            DeselectChess();
+        }
+
         // 刷新棋子面板
         RefreshChessPanel();
     }

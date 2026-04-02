@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public partial class InventoryItemUI : UIItemBase
+public partial class InventoryItemUI : UIItemBase, IPointerClickHandler
 {
     #region 字段
 
@@ -19,23 +19,42 @@ public partial class InventoryItemUI : UIItemBase
         base.OnInit();
 
         DebugEx.Log("InventoryItemUI", "物品UI初始化");
+    }
 
-        // 绑定按钮事件
-        if (varItemBtn != null)
+    #endregion
+
+    #region 事件处理
+
+    /// <summary>
+    /// 处理指针点击事件（IPointerClickHandler接口）
+    /// </summary>
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
         {
-            varItemBtn.onClick.AddListener(OnItemClick);
-            
-            // 添加右键点击事件处理
-            var eventTrigger = varItemBtn.gameObject.AddComponent<EventTrigger>();
-            var pointerDownEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
-            pointerDownEntry.callback.AddListener((data) => OnItemRightClick((PointerEventData)data));
-            eventTrigger.triggers.Add(pointerDownEntry);
+            // 左键点击：显示物品详情
+            OnItemClick();
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            // 右键点击：显示上下文菜单
+            OnItemRightClick(eventData);
         }
     }
 
     #endregion
 
     #region 公共方法
+
+    /// <summary>
+    /// 获取当前物品堆叠（供外部查询）
+    /// </summary>
+    public ItemStack GetItemStack() => m_ItemStack;
+
+    /// <summary>
+    /// 检查是否有物品
+    /// </summary>
+    public bool HasItem() => m_ItemStack != null && !m_ItemStack.IsEmpty;
 
     /// <summary>
     /// 设置数据
@@ -46,11 +65,13 @@ public partial class InventoryItemUI : UIItemBase
 
         if (itemStack == null || itemStack.IsEmpty)
         {
+            DebugEx.LogModule("InventoryItemUI", $"SetData: 清空物品显示");
             Clear();
             return;
         }
 
         // 刷新显示
+        DebugEx.LogModule("InventoryItemUI", $"SetData: 显示物品 {itemStack.Item.Name}");
         RefreshDisplay();
     }
 
@@ -61,14 +82,16 @@ public partial class InventoryItemUI : UIItemBase
     {
         m_ItemStack = null;
 
-        if (varItemImg != null)
+        // 隐藏物品数量文本
+        if (varCountText != null)
         {
-            varItemImg.sprite = null;
-            varItemImg.color = new Color(1, 1, 1, 0);
+            varCountText.gameObject.SetActive(false);
+            varCountText.text = "";
         }
 
-        // 隐藏整个InventoryItemUI对象（格子没有物品时隐藏）
+        // 隐藏 InventoryItemUI 本身以完全清除显示
         gameObject.SetActive(false);
+
         DebugEx.LogModule("InventoryItemUI", "清空物品显示");
     }
 
@@ -86,10 +109,17 @@ public partial class InventoryItemUI : UIItemBase
             return;
         }
 
+        // 激活 InventoryItemUI 以显示物品且支持拖拽
         gameObject.SetActive(true);
 
         var item = m_ItemStack.Item;
         var itemData = item.ItemData;
+
+        // 确保 ItemImg 激活以显示物品
+        if (varItemImg != null)
+        {
+            varItemImg.gameObject.SetActive(true);
+        }
 
         // 加载物品图标
         LoadItemIconAsync(itemData.GetIconId()).Forget();
@@ -98,7 +128,7 @@ public partial class InventoryItemUI : UIItemBase
         if (varCountText != null)
         {
             bool showCount = item.MaxStackCount > 1 && m_ItemStack.Count > 1;
-            varCountText.text = $"x{m_ItemStack.Count}";  // 使用字符串插值，性能优于字符串拼接
+            varCountText.text = $"x{m_ItemStack.Count}";
             varCountText.gameObject.SetActive(showCount);
         }
 
@@ -176,10 +206,8 @@ public partial class InventoryItemUI : UIItemBase
             inventoryUI.ShowItemDetail(m_ItemStack);
             DebugEx.Success("InventoryItemUI", $"显示物品详情: {m_ItemStack.Item.Name}");
         }
-        else
-        {
-            DebugEx.Error("InventoryItemUI", "无法获取 InventoryUI 组件");
-        }
+        // 注意：仓库物品点击时无法获取 InventoryUI（在 WarehouseUI 下），暂时不显示详情
+        // 如需支持仓库物品详情显示，需要扩展该方法或使用统一的详情显示机制
     }
 
     /// <summary>
@@ -187,10 +215,6 @@ public partial class InventoryItemUI : UIItemBase
     /// </summary>
     private void OnItemRightClick(PointerEventData eventData)
     {
-        // 检查是否是右键点击
-        if (eventData.button != PointerEventData.InputButton.Right)
-            return;
-
         if (m_ItemStack == null || m_ItemStack.IsEmpty)
             return;
 

@@ -57,7 +57,7 @@ public static class DebugEx
     {
         if (!EnableLog)
             return;
-        UnityEngine.Debug.Log(message);
+        UnityEngine.Debug.Log($"[{message}] {color}");
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public static class DebugEx
     {
         if (!EnableWarning)
             return;
-        UnityEngine.Debug.LogWarning(message);
+        UnityEngine.Debug.LogWarning($"[{message}] {color}");
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public static class DebugEx
     {
         if (!EnableError)
             return;
-        UnityEngine.Debug.LogError(message);
+        UnityEngine.Debug.LogError($"[{message}] {color}");
     }
 
     /// <summary>

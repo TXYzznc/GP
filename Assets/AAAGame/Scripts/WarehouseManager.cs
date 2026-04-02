@@ -354,6 +354,160 @@ public class WarehouseManager
 
     #endregion
 
+    #region 拖拽操作
+
+    /// <summary>
+    /// 存入物品到指定格子（拖拽操作）
+    /// </summary>
+    public bool StoreItemToSlot(int itemId, int count, int targetSlotIndex, int durability = 0)
+    {
+        if (!m_IsInitialized)
+        {
+            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            return false;
+        }
+
+        if (targetSlotIndex < 0 || targetSlotIndex >= m_WarehouseCapacity)
+        {
+            DebugEx.Warning("WarehouseManager", $"[StoreItemToSlot] 无效的格子索引: {targetSlotIndex}");
+            return false;
+        }
+
+        var targetItem = GetItemBySlot(targetSlotIndex);
+
+        // 目标格子为空，直接存入
+        if (targetItem == null)
+        {
+            var newItem = new InventoryItem(itemId, count, durability, targetSlotIndex);
+            m_WarehouseItems.Add(newItem);
+            DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 存入物品到格子 {targetSlotIndex}: ID={itemId}, 数量={count}");
+            OnItemStored?.Invoke(newItem);
+            return true;
+        }
+
+        // 目标格子已有物品，尝试堆叠
+        var itemData = ItemManager.Instance?.GetItemData(itemId);
+        if (itemData == null || itemData.MaxStackCount <= 1)
+        {
+            DebugEx.Warning("WarehouseManager", $"[StoreItemToSlot] 目标格子已有物品，且物品不可堆叠");
+            return false;
+        }
+
+        if (targetItem.ItemId == itemId && targetItem.Count < itemData.MaxStackCount)
+        {
+            int addCount = Mathf.Min(count, itemData.MaxStackCount - targetItem.Count);
+            targetItem.Count += addCount;
+            DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 堆叠物品到格子 {targetSlotIndex}: 数量 {targetItem.Count - addCount} -> {targetItem.Count}");
+            OnItemStored?.Invoke(targetItem);
+
+            // 如果还有剩余物品，存入下一个空格子
+            int remainCount = count - addCount;
+            if (remainCount > 0)
+            {
+                return StoreItem(itemId, remainCount, durability);
+            }
+            return true;
+        }
+
+        DebugEx.Warning("WarehouseManager", $"[StoreItemToSlot] 无法存入到格子 {targetSlotIndex}");
+        return false;
+    }
+
+    /// <summary>
+    /// 交换或移动两个格子的物品（拖拽操作）
+    /// </summary>
+    public bool SwapSlots(int fromSlotIndex, int toSlotIndex)
+    {
+        if (!m_IsInitialized)
+        {
+            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            return false;
+        }
+
+        if (fromSlotIndex < 0 || fromSlotIndex >= m_WarehouseCapacity ||
+            toSlotIndex < 0 || toSlotIndex >= m_WarehouseCapacity)
+        {
+            DebugEx.Warning("WarehouseManager", $"[SwapSlots] 无效的格子索引: from={fromSlotIndex}, to={toSlotIndex}");
+            return false;
+        }
+
+        if (fromSlotIndex == toSlotIndex)
+        {
+            return true; // 相同格子，无需操作
+        }
+
+        var fromItem = GetItemBySlot(fromSlotIndex);
+        var toItem = GetItemBySlot(toSlotIndex);
+
+        if (fromItem == null)
+        {
+            DebugEx.Warning("WarehouseManager", $"[SwapSlots] 源格子 {fromSlotIndex} 为空");
+            return false;
+        }
+
+        // 交换 SlotIndex
+        fromItem.SlotIndex = toSlotIndex;
+        if (toItem != null)
+        {
+            toItem.SlotIndex = fromSlotIndex;
+            OnItemStored?.Invoke(toItem); // 通知 UI 更新
+        }
+        else
+        {
+            // 目标格子为空，fromItem 移到目标格子
+            OnItemStored?.Invoke(fromItem); // 通知 UI 更新
+        }
+
+        DebugEx.Log("WarehouseManager", $"[SwapSlots] 交换格子 {fromSlotIndex} <-> {toSlotIndex}");
+        return true;
+    }
+
+    /// <summary>
+    /// 从指定格子移除物品（拖拽操作使用）
+    /// </summary>
+    public bool RemoveItem(int slotIndex, int count)
+    {
+        if (!m_IsInitialized)
+        {
+            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            return false;
+        }
+
+        if (slotIndex < 0 || slotIndex >= m_WarehouseCapacity)
+        {
+            DebugEx.Warning("WarehouseManager", $"[RemoveItem] 无效的格子索引: {slotIndex}");
+            return false;
+        }
+
+        var item = GetItemBySlot(slotIndex);
+        if (item == null)
+        {
+            DebugEx.Warning("WarehouseManager", $"[RemoveItem] 格子 {slotIndex} 为空");
+            return false;
+        }
+
+        if (count <= 0 || count > item.Count)
+        {
+            count = item.Count;
+        }
+
+        item.Count -= count;
+        if (item.Count <= 0)
+        {
+            m_WarehouseItems.Remove(item);
+            DebugEx.Log("WarehouseManager", $"[RemoveItem] 物品已完全移除: 格子={slotIndex}");
+        }
+        else
+        {
+            DebugEx.Log("WarehouseManager", $"[RemoveItem] 物品部分移除: 格子={slotIndex}, 剩余数量={item.Count}");
+        }
+
+        OnItemRetrieved?.Invoke(item);
+        return true;
+    }
+
+    #endregion
+
     #region 辅助方法
 
     /// <summary>

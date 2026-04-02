@@ -28,4 +28,5 @@ public partial class InventoryUI
 	[SerializeField] private Text varRarityText = null;
 	[SerializeField] private Text varWeightText = null;
 	[SerializeField] private Text varDescriptionText = null;
+	[SerializeField] private Text varWeightStateText = null;
 }

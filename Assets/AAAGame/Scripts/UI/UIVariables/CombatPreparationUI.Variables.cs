@@ -1,4 +1,4 @@
-﻿//---------------------------------
+//---------------------------------
 //此文件由工具自动生成,请勿手动修改
 //更新自:DESKTOP-7JQ11GM
 //---------------------------------
@@ -24,4 +24,5 @@ public partial class CombatPreparationUI
 	[SerializeField] private GameObject varBuffChooseItem = null;
 	[SerializeField] private CanvasGroup varInitiativeBuffNotification = null;
 	[SerializeField] private CanvasGroup varBuffSelection = null;
+	[SerializeField] private GameObject varDetailInfoUI = null;
 }

@@ -188,6 +188,24 @@ public class BattleChessManager
         return null;
     }
 
+    /// <summary>
+    /// 获取所有战斗棋子数据
+    /// </summary>
+    public IReadOnlyList<BattleChessData> GetAllChessData()
+    {
+        var result = new List<BattleChessData>(m_BattleDataDict.Values);
+        return result.AsReadOnly();
+    }
+
+    /// <summary>
+    /// 获取所有棋子实体
+    /// </summary>
+    public IReadOnlyList<ChessEntity> GetAllChessEntities()
+    {
+        var result = new List<ChessEntity>(m_EntityDict.Values);
+        return result.AsReadOnly();
+    }
+
     #endregion
 
     #region 战斗中数据修改

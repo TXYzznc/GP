@@ -49,10 +49,16 @@ public class GameProcedure : ProcedureBase
         // 1. 先实例化技能管理器（在场景中）
         InitializeSkillManager();
 
-        // 2. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
+        // 2. 初始化卡牌系统（动态添加 CardManager）
+        InitializeCardSystem();
+
+        // 3. 初始化战斗特效系统
+        InitializeCombatVFXSystem();
+
+        // 4. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
         OpenGameUIs();
 
-        // 3. 最后生成角色
+        // 5. 最后生成角色
         PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
 
         Log.Info("GameProcedure 初始化完成");
@@ -164,7 +170,38 @@ public class GameProcedure : ProcedureBase
 
     #endregion
 
-    #region 回调函数
+    #region 卡牌系统初始化
+
+    /// <summary>
+    /// 初始化卡牌系统
+    /// </summary>
+    private void InitializeCardSystem()
+    {
+        // 如果 CardManager 不存在，动态添加
+        if (CardManager.Instance == null)
+        {
+            GameObject cardManagerObj = new GameObject("CardManager");
+            cardManagerObj.AddComponent<CardManager>();
+            Log.Info("GameProcedure: 动态添加 CardManager");
+        }
+        else
+        {
+            Log.Info("GameProcedure: CardManager 已存在");
+        }
+    }
+
+    /// <summary>
+    /// 初始化战斗特效系统
+    /// </summary>
+    private async void InitializeCombatVFXSystem()
+    {
+        // CombatVFXManager 是静态类，调用初始化方法
+        // 使用 InitializeAndWaitAsync 确保初始化完成后再继续
+        await CombatVFXManager.InitializeAndWaitAsync();
+        Log.Info("GameProcedure: CombatVFXManager 已初始化");
+    }
+
+    #endregion
 
     /// <summary>
     /// 角色生成完成回调
@@ -267,8 +304,6 @@ public class GameProcedure : ProcedureBase
             Log.Warning("GameProcedure: 未找到已打开的 PlayerSkillUI");
         }
     }
-
-    #endregion
 
     #region 游戏状态初始化
 
