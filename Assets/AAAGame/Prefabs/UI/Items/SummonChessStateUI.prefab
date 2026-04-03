@@ -788,7 +788,7 @@ MonoBehaviour:
   varOtherBarImage: {fileID: 2442475789926720573}
   varBuffPanel: {fileID: 3814220670822466247}
   varBuffItem: {fileID: 7289631878979862859, guid: b1f8c90d477878a4babe09a920ab3bc9, type: 3}
-  varShieldBarImage: {fileID: 0}
+  varShieldBarImage: {fileID: 6500316336386076596}
 --- !u!1 &5065152081490464561
 GameObject:
   m_ObjectHideFlags: 0

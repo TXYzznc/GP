@@ -38,6 +38,7 @@ public partial class SummonChessStateUI : UIItemBase
     private Image m_ShieldImg;
 
     private Material m_HpMatInst;
+    private Material m_ShieldMatInst;
     private Camera m_Cam;
 
     // Buff管理
@@ -76,6 +77,15 @@ public partial class SummonChessStateUI : UIItemBase
         m_HpImg.material = m_HpMatInst;
         m_HpMatInst.SetColor("_GridLineColor", m_GridLineColor);
         m_HpMatInst.SetFloat("_LineWidth", m_LineWidthUV);
+
+        // 护盾条也使用相同的 Shader 和参数
+        if (m_ShieldImg != null)
+        {
+            m_ShieldMatInst = new Material(s);
+            m_ShieldImg.material = m_ShieldMatInst;
+            m_ShieldMatInst.SetColor("_GridLineColor", m_GridLineColor);
+            m_ShieldMatInst.SetFloat("_LineWidth", m_LineWidthUV);
+        }
     }
 
     private void TryBindOwner()
@@ -92,6 +102,11 @@ public partial class SummonChessStateUI : UIItemBase
         {
             Destroy(m_HpMatInst);
             m_HpMatInst = null;
+        }
+        if (m_ShieldMatInst != null)
+        {
+            Destroy(m_ShieldMatInst);
+            m_ShieldMatInst = null;
         }
     }
 
@@ -111,7 +126,7 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void OnHpChanged(double oldVal, double newVal)
     {
-        UpdateHpFill();
+        RefreshAll();
     }
 
     private void OnMpChanged(double oldVal, double newVal)
@@ -121,7 +136,7 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void OnShieldChanged(double oldVal, double newVal)
     {
-        UpdateShieldFill();
+        RefreshAll();
     }
 
     private void RefreshAll()
@@ -135,16 +150,25 @@ public partial class SummonChessStateUI : UIItemBase
     private void UpdateHpGridParams()
     {
         if (m_HpMatInst == null || m_Attr == null) return;
-        float maxHp = Mathf.Max(1f, (float)m_Attr.MaxHp);
-        int cells = Mathf.Max(1, Mathf.CeilToInt(maxHp / Mathf.Max(1f, m_HpPerCell)));
+        // 格子数基于 (Shield + MaxHp) 总容量
+        double totalCapacity = m_Attr.Shield + m_Attr.MaxHp;
+        int cells = Mathf.Max(1, Mathf.CeilToInt((float)totalCapacity / Mathf.Max(1f, m_HpPerCell)));
         float gridWidth = 1f / cells;
         m_HpMatInst.SetFloat("_GridWidth", gridWidth);
+
+        // 护盾条使用相同的格子宽度
+        if (m_ShieldMatInst != null)
+        {
+            m_ShieldMatInst.SetFloat("_GridWidth", gridWidth);
+        }
     }
 
     private void UpdateHpFill()
     {
         if (m_HpImg == null || m_Attr == null) return;
-        m_HpImg.fillAmount = (float)(m_Attr.CurrentHp / Mathf.Max(1f, (float)m_Attr.MaxHp));
+        // 血条 = CurrentHp / (Shield + MaxHp)
+        double totalCapacity = m_Attr.Shield + m_Attr.MaxHp;
+        m_HpImg.fillAmount = (float)(m_Attr.CurrentHp / Math.Max(1f, totalCapacity));
     }
 
     private void UpdateMpFill()
@@ -156,9 +180,11 @@ public partial class SummonChessStateUI : UIItemBase
     private void UpdateShieldFill()
     {
         if (m_ShieldImg == null || m_Attr == null) return;
-        // 护盾条显示 Shield / MaxHp（独立于血条）
-        // 例如：MaxHp=500, CurrentHp=400, Shield=100 → HPBar=0.8, ShieldBar=0.2
-        m_ShieldImg.fillAmount = (float)(m_Attr.Shield / Mathf.Max(1f, (float)m_Attr.MaxHp));
+        // 护盾条 = Shield / (Shield + MaxHp)
+        // 例如：MaxHp=500, CurrentHp=400, Shield=100 → 总容量=600
+        // HPBar=400/600=0.667, ShieldBar=100/600=0.167
+        double totalCapacity = m_Attr.Shield + m_Attr.MaxHp;
+        m_ShieldImg.fillAmount = (float)(m_Attr.Shield / Math.Max(1f, totalCapacity));
     }
 
     public void Bind(ChessEntity owner)
