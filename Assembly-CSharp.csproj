@@ -117,6 +117,7 @@
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Aura.shader" />
     <None Include="Assets\AAAGame\DataTable\EscapeRuleTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_145417.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlendedMobile_Scroll01.shader" />
     <None Include="Assets\AAAGame\Shader\TextMeshFont.shader" />
@@ -129,6 +130,7 @@
     <None Include="Assets\link.xml" />
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_144411.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\AAAGame\DataTable\EnemyTable.txt" />
@@ -151,6 +153,7 @@
     <None Include="Assets\AAAGame\DataTable\EnemyEntityTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Blur.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerAccountTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_144040.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles.shader" />
     <None Include="Assets\TA\Cartoon\OilPaintingToon.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
@@ -164,6 +167,7 @@
     <None Include="Assets\AAAGame\DataTable\PosTable.txt" />
     <None Include="Assets\TA\Cartoon\PlayerCartoon.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_150211.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_front.shader" />
     <None Include="Assets\TA\UI\HealthBarGrid.shader" />
     <None Include="Assets\AAAGame\DataTable\SummonerSkillTable.txt" />

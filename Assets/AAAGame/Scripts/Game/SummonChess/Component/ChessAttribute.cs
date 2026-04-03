@@ -419,6 +419,10 @@ public class ChessAttribute : MonoBehaviour
         // 简化的护甲减伤公式：实际伤害 = 基础伤害 * (100 / (100 + 护甲))
         double damageReduction = 100.0 / (100.0 + m_Armor);
         double actualDamage = baseDamage * damageReduction;
+
+        // ⭐ 调试：打印护甲和减伤倍数
+        DebugEx.LogModule("ChessAttribute", $"[伤害计算] 基础伤害={baseDamage:F1}, 护甲={m_Armor:F1}, 减伤倍数={damageReduction:F3}, 实际伤害={actualDamage:F1}");
+
         return Math.Max(0, actualDamage);
     }
 

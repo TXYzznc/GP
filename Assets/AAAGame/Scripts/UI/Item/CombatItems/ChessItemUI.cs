@@ -17,6 +17,10 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     private Action<string> m_OnDragEndCallback; // 拖拽结束回调
     private CanvasGroup m_CanvasGroup;
     private bool m_IsDragging; // 是否正在拖拽
+
+    // 扇形容器基准位置（由 ChessSlotContainer 设置，用于选中动画）
+    private Vector2 m_BaseAnchoredPos;
+    private float m_BaseRotZ;
     #endregion
 
     #region 生命周期
@@ -331,6 +335,29 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
 
         DebugEx.LogModule("ChessItemUI", $"OnEndDrag: instanceId={m_InstanceId}");
     }
+
+    #endregion
+
+    #region 扇形容器接口
+
+    /// <summary>
+    /// 由 ChessSlotContainer 调用，设置扇形排列的基准位置和旋转
+    /// </summary>
+    public void SetBaseFanTransform(Vector2 anchoredPos, float rotZ)
+    {
+        m_BaseAnchoredPos = anchoredPos;
+        m_BaseRotZ = rotZ;
+    }
+
+    /// <summary>
+    /// 获取基准锚点位置（用于选中动画计算）
+    /// </summary>
+    public Vector2 GetBaseAnchoredPos() => m_BaseAnchoredPos;
+
+    /// <summary>
+    /// 获取基准旋转（用于动画计算）
+    /// </summary>
+    public float GetBaseRotZ() => m_BaseRotZ;
 
     #endregion
 }

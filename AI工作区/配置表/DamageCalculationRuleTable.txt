@@ -1,0 +1,7 @@
+#	DamageCalculationRuleTable
+#	Id		DamageType	Name	Description	LowArmorThreshold	LowArmorReductionRate	HighArmorBaseReduction	HighArmorReductionRate	MaxReductionRatio	MinDamagePassthrough	Enabled
+#	int		int	string	string	int	float	float	float	float	float	bool
+#	规则ID	备注	伤害类型(1=物理2=魔法3=真实)	规则名称	规则描述	低护甲阈值	低护甲减伤率(%)	高护甲基础减伤(%)	高护甲减伤率(%)	最大减伤比例(%)	最小伤害穿透(%)	是否启用
+	1		1	物理伤害标准规则	两段式递减，低护甲线性，高护甲递减	100	3	3	1	85	15	true
+	2		2	魔法伤害标准规则	与物理伤害相同，但基于魔抗	100	3	3	1	85	15	true
+	3		3	真实伤害规则	真实伤害无法减伤	0	0	0	0	0	100	true
