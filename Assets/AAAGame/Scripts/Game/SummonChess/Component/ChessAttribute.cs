@@ -30,7 +30,6 @@ public class ChessAttribute : MonoBehaviour
     private double m_CritDamage;
     private double m_SpellPower;
     private double m_Shield;
-    private double m_MaxShield;
     private double m_CooldownReduce;
     private double m_DamageTakenMultiplier = 1.0;
 
@@ -81,9 +80,6 @@ public class ChessAttribute : MonoBehaviour
     /// <summary>当前护盾值</summary>
     public double Shield => m_Shield;
 
-    /// <summary>最大护盾值</summary>
-    public double MaxShield => m_MaxShield;
-
     /// <summary>冷却缩减（0-1）</summary>
     public double CooldownReduce => m_CooldownReduce;
 
@@ -130,7 +126,6 @@ public class ChessAttribute : MonoBehaviour
         m_CritDamage = 1.0;
         m_SpellPower = 0;
         m_Shield = 0;
-        m_MaxShield = 0;
         m_CooldownReduce = 0;
         m_DamageTakenMultiplier = 1.0;
 
@@ -171,7 +166,6 @@ public class ChessAttribute : MonoBehaviour
         m_CritDamage = config.CritDamage;
         m_SpellPower = config.SpellPower;
         m_Shield = config.Shield;
-        m_MaxShield = config.Shield;
         m_CooldownReduce = config.CooldownReduce;
         m_DamageTakenMultiplier = 1.0;
 
@@ -297,12 +291,12 @@ public class ChessAttribute : MonoBehaviour
     }
 
     /// <summary>
-    /// 修改护盾值
+    /// 修改护盾值（护盾无上限，只限制最小值为0）
     /// </summary>
     public void ModifyShield(double delta)
     {
         double oldValue = m_Shield;
-        m_Shield = Math.Clamp(m_Shield + delta, 0, m_MaxShield);
+        m_Shield = Math.Max(m_Shield + delta, 0);
 
         if (Math.Abs(m_Shield - oldValue) > 0.001)
         {
@@ -324,18 +318,6 @@ public class ChessAttribute : MonoBehaviour
     public void ClearShield()
     {
         SetShield(0);
-    }
-
-    /// <summary>
-    /// 设置最大护盾值
-    /// </summary>
-    public void SetMaxShield(double value)
-    {
-        m_MaxShield = Math.Max(0, value);
-        if (m_Shield > m_MaxShield)
-        {
-            SetShield(m_MaxShield);
-        }
     }
 
     /// <summary>

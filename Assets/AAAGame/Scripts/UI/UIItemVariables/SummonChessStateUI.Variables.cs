@@ -16,4 +16,5 @@ public partial class SummonChessStateUI
 	[SerializeField] private GameObject varOtherBarImage = null;
 	[SerializeField] private HorizontalLayoutGroup varBuffPanel = null;
 	[SerializeField] private GameObject varBuffItem = null;
+	[SerializeField] private GameObject varShieldBarImage = null;
 }

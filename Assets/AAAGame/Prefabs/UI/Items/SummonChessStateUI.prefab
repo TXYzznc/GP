@@ -30,6 +30,7 @@ RectTransform:
   m_Children:
   - {fileID: 1234884203003735398}
   - {fileID: 5115600925687653680}
+  - {fileID: 7314789152759493021}
   - {fileID: 6562753072008430069}
   m_Father: {fileID: 9102012867148471338}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -451,6 +452,7 @@ GameObject:
   - component: {fileID: 5115600925687653680}
   - component: {fileID: 7822979528902456582}
   - component: {fileID: 3834559006760913066}
+  - component: {fileID: 2168874749125836835}
   m_Layer: 0
   m_Name: HPBarImage
   m_TagString: Untagged
@@ -472,10 +474,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5910649630447874201}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 180, y: -8}
+  m_SizeDelta: {x: 360, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7822979528902456582
 CanvasRenderer:
@@ -505,16 +507,36 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cefcd0f142520b94a9d976b5dea04932, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: -378884897733872536, guid: 8e0fe83d41a78f1479c31fc460570875, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 10
+--- !u!114 &2168874749125836835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4200829549741865362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &4536427870410841206
 GameObject:
   m_ObjectHideFlags: 0
@@ -678,7 +700,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 3
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &8762626633327855165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -749,7 +771,12 @@ MonoBehaviour:
     - {fileID: 7289631878979862859, guid: b1f8c90d477878a4babe09a920ab3bc9, type: 3}
     VarType: UnityEngine.GameObject
     VarPrefix: 0
-  m_HpPerCell: 100
+  - VarName: varShieldBarImage
+    Targets:
+    - {fileID: 6500316336386076596}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  m_HpPerCell: 50
   m_LineWidthUV: 0.002
   m_GridLineColor: {r: 0, g: 0, b: 0, a: 0.85}
   m_Billboard: 1
@@ -761,6 +788,7 @@ MonoBehaviour:
   varOtherBarImage: {fileID: 2442475789926720573}
   varBuffPanel: {fileID: 3814220670822466247}
   varBuffItem: {fileID: 7289631878979862859, guid: b1f8c90d477878a4babe09a920ab3bc9, type: 3}
+  varShieldBarImage: {fileID: 0}
 --- !u!1 &5065152081490464561
 GameObject:
   m_ObjectHideFlags: 0
@@ -949,6 +977,102 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 10
+--- !u!1 &6500316336386076596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7314789152759493021}
+  - component: {fileID: 6145136514313303114}
+  - component: {fileID: 639211825582225307}
+  - component: {fileID: 5588040227301575291}
+  m_Layer: 0
+  m_Name: ShieldBarImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7314789152759493021
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6500316336386076596}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5910649630447874201}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 180, y: -8}
+  m_SizeDelta: {x: 360, y: 16}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6145136514313303114
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6500316336386076596}
+  m_CullTransparentMesh: 1
+--- !u!114 &639211825582225307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6500316336386076596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 2100000, guid: 43e8d920d7350b24186f9d0d390ba7c4, type: 2}
+  m_Color: {r: 0.4292453, g: 0.94485635, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -378884897733872536, guid: 8e0fe83d41a78f1479c31fc460570875, type: 3}
+  m_Type: 3
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 0
+  m_FillAmount: 0
+  m_FillClockwise: 1
+  m_FillOrigin: 1
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 10
+--- !u!114 &5588040227301575291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6500316336386076596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &7267292559264834544
 GameObject:
   m_ObjectHideFlags: 0

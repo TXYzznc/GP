@@ -49,6 +49,9 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>敌方先手Buff通知的取消令牌</summary>
     private System.Threading.CancellationTokenSource m_NotificationCts;
 
+    /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
+    private ChessEntity m_CurrentDetailChess;
+
     #endregion
 
     #region 枚举
@@ -111,6 +114,10 @@ public partial class CombatPreparationUI : UIFormBase
         ChessDeploymentTracker.Instance.OnChessDeployed += OnChessDeployedHandler;
         ChessDeploymentTracker.Instance.OnChessRecalled += OnChessRecalledHandler;
 
+        // ⭐ 新增：订阅场景棋子选择事件（点击场景中的棋子时显示详情）
+        ChessSelectionManager.OnChessSelected += OnSceneChessSelectedHandler;
+        ChessSelectionManager.OnChessDeselected += OnSceneChessDeselectedHandler;
+
         // 刷新各个面板
         RefreshBuffPanel();
         RefreshEquipmentPanel();
@@ -144,9 +151,13 @@ public partial class CombatPreparationUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        // 取消订阅
+        // 取消订阅棋子库存事件
         ChessDeploymentTracker.Instance.OnChessDeployed -= OnChessDeployedHandler;
         ChessDeploymentTracker.Instance.OnChessRecalled -= OnChessRecalledHandler;
+
+        // ⭐ 新增：取消订阅场景棋子选择事件
+        ChessSelectionManager.OnChessSelected -= OnSceneChessSelectedHandler;
+        ChessSelectionManager.OnChessDeselected -= OnSceneChessDeselectedHandler;
 
         // 清理生成的UI项
         ClearSpawnedItems();
@@ -297,6 +308,7 @@ public partial class CombatPreparationUI : UIFormBase
 
     /// <summary>
     /// 棋子选中回调（点击时触发，实现选中/取消选中切换）
+    /// ⭐ 修改：支持已出战棋子的点击（显示详情）
     /// </summary>
     private void OnChessItemSelected(string instanceId)
     {
@@ -305,6 +317,41 @@ public partial class CombatPreparationUI : UIFormBase
         if (string.IsNullOrEmpty(instanceId))
             return;
 
+        // 获取棋子实例数据
+        var instance = ChessDeploymentTracker.Instance.GetInstance(instanceId);
+        if (instance == null)
+        {
+            DebugEx.ErrorModule("CombatPreparationUI", $"无法找到棋子实例: {instanceId}");
+            return;
+        }
+
+        // ⭐ 已出战的棋子只显示详情，不支持选中/取消选中切换
+        if (instance.IsDeployed)
+        {
+            Log.Info($"CombatPreparationUI: 棋子已出战，仅显示详情 instanceId={instanceId}");
+
+            // 直接显示详情（无动效）
+            if (varDetailInfoUI != null)
+            {
+                var detailUI = varDetailInfoUI.GetComponent<DetailInfoUI>();
+                if (detailUI != null)
+                {
+                    if (ChessDataManager.Instance.TryGetConfig(instance.ChessId, out var config))
+                    {
+                        var globalState = GlobalChessManager.Instance.GetChessState(instance.ChessId);
+                        if (globalState != null)
+                        {
+                            detailUI.SetChessConfig(config, globalState);
+                            detailUI.RefreshUI();
+                            detailUI.ShowWithAnimation();
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        // 未出战的棋子支持选中/取消选中切换
         // 如果点击的是已选中的棋子，则取消选中
         if (m_SelectedChessInstanceId == instanceId)
         {
@@ -460,26 +507,28 @@ public partial class CombatPreparationUI : UIFormBase
 
     /// <summary>
     /// 棋子拖拽开始回调（进入放置模式）
+    /// ⭐ 修改：启动放置系统，显示Ghost预览
     /// </summary>
     private void OnChessItemDragBegin(string instanceId)
     {
         Log.Info($"CombatPreparationUI: 拖拽开始 instanceId={instanceId}");
 
-        // 开始放置，显示预览（进入放置状态）
+        // 启动放置系统（拖拽模式）
         if (ChessPlacementManager.Instance != null)
         {
-            ChessPlacementManager.Instance.StartPlacement(instanceId, true); // isDragMode = true
+            ChessPlacementManager.Instance.StartPlacement(instanceId, isDragMode: true);
         }
     }
 
     /// <summary>
     /// 棋子拖拽结束回调
+    /// ⭐ 修改：直接确认放置，无需再点击
     /// </summary>
     private void OnChessItemDragEnd(string instanceId)
     {
         Log.Info($"CombatPreparationUI: 拖拽结束 instanceId={instanceId}");
 
-        // 拖拽结束时确认放置
+        // 拖拽结束时直接确认放置（如果在有效区域）
         if (ChessPlacementManager.Instance != null)
         {
             ChessPlacementManager.Instance.ConfirmPlacementFromDrag();
@@ -857,6 +906,120 @@ public partial class CombatPreparationUI : UIFormBase
         {
             UnspawnAllItem<UIItemObject>(varBuffItem);
             m_SpawnedBuffItems.Clear();
+        }
+    }
+
+    #endregion
+
+    #region 场景棋子选择事件处理
+
+    /// <summary>
+    /// ⭐ 新增：场景棋子被选中时的处理（点击场景中的棋子时显示详情）
+    /// </summary>
+    private void OnSceneChessSelectedHandler(ChessEntity entity)
+    {
+        if (entity == null)
+            return;
+
+        m_CurrentDetailChess = entity;
+        Log.Info($"CombatPreparationUI: 场景棋子被选中 chessId={entity.Config.Name}");
+
+        // 订阅棋子属性变化事件，实现动态更新
+        if (entity.Attribute != null)
+        {
+            entity.Attribute.OnHpChanged += OnDetailChessHpChanged;
+            Log.Info("CombatPreparationUI: 已订阅棋子HP变化事件");
+        }
+
+        // 订阅Buff变化事件
+        ChessStateEvents.OnBuffAdded += OnDetailChessBuffChanged;
+        ChessStateEvents.OnBuffRemoved += OnDetailChessBuffChanged;
+        Log.Info("CombatPreparationUI: 已订阅棋子Buff变化事件");
+
+        // 显示棋子详情
+        if (varDetailInfoUI != null)
+        {
+            var detailUI = varDetailInfoUI.GetComponent<DetailInfoUI>();
+            if (detailUI != null)
+            {
+                if (ChessDataManager.Instance.TryGetConfig(entity.Config.Id, out var config))
+                {
+                    var globalState = GlobalChessManager.Instance.GetChessState(config.Id);
+                    if (globalState != null)
+                    {
+                        detailUI.SetChessConfig(config, globalState);
+                        // ⭐ 新增：关联 ChessEntity 以显示实时属性
+                        detailUI.SetChessEntityForPreparation(entity);
+                        detailUI.RefreshUI();
+                        detailUI.ShowWithAnimation();
+                        Log.Info($"CombatPreparationUI: 显示棋子详情 {config.Name}（已关联实体用于实时显示）");
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 新增：棋子HP变化时，动态更新DetailInfoUI
+    /// </summary>
+    private void OnDetailChessHpChanged(double oldHp, double newHp)
+    {
+        if (m_CurrentDetailChess == null || varDetailInfoUI == null)
+            return;
+
+        var detailUI = varDetailInfoUI.GetComponent<DetailInfoUI>();
+        if (detailUI != null)
+        {
+            detailUI.RefreshUI();
+            Log.Info($"CombatPreparationUI: DetailInfoUI已刷新（HP变化 {oldHp:F0} -> {newHp:F0}）");
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 新增：棋子Buff变化时，动态更新DetailInfoUI
+    /// </summary>
+    private void OnDetailChessBuffChanged(int chessId, int buffId)
+    {
+        if (m_CurrentDetailChess == null || varDetailInfoUI == null)
+            return;
+
+        // 只更新当前显示的棋子
+        if (m_CurrentDetailChess.Config.Id != chessId)
+            return;
+
+        var detailUI = varDetailInfoUI.GetComponent<DetailInfoUI>();
+        if (detailUI != null)
+        {
+            detailUI.RefreshUI();
+            Log.Info($"CombatPreparationUI: DetailInfoUI已刷新（Buff变化 ID={buffId}）");
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 新增：场景棋子被取消选中时的处理
+    /// </summary>
+    private void OnSceneChessDeselectedHandler()
+    {
+        Log.Info("CombatPreparationUI: 场景棋子被取消选中");
+
+        // 取消订阅属性变化事件
+        if (m_CurrentDetailChess != null && m_CurrentDetailChess.Attribute != null)
+        {
+            m_CurrentDetailChess.Attribute.OnHpChanged -= OnDetailChessHpChanged;
+            Log.Info("CombatPreparationUI: 已取消订阅棋子HP变化事件");
+        }
+
+        ChessStateEvents.OnBuffAdded -= OnDetailChessBuffChanged;
+        ChessStateEvents.OnBuffRemoved -= OnDetailChessBuffChanged;
+        Log.Info("CombatPreparationUI: 已取消订阅棋子Buff变化事件");
+
+        m_CurrentDetailChess = null;
+
+        // 隐藏棋子详情
+        if (varDetailInfoUI != null)
+        {
+            varDetailInfoUI.SetActive(false);
+            Log.Info("CombatPreparationUI: 隐藏棋子详情");
         }
     }
 

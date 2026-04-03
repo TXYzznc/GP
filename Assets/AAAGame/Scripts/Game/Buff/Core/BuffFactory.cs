@@ -39,6 +39,15 @@ public static class BuffFactory
         Register(4002, () => new BerserkerRageBuff()); // 狂怒之心（普通单位+15%，召唤师+30%）
         // Register(4003, ...); // 暗影咒体，设计未完成暂不注册
 
+        // ⭐ 新增：注册缺失的 Buff（来自其他英雄技能）
+        Register(5001, () => new StatModBuff());      // 神圣庇护·护盾（护盾增加）
+        Register(5002, () => new BurnBuff());         // 烈焰风暴·灼烧（周期伤害）
+        Register(5003, () => new StatModBuff());      // 战争号角（攻击+30%，移速+20%，配置驱动）
+        Register(5005, () => new StunBuff());         // 暗影突袭·眩晕
+        Register(5007, () => new FrostBuff());        // 冰霜新星·冰冻
+        Register(5008, () => new StatModBuff());      // 狂暴（攻击+80%，防御-30%，配置驱动）
+        Register(5010, () => new StatModBuff());      // 混乱诅咒·混乱（暂用 StatModBuff，实际需要特殊状态逻辑）
+
         DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
     }
 

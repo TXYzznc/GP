@@ -15,7 +15,6 @@ public class HouyiSkill1 : ChessSkillBase
 
     #region 私有字段
 
-    private float m_DurationRemain;
     private bool m_IsActive;
 
     #endregion
@@ -25,7 +24,6 @@ public class HouyiSkill1 : ChessSkillBase
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
-        m_DurationRemain = 0f;
         m_IsActive = false;
 
         DebugEx.LogModule("HouyiSkill1", "烈焰箭技能初始化完成");
@@ -34,16 +32,7 @@ public class HouyiSkill1 : ChessSkillBase
     public override void Tick(float dt)
     {
         base.Tick(dt);
-
-        // 持续时间倒计时
-        if (m_IsActive)
-        {
-            m_DurationRemain -= dt;
-            if (m_DurationRemain <= 0)
-            {
-                DeactivateSkill();
-            }
-        }
+        // ⭐ 修改：Buff 的持续时间由 BuffTable 的 Duration 控制，无需手动计时
     }
 
     public override bool CanCast()
@@ -86,37 +75,21 @@ public class HouyiSkill1 : ChessSkillBase
 
     /// <summary>
     /// 激活技能效果
+    /// ⭐ 修改：Buff 的持续时间由 BuffTable 的 Duration 控制，无需手动管理
     /// </summary>
     private void ActivateSkill()
     {
         m_IsActive = true;
-        m_DurationRemain = (float)m_Config.Duration;
 
         // 添加烈焰箭状态Buff（攻击力+25%，攻击附带灼烧）
+        // Buff 会根据 BuffTable 中的 Duration (8秒) 自动移除，无需手动控制
         if (m_Ctx?.BuffManager != null)
         {
             m_Ctx.BuffManager.AddBuff(4, m_Ctx.Owner, m_Ctx.Attribute); // 烈焰箭Buff ID=4
         }
 
-        DebugEx.LogModule("HouyiSkill1", 
-            $"烈焰箭激活! 持续{m_Config.Duration}秒，攻击力+25%，攻击附带灼烧");
-    }
-
-    /// <summary>
-    /// 技能效果结束
-    /// </summary>
-    private void DeactivateSkill()
-    {
-        m_IsActive = false;
-        m_DurationRemain = 0f;
-
-        // 移除烈焰箭Buff
-        if (m_Ctx?.BuffManager != null)
-        {
-            m_Ctx.BuffManager.RemoveBuff(4); // 烈焰箭Buff ID=4
-        }
-
-        DebugEx.LogModule("HouyiSkill1", "烈焰箭效果结束");
+        DebugEx.LogModule("HouyiSkill1",
+            $"烈焰箭激活! 攻击力+25%，攻击附带灼烧");
     }
 
     #endregion

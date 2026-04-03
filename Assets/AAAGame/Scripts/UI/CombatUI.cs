@@ -11,6 +11,13 @@ using GameFramework.Event;
 #endif
 public partial class CombatUI : StateAwareUIForm
 {
+    #region 字段
+
+    /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
+    private ChessEntity m_CurrentDetailChess;
+
+    #endregion
+
     #region 事件订阅
 
     protected override void SubscribeEvents()
@@ -150,11 +157,26 @@ public partial class CombatUI : StateAwareUIForm
 
     /// <summary>
     /// 战斗阶段棋子被选中，显示详情
+    /// ⭐ 修改：订阅棋子属性变化事件，实现动态更新
     /// </summary>
     private void OnChessSelectedForDetail(ChessEntity entity)
     {
         var detailUI = GetDetailInfoUI();
         if (detailUI == null) return;
+
+        m_CurrentDetailChess = entity;
+
+        // ⭐ 新增：订阅棋子属性变化事件
+        if (entity.Attribute != null)
+        {
+            entity.Attribute.OnHpChanged += OnDetailChessHpChanged;
+            entity.Attribute.OnMpChanged += OnDetailChessMpChanged;
+            DebugEx.LogModule("CombatUI", $"已订阅棋子 {entity.Config?.Name} 的属性变化事件");
+        }
+
+        // 订阅Buff变化事件
+        ChessStateEvents.OnBuffAdded += OnDetailChessBuffChanged;
+        ChessStateEvents.OnBuffRemoved += OnDetailChessBuffChanged;
 
         detailUI.SetChessUnitData(entity);
         detailUI.RefreshUI();
@@ -163,10 +185,76 @@ public partial class CombatUI : StateAwareUIForm
     }
 
     /// <summary>
+    /// ⭐ 新增：棋子HP变化时，动态更新DetailInfoUI
+    /// </summary>
+    private void OnDetailChessHpChanged(double oldHp, double newHp)
+    {
+        if (m_CurrentDetailChess == null)
+            return;
+
+        var detailUI = GetDetailInfoUI();
+        if (detailUI != null)
+        {
+            detailUI.RefreshUI();
+            DebugEx.LogModule("CombatUI", $"DetailInfoUI已刷新（HP变化 {oldHp:F0} -> {newHp:F0}）");
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 新增：棋子MP变化时，动态更新DetailInfoUI
+    /// </summary>
+    private void OnDetailChessMpChanged(double oldMp, double newMp)
+    {
+        if (m_CurrentDetailChess == null)
+            return;
+
+        var detailUI = GetDetailInfoUI();
+        if (detailUI != null)
+        {
+            detailUI.RefreshUI();
+            DebugEx.LogModule("CombatUI", $"DetailInfoUI已刷新（MP变化 {oldMp:F0} -> {newMp:F0}）");
+        }
+    }
+
+    /// <summary>
+    /// ⭐ 新增：棋子Buff变化时，动态更新DetailInfoUI
+    /// </summary>
+    private void OnDetailChessBuffChanged(int chessId, int buffId)
+    {
+        if (m_CurrentDetailChess == null)
+            return;
+
+        // 只更新当前显示的棋子
+        if (m_CurrentDetailChess.Config.Id != chessId)
+            return;
+
+        var detailUI = GetDetailInfoUI();
+        if (detailUI != null)
+        {
+            detailUI.RefreshUI();
+            DebugEx.LogModule("CombatUI", $"DetailInfoUI已刷新（Buff变化 ID={buffId}）");
+        }
+    }
+
+    /// <summary>
     /// 战斗阶段棋子取消选中，隐藏详情
+    /// ⭐ 修改：取消订阅棋子属性变化事件
     /// </summary>
     private void OnChessDeselectedForDetail()
     {
+        // ⭐ 新增：取消订阅属性变化事件
+        if (m_CurrentDetailChess != null && m_CurrentDetailChess.Attribute != null)
+        {
+            m_CurrentDetailChess.Attribute.OnHpChanged -= OnDetailChessHpChanged;
+            m_CurrentDetailChess.Attribute.OnMpChanged -= OnDetailChessMpChanged;
+            DebugEx.LogModule("CombatUI", $"已取消订阅棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件");
+        }
+
+        ChessStateEvents.OnBuffAdded -= OnDetailChessBuffChanged;
+        ChessStateEvents.OnBuffRemoved -= OnDetailChessBuffChanged;
+
+        m_CurrentDetailChess = null;
+
         if (varDetailInfoUI != null)
         {
             varDetailInfoUI.SetActive(false);

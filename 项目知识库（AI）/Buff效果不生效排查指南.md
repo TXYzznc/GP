@@ -1,0 +1,185 @@
+# Buff 效果不生效排查指南
+
+## 问题现象
+
+- ✗ 应用了多个Buff，但属性值没有增加或增加不明显
+- ✗ 诊断报告显示"修改前"和"修改后"值完全相同
+- ✗ Console日志缺少 `[StatModBuff] 属性修改已应用` 的消息
+
+## 调试步骤
+
+### 第一步：启用详细日志
+
+已在 StatModBuff.cs 中添加了详细的调试日志。重新编译后，Console 会显示：
+
+```
+[StatModBuff] Buff(ID=4) AtkDamage: 当前值=22.6, 百分比=25.0%, 修改值=5.65
+[StatModBuff]   AtkDamage: 修改前=22.6 → 修改后=28.25
+[StatModBuff] ✓ Buff(ID=4) 属性修改已应用，共1项
+```
+
+**关键信息解读：**
+- `修改值=5.65` - 计算出的修改值
+- `修改前=22.6 → 修改后=28.25` - 实际的属性变化
+
+### 第二步：查找问题所在
+
+根据 Console 日志选择相应的排查方案：
+
+#### 情况1：完全没有日志输出
+
+**症状：** Console 中看不到任何 `[StatModBuff]` 的日志
+
+**可能原因：**
+1. Buff 没有被创建（见下面的 BuffFactory 问题）
+2. OnEnter 没有被调用
+3. ApplyMods 没有被执行
+
+**排查方法：**
+```csharp
+// 在 StatModBuff.OnEnter() 中添加临时日志
+public override void OnEnter()
+{
+    base.OnEnter();
+    DebugEx.LogModule("StatModBuff", $"[DEBUG] OnEnter called for Buff {BuffId}");
+    ApplyMods();  // 这一行之后应该有日志
+}
+```
+
+#### 情况2：有日志但修改前后值相同
+
+**症状：** 
+```
+[StatModBuff] AtkDamage: 修改前=22.6 → 修改后=22.6
+```
+
+**可能原因：**
+1. ModifyAtkDamage 方法有bug
+2. ChessAttribute 中的属性被其他代码重置了
+3. 多线程问题导致值被覆盖
+
+**排查方法：**
+检查 ChessAttribute.ModifyAtkDamage：
+```csharp
+public void ModifyAtkDamage(double delta)
+{
+    m_AtkDamage = Math.Max(0, m_AtkDamage + delta);
+    DebugEx.LogModule("ChessAttribute", $"ModifyAtkDamage: {m_AtkDamage - delta} + {delta} = {m_AtkDamage}");
+}
+```
+
+#### 情况3：修改值为0
+
+**症状：** 
+```
+[StatModBuff] AtkDamage: 当前值=22.6, 百分比=25.0%, 修改值=0.00
+```
+
+**可能原因：**
+1. GetStatValue 返回了错误的值
+2. mod.Value 为0
+
+**排查方法：**
+检查 GetStatValue 方法中是否返回了正确的属性值。
+
+### 第三步：使用增强诊断工具
+
+在 GameTestWindow 的诊断部分，点击 **生成诊断报告** 后，会输出：
+
+```
+当前攻击力总修改: +5.65
+攻速总修改: +1.2
+
+✓ 已检测到攻击力修改  ← 说明Buff系统有在工作
+或
+⚠️ 警告：没有检测到任何攻击力修改！ ← 说明Buff没有包含攻击力修改
+```
+
+## 常见问题解决方案
+
+### 问题1：BuffFactory 无法创建某些 Buff
+
+**错误消息：**
+```
+[BuffManager] 无法创建 Buff 实例: 5003
+```
+
+**原因：** BuffFactory 中没有注册该 Buff ID
+
+**解决方案：** 检查 BuffFactory.cs 中是否有该 BuffID 的注册
+
+```csharp
+// 在 BuffFactory.cs 中应该有类似的代码
+case 5003: // 战争号角
+    return new StatModBuff();
+```
+
+### 问题2：修改值计算错误
+
+如果看到：
+```
+修改值=0.5 而期望=5.65
+```
+
+**检查点：**
+1. BuffTable 中的 StatMods 是否正确配置
+2. JSON 解析是否成功（查找 `StatMods JSON解析失败` 的日志）
+3. TryParseModValue 是否正确解析了百分比值
+
+### 问题3：多个Buff时增幅计算错误
+
+**期望行为：**
+```
+基础: 100
++25%: 125 (基于100的25%)
++15%: 143.75 (基于125的15%)
+```
+
+**实际可能出现的错误：**
+```
+基础: 100
++25%: 125
++15%: 100 + 15 = 115 ← 错误！应该基于当前值125
+```
+
+**如果发生此问题** 说明 GetStatValue 返回的不是当前值，而是初始值。
+
+## 快速测试流程
+
+1. **打开 Test Manager**
+   ```
+   菜单 → 工具 → Clash of Gods → Test Manager
+   ```
+
+2. **应用单个 Buff**
+   - 先应用 ID=4（神力增益 +25%）
+   - 查看 Console 日志确认修改值
+
+3. **检查 Console 输出**
+   - 搜索 `[StatModBuff]` 关键词
+   - 查看每一步的修改过程
+
+4. **逐个排查**
+   - 如果第一个Buff工作正常，继续测试第二个
+   - 找出哪个Buff或哪个配置有问题
+
+## 需要修改的代码位置
+
+如果发现bug，需要修改的文件：
+
+| 文件 | 功能 | 检查项 |
+|------|------|--------|
+| `StatModBuff.cs` | Buff 应用逻辑 | ApplyMods、GetStatValue、ApplyStatChange |
+| `ChessAttribute.cs` | 属性修改 | ModifyAtkDamage 等修改方法 |
+| `BuffTable.txt` | Buff 配置 | StatMods JSON 格式是否正确 |
+| `BuffFactory.cs` | Buff 创建 | 是否注册了所有需要的 BuffID |
+
+## 提交问题时需要的信息
+
+如果问题无法自行解决，收集以下信息：
+
+1. **完整的 Console 日志输出**（包含 [StatModBuff] 的所有行）
+2. **诊断报告**（点击生成诊断报告的输出）
+3. **当前测试的具体情况**（应用了哪些 Buff，当前属性值是多少）
+4. **预期值和实际值的对比**
+

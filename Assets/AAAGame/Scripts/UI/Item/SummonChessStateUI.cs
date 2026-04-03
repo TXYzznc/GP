@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+using System;
 using System.Collections.Generic;
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -10,7 +11,7 @@ public partial class SummonChessStateUI : UIItemBase
     [Header("HP格子配置")]
     [SerializeField]
     [Tooltip("单格代表的血量（固定血量/格）。格子数 = ceil(MaxHp / 该值)，总宽不变；该值越小格子越多、越密集。")]
-    private float m_HpPerCell = 200f;
+    private float m_HpPerCell = 50f;
 
     [SerializeField]
     [Tooltip("分隔线宽度（UV）。越大线越粗。")]
@@ -34,7 +35,7 @@ public partial class SummonChessStateUI : UIItemBase
 
     private Image m_HpImg;
     private Image m_MpImg;
-    private Image m_OtherImg;
+    private Image m_ShieldImg;
 
     private Material m_HpMatInst;
     private Camera m_Cam;
@@ -49,11 +50,11 @@ public partial class SummonChessStateUI : UIItemBase
 
         if (varHPBarImage != null) m_HpImg = varHPBarImage.GetComponent<Image>();
         if (varMPBarImage != null) m_MpImg = varMPBarImage.GetComponent<Image>();
-        if (varOtherBarImage != null) m_OtherImg = varOtherBarImage.GetComponent<Image>();
+        if (varShieldBarImage != null) m_ShieldImg = varShieldBarImage.GetComponent<Image>();
 
         if (m_HpImg != null) { m_HpImg.type = Image.Type.Filled; m_HpImg.fillMethod = Image.FillMethod.Horizontal; }
         if (m_MpImg != null) { m_MpImg.type = Image.Type.Filled; m_MpImg.fillMethod = Image.FillMethod.Horizontal; }
-        if (m_OtherImg != null) { m_OtherImg.type = Image.Type.Filled; m_OtherImg.fillMethod = Image.FillMethod.Horizontal; }
+        if (m_ShieldImg != null) { m_ShieldImg.type = Image.Type.Filled; m_ShieldImg.fillMethod = Image.FillMethod.Horizontal; }
 
         SetupHpMaterial();
         TryBindOwner();
@@ -118,12 +119,17 @@ public partial class SummonChessStateUI : UIItemBase
         UpdateMpFill();
     }
 
+    private void OnShieldChanged(double oldVal, double newVal)
+    {
+        UpdateShieldFill();
+    }
+
     private void RefreshAll()
     {
         UpdateHpGridParams();
         UpdateHpFill();
         UpdateMpFill();
-        UpdateOtherFill();
+        UpdateShieldFill();
     }
 
     private void UpdateHpGridParams()
@@ -147,17 +153,12 @@ public partial class SummonChessStateUI : UIItemBase
         m_MpImg.fillAmount = (float)(m_Attr.CurrentMp / Mathf.Max(1f, (float)m_Attr.MaxMp));
     }
 
-    private void UpdateOtherFill()
+    private void UpdateShieldFill()
     {
-        if (m_OtherImg == null) return;
-        if (m_Attr != null && m_Attr.MaxShield > 0)
-        {
-            m_OtherImg.fillAmount = (float)(m_Attr.Shield / Mathf.Max(1f, (float)m_Attr.MaxShield));
-        }
-        else
-        {
-            m_OtherImg.fillAmount = 0f;
-        }
+        if (m_ShieldImg == null || m_Attr == null) return;
+        // 护盾条显示 Shield / MaxHp（独立于血条）
+        // 例如：MaxHp=500, CurrentHp=400, Shield=100 → HPBar=0.8, ShieldBar=0.2
+        m_ShieldImg.fillAmount = (float)(m_Attr.Shield / Mathf.Max(1f, (float)m_Attr.MaxHp));
     }
 
     public void Bind(ChessEntity owner)
@@ -168,6 +169,7 @@ public partial class SummonChessStateUI : UIItemBase
         {
             m_Attr.OnHpChanged -= OnHpChanged;
             m_Attr.OnMpChanged -= OnMpChanged;
+            m_Attr.OnShieldChanged -= OnShieldChanged;
         }
 
         m_Owner = owner;
@@ -176,6 +178,7 @@ public partial class SummonChessStateUI : UIItemBase
 
         m_Attr.OnHpChanged += OnHpChanged;
         m_Attr.OnMpChanged += OnMpChanged;
+        m_Attr.OnShieldChanged += OnShieldChanged;
 
         // 订阅Buff事件
         BindBuffManager();
@@ -190,6 +193,7 @@ public partial class SummonChessStateUI : UIItemBase
         {
             m_Attr.OnHpChanged -= OnHpChanged;
             m_Attr.OnMpChanged -= OnMpChanged;
+            m_Attr.OnShieldChanged -= OnShieldChanged;
         }
 
         // 取消订阅Buff事件
@@ -201,11 +205,11 @@ public partial class SummonChessStateUI : UIItemBase
         SetFollowTarget(null, Vector3.zero);
     }
 
-    public void SetBarsVisible(bool showHp, bool showMp, bool showOther)
+    public void SetBarsVisible(bool showHp, bool showMp, bool showShield)
     {
         if (varHPBarParent != null) varHPBarParent.gameObject.SetActive(showHp);
         if (varMPBarParent != null) varMPBarParent.gameObject.SetActive(showMp);
-        if (varOtherBarParent != null) varOtherBarParent.gameObject.SetActive(showOther);
+        if (varOtherBarParent != null) varOtherBarParent.gameObject.SetActive(showShield);
     }
 
     public void SetFollowTarget(Transform target, Vector3 offset)

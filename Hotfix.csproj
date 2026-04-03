@@ -132,6 +132,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\ConfigImageLoader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyPatrolState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIInteract\ButtonHighlight.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffDiagnoser.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\FrostBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Core\EnemyChessDataManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\AttackHitType.cs" />

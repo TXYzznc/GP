@@ -98,13 +98,33 @@ public class StatModBuff : BuffBase
         return result;
     }
 
+    /// <summary>
+    /// 获取此Buff的属性修改详情（用于诊断）
+    /// </summary>
+    public IReadOnlyList<StatMod> GetModDetails()
+    {
+        return m_Mods ?? Array.Empty<StatMod>();
+    }
+
+    /// <summary>
+    /// 获取此Buff已应用的修改值（用于诊断）
+    /// </summary>
+    public IReadOnlyList<double> GetAppliedValues()
+    {
+        return m_AppliedValues ?? Array.Empty<double>();
+    }
+
     #endregion
 
     #region 私有方法
 
     private void ApplyMods()
     {
-        if (m_Mods == null || Ctx?.OwnerAttribute == null) return;
+        if (m_Mods == null || Ctx?.OwnerAttribute == null)
+        {
+            DebugEx.WarningModule("StatModBuff", $"Buff(ID={BuffId}) ApplyMods 失败: m_Mods={m_Mods}, OwnerAttribute={Ctx?.OwnerAttribute}");
+            return;
+        }
         if (m_IsApplied) return;
 
         for (int i = 0; i < m_Mods.Length; i++)
@@ -115,7 +135,13 @@ public class StatModBuff : BuffBase
             // 百分比修改，基于当前属性值计算
             if (mod.IsPercent)
             {
-                actualValue = GetStatValue(mod.Type) * mod.Value;
+                double currentValue = GetStatValue(mod.Type);
+                actualValue = currentValue * mod.Value;
+                DebugEx.LogModule("StatModBuff", $"Buff(ID={BuffId}) {mod.Type}: 当前值={currentValue:F2}, 百分比={mod.Value*100:F1}%, 修改值={actualValue:F2}");
+            }
+            else
+            {
+                DebugEx.LogModule("StatModBuff", $"Buff(ID={BuffId}) {mod.Type}: 固定修改={actualValue:F2}");
             }
 
             ApplyStatChange(mod.Type, actualValue);
@@ -123,7 +149,7 @@ public class StatModBuff : BuffBase
         }
 
         m_IsApplied = true;
-        DebugEx.LogModule("StatModBuff", $"Buff(ID={BuffId}) 属性修改已应用，共{m_Mods.Length}项");
+        DebugEx.LogModule("StatModBuff", $"✓ Buff(ID={BuffId}) 属性修改已应用，共{m_Mods.Length}项");
     }
 
     private void RestoreMods()
@@ -162,6 +188,14 @@ public class StatModBuff : BuffBase
     private void ApplyStatChange(StatType type, double value)
     {
         var attr = Ctx.OwnerAttribute;
+        if (attr == null)
+        {
+            DebugEx.ErrorModule("StatModBuff", $"Buff(ID={BuffId}) ApplyStatChange 失败: OwnerAttribute 为 null");
+            return;
+        }
+
+        double beforeValue = GetStatValue(type);
+
         switch (type)
         {
             case StatType.AtkDamage: attr.ModifyAtkDamage(value); break;
@@ -177,6 +211,9 @@ public class StatModBuff : BuffBase
             case StatType.Shield: attr.ModifyShield(value); break;
             case StatType.DamageTakenMultiplier: attr.ModifyDamageTakenMultiplier(value); break;
         }
+
+        double afterValue = GetStatValue(type);
+        DebugEx.LogModule("StatModBuff", $"  {type}: 修改前={beforeValue:F2} → 修改后={afterValue:F2}");
     }
 
     private void TryInitModsFromConfig()

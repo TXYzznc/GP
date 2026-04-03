@@ -81,6 +81,18 @@ public partial class DetailInfoUI : UIItemBase
         DebugEx.LogModule("DetailInfoUI", $"设置棋子配置: {config?.Name ?? "null"}");
     }
 
+    /// <summary>
+    /// ⭐ 新增：在准备阶段关联 ChessEntity（用于显示实时属性）
+    /// </summary>
+    public void SetChessEntityForPreparation(ChessEntity entity)
+    {
+        if (entity != null)
+        {
+            m_ChessEntity = entity;
+            DebugEx.LogModule("DetailInfoUI", $"已关联ChessEntity用于准备阶段: {entity.Config?.Name ?? "null"}");
+        }
+    }
+
     #endregion
 
     #region UI 刷新
@@ -166,38 +178,61 @@ public partial class DetailInfoUI : UIItemBase
     }
 
     /// <summary>
-    /// 刷新棋子配置UI显示（准备阶段，不含Buff）
+    /// 刷新棋子配置UI显示（准备阶段）
+    /// ⭐ 修改：支持显示 ChessEntity 的实时属性（如果有关联的实体）
     /// </summary>
     private void RefreshChessConfigUI()
     {
-        if (m_ChessConfig == null || m_GlobalState == null)
+        if (m_ChessConfig == null)
         {
-            DebugEx.WarningModule("DetailInfoUI", "棋子配置或全局状态为空，无法刷新UI");
+            DebugEx.WarningModule("DetailInfoUI", "棋子配置为空，无法刷新UI");
             return;
         }
 
         if (varBuffBg != null) varBuffBg.gameObject.SetActive(false);
 
         var config = m_ChessConfig;
-        var state = m_GlobalState;
 
         if (varTitleText != null)
             varTitleText.text = $"{config.Name} {new string('★', config.StarLevel)}";
 
         if (varDesc_1Text != null)
         {
-            varDesc_1Text.text = $"等级: {state.Level}  经验: {state.Experience}\n"
-                               + $"HP: {state.CurrentHp:F0}/{state.MaxHp:F0}\n"
-                               + $"MP: {config.InitialMp:F0}/{config.MaxMp:F0}\n"
-                               + $"攻击: {config.AtkDamage:F0}  护甲: {config.Armor:F0}\n"
-                               + $"魔抗: {config.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
-                               + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+            // ⭐ 优先使用 ChessEntity 的实时属性，如果没有则使用配置和全局状态
+            if (m_ChessEntity != null && m_ChessEntity.Attribute != null)
+            {
+                // 使用 ChessEntity 的实时属性（HP、MP、攻击等）
+                var attr = m_ChessEntity.Attribute;
+                var globalState = GlobalChessManager.Instance?.GetChessState(config.Id) ?? m_GlobalState;
+                int level = globalState?.Level ?? 1;
+                int experience = globalState?.Experience ?? 0;
+
+                varDesc_1Text.text = $"等级: {level}  经验: {experience}\n"
+                                   + $"HP: {attr.CurrentHp:F0}/{attr.MaxHp:F0}\n"
+                                   + $"MP: {attr.CurrentMp:F0}/{config.MaxMp:F0}\n"
+                                   + $"攻击: {attr.AtkDamage:F0}  护甲: {attr.Armor:F0}\n"
+                                   + $"魔抗: {attr.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
+                                   + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+
+                DebugEx.LogModule("DetailInfoUI", $"棋子配置UI已刷新（使用实体属性）: {config.Name} HP={attr.CurrentHp:F0}/{attr.MaxHp:F0}");
+            }
+            else if (m_GlobalState != null)
+            {
+                // 使用全局状态（静态数据）
+                var state = m_GlobalState;
+                varDesc_1Text.text = $"等级: {state.Level}  经验: {state.Experience}\n"
+                                   + $"HP: {state.CurrentHp:F0}/{state.MaxHp:F0}\n"
+                                   + $"MP: {config.InitialMp:F0}/{config.MaxMp:F0}\n"
+                                   + $"攻击: {config.AtkDamage:F0}  护甲: {config.Armor:F0}\n"
+                                   + $"魔抗: {config.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
+                                   + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+
+                DebugEx.LogModule("DetailInfoUI", $"棋子配置UI已刷新（使用全局状态）: {config.Name}");
+            }
         }
 
         if (varDesc_2Text != null)
             varDesc_2Text.text = config.Description;
-
-        DebugEx.LogModule("DetailInfoUI", $"棋子配置UI已刷新: {config.Name}");
     }
 
     #endregion

@@ -257,19 +257,10 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
             return;
         }
 
-        // 检查是否已出战
-        if (instance.IsDeployed)
-        {
-            DebugEx.LogModule(
-                "ChessItemUI",
-                $"OnButtonClick: 棋子已出战，无法选中 instanceId={m_InstanceId}"
-            );
-            return;
-        }
-
-        // 触发选中回调
+        // ⭐ 修改：已出战的棋子也可以点击显示详情（由回调方决定如何处理）
+        // 触发选中回调（无论已出战还是未出战）
         m_OnSelectCallback?.Invoke(m_InstanceId);
-        DebugEx.LogModule("ChessItemUI", $"OnButtonClick: 选中棋子 instanceId={m_InstanceId}");
+        DebugEx.LogModule("ChessItemUI", $"OnButtonClick: 选中棋子 instanceId={m_InstanceId}, IsDeployed={instance.IsDeployed}");
     }
 
     #endregion
@@ -314,14 +305,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // 设置半透明
         m_CanvasGroup.alpha = 0.6f;
 
-        // 触发拖拽开始回调
+        // ⭐ 触发拖拽开始回调（由 CombatPreparationUI 处理放置逻辑）
         m_OnDragBeginCallback?.Invoke(m_InstanceId);
-
-        // 拖拽开始时，直接调用 ChessPlacementManager 并标记为拖拽模式
-        if (ChessPlacementManager.Instance != null)
-        {
-            ChessPlacementManager.Instance.StartPlacement(m_InstanceId, true); // isDragMode = true
-        }
 
         DebugEx.LogModule("ChessItemUI", $"OnBeginDrag: instanceId={m_InstanceId}");
     }

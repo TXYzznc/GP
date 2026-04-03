@@ -222,7 +222,8 @@ public class ChessSelectionManager
     }
 
     /// <summary>
-    /// 处理右键点击 - 召回选中的棋子
+    /// 处理右键点击 - 召回棋子
+    /// ⭐ 修改：在战斗准备阶段，右键可直接撤回任何棋子（无需先选中）
     /// </summary>
     private void HandleRightClick()
     {
@@ -237,10 +238,6 @@ public class ChessSelectionManager
             return;
         }
 
-        // 没有选中棋子时，右键无效
-        if (m_SelectedChess == null)
-            return;
-
         // 检查是否点击 UI 上
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
@@ -249,19 +246,24 @@ public class ChessSelectionManager
         if (playerCamera == null) return;
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
 
-        // 由于不再有Layer区分，直接使用棋子Layer
-        int combinedMask = m_ChessLayerMask;
-
-        // 检测是否点击棋子
-        if (Physics.Raycast(ray, out RaycastHit hitInfo, m_MaxRaycastDistance, combinedMask))
+        // 检测是否点击棋子（无论是否已选中）
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, m_MaxRaycastDistance, m_ChessLayerMask))
         {
             var entity = hitInfo.collider.GetComponentInParent<ChessEntity>();
 
-            // 只有右键点击的是当前选中的棋子才能召回
-            if (entity != null && entity == m_SelectedChess)
+            // ⭐ 修改：只要是玩家棋子，就可以右键撤回（不需要先选中）
+            if (entity != null && entity.Camp == 0)
             {
                 RecallChess(entity);
+                return;
             }
+        }
+
+        // ⭐ 新增：如果没有点击到棋子，但有选中的棋子，则仅取消选择
+        if (m_SelectedChess != null)
+        {
+            Log.Info("ChessSelectionManager: 右键点击空处，取消选择");
+            DeselectChess();
         }
     }
 
