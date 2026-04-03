@@ -108,8 +108,23 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private void OnCardRemoved(int cardId)
     {
-        DebugEx.LogModule("CombatUI", $"卡牌已移除: ID={cardId}，刷新卡槽");
-        RefreshCardSlots();
+        DebugEx.LogModule("CombatUI", $"卡牌已移除: ID={cardId}，更新卡槽");
+
+        // 查找被移除的卡牌对应的 UI 并移除
+        var container = GetCardSlotContainer();
+        if (container == null)
+            return;
+
+        var cardSlots = varCardSlots.transform.GetComponentsInChildren<CardSlotItem>();
+        foreach (var slot in cardSlots)
+        {
+            if (slot.GetCardData()?.CardId == cardId)
+            {
+                container.RemoveCard(slot);
+                Destroy(slot.gameObject);
+                break;
+            }
+        }
     }
     /// <summary>
     /// 获取详情UI
@@ -354,6 +369,13 @@ public partial class CombatUI : StateAwareUIForm
             return;
         }
 
+        var container = GetCardSlotContainer();
+        if (container == null)
+        {
+            DebugEx.ErrorModule("CombatUI", "未找到 CardSlotContainer 组件");
+            return;
+        }
+
         // 清理所有卡牌槽
         for (int i = varCardSlots.transform.childCount - 1; i >= 0; i--)
         {
@@ -370,7 +392,7 @@ public partial class CombatUI : StateAwareUIForm
             var cards = CardManager.Instance.GetAvailableCards();
             for (int i = 0; i < cards.Count; i++)
             {
-                CreateCardSlot(cards[i], i);
+                CreateCardSlot(cards[i], i, container).Forget();
             }
 
             DebugEx.LogModule("CombatUI", $"刷新卡牌槽完成，共 {cards.Count} 张卡牌");
@@ -384,7 +406,7 @@ public partial class CombatUI : StateAwareUIForm
     /// <summary>
     /// 创建卡牌槽
     /// </summary>
-    private void CreateCardSlot(CardData cardData, int index)
+    private async UniTaskVoid CreateCardSlot(CardData cardData, int index, CardSlotContainer container)
     {
         GameObject slotGo = Instantiate(varCardSlotItem, varCardSlots.transform);
         slotGo.SetActive(true);
@@ -394,7 +416,17 @@ public partial class CombatUI : StateAwareUIForm
         if (slotItem != null)
         {
             slotItem.SetData(cardData);
+            // 通过容器添加卡牌，播放进场动画
+            await container.AddCardAsync(slotItem);
         }
+    }
+
+    /// <summary>
+    /// 获取卡牌容器
+    /// </summary>
+    private CardSlotContainer GetCardSlotContainer()
+    {
+        return varCardSlots?.GetComponent<CardSlotContainer>();
     }
 
     /// <summary>

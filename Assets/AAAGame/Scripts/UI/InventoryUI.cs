@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using GameExtension;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -131,6 +132,9 @@ public partial class InventoryUI : UIFormBase
     {
         base.OnUpdate(elapseSeconds, realElapseSeconds);
 
+        // 检查菜单外部点击关闭
+        CheckContextMenuClickOutside();
+
         var input = PlayerInputManager.Instance;
         if (input == null)
             return;
@@ -148,6 +152,29 @@ public partial class InventoryUI : UIFormBase
             {
                 UseHotbarSlot(i - 1);
                 break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 检查菜单外部点击，自动关闭菜单
+    /// </summary>
+    private void CheckContextMenuClickOutside()
+    {
+        // 如果菜单未显示，不需要检查
+        if (m_CachedContextMenu == null || !m_CachedContextMenu.gameObject.activeSelf)
+            return;
+
+        // 检查是否有鼠标点击
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        {
+            // 检查点击是否在菜单范围内
+            var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
+            if (menuRect != null && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
+            {
+                // 在菜单外，关闭菜单
+                m_CachedContextMenu.HideContextMenu();
+                DebugEx.Log("InventoryUI", "菜单外部点击，关闭菜单");
             }
         }
     }

@@ -15,6 +15,11 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
     private Vector3 m_BtnOriginalPosition;
     private const float SELECTED_OFFSET = 20f;
 
+    // 扇形容器相关
+    private CardSlotContainer m_Container;
+    private Vector2 m_BaseAnchoredPos;      // Container 分配的基准位置
+    private float m_BaseRotZ;               // 基准旋转
+
     // 拖拽相关字段
     private GameObject m_DragPreview;
     private Image m_DragPreviewImage;
@@ -27,9 +32,12 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
     private Tween m_SelectTween;
     private Tween m_HoverTween;
     private Tween m_DragPreviewTween;
+    private Tween m_PositionTween;         // 位置动画（悬停上移）
     private CanvasGroup m_BtnCanvasGroup;
+    private RectTransform m_ItemRectTransform;
     private const float HOVER_SCALE = 1.05f;
     private const float HOVER_DURATION = 0.2f;
+    private const float HOVER_OFFSET_Y = 30f;  // 悬停上移距离
     private const float PULSE_SCALE = 1.1f;
     private const float PULSE_DURATION = 0.3f;
     private const float DRAG_ALPHA = 0.5f;
@@ -49,6 +57,34 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         m_CardData = cardData;
         m_IsSelected = false;
         RefreshUI();
+    }
+
+    /// <summary>
+    /// 获取卡牌数据
+    /// </summary>
+    public CardData GetCardData()
+    {
+        return m_CardData;
+    }
+
+    /// <summary>
+    /// 设置扇形容器和基准位置（由 CardSlotContainer 调用）
+    /// </summary>
+    public void SetBaseFanTransform(CardSlotContainer container, Vector2 anchoredPos, float rotZ)
+    {
+        m_Container = container;
+        m_BaseAnchoredPos = anchoredPos;
+        m_BaseRotZ = rotZ;
+
+        // 更新 RectTransform
+        var rectTransform = GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition = anchoredPos;
+            rectTransform.localRotation = Quaternion.Euler(0, 0, rotZ);
+        }
+
+        m_ItemRectTransform = rectTransform;
     }
 
     #endregion
@@ -332,6 +368,9 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
 
         // 创建拖拽预览对象
         CreateDragPreview();
+
+        // 通知容器拖拽开始
+        m_Container?.OnCardBeginDrag(this);
     }
 
     /// <summary>
@@ -355,6 +394,9 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         // 检测吸附区域并高亮
         bool isInAdsorptionArea = IsPositionInAdsorptionArea(eventData.position);
         UpdateAdsorptionAreaHighlight(isInAdsorptionArea);
+
+        // 通知容器拖拽中的位置
+        m_Container?.OnCardDrag(this, eventData.position);
     }
 
     /// <summary>
@@ -379,6 +421,9 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             Destroy(m_DragPreview);
             m_DragPreview = null;
         }
+
+        // 通知容器拖拽结束
+        m_Container?.OnCardEndDrag(this);
 
         // 判断释放位置
         bool isInBattleArea = IsPositionInBattleArea(eventData.position);
@@ -574,12 +619,22 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             return;
 
         var btnTransform = varBtn.transform;
-        
+        var itemRectTransform = GetComponent<RectTransform>();
+
         // 杀死之前的悬停动画
         m_HoverTween?.Kill();
+        m_PositionTween?.Kill();
 
         // 缩放到 1.05
         m_HoverTween = btnTransform.DOScale(new Vector3(HOVER_SCALE, HOVER_SCALE, 1f), HOVER_DURATION).SetEase(Ease.OutQuad);
+
+        // 位置上移（基于基准位置的偏移）
+        if (itemRectTransform != null)
+        {
+            var targetPos = m_BaseAnchoredPos + Vector2.up * 30f;
+            m_PositionTween = itemRectTransform.DOAnchorPos(targetPos, HOVER_DURATION).SetEase(Ease.OutQuad);
+        }
+
         DebugEx.LogModule("CardSlotItem", $"悬停放大: {m_CardData.Name}");
     }
 
@@ -592,12 +647,21 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             return;
 
         var btnTransform = varBtn.transform;
-        
+        var itemRectTransform = GetComponent<RectTransform>();
+
         // 杀死之前的悬停动画
         m_HoverTween?.Kill();
+        m_PositionTween?.Kill();
 
         // 恢复到 1.0
         m_HoverTween = btnTransform.DOScale(Vector3.one, HOVER_DURATION).SetEase(Ease.OutQuad);
+
+        // 位置恢复到基准位置
+        if (itemRectTransform != null)
+        {
+            m_PositionTween = itemRectTransform.DOAnchorPos(m_BaseAnchoredPos, HOVER_DURATION).SetEase(Ease.OutQuad);
+        }
+
         DebugEx.LogModule("CardSlotItem", $"悬停缩小: {m_CardData.Name}");
     }
 

@@ -87,6 +87,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260402_170005.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_143744.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260402_183331.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_171846.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\LevelTable.txt" />
@@ -150,6 +151,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_165441.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_144631.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_095214.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\AAAGame\DataTable\EnemyTable.txt" />
     <None Include="Assets\测试输出日志\snapshot_20260402_143903.txt" />

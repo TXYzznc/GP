@@ -52,6 +52,37 @@ public partial class WarehouseUI : UIFormBase
         base.OnClose(isShutdown, userData);
     }
 
+    protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
+    {
+        base.OnUpdate(elapseSeconds, realElapseSeconds);
+
+        // 检查菜单外部点击关闭
+        CheckContextMenuClickOutside();
+    }
+
+    /// <summary>
+    /// 检查菜单外部点击，自动关闭菜单
+    /// </summary>
+    private void CheckContextMenuClickOutside()
+    {
+        // 如果菜单未显示，不需要检查
+        if (m_CachedContextMenu == null || !m_CachedContextMenu.gameObject.activeSelf)
+            return;
+
+        // 检查是否有鼠标点击
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        {
+            // 检查点击是否在菜单范围内
+            var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
+            if (menuRect != null && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
+            {
+                // 在菜单外，关闭菜单
+                m_CachedContextMenu.HideContextMenu();
+                DebugEx.Log("WarehouseUI", "菜单外部点击，关闭菜单");
+            }
+        }
+    }
+
     #region 初始化
 
     /// <summary>
