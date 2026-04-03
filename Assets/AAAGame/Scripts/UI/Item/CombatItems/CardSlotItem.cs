@@ -244,24 +244,20 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             CardManager.Instance.CurrentSelectedCard = m_CardData;
         }
 
-        // 移动 Btn 子对象向上 20 单位（避免被 LayoutGroup 干扰）
-        if (varBtn != null)
+        // 在基准坐标基础上，向上偏移 20 单位
+        var itemRectTransform = GetComponent<RectTransform>();
+        if (itemRectTransform != null)
         {
-            var btnRectTransform = varBtn.GetComponent<RectTransform>();
-            if (btnRectTransform != null)
-            {
-                var targetPosition = m_BtnOriginalPosition;
-                targetPosition.y += SELECTED_OFFSET;
-                
-                // 杀死之前的动画
-                m_SelectTween?.Kill();
-                
-                // 播放选中动画：移动 + 脉冲
-                m_SelectTween = btnRectTransform.DOAnchorPos(targetPosition, 0.3f).SetEase(Ease.OutQuad);
-                PlayPulseAnimation();
-                
-                DebugEx.LogModule("CardSlotItem", $"选中卡牌: {m_CardData.Name}, Btn 目标位置: {targetPosition}");
-            }
+            var targetPosition = m_BaseAnchoredPos + Vector2.up * SELECTED_OFFSET;
+
+            // 杀死之前的动画
+            m_SelectTween?.Kill();
+
+            // 播放选中动画：移动 + 脉冲
+            m_SelectTween = itemRectTransform.DOAnchorPos(targetPosition, 0.3f).SetEase(Ease.OutQuad);
+            PlayPulseAnimation();
+
+            DebugEx.LogModule("CardSlotItem", $"选中卡牌: {m_CardData.Name}, 目标位置: {targetPosition}");
         }
 
         // 显示 DetailInfoUI 并播放滑入动画
@@ -285,18 +281,16 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
     {
         m_IsSelected = false;
 
-        // 恢复 Btn 子对象到原始位置
-        if (varBtn != null)
+        // 恢复到基准坐标
+        var itemRectTransform = GetComponent<RectTransform>();
+        if (itemRectTransform != null)
         {
-            var btnRectTransform = varBtn.GetComponent<RectTransform>();
-            if (btnRectTransform != null)
-            {
-                // 杀死之前的动画
-                m_SelectTween?.Kill();
-                
-                btnRectTransform.DOAnchorPos(m_BtnOriginalPosition, 0.3f).SetEase(Ease.OutQuad);
-                DebugEx.LogModule("CardSlotItem", $"取消选中卡牌: {m_CardData.Name}, Btn 恢复位置: {m_BtnOriginalPosition}");
-            }
+            // 杀死之前的动画
+            m_SelectTween?.Kill();
+
+            // 恢复到基准位置
+            itemRectTransform.DOAnchorPos(m_BaseAnchoredPos, 0.3f).SetEase(Ease.OutQuad);
+            DebugEx.LogModule("CardSlotItem", $"取消选中卡牌: {m_CardData.Name}, 恢复位置: {m_BaseAnchoredPos}");
         }
 
         // 隐藏 DetailInfoUI

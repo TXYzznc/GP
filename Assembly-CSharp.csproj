@@ -190,6 +190,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260402_165926.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_141429.txt" />
     <None Include="Assets\AAAGame\DataTable\PlayerAccountTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_102633.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_141454.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles.shader" />
     <None Include="Assets\TA\Cartoon\OilPaintingToon.shader" />
