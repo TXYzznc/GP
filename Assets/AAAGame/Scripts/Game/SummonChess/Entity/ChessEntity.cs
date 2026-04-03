@@ -117,12 +117,14 @@ public class ChessEntity : MonoBehaviour
         }
         Attribute.Initialize(this, config);
 
-        // 1.5 初始化Buff管理组件
+        // 1.5 初始化Buff管理组件（清理可能残留的Buff数据）
         BuffManager = gameObject.GetComponent<BuffManager>();
         if (BuffManager == null)
         {
             BuffManager = gameObject.AddComponent<BuffManager>();
         }
+        // ⭐ 重要：清理可能从Prefab残留的Buff数据（防止跨战斗污染）
+        BuffManager.ClearAll();
 
         // 2. 创建上下文
         m_Context = new ChessContext

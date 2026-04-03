@@ -19,6 +19,7 @@ public class CardSlotContainer : MonoBehaviour
 
     [Header("动效时长")]
     [SerializeField] private float m_EnterDuration = 0.35f;      // 进场动画时长
+    [SerializeField] private float m_CardDealInterval = 0.1f;    // 卡牌发牌间隔时间（秒）
     [SerializeField] private float m_RearrangeDuration = 0.25f;  // 补位动画时长
     [SerializeField] private Ease m_RearrangeEase = Ease.OutCubic;
 
@@ -149,11 +150,24 @@ public class CardSlotContainer : MonoBehaviour
 
         DebugEx.LogModule("CardSlotContainer", $"添加卡牌: {m_Cards.Count} 张");
 
+        // 计算延迟时间（按卡牌索引从左到右发牌）
+        int cardIndex = m_Cards.IndexOf(card);
+        float delayTime = cardIndex * m_CardDealInterval;
+
+        // 等待延迟后再播放进场动画
+        if (delayTime > 0)
+        {
+            await UniTask.Delay((int)(delayTime * 1000));
+        }
+
         // 播放新卡进场动画
         await PlayCardEnterAnimationAsync(card);
 
-        // 其他卡补位（不包括新卡，已在进场动画中）
-        await RearrangeAsync(skipNewCard: true);
+        // 最后一张卡播放完后，重新排列所有卡（确保位置准确）
+        if (cardIndex == m_Cards.Count - 1)
+        {
+            await RearrangeAsync(skipNewCard: false);
+        }
     }
 
     /// <summary>
