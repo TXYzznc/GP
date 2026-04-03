@@ -18,7 +18,6 @@ public partial class CombatUI
 	[SerializeField] private Text varHpText = null;
 	[SerializeField] private VerticalLayoutGroup varEquipmentPanel = null;
 	[SerializeField] private GameObject varEquipSlotItem = null;
-	[SerializeField] private HorizontalLayoutGroup varCardSlots = null;
 	[SerializeField] private GameObject varCardSlotItem = null;
 	[SerializeField] private Text varConsumeNum_Population = null;
 	[SerializeField] private Text varConsumeNum_Refresh = null;
@@ -31,4 +30,5 @@ public partial class CombatUI
 	[SerializeField] private Button varBtn_Refresh = null;
 	[SerializeField] private Image varCardSlotAdsorptionArea = null;
 	[SerializeField] private GameObject varDetailInfoUI = null;
+	[SerializeField] private RectTransform varCardSlots = null;
 }

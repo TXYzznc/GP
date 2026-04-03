@@ -1576,11 +1576,6 @@ MonoBehaviour:
     - {fileID: 6835273518977663193, guid: 380c1b503cffc6f4a93a71fbc20b81b4, type: 3}
     VarType: UnityEngine.GameObject
     VarPrefix: 0
-  - VarName: varCardSlots
-    Targets:
-    - {fileID: 5239142638347670351}
-    VarType: UnityEngine.UI.HorizontalLayoutGroup
-    VarPrefix: 0
   - VarName: varCardSlotItem
     Targets:
     - {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
@@ -1645,6 +1640,11 @@ MonoBehaviour:
     - {fileID: 912440994930245626}
     VarType: UnityEngine.GameObject
     VarPrefix: 0
+  - VarName: varCardSlots
+    Targets:
+    - {fileID: 5239142638347670351}
+    VarType: UnityEngine.RectTransform
+    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
@@ -1661,7 +1661,6 @@ MonoBehaviour:
   varHpText: {fileID: 6168245171192536820}
   varEquipmentPanel: {fileID: 845339380224690000}
   varEquipSlotItem: {fileID: 6835273518977663193, guid: 380c1b503cffc6f4a93a71fbc20b81b4, type: 3}
-  varCardSlots: {fileID: 5640735140369757050}
   varCardSlotItem: {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
   varConsumeNum_Population: {fileID: 3696306745156276776}
   varConsumeNum_Refresh: {fileID: 481041151104300104}
@@ -1680,6 +1679,7 @@ MonoBehaviour:
   varBtn_Refresh: {fileID: 9178634259917593406}
   varCardSlotAdsorptionArea: {fileID: 9151588845541210481}
   varDetailInfoUI: {fileID: 912440994930245626}
+  varCardSlots: {fileID: 5201136782821436809}
 --- !u!1 &4483167984176513277
 GameObject:
   m_ObjectHideFlags: 0
@@ -1961,9 +1961,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5201136782821436809}
-  - component: {fileID: 5640735140369757050}
   - component: {fileID: 7155358201190992435}
   - component: {fileID: 5392638669486320908}
+  - component: {fileID: 6029561149204430351}
   m_Layer: 5
   m_Name: CardSlots
   m_TagString: Untagged
@@ -1990,32 +1990,6 @@ RectTransform:
   m_AnchoredPosition: {x: 100, y: 6}
   m_SizeDelta: {x: 1130, y: 170}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &5640735140369757050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5239142638347670351}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 10
-    m_Right: 0
-    m_Top: 5
-    m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 10
-  m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!222 &7155358201190992435
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2054,6 +2028,25 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6029561149204430351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5239142638347670351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a70e24ca70dca64291b654dc883ba38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FanRadius: 1200
+  m_MaxFanAngle: 35
+  m_CircleCenter: {x: 0, y: 0}
+  m_CircleCenterOffsetY: -100
+  m_EnterDuration: 0.35
+  m_RearrangeDuration: 0.25
+  m_RearrangeEase: 9
 --- !u!1 &5245978160703895660
 GameObject:
   m_ObjectHideFlags: 0

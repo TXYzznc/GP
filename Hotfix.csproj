@@ -102,6 +102,7 @@
     <Compile Include="Assets\AAAGame\Scripts\TA\噪声\FastNoiseLite.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessAnimator.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\EnemyMask.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffEffectVerifier.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\SceneStateManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyCombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerEvents.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DOTweenExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataModel\PlayerAccountData.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotContainer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillsSO\FireBallParamSO.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\WebRequestResult.cs" />
     <Compile Include="Assets\AAAGame\Scripts\HotfixEntry.cs" />
@@ -185,6 +187,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\BuffItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Summoner\SummonerCombatProxy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\Interface\ISkillReleaseStrategy.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestTool.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelStorageBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeSkill1.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IPlayerInputSource.cs" />
@@ -280,7 +283,9 @@
     <Compile Include="Assets\AAAGame\Scripts\Procedures\GameProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Entity\ChessEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\EventArgs\GameplayEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestUIManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\SoundExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffPresetManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\SimpleChessMovement.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessAnimationEventReceiver.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\ItemsInfoItem.cs" />
@@ -403,6 +408,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Input\PlayerInputManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\BattleChessData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\SCPacketHeader.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestIntegration.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\CombatPreparationState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\BerserkCardEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\FunctionItem.cs" />
@@ -415,6 +421,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Framework\SingletonBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CloudArchiveUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\EquipSlotItem.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestExample.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PlayerSkillSlot.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\LayerHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\ItemEnums.cs" />
@@ -494,6 +501,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\ShopUIForm.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessSelectionManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatSessionData.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestCompilationFix.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\TreasureItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ResourceConfigTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyEntityTable.cs" />

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -21,6 +21,12 @@ public class CardSlotContainer : MonoBehaviour
     [SerializeField] private float m_EnterDuration = 0.35f;      // 进场动画时长
     [SerializeField] private float m_RearrangeDuration = 0.25f;  // 补位动画时长
     [SerializeField] private Ease m_RearrangeEase = Ease.OutCubic;
+
+    // 缓存旧参数，用于检测参数变化
+    private float m_CachedFanRadius;
+    private float m_CachedMaxFanAngle;
+    private Vector2 m_CachedCircleCenter;
+    private float m_CachedCircleCenterOffsetY;
 
     #endregion
 
@@ -48,6 +54,47 @@ public class CardSlotContainer : MonoBehaviour
         {
             DebugEx.ErrorModule("CardSlotContainer", "缺少 RectTransform 组件");
         }
+
+        // 初始化缓存参数
+        CacheParameters();
+    }
+
+    private void Update()
+    {
+        // 仅在运行时检测参数变化（用于实时调参）
+        if (!Application.isPlaying)
+            return;
+
+        // 检测参数是否有变化
+        if (HasParametersChanged())
+        {
+            DebugEx.LogModule("CardSlotContainer", "检测到参数变化，立即更新卡牌位置");
+            CacheParameters();
+            // 立即更新位置（不播放动画，实时反馈）
+            RefreshCardPositionsImmediate();
+        }
+    }
+
+    /// <summary>
+    /// 缓存当前参数
+    /// </summary>
+    private void CacheParameters()
+    {
+        m_CachedFanRadius = m_FanRadius;
+        m_CachedMaxFanAngle = m_MaxFanAngle;
+        m_CachedCircleCenter = m_CircleCenter;
+        m_CachedCircleCenterOffsetY = m_CircleCenterOffsetY;
+    }
+
+    /// <summary>
+    /// 检测参数是否有变化
+    /// </summary>
+    private bool HasParametersChanged()
+    {
+        return !Mathf.Approximately(m_FanRadius, m_CachedFanRadius)
+            || !Mathf.Approximately(m_MaxFanAngle, m_CachedMaxFanAngle)
+            || m_CircleCenter != m_CachedCircleCenter
+            || !Mathf.Approximately(m_CircleCenterOffsetY, m_CachedCircleCenterOffsetY);
     }
 
     #endregion
@@ -375,7 +422,7 @@ public class CardSlotContainer : MonoBehaviour
             // 更新卡牌的基准位置（不含临时偏移）
             card.SetBaseFanTransform(this, fanTransforms[transformIndex].AnchoredPos, targetRotZ);
 
-            // 添加到序列
+            // 添加到序列（位置和旋转动画）
             sequence.Join(cardRect.DOAnchorPos(targetPos, m_RearrangeDuration).SetEase(m_RearrangeEase));
             sequence.Join(cardRect.DORotate(new Vector3(0, 0, targetRotZ), m_RearrangeDuration).SetEase(m_RearrangeEase));
 
@@ -387,6 +434,49 @@ public class CardSlotContainer : MonoBehaviour
         await sequence.AsyncWaitForCompletion();
 
         DebugEx.LogModule("CardSlotContainer", "卡牌重排完成");
+    }
+
+    /// <summary>
+    /// 立即更新卡牌位置（不播放动画）- 用于快速参数调整
+    /// </summary>
+    public void RefreshCardPositionsImmediate()
+    {
+        if (m_Cards.Count == 0)
+            return;
+
+        // 杀死重排动画
+        m_RearrangeTween?.Kill();
+
+        var fanTransforms = CalculateFanPositions(includeDragCard: false);
+
+        int transformIndex = 0;
+        for (int i = 0; i < m_Cards.Count; i++)
+        {
+            var card = m_Cards[i];
+            if (card == m_DragCard)
+                continue;
+
+            var cardRect = card.GetComponent<RectTransform>();
+            if (cardRect == null)
+                continue;
+
+            Vector2 targetPos = fanTransforms[transformIndex].AnchoredPos;
+            if (m_TempOffsets.TryGetValue(card, out var offset))
+            {
+                targetPos += offset;
+            }
+
+            float targetRotZ = fanTransforms[transformIndex].RotationZ;
+
+            // 直接设置位置和旋转，不播放动画
+            cardRect.anchoredPosition = targetPos;
+            cardRect.localRotation = Quaternion.Euler(0, 0, targetRotZ);
+            card.SetBaseFanTransform(this, fanTransforms[transformIndex].AnchoredPos, targetRotZ);
+
+            transformIndex++;
+        }
+
+        DebugEx.LogModule("CardSlotContainer", "卡牌位置已立即更新");
     }
 
     #endregion

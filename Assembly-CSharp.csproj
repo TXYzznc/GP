@@ -85,6 +85,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_170005.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_100852.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_143744.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_183331.txt" />
@@ -123,6 +124,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260402_165509.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatRuleTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260402_150713.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_100953.txt" />
     <None Include="Assets\AAAGame\DataTable\TestTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles_Cutout.shader" />
@@ -170,6 +172,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260402_144530.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\Additive_EdgeSoft.shader" />
     <None Include="Assets\AAAGame\DataTable\SummonerTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260403_101553.txt" />
     <None Include="Assets\AAAGame\HotfixDlls\HotfixFileList.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_EdgeSoft.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260402_175026.txt" />
