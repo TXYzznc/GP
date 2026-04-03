@@ -87,6 +87,25 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         m_ItemRectTransform = rectTransform;
     }
 
+    /// <summary>
+    /// 重置卡牌状态（战斗结束时调用）
+    /// </summary>
+    public void ResetState()
+    {
+        m_IsSelected = false;
+        m_Container = null;
+        m_BaseAnchoredPos = Vector2.zero;
+        m_BaseRotZ = 0f;
+
+        // 杀死所有动画
+        m_SelectTween?.Kill();
+        m_HoverTween?.Kill();
+        m_PositionTween?.Kill();
+        m_DragPreviewTween?.Kill();
+
+        DebugEx.LogModule("CardSlotItem", $"卡牌状态已重置: {m_CardData?.Name ?? "unknown"}");
+    }
+
     #endregion
 
     #region UI 刷新

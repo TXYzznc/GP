@@ -98,7 +98,7 @@ public partial class CombatUI : StateAwareUIForm
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
         DebugEx.LogModule("CombatUI", "收到战斗离开事件");
-        
+
         // 清理 CardManager
         if (CardManager.Instance != null)
         {
@@ -106,7 +106,14 @@ public partial class CombatUI : StateAwareUIForm
             CardManager.Instance.Clear();
             DebugEx.LogModule("CombatUI", "CardManager 已清理");
         }
-        
+
+        // 清理 CardSlotContainer 的状态
+        var container = GetCardSlotContainer();
+        if (container != null)
+        {
+            container.ClearState();
+        }
+
         HideUI();
     }
 

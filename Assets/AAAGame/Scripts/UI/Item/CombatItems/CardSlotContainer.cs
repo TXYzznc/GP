@@ -99,6 +99,41 @@ public class CardSlotContainer : MonoBehaviour
 
     #endregion
 
+    #region 清理和重置
+
+    /// <summary>
+    /// 清理容器状态（战斗结束时调用）
+    /// </summary>
+    public void ClearState()
+    {
+        // 杀死所有动画
+        m_RearrangeTween?.Kill();
+
+        // 重置所有卡牌的状态
+        foreach (var card in m_Cards)
+        {
+            if (card != null)
+            {
+                card.ResetState();
+            }
+        }
+
+        // 清理卡牌列表
+        m_Cards.Clear();
+        m_TempOffsets.Clear();
+
+        // 重置拖拽状态
+        m_DragCard = null;
+        m_InsertIndex = -1;
+
+        // 重新缓存参数（以便下次参数检测）
+        CacheParameters();
+
+        DebugEx.LogModule("CardSlotContainer", "容器状态已清理");
+    }
+
+    #endregion
+
     #region 外部接口
 
     /// <summary>

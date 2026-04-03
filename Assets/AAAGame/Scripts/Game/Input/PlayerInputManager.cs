@@ -92,6 +92,12 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         // Tab 键：背包开关
         InventoryToggleTriggered = Input.GetKeyDown(KeyCode.Tab);
 
+        // Alt 键：切换鼠标锁定
+        if (Input.GetKeyDown(KeyCode.LeftAlt) || Input.GetKeyDown(KeyCode.RightAlt))
+        {
+            ToggleCursorLock();
+        }
+
         // G 键：仓库开关
         WarehouseToggleTriggered = Input.GetKeyDown(KeyCode.G);
 
