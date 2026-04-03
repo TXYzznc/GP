@@ -52,6 +52,9 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
     private ChessEntity m_CurrentDetailChess;
 
+    /// <summary>⭐ 新增：棋子卡容器（管理扇形排列和进场动效）</summary>
+    private ChessSlotContainer m_ChessSlotContainer;
+
     #endregion
 
     #region 枚举
@@ -72,6 +75,16 @@ public partial class CombatPreparationUI : UIFormBase
     {
         base.OnInit(userData);
         Log.Info("CombatPreparationUI: 初始化");
+
+        // 获取棋子卡容器
+        if (varChessPanel != null)
+        {
+            m_ChessSlotContainer = varChessPanel.GetComponent<ChessSlotContainer>();
+            if (m_ChessSlotContainer == null)
+            {
+                DebugEx.ErrorModule("CombatPreparationUI", "ChessPanel 上未找到 ChessSlotContainer 组件");
+            }
+        }
     }
 
     protected override void OnOpen(object userData)
@@ -255,40 +268,7 @@ public partial class CombatPreparationUI : UIFormBase
         // 第一次打开，创建所有棋子UI
         if (m_ChessItemUIDict.Count == 0)
         {
-            foreach (var instance in allChess)
-            {
-                // 验证配置是否存在
-                if (!ChessDataManager.Instance.HasConfig(instance.ChessId))
-                {
-                    Log.Warning($"CombatPreparationUI: 棋子配置不存在 Id={instance.ChessId}，跳过");
-                    continue;
-                }
-
-                var item = SpawnItem<UIItemObject>(varChessItemUI, varChessPanel.transform);
-                var chessItemUI = item.itemLogic as ChessItemUI;
-
-                if (chessItemUI != null)
-                {
-                    // 设置数据和回调
-                    chessItemUI.SetData(
-                        instance.InstanceId,
-                        instance.ChessId,
-                        OnChessItemSelected,    // 点击回调（选中/取消选中）
-                        OnChessItemDragEnd,     // 拖拽结束回调
-                        OnChessItemDragBegin    // 拖拽开始回调
-                    );
-
-                    // 设置出战状态
-                    chessItemUI.SetDeployedState();
-
-                    // 保存到字典
-                    m_ChessItemUIDict[instance.InstanceId] = chessItemUI;
-                }
-
-                m_SpawnedChessItems.Add(item.gameObject);
-            }
-
-            Log.Info($"CombatPreparationUI: 棋子面板初始化完成，共 {m_SpawnedChessItems.Count} 个棋子");
+            InitializeChessPanelAsync(allChess).Forget();
         }
         else
         {
@@ -304,6 +284,56 @@ public partial class CombatPreparationUI : UIFormBase
 
             Log.Info($"CombatPreparationUI: 棋子面板状态已更新");
         }
+    }
+
+    /// <summary>
+    /// 异步初始化棋子面板（包含进场动画）
+    /// </summary>
+    private async UniTask InitializeChessPanelAsync(List<ChessDeploymentTracker.ChessInstanceData> allChess)
+    {
+        if (m_ChessSlotContainer == null)
+        {
+            DebugEx.ErrorModule("CombatPreparationUI", "ChessSlotContainer 未初始化");
+            return;
+        }
+
+        foreach (var instance in allChess)
+        {
+            // 验证配置是否存在
+            if (!ChessDataManager.Instance.HasConfig(instance.ChessId))
+            {
+                Log.Warning($"CombatPreparationUI: 棋子配置不存在 Id={instance.ChessId}，跳过");
+                continue;
+            }
+
+            var item = SpawnItem<UIItemObject>(varChessItemUI, varChessPanel.transform);
+            var chessItemUI = item.itemLogic as ChessItemUI;
+
+            if (chessItemUI != null)
+            {
+                // 设置数据和回调
+                chessItemUI.SetData(
+                    instance.InstanceId,
+                    instance.ChessId,
+                    OnChessItemSelected,    // 点击回调（选中/取消选中）
+                    OnChessItemDragEnd,     // 拖拽结束回调
+                    OnChessItemDragBegin    // 拖拽开始回调
+                );
+
+                // 设置出战状态
+                chessItemUI.SetDeployedState();
+
+                // 保存到字典
+                m_ChessItemUIDict[instance.InstanceId] = chessItemUI;
+
+                // 添加到容器并播放进场动画
+                await m_ChessSlotContainer.AddCardAsync(chessItemUI);
+            }
+
+            m_SpawnedChessItems.Add(item.gameObject);
+        }
+
+        Log.Info($"CombatPreparationUI: 棋子面板初始化完成，共 {m_SpawnedChessItems.Count} 个棋子");
     }
 
     /// <summary>
@@ -446,6 +476,7 @@ public partial class CombatPreparationUI : UIFormBase
 
     /// <summary>
     /// 播放棋子选中动效（参考策略卡）
+    /// ⭐ 修改：使用容器的基准位置计算目标位置
     /// </summary>
     private void PlayChessSelectAnimation(string instanceId)
     {
@@ -460,10 +491,9 @@ public partial class CombatPreparationUI : UIFormBase
         if (btnRectTransform == null)
             return;
 
-        // 保存原始位置
-        Vector3 originalPos = btnRectTransform.anchoredPosition;
-        Vector3 targetPos = originalPos;
-        targetPos.y += SELECTED_OFFSET;
+        // 基于容器保存的基准位置计算目标位置
+        Vector2 basePos = chessItemUI.GetBaseAnchoredPos();
+        Vector3 targetPos = basePos + Vector2.up * SELECTED_OFFSET;
 
         // 播放位置动画
         btnRectTransform.DOAnchorPos(targetPos, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
@@ -479,6 +509,7 @@ public partial class CombatPreparationUI : UIFormBase
 
     /// <summary>
     /// 播放棋子取消选中动效
+    /// ⭐ 修改：使用容器的基准位置恢复到原始位置
     /// </summary>
     private void PlayChessDeselectAnimation(string instanceId)
     {
@@ -493,10 +524,9 @@ public partial class CombatPreparationUI : UIFormBase
         if (btnRectTransform == null)
             return;
 
-        // 恢复原始位置
-        Vector3 originalPos = btnRectTransform.anchoredPosition;
-        originalPos.y -= SELECTED_OFFSET;
-        btnRectTransform.DOAnchorPos(originalPos, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
+        // 恢复到容器的基准位置
+        Vector2 basePos = chessItemUI.GetBaseAnchoredPos();
+        btnRectTransform.DOAnchorPos(basePos, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
 
         // 恢复缩放
         var btnTransform = varBtn.transform;

@@ -380,6 +380,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\BuffItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\ConsumableItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\GroupHealCardEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\ChessSlotContainer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\EnemyTestController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\CurrencyUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\PacketHeaderBase.cs" />
