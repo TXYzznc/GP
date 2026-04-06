@@ -37,6 +37,7 @@ public class CardData
 
     public string Name => TableRow?.Name ?? "";
     public string Desc => TableRow?.Desc ?? "";
+    public string StoryText => TableRow?.StoryText ?? "";
     public int IconId => TableRow?.IconId ?? 0;
     public float SpiritCost => TableRow?.SpiritCost ?? 0;
     public int TargetType => TableRow?.TargetType ?? 0;

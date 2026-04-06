@@ -2,11 +2,17 @@ using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using UnityEngine.EventSystems;
 
-public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+public partial class CardSlotItem
+    : UIItemBase,
+        IBeginDragHandler,
+        IDragHandler,
+        IEndDragHandler,
+        IPointerEnterHandler,
+        IPointerExitHandler
 {
     #region 字段
 
@@ -17,8 +23,8 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
 
     // 扇形容器相关
     private CardSlotContainer m_Container;
-    private Vector2 m_BaseAnchoredPos;      // Container 分配的基准位置
-    private float m_BaseRotZ;               // 基准旋转
+    private Vector2 m_BaseAnchoredPos; // Container 分配的基准位置
+    private float m_BaseRotZ; // 基准旋转
 
     // 拖拽相关字段
     private GameObject m_DragPreview;
@@ -32,12 +38,12 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
     private Tween m_SelectTween;
     private Tween m_HoverTween;
     private Tween m_DragPreviewTween;
-    private Tween m_PositionTween;         // 位置动画（悬停上移）
+    private Tween m_PositionTween; // 位置动画（悬停上移）
     private CanvasGroup m_BtnCanvasGroup;
     private RectTransform m_ItemRectTransform;
     private const float HOVER_SCALE = 1.05f;
     private const float HOVER_DURATION = 0.2f;
-    private const float HOVER_OFFSET_Y = 30f;  // 悬停上移距离
+    private const float HOVER_OFFSET_Y = 30f; // 悬停上移距离
     private const float PULSE_SCALE = 1.1f;
     private const float PULSE_DURATION = 0.3f;
     private const float DRAG_ALPHA = 0.5f;
@@ -139,18 +145,17 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             }
         }
 
-        // 绑定按钮事件
+        // 绑定按钮事件（仅用于交互监听）
         if (varBtn != null)
         {
             varBtn.onClick.RemoveAllListeners();
             varBtn.onClick.AddListener(OnCardClicked);
+        }
 
-            // 加载卡牌图标到 Btn 的 Image 组件
-            var btnImage = varBtn.GetComponent<Image>();
-            if (btnImage != null && m_CardData.IconId > 0)
-            {
-                _ = GameExtension.ResourceExtension.LoadSpriteAsync(m_CardData.IconId, btnImage);
-            }
+        // 加载卡牌图标到 varCardImg
+        if (varCardImg != null && m_CardData.IconId > 0)
+        {
+            _ = GameExtension.ResourceExtension.LoadSpriteAsync(m_CardData.IconId, varCardImg);
         }
 
         // 显示卡牌信息（如果 Variables 中有这些字段）
@@ -164,21 +169,37 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
     /// </summary>
     private void RefreshCardInfo()
     {
-        // TODO: 当 CardSlotItem.Variables 中添加了以下字段后，取消注释
-        // if (varNameText != null)
-        // {
-        //     varNameText.text = m_CardData.Name;
-        // }
-        //
-        // if (varDescText != null)
-        // {
-        //     varDescText.text = m_CardData.Desc;
-        // }
-        //
-        // if (varSpiritCostText != null)
-        // {
-        //     varSpiritCostText.text = $"灵力: {m_CardData.SpiritCost}";
-        // }
+        if (m_CardData == null)
+            return;
+
+        // 显示卡牌名称
+        if (varNameText != null)
+        {
+            varNameText.text = m_CardData.Name;
+        }
+
+        // 显示卡牌描述
+        if (varDecsText != null)
+        {
+            varDecsText.text = m_CardData.Desc;
+        }
+
+        // 显示卡牌故事文本
+        if (varStoryText != null)
+        {
+            varStoryText.text = m_CardData.StoryText;
+        }
+
+        // 显示灵力消耗
+        if (varCost != null)
+        {
+            varCost.text = m_CardData.SpiritCost.ToString();
+        }
+
+        DebugEx.LogModule(
+            "CardSlotItem",
+            $"刷新卡牌信息: {m_CardData.Name}, 灵力: {m_CardData.SpiritCost}"
+        );
     }
 
     #endregion
@@ -198,15 +219,15 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
 
         var btnImage = varBtn.GetComponent<Image>();
         var btnTransform = varBtn.transform;
-        
+
         if (btnImage != null)
         {
             // 销毁动画：0.3 秒内透明度从 1 变为 0，同时缩小到 0.5
             var sequence = DOTween.Sequence();
             sequence.Append(btnImage.DOFade(0f, 0.3f).SetEase(Ease.InQuad));
             sequence.Join(btnTransform.DOScale(Vector3.one * 0.5f, 0.3f).SetEase(Ease.InQuad));
-            
-            await UniTask.Delay(300);  // 等待 0.3 秒
+
+            await UniTask.Delay(300); // 等待 0.3 秒
         }
 
         // 销毁游戏对象
@@ -273,10 +294,15 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             m_SelectTween?.Kill();
 
             // 播放选中动画：移动 + 脉冲
-            m_SelectTween = itemRectTransform.DOAnchorPos(targetPosition, 0.3f).SetEase(Ease.OutQuad);
+            m_SelectTween = itemRectTransform
+                .DOAnchorPos(targetPosition, 0.3f)
+                .SetEase(Ease.OutQuad);
             PlayPulseAnimation();
 
-            DebugEx.LogModule("CardSlotItem", $"选中卡牌: {m_CardData.Name}, 目标位置: {targetPosition}");
+            DebugEx.LogModule(
+                "CardSlotItem",
+                $"选中卡牌: {m_CardData.Name}, 目标位置: {targetPosition}"
+            );
         }
 
         // 显示 DetailInfoUI 并播放滑入动画
@@ -309,7 +335,10 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
 
             // 恢复到基准位置
             itemRectTransform.DOAnchorPos(m_BaseAnchoredPos, 0.3f).SetEase(Ease.OutQuad);
-            DebugEx.LogModule("CardSlotItem", $"取消选中卡牌: {m_CardData.Name}, 恢复位置: {m_BaseAnchoredPos}");
+            DebugEx.LogModule(
+                "CardSlotItem",
+                $"取消选中卡牌: {m_CardData.Name}, 恢复位置: {m_BaseAnchoredPos}"
+            );
         }
 
         // 隐藏 DetailInfoUI
@@ -495,7 +524,8 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         // 播放预览旋转动画（轻微旋转）
         var previewTransform = m_DragPreview.transform;
         m_DragPreviewTween?.Kill();
-        m_DragPreviewTween = previewTransform.DORotate(new Vector3(0, 0, PREVIEW_ROTATION), 0.5f)
+        m_DragPreviewTween = previewTransform
+            .DORotate(new Vector3(0, 0, PREVIEW_ROTATION), 0.5f)
             .SetEase(Ease.InOutQuad)
             .SetLoops(-1, LoopType.Yoyo);
 
@@ -610,15 +640,21 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             return;
 
         var btnTransform = varBtn.transform;
-        
+
         // 杀死之前的脉冲动画
         m_HoverTween?.Kill();
 
         // 脉冲序列：1.0 → 1.1 → 1.0
         var sequence = DOTween.Sequence();
-        sequence.Append(btnTransform.DOScale(new Vector3(PULSE_SCALE, PULSE_SCALE, 1f), PULSE_DURATION * 0.5f).SetEase(Ease.OutQuad));
-        sequence.Append(btnTransform.DOScale(Vector3.one, PULSE_DURATION * 0.5f).SetEase(Ease.InQuad));
-        
+        sequence.Append(
+            btnTransform
+                .DOScale(new Vector3(PULSE_SCALE, PULSE_SCALE, 1f), PULSE_DURATION * 0.5f)
+                .SetEase(Ease.OutQuad)
+        );
+        sequence.Append(
+            btnTransform.DOScale(Vector3.one, PULSE_DURATION * 0.5f).SetEase(Ease.InQuad)
+        );
+
         m_HoverTween = sequence;
         DebugEx.LogModule("CardSlotItem", $"播放脉冲动画: {m_CardData.Name}");
     }
@@ -639,13 +675,17 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         m_PositionTween?.Kill();
 
         // 缩放到 1.05
-        m_HoverTween = btnTransform.DOScale(new Vector3(HOVER_SCALE, HOVER_SCALE, 1f), HOVER_DURATION).SetEase(Ease.OutQuad);
+        m_HoverTween = btnTransform
+            .DOScale(new Vector3(HOVER_SCALE, HOVER_SCALE, 1f), HOVER_DURATION)
+            .SetEase(Ease.OutQuad);
 
         // 位置上移（基于基准位置的偏移）
         if (itemRectTransform != null)
         {
             var targetPos = m_BaseAnchoredPos + Vector2.up * 30f;
-            m_PositionTween = itemRectTransform.DOAnchorPos(targetPos, HOVER_DURATION).SetEase(Ease.OutQuad);
+            m_PositionTween = itemRectTransform
+                .DOAnchorPos(targetPos, HOVER_DURATION)
+                .SetEase(Ease.OutQuad);
         }
 
         DebugEx.LogModule("CardSlotItem", $"悬停放大: {m_CardData.Name}");
@@ -672,7 +712,9 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         // 位置恢复到基准位置
         if (itemRectTransform != null)
         {
-            m_PositionTween = itemRectTransform.DOAnchorPos(m_BaseAnchoredPos, HOVER_DURATION).SetEase(Ease.OutQuad);
+            m_PositionTween = itemRectTransform
+                .DOAnchorPos(m_BaseAnchoredPos, HOVER_DURATION)
+                .SetEase(Ease.OutQuad);
         }
 
         DebugEx.LogModule("CardSlotItem", $"悬停缩小: {m_CardData.Name}");
@@ -696,7 +738,9 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
         // 闪光序列：白色闪烁 → 恢复原色
         var sequence = DOTween.Sequence();
         sequence.Append(btnImage.DOColor(Color.white, FLASH_DURATION * 0.5f).SetEase(Ease.OutQuad));
-        sequence.Append(btnImage.DOColor(originalColor, FLASH_DURATION * 0.5f).SetEase(Ease.InQuad));
+        sequence.Append(
+            btnImage.DOColor(originalColor, FLASH_DURATION * 0.5f).SetEase(Ease.InQuad)
+        );
 
         DebugEx.LogModule("CardSlotItem", $"播放闪光效果: {m_CardData.Name}");
     }
@@ -725,7 +769,7 @@ public partial class CardSlotItem : UIItemBase, IBeginDragHandler, IDragHandler,
             var highlightColor = areaImage.color;
             highlightColor.a = Mathf.Clamp01(highlightColor.a + 0.3f);
             areaImage.color = highlightColor;
-            
+
             DebugEx.LogModule("CardSlotItem", "进入吸附区域，高亮显示");
         }
         else

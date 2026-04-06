@@ -14,7 +14,18 @@
 	1106		1	Summoner/狂战士.png	召唤师-术士立绘
 	1107		1	Summoner/狂战士.png	召唤师-混沌立绘
 	1108		1	Summoner/狂战士.png	召唤师-德鲁伊立绘
-	1201		1	Card/HolyLight.png	神圣庇护-策略卡图标
+	1201		1	Card/策略卡/神圣庇护.png	神圣庇护-策略卡图标
+	1202		1	Card/策略卡/烈焰风暴.png	烈焰风暴-策略卡图标
+	1203		1	Card/策略卡/时间回溯.png	时间回溯-策略卡图标
+	1204		1	Card/策略卡/战争号角.png	战争号角-策略卡图标
+	1205		1	Card/策略卡/暗影突袭.png	暗影突袭-策略卡图标
+	1206		1	Card/策略卡/生命汲取.png	生命汲取-策略卡图标
+	1207		1	Card/策略卡/冰霜新星.png	冰霜新星-策略卡图标
+	1208		1	Card/策略卡/狂暴.png	狂暴-策略卡图标
+	1209		1	Card/策略卡/群体治疗.png	群体治疗-策略卡图标
+	1210		1	Card/策略卡/雷霆一击.png	雷霆一击-策略卡图标
+	1211		1	Card/策略卡/混乱诅咒.png	混乱诅咒-策略卡图标
+	1212		1	Card/策略卡/不屈意志.png	不屈意志-策略卡图标
 	1301		1	Chess/后羿/后羿立绘.png	棋子-后羿图标
 	1304		1	Chess/嫦娥/嫦娥立绘.png	棋子-嫦娥图标
 	1399		1	Chess/靶子.png	棋子-靶子图标
@@ -88,13 +99,13 @@
 	10201		1	Buff/4001.png	战意激昂Buff图标
 	10202		1	Buff/4002.png	狂怒之心Buff图标
 	10203		1	Buff/4003.png	暗影咒体Buff图标
-	15001		1	Buff/Card/5001.png	神圣庇护·护盾Buff图标
-	15002		1	Buff/Card/5002.png	烈焰风暴·灼烧Buff图标
-	15003		1	Buff/Card/5003.png	战争号角Buff图标
-	15005		1	Buff/Card/5005.png	暗影突袭·眩晕Buff图标
-	15007		1	Buff/Card/5007.png	冰霜新星·冰冻Buff图标
-	15008		1	Buff/Card/5008.png	狂暴Buff图标
-	15010		1	Buff/Card/5010.png	混乱诅咒·混乱Buff图标
+	15001		1	Buff/5001.png	神圣庇护Buff图标
+	15002		1	Buff/5002.png	烈焰风暴·灼烧Buff图标
+	15003		1	Buff/5003.png	战争号角Buff图标
+	15005		1	Buff/5005.png	暗影突袭·眩晕Buff图标
+	15007		1	Buff/5007.png	冰霜新星Buff图标
+	15008		1	Buff/5008.png	狂暴Buff图标
+	15009		1	Buff/5009.png	混乱诅咒Buff图标
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4

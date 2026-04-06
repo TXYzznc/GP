@@ -199,6 +199,15 @@ public partial class CardTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 故事文本
+        /// </summary>
+        public string StoryText
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -230,6 +239,7 @@ public partial class CardTable : DataRowBase
             EffectSpawnHeight = float.Parse(columnStrings[index++]);
             Rarity = int.Parse(columnStrings[index++]);
             UnlockCondition = columnStrings[index++];
+            StoryText = columnStrings[index++];
 
             return true;
         }
@@ -260,6 +270,7 @@ public partial class CardTable : DataRowBase
                     EffectSpawnHeight = binaryReader.ReadSingle();
                     Rarity = binaryReader.Read7BitEncodedInt32();
                     UnlockCondition = binaryReader.ReadString();
+                    StoryText = binaryReader.ReadString();
                 }
             }
 

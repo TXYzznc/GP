@@ -1717,7 +1717,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -496, y: 210}
+  m_AnchoredPosition: {x: -500, y: 250}
   m_SizeDelta: {x: 500, y: 80}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &5669586903079088959
@@ -2045,6 +2045,7 @@ MonoBehaviour:
   m_CircleCenter: {x: 0, y: 0}
   m_CircleCenterOffsetY: 120
   m_EnterDuration: 0.35
+  m_CardDealInterval: 0.1
   m_RearrangeDuration: 0.25
   m_RearrangeEase: 9
 --- !u!1 &5245978160703895660
@@ -3041,7 +3042,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -50, y: 0}
   m_SizeDelta: {x: 480, y: 480}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &2511660700964460293
@@ -3933,7 +3934,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -260, y: 0}
+  m_AnchoredPosition: {x: -100, y: 0}
   m_SizeDelta: {x: 1360, y: 200}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &8771200248907890327

@@ -12,23 +12,33 @@ public class ChessSlotContainer : MonoBehaviour
 {
     #region 参数配置
 
-    [Header("扇形排列")]
-    [SerializeField] private float m_FanRadius = 800f;           // 圆弧半径
-    [SerializeField] private float m_MaxFanAngle = 50f;          // 最大展开角度（度）
-    [SerializeField] private Vector2 m_CircleCenter = Vector2.zero;  // 圆心偏移
-    [SerializeField] private float m_CircleCenterOffsetY = -100f;    // 圆心在容器底部偏下距离
+    [Header("水平排列")]
+    [SerializeField]
+    private float m_CardSpacing = 150f; // 卡牌间距
+
+    [SerializeField]
+    private float m_StartOffsetX = -400f; // 起始X偏移（左对齐）
+
+    [SerializeField]
+    private float m_VerticalOffset = 0f; // 垂直偏移
 
     [Header("动效时长")]
-    [SerializeField] private float m_EnterDuration = 0.35f;      // 进场动画时长
-    [SerializeField] private float m_CardDealInterval = 0.1f;    // 棋子发牌间隔时间（秒）
-    [SerializeField] private float m_RearrangeDuration = 0.25f;  // 补位动画时长
-    [SerializeField] private Ease m_RearrangeEase = Ease.OutCubic;
+    [SerializeField]
+    private float m_EnterDuration = 0.35f; // 进场动画时长
+
+    [SerializeField]
+    private float m_CardDealInterval = 0.1f; // 棋子发牌间隔时间（秒）
+
+    [SerializeField]
+    private float m_RearrangeDuration = 0.25f; // 补位动画时长
+
+    [SerializeField]
+    private Ease m_RearrangeEase = Ease.OutCubic;
 
     // 缓存旧参数，用于检测参数变化
-    private float m_CachedFanRadius;
-    private float m_CachedMaxFanAngle;
-    private Vector2 m_CachedCircleCenter;
-    private float m_CachedCircleCenterOffsetY;
+    private float m_CachedCardSpacing;
+    private float m_CachedStartOffsetX;
+    private float m_CachedVerticalOffset;
 
     #endregion
 
@@ -77,10 +87,9 @@ public class ChessSlotContainer : MonoBehaviour
     /// </summary>
     private void CacheParameters()
     {
-        m_CachedFanRadius = m_FanRadius;
-        m_CachedMaxFanAngle = m_MaxFanAngle;
-        m_CachedCircleCenter = m_CircleCenter;
-        m_CachedCircleCenterOffsetY = m_CircleCenterOffsetY;
+        m_CachedCardSpacing = m_CardSpacing;
+        m_CachedStartOffsetX = m_StartOffsetX;
+        m_CachedVerticalOffset = m_VerticalOffset;
     }
 
     /// <summary>
@@ -88,10 +97,9 @@ public class ChessSlotContainer : MonoBehaviour
     /// </summary>
     private bool HasParametersChanged()
     {
-        return !Mathf.Approximately(m_FanRadius, m_CachedFanRadius)
-            || !Mathf.Approximately(m_MaxFanAngle, m_CachedMaxFanAngle)
-            || m_CircleCenter != m_CachedCircleCenter
-            || !Mathf.Approximately(m_CircleCenterOffsetY, m_CachedCircleCenterOffsetY);
+        return !Mathf.Approximately(m_CardSpacing, m_CachedCardSpacing)
+            || !Mathf.Approximately(m_StartOffsetX, m_CachedStartOffsetX)
+            || !Mathf.Approximately(m_VerticalOffset, m_CachedVerticalOffset);
     }
 
     #endregion
@@ -203,30 +211,14 @@ public class ChessSlotContainer : MonoBehaviour
 
         var transforms = new FanTransform[cardCount];
 
-        // 计算圆心位置（容器坐标）
-        var rectSize = m_RectTransform.rect;
-        Vector2 center = new Vector2(rectSize.width * 0.5f + m_CircleCenter.x, m_CircleCenterOffsetY + m_CircleCenter.y);
-
-        // 计算角度范围
-        float fanRangeRad = m_MaxFanAngle * Mathf.Deg2Rad;
-        float halfFanRangeRad = fanRangeRad * 0.5f;
-
-        // 计算每张卡的角度步长
-        float angleStep = cardCount > 1 ? fanRangeRad / (cardCount - 1) : 0;
-
         for (int i = 0; i < cardCount; i++)
         {
-            float angle = -halfFanRangeRad + i * angleStep;
+            // 水平排列：X = 起始位置 + 索引 * 间距
+            float x = m_StartOffsetX + i * m_CardSpacing;
+            float y = m_VerticalOffset;
 
-            // 位置计算：圆弧上的点
-            float x = Mathf.Sin(angle) * m_FanRadius;
-            float y = Mathf.Cos(angle) * m_FanRadius - m_FanRadius;
-            transforms[i].AnchoredPos = center + new Vector2(x, y);
-
-            // 旋转：与圆弧切线对齐
-            transforms[i].RotationZ = -angle * Mathf.Rad2Deg;
-
-            // 缩放：可选的深度感
+            transforms[i].AnchoredPos = new Vector2(x, y);
+            transforms[i].RotationZ = 0f; // 水平排列不需要旋转
             transforms[i].Scale = Vector3.one;
         }
 
@@ -277,8 +269,14 @@ public class ChessSlotContainer : MonoBehaviour
         // 播放进场动画：淡入 + 移动
         var sequence = DOTween.Sequence();
         sequence.Join(cardImage.DOFade(1f, m_EnterDuration).SetEase(Ease.OutQuad));
-        sequence.Join(cardRect.DOAnchorPos(targetTransform.AnchoredPos, m_EnterDuration).SetEase(Ease.OutQuad));
-        sequence.Join(cardRect.DORotate(new Vector3(0, 0, targetTransform.RotationZ), m_EnterDuration).SetEase(Ease.OutQuad));
+        sequence.Join(
+            cardRect.DOAnchorPos(targetTransform.AnchoredPos, m_EnterDuration).SetEase(Ease.OutQuad)
+        );
+        sequence.Join(
+            cardRect
+                .DORotate(new Vector3(0, 0, targetTransform.RotationZ), m_EnterDuration)
+                .SetEase(Ease.OutQuad)
+        );
 
         await sequence.AsyncWaitForCompletion();
 
@@ -315,8 +313,14 @@ public class ChessSlotContainer : MonoBehaviour
             card.SetBaseFanTransform(fanTransforms[i].AnchoredPos, targetRotZ);
 
             // 添加到序列（位置和旋转动画）
-            sequence.Join(cardRect.DOAnchorPos(targetPos, m_RearrangeDuration).SetEase(m_RearrangeEase));
-            sequence.Join(cardRect.DORotate(new Vector3(0, 0, targetRotZ), m_RearrangeDuration).SetEase(m_RearrangeEase));
+            sequence.Join(
+                cardRect.DOAnchorPos(targetPos, m_RearrangeDuration).SetEase(m_RearrangeEase)
+            );
+            sequence.Join(
+                cardRect
+                    .DORotate(new Vector3(0, 0, targetRotZ), m_RearrangeDuration)
+                    .SetEase(m_RearrangeEase)
+            );
         }
 
         m_RearrangeTween = sequence;

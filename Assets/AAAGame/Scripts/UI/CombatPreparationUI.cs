@@ -1,10 +1,10 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using GameFramework;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using GameFramework;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -23,7 +23,8 @@ public partial class CombatPreparationUI : UIFormBase
     private List<GameObject> m_SpawnedChessItems = new List<GameObject>();
 
     /// <summary>实例ID到棋子UI的映射</summary>
-    private Dictionary<string, ChessItemUI> m_ChessItemUIDict = new Dictionary<string, ChessItemUI>();
+    private Dictionary<string, ChessItemUI> m_ChessItemUIDict =
+        new Dictionary<string, ChessItemUI>();
 
     /// <summary>当前选中的棋子实例ID</summary>
     private string m_SelectedChessInstanceId = string.Empty;
@@ -62,9 +63,9 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>Buff选择模式</summary>
     private enum BuffSelectionMode
     {
-        None,           // 无
-        SneakDebuff,    // 偷袭Debuff三选一
-        InitiativeBuff  // 先手Buff三选一
+        None, // 无
+        SneakDebuff, // 偷袭Debuff三选一
+        InitiativeBuff, // 先手Buff三选一
     }
 
     #endregion
@@ -82,8 +83,22 @@ public partial class CombatPreparationUI : UIFormBase
             m_ChessSlotContainer = varChessPanel.GetComponent<ChessSlotContainer>();
             if (m_ChessSlotContainer == null)
             {
-                DebugEx.ErrorModule("CombatPreparationUI", "ChessPanel 上未找到 ChessSlotContainer 组件");
+                DebugEx.ErrorModule(
+                    "CombatPreparationUI",
+                    "ChessPanel 上未找到 ChessSlotContainer 组件"
+                );
             }
+            else
+            {
+                DebugEx.LogModule("CombatPreparationUI", "ChessSlotContainer 初始化成功");
+            }
+        }
+        else
+        {
+            DebugEx.ErrorModule(
+                "CombatPreparationUI",
+                "varChessPanel 为空，无法获取 ChessSlotContainer"
+            );
         }
     }
 
@@ -289,7 +304,9 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>
     /// 异步初始化棋子面板（包含进场动画）
     /// </summary>
-    private async UniTask InitializeChessPanelAsync(List<ChessDeploymentTracker.ChessInstanceData> allChess)
+    private async UniTask InitializeChessPanelAsync(
+        List<ChessDeploymentTracker.ChessInstanceData> allChess
+    )
     {
         if (m_ChessSlotContainer == null)
         {
@@ -315,9 +332,9 @@ public partial class CombatPreparationUI : UIFormBase
                 chessItemUI.SetData(
                     instance.InstanceId,
                     instance.ChessId,
-                    OnChessItemSelected,    // 点击回调（选中/取消选中）
-                    OnChessItemDragEnd,     // 拖拽结束回调
-                    OnChessItemDragBegin    // 拖拽开始回调
+                    OnChessItemSelected, // 点击回调（选中/取消选中）
+                    OnChessItemDragEnd, // 拖拽结束回调
+                    OnChessItemDragBegin // 拖拽开始回调
                 );
 
                 // 设置出战状态
@@ -368,7 +385,9 @@ public partial class CombatPreparationUI : UIFormBase
                 {
                     if (ChessDataManager.Instance.TryGetConfig(instance.ChessId, out var config))
                     {
-                        var globalState = GlobalChessManager.Instance.GetChessState(instance.ChessId);
+                        var globalState = GlobalChessManager.Instance.GetChessState(
+                            instance.ChessId
+                        );
                         if (globalState != null)
                         {
                             detailUI.SetChessConfig(config, globalState);
@@ -440,8 +459,10 @@ public partial class CombatPreparationUI : UIFormBase
                     else
                     {
                         // 不应该出现这个情况（如果出现说明InGameState初始化有问题）
-                        DebugEx.ErrorModule("CombatPreparationUI",
-                            $"棋子 {config.Name} (ID={instance.ChessId}) 全局状态未初始化");
+                        DebugEx.ErrorModule(
+                            "CombatPreparationUI",
+                            $"棋子 {config.Name} (ID={instance.ChessId}) 全局状态未初始化"
+                        );
                     }
                 }
             }
@@ -501,8 +522,16 @@ public partial class CombatPreparationUI : UIFormBase
         // 播放脉冲动效
         var btnTransform = varBtn.transform;
         var sequence = DOTween.Sequence();
-        sequence.Append(btnTransform.DOScale(new Vector3(1.1f, 1.1f, 1f), SELECTED_ANIMATION_DURATION * 0.5f).SetEase(Ease.OutQuad));
-        sequence.Append(btnTransform.DOScale(Vector3.one, SELECTED_ANIMATION_DURATION * 0.5f).SetEase(Ease.InQuad));
+        sequence.Append(
+            btnTransform
+                .DOScale(new Vector3(1.1f, 1.1f, 1f), SELECTED_ANIMATION_DURATION * 0.5f)
+                .SetEase(Ease.OutQuad)
+        );
+        sequence.Append(
+            btnTransform
+                .DOScale(Vector3.one, SELECTED_ANIMATION_DURATION * 0.5f)
+                .SetEase(Ease.InQuad)
+        );
 
         DebugEx.LogModule("CombatPreparationUI", $"播放选中动效: instanceId={instanceId}");
     }
@@ -768,7 +797,9 @@ public partial class CombatPreparationUI : UIFormBase
             {
                 // 从效果中解析并应用所有Buff到敌人方（全体）
                 ApplyBuffsFromSpecialEffect(effect, context.TriggerEnemy);
-                Log.Info($"CombatPreparationUI: 应用偷袭效果 {m_SelectedBuffId}({effect.Name}) 到敌人");
+                Log.Info(
+                    $"CombatPreparationUI: 应用偷袭效果 {m_SelectedBuffId}({effect.Name}) 到敌人"
+                );
             }
         }
         else if (m_BuffSelectionMode == BuffSelectionMode.InitiativeBuff)
@@ -820,7 +851,10 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>
     /// 异步显示敌方先手效果通知
     /// </summary>
-    private async void DisplayEnemyBuffNotificationAsync(int effectId, System.Threading.CancellationToken cancellationToken)
+    private async void DisplayEnemyBuffNotificationAsync(
+        int effectId,
+        System.Threading.CancellationToken cancellationToken
+    )
     {
         try
         {
@@ -850,7 +884,12 @@ public partial class CombatPreparationUI : UIFormBase
                 // 加载和设置Icon到Image对象（使用UniTask版本）
                 if (varBuffIcon != null && effect.IconId > 0)
                 {
-                    await GameExtension.ResourceExtension.LoadSpriteAsync(effect.IconId, varBuffIcon, 1f, null);
+                    await GameExtension.ResourceExtension.LoadSpriteAsync(
+                        effect.IconId,
+                        varBuffIcon,
+                        1f,
+                        null
+                    );
                 }
 
                 // 淡入动画（0 -> 1）
@@ -860,7 +899,11 @@ public partial class CombatPreparationUI : UIFormBase
                 while (elapsed < fadeInDuration && !cancellationToken.IsCancellationRequested)
                 {
                     elapsed += Time.deltaTime;
-                    varInitiativeBuffNotification.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
+                    varInitiativeBuffNotification.alpha = Mathf.Lerp(
+                        0f,
+                        1f,
+                        elapsed / fadeInDuration
+                    );
                     await UniTask.Yield(cancellationToken: cancellationToken);
                 }
                 varInitiativeBuffNotification.alpha = 1f;
@@ -876,7 +919,11 @@ public partial class CombatPreparationUI : UIFormBase
                 while (elapsed < fadeOutDuration && !cancellationToken.IsCancellationRequested)
                 {
                     elapsed += Time.deltaTime;
-                    varInitiativeBuffNotification.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
+                    varInitiativeBuffNotification.alpha = Mathf.Lerp(
+                        1f,
+                        0f,
+                        elapsed / fadeOutDuration
+                    );
                     await UniTask.Yield(cancellationToken: cancellationToken);
                 }
                 varInitiativeBuffNotification.alpha = 0f;
@@ -982,7 +1029,9 @@ public partial class CombatPreparationUI : UIFormBase
                         detailUI.SetChessEntityForPreparation(entity);
                         detailUI.RefreshUI();
                         detailUI.ShowWithAnimation();
-                        Log.Info($"CombatPreparationUI: 显示棋子详情 {config.Name}（已关联实体用于实时显示）");
+                        Log.Info(
+                            $"CombatPreparationUI: 显示棋子详情 {config.Name}（已关联实体用于实时显示）"
+                        );
                     }
                 }
             }

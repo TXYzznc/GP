@@ -447,10 +447,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a3127985a942a1428f70d456d6ceee5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FanRadius: 800
-  m_MaxFanAngle: 50
-  m_CircleCenter: {x: 0, y: 0}
-  m_CircleCenterOffsetY: -100
+  m_CardSpacing: 200
+  m_StartOffsetX: 180
+  m_VerticalOffset: 160
   m_EnterDuration: 0.35
   m_CardDealInterval: 0.1
   m_RearrangeDuration: 0.25
@@ -789,11 +788,6 @@ MonoBehaviour:
     - {fileID: 1234477655197803402}
     VarType: UnityEngine.UI.VerticalLayoutGroup
     VarPrefix: 0
-  - VarName: varChessPanel
-    Targets:
-    - {fileID: 1579437070871905744}
-    VarType: UnityEngine.UI.HorizontalLayoutGroup
-    VarPrefix: 0
   - VarName: varBuffItem
     Targets:
     - {fileID: 7289631878979862859, guid: b1f8c90d477878a4babe09a920ab3bc9, type: 3}
@@ -864,6 +858,11 @@ MonoBehaviour:
     - {fileID: 478194183826968350}
     VarType: UnityEngine.GameObject
     VarPrefix: 0
+  - VarName: varChessPanel
+    Targets:
+    - {fileID: 1579437070871905744}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
@@ -872,7 +871,6 @@ MonoBehaviour:
   m_CloseAnimationName: 
   varBuffPanel: {fileID: 1097309638715566868}
   varEquipmentPanel: {fileID: 5126777175560783602}
-  varChessPanel: {fileID: 0}
   varBuffItem: {fileID: 7289631878979862859, guid: b1f8c90d477878a4babe09a920ab3bc9, type: 3}
   varEquipSlotItem: {fileID: 6835273518977663193, guid: 380c1b503cffc6f4a93a71fbc20b81b4, type: 3}
   varChessItemUI: {fileID: 8167598582931529252, guid: 57ce632a468176e4ba1637d2adad07c6, type: 3}
@@ -887,6 +885,7 @@ MonoBehaviour:
   varInitiativeBuffNotification: {fileID: 5200283572368119747}
   varBuffSelection: {fileID: 1992560214573232039}
   varDetailInfoUI: {fileID: 478194183826968350}
+  varChessPanel: {fileID: 1579437070871905744}
 --- !u!1 &4271750470698863915
 GameObject:
   m_ObjectHideFlags: 0

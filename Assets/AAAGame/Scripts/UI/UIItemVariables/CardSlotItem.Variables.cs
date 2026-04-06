@@ -4,9 +4,15 @@
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public partial class CardSlotItem
 {
 	[Space(10)]
 	[Header("UI Variables:")]
 	[SerializeField] private Button varBtn = null;
+	[SerializeField] private Image varCardImg = null;
+	[SerializeField] private TextMeshProUGUI varDecsText = null;
+	[SerializeField] private TextMeshProUGUI varStoryText = null;
+	[SerializeField] private TextMeshProUGUI varNameText = null;
+	[SerializeField] private TextMeshProUGUI varCost = null;
 }
