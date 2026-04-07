@@ -169,6 +169,9 @@ public class ChessSlotContainer : MonoBehaviour
         int cardIndex = m_Cards.IndexOf(card);
         float delayTime = cardIndex * m_CardDealInterval;
 
+        // 立即设置卡牌初始位置和透明度，防止闪烁
+        InitializeCardStartPosition(card, cardIndex);
+
         // 等待延迟后再播放进场动画
         if (delayTime > 0)
         {
@@ -246,9 +249,9 @@ public class ChessSlotContainer : MonoBehaviour
     #region 动效播放
 
     /// <summary>
-    /// 播放棋子进场动画
+    /// 初始化卡牌的起始位置和透明度
     /// </summary>
-    private async UniTask PlayCardEnterAnimationAsync(ChessItemUI card)
+    private void InitializeCardStartPosition(ChessItemUI card, int cardIndex)
     {
         if (card == null)
             return;
@@ -259,12 +262,43 @@ public class ChessSlotContainer : MonoBehaviour
         if (cardRect == null)
             return;
 
-        // 初始透明度
+        // 计算目标位置
+        var fanTransforms = CalculateFanPositions();
+        if (cardIndex < 0 || cardIndex >= fanTransforms.Length)
+            return;
+
+        var targetTransform = fanTransforms[cardIndex];
+
+        // 设置起始位置：从右侧进入
+        var rectSize = m_RectTransform.rect;
+        float rightEdgeX = rectSize.width * 0.5f + m_EnterStartOffsetX;  // 容器右侧边界 + 可配置偏移
+        float startY = targetTransform.AnchoredPos.y + m_EnterStartOffsetY;  // 目标Y + 可配置偏移
+        Vector2 startPos = new Vector2(rightEdgeX, startY);
+        cardRect.anchoredPosition = startPos;
+
+        // 设置初始透明度（完全透明，等待动画显示）
         if (cardImage == null)
         {
             cardImage = card.gameObject.AddComponent<CanvasGroup>();
         }
         cardImage.alpha = 0f;
+
+        DebugEx.LogModule("ChessSlotContainer", $"棋子初始位置已设置");
+    }
+
+    /// <summary>
+    /// 播放棋子进场动画
+    /// </summary>
+    private async UniTask PlayCardEnterAnimationAsync(ChessItemUI card)
+    {
+        if (card == null)
+            return;
+
+        var cardRect = card.GetComponent<RectTransform>();
+        var cardImage = card.GetComponent<CanvasGroup>();
+
+        if (cardRect == null || cardImage == null)
+            return;
 
         // 计算目标位置
         var fanTransforms = CalculateFanPositions();
@@ -274,18 +308,11 @@ public class ChessSlotContainer : MonoBehaviour
 
         var targetTransform = fanTransforms[cardIndex];
 
-        // 初始位置：从右侧进入
-        // X = 容器右侧 + 偏移，Y = 目标位置Y + 偏移
-        var rectSize = m_RectTransform.rect;
-        float rightEdgeX = rectSize.width * 0.5f + m_EnterStartOffsetX;  // 容器右侧边界 + 可配置偏移
-        float startY = targetTransform.AnchoredPos.y + m_EnterStartOffsetY;  // 目标Y + 可配置偏移
-        Vector2 startPos = new Vector2(rightEdgeX, startY);
-        cardRect.anchoredPosition = startPos;
-
         // 更新卡牌的基准位置
         card.SetBaseFanTransform(targetTransform.AnchoredPos, targetTransform.RotationZ);
 
         // 播放进场动画：淡入 + 移动
+        // 注：起始位置已在 InitializeCardStartPosition 中设置
         var sequence = DOTween.Sequence();
         sequence.Join(cardImage.DOFade(1f, m_EnterDuration).SetEase(m_EnterEase));
         sequence.Join(
