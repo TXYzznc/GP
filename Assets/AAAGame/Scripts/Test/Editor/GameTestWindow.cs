@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -38,16 +39,18 @@ public class GameTestWindow : EditorWindow
     private List<BuffPreset> m_CachedPresetList = new List<BuffPreset>();
 
     // 日志相关
-    private bool m_ShowLogs = true;
     private bool m_ShowInfo = true;
     private bool m_ShowWarning = true;
     private bool m_ShowError = true;
 
     // UI 优化
-    private bool m_ExpandBuffSection = true;
     private bool m_ExpandInventorySection = true;
     private bool m_ExpandWarehouseSection = true;
     private bool m_ExpandCombatSection = true;
+
+    // 页签系统
+    private int m_SelectedTab = 0;
+    private readonly string[] m_TabNames = { "🧪 Buff", "📦 物品", "⚔️ 战斗", "🎲 状态", "📋 日志" };
 
     #endregion
 
@@ -66,58 +69,72 @@ public class GameTestWindow : EditorWindow
         EditorGUILayout.HelpBox("集中管理所有游戏系统的测试功能，支持 Buff、物品、战斗等多个模块", MessageType.Info);
         EditorGUILayout.Space();
 
+        // 顶部状态栏
+        EditorGUILayout.BeginHorizontal("box");
+        string playModeText = EditorApplication.isPlaying ? "▶ 运行中" : "⏸ 停止";
+        Color statusColor = EditorApplication.isPlaying ? new Color(0.3f, 0.7f, 0.3f) : Color.gray;
+        GUI.color = statusColor;
+        EditorGUILayout.LabelField($"游戏状态: {playModeText}", GUILayout.Width(150));
+        GUI.color = Color.white;
+        EditorGUILayout.LabelField($"场景: {EditorSceneManager.GetActiveScene().name}", GUILayout.ExpandWidth(true));
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
+
+        // 页签按钮
+        m_SelectedTab = GUILayout.Toolbar(m_SelectedTab, m_TabNames, GUILayout.Height(30));
+        EditorGUILayout.Space();
+
+        // 内容区域
         m_ScrollPosition = EditorGUILayout.BeginScrollView(m_ScrollPosition);
 
-        // Buff 系统测试（新增，最前面）
-        m_ExpandBuffSection = EditorGUILayout.Foldout(m_ExpandBuffSection, "🧪 Buff 测试系统", true);
-        if (m_ExpandBuffSection)
+        switch (m_SelectedTab)
         {
-            DrawBuffTestSection();
-            EditorGUILayout.Space(15);
+            case 0: // Buff 测试
+                DrawBuffTestSection();
+                break;
+
+            case 1: // 物品系统（背包 + 仓库）
+                m_ExpandInventorySection = EditorGUILayout.Foldout(m_ExpandInventorySection, "📦 背包系统", true);
+                if (m_ExpandInventorySection)
+                {
+                    DrawInventoryTestSection();
+                    EditorGUILayout.Space(15);
+                }
+
+                m_ExpandWarehouseSection = EditorGUILayout.Foldout(m_ExpandWarehouseSection, "🏪 仓库系统", true);
+                if (m_ExpandWarehouseSection)
+                {
+                    DrawWarehouseTestSection();
+                    EditorGUILayout.Space(15);
+                }
+                break;
+
+            case 2: // 战斗系统（战斗 + 敌人 + 投射物）
+                m_ExpandCombatSection = EditorGUILayout.Foldout(m_ExpandCombatSection, "⚔️ 战斗系统", true);
+                if (m_ExpandCombatSection)
+                {
+                    DrawCombatTestSection();
+                    EditorGUILayout.Space(15);
+                }
+
+                EditorGUILayout.LabelField("👹 敌人系统", EditorStyles.boldLabel);
+                DrawEnemyTestSection();
+                EditorGUILayout.Space(15);
+
+                EditorGUILayout.LabelField("🔫 投射物系统", EditorStyles.boldLabel);
+                DrawProjectileTestSection();
+                break;
+
+            case 3: // 游戏状态
+                EditorGUILayout.LabelField("🎲 游戏状态", EditorStyles.boldLabel);
+                DrawGameStateTestSection();
+                break;
+
+            case 4: // 日志系统
+                EditorGUILayout.LabelField("📋 日志系统", EditorStyles.boldLabel);
+                DrawLogsSection();
+                break;
         }
-
-        // 背包系统测试
-        m_ExpandInventorySection = EditorGUILayout.Foldout(m_ExpandInventorySection, "📦 背包系统", true);
-        if (m_ExpandInventorySection)
-        {
-            DrawInventoryTestSection();
-            EditorGUILayout.Space(15);
-        }
-
-        // 仓库系统测试
-        m_ExpandWarehouseSection = EditorGUILayout.Foldout(m_ExpandWarehouseSection, "🏪 仓库系统", true);
-        if (m_ExpandWarehouseSection)
-        {
-            DrawWarehouseTestSection();
-            EditorGUILayout.Space(15);
-        }
-
-        // 战斗系统测试
-        m_ExpandCombatSection = EditorGUILayout.Foldout(m_ExpandCombatSection, "⚔️ 战斗系统", true);
-        if (m_ExpandCombatSection)
-        {
-            DrawCombatTestSection();
-            EditorGUILayout.Space(15);
-        }
-
-        // 敌人系统测试
-        EditorGUILayout.LabelField("👹 敌人系统", EditorStyles.boldLabel);
-        DrawEnemyTestSection();
-        EditorGUILayout.Space(15);
-
-        // 投射物系统测试
-        EditorGUILayout.LabelField("🔫 投射物系统", EditorStyles.boldLabel);
-        DrawProjectileTestSection();
-        EditorGUILayout.Space(15);
-
-        // 游戏状态测试
-        EditorGUILayout.LabelField("🎲 游戏状态", EditorStyles.boldLabel);
-        DrawGameStateTestSection();
-        EditorGUILayout.Space(15);
-
-        // 日志系统
-        EditorGUILayout.LabelField("📋 日志系统", EditorStyles.boldLabel);
-        DrawLogsSection();
 
         EditorGUILayout.EndScrollView();
     }
@@ -156,7 +173,19 @@ public class GameTestWindow : EditorWindow
         // 快速施加 Buff
         EditorGUILayout.LabelField("快速施加 Buff", EditorStyles.boldLabel);
 
-        // 更新缓存列表
+        // 缓存管理
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField($"已缓存 Buff: {m_CachedBuffList.Count}", GUILayout.Width(120));
+        if (GUILayout.Button("🔄 刷新缓存", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            m_CachedBuffList.Clear();
+            m_CachedBuffList.AddRange(BuffTestTool.Instance.GetAllAvailableBuffs());
+            EditorUtility.DisplayDialog("刷新成功", $"已加载 {m_CachedBuffList.Count} 个 Buff", "确定");
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space();
+
+        // 更新缓存列表（如果为空）
         if (m_CachedBuffList.Count == 0)
         {
             m_CachedBuffList.AddRange(BuffTestTool.Instance.GetAllAvailableBuffs());
