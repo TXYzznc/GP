@@ -259,13 +259,6 @@ public class ChessSlotContainer : MonoBehaviour
         if (cardRect == null)
             return;
 
-        // 初始位置：从右侧进入
-        var rectSize = m_RectTransform.rect;
-        float rightEdgeX = rectSize.width * 0.5f + m_EnterStartOffsetX;  // 容器右侧边界 + 可配置偏移
-        float startY = m_RectTransform.anchoredPosition.y + m_EnterStartOffsetY;  // 容器的Y坐标 + 可配置偏移
-        Vector2 startPos = new Vector2(rightEdgeX, startY);
-        cardRect.anchoredPosition = startPos;
-
         // 初始透明度
         if (cardImage == null)
         {
@@ -280,6 +273,14 @@ public class ChessSlotContainer : MonoBehaviour
             return;
 
         var targetTransform = fanTransforms[cardIndex];
+
+        // 初始位置：从右侧进入
+        // X = 容器右侧 + 偏移，Y = 目标位置Y + 偏移
+        var rectSize = m_RectTransform.rect;
+        float rightEdgeX = rectSize.width * 0.5f + m_EnterStartOffsetX;  // 容器右侧边界 + 可配置偏移
+        float startY = targetTransform.AnchoredPos.y + m_EnterStartOffsetY;  // 目标Y + 可配置偏移
+        Vector2 startPos = new Vector2(rightEdgeX, startY);
+        cardRect.anchoredPosition = startPos;
 
         // 更新卡牌的基准位置
         card.SetBaseFanTransform(targetTransform.AnchoredPos, targetTransform.RotationZ);
