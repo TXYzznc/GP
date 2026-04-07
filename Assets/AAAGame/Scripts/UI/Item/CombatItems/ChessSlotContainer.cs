@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityGameFramework.Runtime;
 
 /// <summary>
-/// 棋子容器：管理棋子卡的扇形排列和进场/重排动效
+/// 棋子容器：管理棋子卡的水平排列和进场/重排动效
 /// （参考 CardSlotContainer 的实现，去掉拖拽让位逻辑）
 /// </summary>
 public class ChessSlotContainer : MonoBehaviour
@@ -22,13 +22,23 @@ public class ChessSlotContainer : MonoBehaviour
     [SerializeField]
     private float m_VerticalOffset = 0f; // 垂直偏移
 
-    [Header("动效时长")]
+    [Header("进场动画")]
     [SerializeField]
     private float m_EnterDuration = 0.35f; // 进场动画时长
 
     [SerializeField]
     private float m_CardDealInterval = 0.1f; // 棋子发牌间隔时间（秒）
 
+    [SerializeField]
+    private float m_EnterStartOffsetX = 100f; // 进场起始X偏移（从容器右侧向右）
+
+    [SerializeField]
+    private float m_EnterStartOffsetY = 0f; // 进场起始Y偏移（相对于容器Y坐标）
+
+    [SerializeField]
+    private Ease m_EnterEase = Ease.OutQuad; // 进场动画缓动函数
+
+    [Header("补位动画")]
     [SerializeField]
     private float m_RearrangeDuration = 0.25f; // 补位动画时长
 
@@ -39,6 +49,8 @@ public class ChessSlotContainer : MonoBehaviour
     private float m_CachedCardSpacing;
     private float m_CachedStartOffsetX;
     private float m_CachedVerticalOffset;
+    private float m_CachedEnterStartOffsetX;
+    private float m_CachedEnterStartOffsetY;
 
     #endregion
 
@@ -90,6 +102,8 @@ public class ChessSlotContainer : MonoBehaviour
         m_CachedCardSpacing = m_CardSpacing;
         m_CachedStartOffsetX = m_StartOffsetX;
         m_CachedVerticalOffset = m_VerticalOffset;
+        m_CachedEnterStartOffsetX = m_EnterStartOffsetX;
+        m_CachedEnterStartOffsetY = m_EnterStartOffsetY;
     }
 
     /// <summary>
@@ -99,7 +113,9 @@ public class ChessSlotContainer : MonoBehaviour
     {
         return !Mathf.Approximately(m_CardSpacing, m_CachedCardSpacing)
             || !Mathf.Approximately(m_StartOffsetX, m_CachedStartOffsetX)
-            || !Mathf.Approximately(m_VerticalOffset, m_CachedVerticalOffset);
+            || !Mathf.Approximately(m_VerticalOffset, m_CachedVerticalOffset)
+            || !Mathf.Approximately(m_EnterStartOffsetX, m_CachedEnterStartOffsetX)
+            || !Mathf.Approximately(m_EnterStartOffsetY, m_CachedEnterStartOffsetY);
     }
 
     #endregion
@@ -243,9 +259,11 @@ public class ChessSlotContainer : MonoBehaviour
         if (cardRect == null)
             return;
 
-        // 初始位置：容器底部中央，Y 偏移
+        // 初始位置：从右侧进入
         var rectSize = m_RectTransform.rect;
-        Vector2 startPos = new Vector2(rectSize.width * 0.5f, -200f);
+        float rightEdgeX = rectSize.width * 0.5f + m_EnterStartOffsetX;  // 容器右侧边界 + 可配置偏移
+        float startY = m_RectTransform.anchoredPosition.y + m_EnterStartOffsetY;  // 容器的Y坐标 + 可配置偏移
+        Vector2 startPos = new Vector2(rightEdgeX, startY);
         cardRect.anchoredPosition = startPos;
 
         // 初始透明度
@@ -268,14 +286,14 @@ public class ChessSlotContainer : MonoBehaviour
 
         // 播放进场动画：淡入 + 移动
         var sequence = DOTween.Sequence();
-        sequence.Join(cardImage.DOFade(1f, m_EnterDuration).SetEase(Ease.OutQuad));
+        sequence.Join(cardImage.DOFade(1f, m_EnterDuration).SetEase(m_EnterEase));
         sequence.Join(
-            cardRect.DOAnchorPos(targetTransform.AnchoredPos, m_EnterDuration).SetEase(Ease.OutQuad)
+            cardRect.DOAnchorPos(targetTransform.AnchoredPos, m_EnterDuration).SetEase(m_EnterEase)
         );
         sequence.Join(
             cardRect
                 .DORotate(new Vector3(0, 0, targetTransform.RotationZ), m_EnterDuration)
-                .SetEase(Ease.OutQuad)
+                .SetEase(m_EnterEase)
         );
 
         await sequence.AsyncWaitForCompletion();
