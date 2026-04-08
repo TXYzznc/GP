@@ -1,0 +1,1195 @@
+{
+  "source_document": "11、毕业设计（论文）正本-数字第二组-高天寒-数字2001-20202649-刘昱兵.docx",
+  "styles": {
+    "1": {
+      "id": "1",
+      "name": "Normal",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": "Times New Roman",
+        "hAnsi": "Times New Roman",
+        "eastAsia": "宋体",
+        "size": "21"
+      },
+      "paragraph": {
+        "alignment": "both"
+      }
+    },
+    "2": {
+      "id": "2",
+      "name": "heading 1",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "36"
+      },
+      "paragraph": {
+        "alignment": "center",
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "3": {
+      "id": "3",
+      "name": "heading 2",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "28"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "4": {
+      "id": "4",
+      "name": "heading 3",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "5": {
+      "id": "5",
+      "name": "heading 4",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "460",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "19": {
+      "id": "19",
+      "name": "Default Paragraph Font",
+      "type": "character",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "17": {
+      "id": "17",
+      "name": "Normal Table",
+      "type": "table",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "6": {
+      "id": "6",
+      "name": "annotation text",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {
+        "alignment": "left"
+      }
+    },
+    "7": {
+      "id": "7",
+      "name": "toc 3",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "360",
+          "lineRule": "auto"
+        }
+      }
+    },
+    "8": {
+      "id": "8",
+      "name": "Balloon Text",
+      "type": "paragraph",
+      "fonts": {
+        "size": "18"
+      },
+      "paragraph": {}
+    },
+    "9": {
+      "id": "9",
+      "name": "footer",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {
+        "alignment": "left"
+      }
+    },
+    "10": {
+      "id": "10",
+      "name": "header",
+      "type": "paragraph",
+      "fonts": {
+        "size": "18"
+      },
+      "paragraph": {}
+    },
+    "11": {
+      "id": "11",
+      "name": "toc 1",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "28"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "360",
+          "lineRule": "auto"
+        }
+      }
+    },
+    "12": {
+      "id": "12",
+      "name": "footnote text",
+      "type": "paragraph",
+      "fonts": {
+        "size": "18"
+      },
+      "paragraph": {
+        "alignment": "left"
+      }
+    },
+    "13": {
+      "id": "13",
+      "name": "toc 2",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "360",
+          "lineRule": "auto"
+        }
+      }
+    },
+    "14": {
+      "id": "14",
+      "name": "HTML Preformatted",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": "宋体",
+        "hAnsi": "宋体",
+        "eastAsia": "宋体",
+        "size": "24"
+      },
+      "paragraph": {
+        "alignment": "left"
+      }
+    },
+    "15": {
+      "id": "15",
+      "name": "Normal (Web)",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "alignment": "left",
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "16": {
+      "id": "16",
+      "name": "annotation subject",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "18": {
+      "id": "18",
+      "name": "Table Grid",
+      "type": "table",
+      "fonts": {},
+      "paragraph": {
+        "alignment": "both"
+      }
+    },
+    "20": {
+      "id": "20",
+      "name": "Strong",
+      "type": "character",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "21": {
+      "id": "21",
+      "name": "Hyperlink",
+      "type": "character",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "22": {
+      "id": "22",
+      "name": "HTML Code",
+      "type": "character",
+      "fonts": {
+        "ascii": "Courier New",
+        "hAnsi": "Courier New",
+        "eastAsia": null,
+        "size": "20"
+      },
+      "paragraph": {}
+    },
+    "23": {
+      "id": "23",
+      "name": "annotation reference",
+      "type": "character",
+      "fonts": {
+        "size": "21"
+      },
+      "paragraph": {}
+    },
+    "24": {
+      "id": "24",
+      "name": "footnote reference",
+      "type": "character",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "25": {
+      "id": "25",
+      "name": "内标题",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "44"
+      },
+      "paragraph": {
+        "alignment": "center",
+        "spacing": {
+          "line": "640",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "26": {
+      "id": "26",
+      "name": "论文正文",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "460",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "27": {
+      "id": "27",
+      "name": "页脚 字符",
+      "type": "character",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "宋体",
+        "size": "21"
+      },
+      "paragraph": {}
+    },
+    "28": {
+      "id": "28",
+      "name": "论文正文 Char",
+      "type": "character",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "宋体",
+        "size": "24"
+      },
+      "paragraph": {}
+    },
+    "29": {
+      "id": "29",
+      "name": "标题 3 字符",
+      "type": "character",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "24"
+      },
+      "paragraph": {}
+    },
+    "30": {
+      "id": "30",
+      "name": "郑重声明",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null,
+        "size": "44"
+      },
+      "paragraph": {
+        "alignment": "center",
+        "spacing": {
+          "line": "440",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "31": {
+      "id": "31",
+      "name": "目录标题",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "36"
+      },
+      "paragraph": {
+        "alignment": "center",
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "32": {
+      "id": "32",
+      "name": "目录标题 Char",
+      "type": "character",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "36"
+      },
+      "paragraph": {}
+    },
+    "33": {
+      "id": "33",
+      "name": "论文中空行",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": "宋体",
+        "hAnsi": "宋体",
+        "eastAsia": null,
+        "size": "24"
+      },
+      "paragraph": {
+        "alignment": "center"
+      }
+    },
+    "34": {
+      "id": "34",
+      "name": "封皮日期",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null,
+        "size": "30"
+      },
+      "paragraph": {
+        "alignment": "center"
+      }
+    },
+    "35": {
+      "id": "35",
+      "name": "内封皮日期",
+      "type": "paragraph",
+      "fonts": {
+        "size": "32"
+      },
+      "paragraph": {
+        "alignment": "center"
+      }
+    },
+    "36": {
+      "id": "36",
+      "name": "封皮信息",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null,
+        "size": "30"
+      },
+      "paragraph": {}
+    },
+    "37": {
+      "id": "37",
+      "name": "内封皮信息",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null,
+        "size": "30"
+      },
+      "paragraph": {
+        "alignment": "left"
+      }
+    },
+    "38": {
+      "id": "38",
+      "name": "题名页信息",
+      "type": "paragraph",
+      "fonts": {
+        "size": "28"
+      },
+      "paragraph": {}
+    },
+    "39": {
+      "id": "39",
+      "name": "郑重声明正文",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null,
+        "size": "28"
+      },
+      "paragraph": {
+        "alignment": "left",
+        "spacing": {
+          "line": "460",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "40": {
+      "id": "40",
+      "name": "关键词段落",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "460",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "41": {
+      "id": "41",
+      "name": "图表名字",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {
+        "alignment": "center",
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "42": {
+      "id": "42",
+      "name": "参考文献正文",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "460",
+          "lineRule": "exact"
+        }
+      }
+    },
+    "43": {
+      "id": "43",
+      "name": "论文页眉",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null
+      },
+      "paragraph": {}
+    },
+    "44": {
+      "id": "44",
+      "name": "论文页眉 Char",
+      "type": "character",
+      "fonts": {
+        "ascii": "Times New Roman",
+        "hAnsi": "Times New Roman",
+        "eastAsia": null
+      },
+      "paragraph": {}
+    },
+    "45": {
+      "id": "45",
+      "name": "论文中代码",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "46": {
+      "id": "46",
+      "name": "未处理的提及1",
+      "type": "character",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "47": {
+      "id": "47",
+      "name": "main",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": "ˎ̥",
+        "hAnsi": "ˎ̥",
+        "eastAsia": null
+      },
+      "paragraph": {
+        "alignment": "left",
+        "spacing": {
+          "line": "320",
+          "lineRule": "atLeast"
+        }
+      }
+    },
+    "48": {
+      "id": "48",
+      "name": "List Paragraph",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "49": {
+      "id": "49",
+      "name": "样式1",
+      "type": "table",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "50": {
+      "id": "50",
+      "name": "脚注文本 字符",
+      "type": "character",
+      "fonts": {
+        "size": "18"
+      },
+      "paragraph": {}
+    },
+    "51": {
+      "id": "51",
+      "name": "修订1",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": "Times New Roman",
+        "hAnsi": "Times New Roman",
+        "eastAsia": "宋体",
+        "size": "21"
+      },
+      "paragraph": {}
+    },
+    "52": {
+      "id": "52",
+      "name": "表格",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {
+        "alignment": "center"
+      }
+    },
+    "53": {
+      "id": "53",
+      "name": "表格 字符",
+      "type": "character",
+      "fonts": {
+        "size": "21"
+      },
+      "paragraph": {}
+    },
+    "54": {
+      "id": "54",
+      "name": "程序代码",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "Times New Roman"
+      },
+      "paragraph": {
+        "alignment": "left",
+        "spacing": {
+          "line": "240",
+          "lineRule": "auto"
+        }
+      }
+    },
+    "55": {
+      "id": "55",
+      "name": "我的标题3",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": null
+      },
+      "paragraph": {
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "56": {
+      "id": "56",
+      "name": "标题3",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": null,
+        "hAnsi": null,
+        "eastAsia": "黑体",
+        "size": "28"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": null,
+          "lineRule": null
+        }
+      }
+    },
+    "57": {
+      "id": "57",
+      "name": "样式 论文正文 +",
+      "type": "paragraph",
+      "fonts": {},
+      "paragraph": {}
+    },
+    "58": {
+      "id": "58",
+      "name": "正文缩进2字符(开题报告正文)",
+      "type": "paragraph",
+      "fonts": {
+        "size": "24"
+      },
+      "paragraph": {
+        "spacing": {
+          "line": "360",
+          "lineRule": "auto"
+        }
+      }
+    },
+    "59": {
+      "id": "59",
+      "name": "修订2",
+      "type": "paragraph",
+      "fonts": {
+        "ascii": "Times New Roman",
+        "hAnsi": "Times New Roman",
+        "eastAsia": "宋体",
+        "size": "21"
+      },
+      "paragraph": {}
+    }
+  },
+  "numbering": {
+    "1": {
+      "abstractNumId": "5"
+    },
+    "2": {
+      "abstractNumId": "2"
+    },
+    "3": {
+      "abstractNumId": "4"
+    },
+    "4": {
+      "abstractNumId": "0"
+    },
+    "5": {
+      "abstractNumId": "1"
+    },
+    "6": {
+      "abstractNumId": "3"
+    },
+    "7": {
+      "abstractNumId": "6"
+    }
+  },
+  "tables": [
+    {
+      "index": 0,
+      "rows": 5,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "1951",
+        "5807"
+      ]
+    },
+    {
+      "index": 1,
+      "rows": 1,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "810",
+        "1545",
+        "4290",
+        "735",
+        "1410"
+      ]
+    },
+    {
+      "index": 2,
+      "rows": 5,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "2542",
+        "3469",
+        "1959"
+      ]
+    },
+    {
+      "index": 3,
+      "rows": 5,
+      "properties": {
+        "width": {
+          "value": "5356",
+          "type": "dxa"
+        },
+        "style": "17"
+      },
+      "columns": [
+        "2201",
+        "1312",
+        "1843"
+      ]
+    },
+    {
+      "index": 4,
+      "rows": 3,
+      "properties": {
+        "width": {
+          "value": "7440",
+          "type": "dxa"
+        },
+        "style": "17"
+      },
+      "columns": [
+        "2900",
+        "2685",
+        "1855"
+      ]
+    },
+    {
+      "index": 5,
+      "rows": 7,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "1866",
+        "7138"
+      ]
+    },
+    {
+      "index": 6,
+      "rows": 15,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "2891",
+        "5443"
+      ]
+    },
+    {
+      "index": 7,
+      "rows": 8,
+      "properties": {
+        "width": {
+          "value": "9002",
+          "type": "dxa"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "1224",
+        "1290",
+        "1936",
+        "2712",
+        "1840"
+      ]
+    },
+    {
+      "index": 8,
+      "rows": 7,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "2891",
+        "5443"
+      ]
+    },
+    {
+      "index": 9,
+      "rows": 6,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "2891",
+        "5443"
+      ]
+    },
+    {
+      "index": 10,
+      "rows": 5,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "2891",
+        "5443"
+      ]
+    },
+    {
+      "index": 11,
+      "rows": 8,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "2891",
+        "5443"
+      ]
+    },
+    {
+      "index": 12,
+      "rows": 11,
+      "properties": {
+        "width": {
+          "value": "8519",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "1992",
+        "6527"
+      ]
+    },
+    {
+      "index": 13,
+      "rows": 6,
+      "properties": {
+        "width": {
+          "value": "9110",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "2943",
+        "2552",
+        "3615"
+      ]
+    },
+    {
+      "index": 14,
+      "rows": 15,
+      "properties": {
+        "width": {
+          "value": "9110",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "2943",
+        "2552",
+        "3615"
+      ]
+    },
+    {
+      "index": 15,
+      "rows": 8,
+      "properties": {
+        "width": {
+          "value": "9110",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "2943",
+        "2552",
+        "3615"
+      ]
+    },
+    {
+      "index": 16,
+      "rows": 9,
+      "properties": {
+        "width": {
+          "value": "0",
+          "type": "auto"
+        },
+        "style": "18"
+      },
+      "columns": [
+        "1134",
+        "2170",
+        "1134",
+        "2170"
+      ]
+    },
+    {
+      "index": 17,
+      "rows": 5,
+      "properties": {
+        "width": {
+          "value": "9200",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "3369",
+        "5831"
+      ]
+    },
+    {
+      "index": 18,
+      "rows": 6,
+      "properties": {
+        "width": {
+          "value": "8364",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "1406",
+        "2256",
+        "3516",
+        "1186"
+      ]
+    },
+    {
+      "index": 19,
+      "rows": 4,
+      "properties": {
+        "width": {
+          "value": "8364",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "1467",
+        "2603",
+        "2676",
+        "1618"
+      ]
+    },
+    {
+      "index": 20,
+      "rows": 6,
+      "properties": {
+        "width": {
+          "value": "8364",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "1445",
+        "2875",
+        "2330",
+        "1714"
+      ]
+    },
+    {
+      "index": 21,
+      "rows": 6,
+      "properties": {
+        "width": {
+          "value": "8364",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "1467",
+        "2786",
+        "2452",
+        "1659"
+      ]
+    },
+    {
+      "index": 22,
+      "rows": 3,
+      "properties": {
+        "width": {
+          "value": "8237",
+          "type": "dxa"
+        },
+        "style": "49"
+      },
+      "columns": [
+        "1402",
+        "3045",
+        "2255",
+        "1535"
+      ]
+    }
+  ],
+  "headers_footers": {
+    "headers": [
+      {
+        "file": "word/header1.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header10.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header11.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header12.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header2.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header3.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header4.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header5.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header6.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header7.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header8.xml",
+        "exists": true
+      },
+      {
+        "file": "word/header9.xml",
+        "exists": true
+      }
+    ],
+    "footers": [
+      {
+        "file": "word/footer1.xml",
+        "exists": true
+      },
+      {
+        "file": "word/footer2.xml",
+        "exists": true
+      },
+      {
+        "file": "word/footer3.xml",
+        "exists": true
+      },
+      {
+        "file": "word/footer4.xml",
+        "exists": true
+      },
+      {
+        "file": "word/footer5.xml",
+        "exists": true
+      },
+      {
+        "file": "word/footer6.xml",
+        "exists": true
+      },
+      {
+        "file": "word/footer7.xml",
+        "exists": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/custom-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="2" name="KSOProductBuildVer">
+    <vt:lpwstr>2052-12.1.0.17133</vt:lpwstr>
+  </property>
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="3" name="ICV">
+    <vt:lpwstr>270419C0F7E34E80AF4B71EE25A678A6_13</vt:lpwstr>
+  </property>
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="4" name="ZOTERO_PREF_1">
+    <vt:lpwstr>&lt;data data-version="3" zotero-version="6.0.30"&gt;&lt;session id="96jQlWdu"/&gt;&lt;style id="http://www.zotero.org/styles/china-national-standard-gb-t-7714-2015-note" hasBibliography="1" bibliographyStyleHasBeenSet="0"/&gt;&lt;prefs&gt;&lt;pref name="fieldType" value="Field"/&gt;&lt;</vt:lpwstr>
+  </property>
+  <property fmtid="{D5CDD505-2E9C-101B-9397-08002B2CF9AE}" pid="5" name="ZOTERO_PREF_2">
+    <vt:lpwstr>pref name="automaticJournalAbbreviations" value="true"/&gt;&lt;pref name="noteType" value="1"/&gt;&lt;/prefs&gt;&lt;/data&gt;</vt:lpwstr>
+  </property>
+</Properties>

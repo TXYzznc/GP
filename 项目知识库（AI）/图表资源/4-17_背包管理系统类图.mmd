@@ -1,0 +1,209 @@
+---
+config:
+    classDiagram:
+        nodeSpacing: 60
+        rankSpacing: 80
+        curve: linear
+---
+classDiagram
+    direction TB
+    
+    class InventoryManager {
+        -m_Items: ItemStack[]
+        -m_MaxSlots: int
+        -m_TotalWeight: float
+        -m_MaxWeight: float
+        +AddItem(itemId, quantity) bool
+        +RemoveItem(itemId, quantity) bool
+        +UseItem(itemId) bool
+        +GetItem(itemId) ItemStack
+        +SortInventory()
+        +OnInventoryChanged()
+    }
+    
+    class ItemStack {
+        -m_Item: ItemBase
+        -m_Quantity: int
+        -m_MaxStackSize: int
+        +Item: ItemBase
+        +Quantity: int
+        +CanAddQuantity(amount) bool
+        +AddQuantity(amount)
+        +RemoveQuantity(amount)
+        +IsFull() bool
+    }
+    
+    class InventorySlot {
+        -m_SlotIndex: int
+        -m_SlotType: int
+        -m_ItemStack: ItemStack
+        -m_IsEmpty: bool
+        +SetItemStack(itemStack)
+        +GetItemStack() ItemStack
+        +ClearSlot()
+        +IsValidForItem(itemId) bool
+        +GetSlotWeight()
+    }
+    
+    class ItemBase {
+        <<abstract>>
+        +itemId: int
+        +itemName: string
+        +itemType: int
+        +quality: int
+        +weight: float
+        +maxStackSize: int
+        +description: string
+        +iconPath: string
+        +GetDisplayName() string
+        +GetDescription() string
+        +CanBeUsed() bool
+    }
+    
+    class ConsumableItem {
+        -effectType: int
+        -effectValue: float
+        -usageCount: int
+        -maxUsage: int
+        +CanBeUsed() bool
+        +UseItem(target)
+        +GetRemainingUsage()
+    }
+    
+    class QuestItem {
+        -questId: string
+        -isActive: bool
+        +CanBeUsed() bool
+        +OnItemUsed()
+        +LinkToQuest(questId)
+    }
+    
+    class TreasureItem {
+        -specialEffect: SpecialEffect
+        -affixes: Affix[]
+        -synergies: Synergy[]
+        -rarity: int
+        +CanBeEquipped() bool
+        +GetTotalBonus()
+        +CanStack() bool
+    }
+    
+    class EquipmentItem {
+        -equipmentType: int
+        -attackBonus: int
+        -defenseBonus: int
+        -specialEffect: SpecialEffect
+        +CanBeEquipped() bool
+        +CanStack() bool
+        +GetStatBonus() Dictionary
+    }
+    
+    class BackpackConfig {
+        +maxSlots: int
+        +maxWeight: float
+        +slotTypes: int[]
+        +sortMethod: int
+        +autoStackItems: bool
+        +ignoreWeightLimit: bool
+    }
+    
+    class InventoryUI {
+        -m_Manager: InventoryManager
+        -m_SlotUIList: InventorySlotUI[]
+        -m_CurrentSort: int
+        +DisplayInventory()
+        +RefreshDisplay()
+        +OnItemSelected(slotIndex)
+        +OnItemDrop(fromSlot, toSlot)
+        +ShowItemDetail(itemId)
+    }
+    
+    class InventorySlotUI {
+        -m_SlotIndex: int
+        -m_ItemStack: ItemStack
+        -m_Icon: Image
+        -m_QuantityText: Text
+        -m_IsSelected: bool
+        +SetItemStack(itemStack)
+        +OnClicked()
+        +OnDragStart()
+        +OnDragEnd(targetSlot)
+        +ShowTooltip()
+    }
+    
+    class ItemFilter {
+        -filterType: int
+        -filterQuality: int
+        -filterWeight: float
+        +Filter(items) ItemStack[]
+        +FilterByType(items, type)
+        +FilterByQuality(items, quality)
+        +FilterByWeight(items, maxWeight)
+    }
+    
+    class InventorySerializer {
+        <<static>>
+        +SaveInventory(manager, path)$
+        +LoadInventory(path)$ InventoryManager
+        +SerializeItemStack(itemStack)$
+        +DeserializeItemStack(data)$
+    }
+    
+    class BackpackSorter {
+        -sortMethod: int
+        +SortByType(items)
+        +SortByQuality(items)
+        +SortByWeight(items)
+        +SortByName(items)
+        +SortByObtainTime(items)
+    }
+    
+    class InventoryEventArgs {
+        <<event>>
+        +itemId: int
+        +quantity: int
+        +slotIndex: int
+        +eventType: int
+    }
+    
+    InventoryManager --> ItemStack
+    InventoryManager --> InventorySlot
+    InventoryManager --> BackpackConfig
+    InventoryManager --> ItemFilter
+    InventoryManager --> BackpackSorter
+    InventoryManager --> InventorySerializer
+    InventoryManager -.-> InventoryEventArgs
+    
+    ItemStack --> ItemBase
+    InventorySlot --> ItemStack
+    
+    ItemBase <|.. ConsumableItem
+    ItemBase <|.. QuestItem
+    ItemBase <|.. TreasureItem
+    ItemBase <|.. EquipmentItem
+    
+    InventoryUI --> InventoryManager
+    InventoryUI --> InventorySlotUI
+    InventoryUI --> ItemFilter
+    
+    InventorySlotUI --> ItemStack
+    InventorySlotUI --> InventoryEventArgs
+    
+    BackpackSorter --> ItemStack
+    ItemFilter --> ItemBase
+    
+    style InventoryManager fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style ItemStack fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style InventorySlot fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style ItemBase fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style ConsumableItem fill:#ffccbc,stroke:#d84315,stroke-width:2px
+    style QuestItem fill:#ffccbc,stroke:#d84315,stroke-width:2px
+    style TreasureItem fill:#ffccbc,stroke:#d84315,stroke-width:2px
+    style EquipmentItem fill:#ffccbc,stroke:#d84315,stroke-width:2px
+    style BackpackConfig fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style InventoryUI fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    style InventorySlotUI fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    style ItemFilter fill:#f1f8e9,stroke:#558b2f,stroke-width:2px
+    style InventorySerializer fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    style BackpackSorter fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    style InventoryEventArgs fill:#fce4ec,stroke:#c2185b,stroke-width:2px
