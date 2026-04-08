@@ -69,6 +69,9 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     // 空格键输入（用于交互/触发事件）
     public bool SpaceKeyDown { get; private set; }
 
+    // ⭐ [测试功能] 游戏暂停触发（按空格键）
+    public bool GamePauseTestTriggered { get; private set; }
+
     private bool[] skillDown = new bool[10];
     private bool[] summonerSkillDown = new bool[4];         // 槽位 1-3：Q/E/R 键盘
     private readonly bool[] m_SummonerSkillButtonPending = new bool[4]; // 槽位 1-3：UI 按钮触发
@@ -89,6 +92,13 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
     private void Update()
     {
+        // ⭐ [测试功能] 按空格暂停游戏播放
+        GamePauseTestTriggered = Input.GetKeyDown(KeyCode.Space);
+        if (GamePauseTestTriggered)
+        {
+            Time.timeScale = Time.timeScale == 0f ? 1f : 0f;  // 切换暂停状态
+        }
+
         // Tab 键：背包开关
         InventoryToggleTriggered = Input.GetKeyDown(KeyCode.Tab);
 
@@ -151,8 +161,8 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         LeftMouseButtonDown = Input.GetMouseButtonDown(0); // 0 = 左键
         RightMouseButtonDown = Input.GetMouseButtonDown(1); // 1 = 右键
 
-        // 空格键输入
-        SpaceKeyDown = Input.GetKeyDown(KeyCode.Space);
+        // 空格键输入（⭐ 已被测试暂停功能占用，见上方）
+        // SpaceKeyDown 已在 GamePauseTestTriggered 中处理
 
         // 技能输入
         for (int slot = 1; slot <= 3; slot++)
