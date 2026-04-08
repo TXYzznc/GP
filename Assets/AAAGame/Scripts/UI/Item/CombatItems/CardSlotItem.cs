@@ -34,6 +34,9 @@ public partial class CardSlotItem
     private float m_LastRaycastTime;
     private const float RAYCAST_INTERVAL = 0.1f;
 
+    // 策略卡目标描边缓存
+    private List<ChessEntity> m_PreviewTargets = new List<ChessEntity>();
+
     // 动效相关字段
     private Tween m_SelectTween;
     private Tween m_HoverTween;
@@ -588,6 +591,9 @@ public partial class CardSlotItem
 
         DebugEx.LogModule("CardSlotItem", $"结束拖拽卡牌: {m_CardData.Name}");
 
+        // 清除策略卡目标描边
+        ClearCardTargetOutlines();
+
         // ⭐ 新增：隐藏蓝色圆形预览
         CardPreviewDisplayShader.Instance?.HideAll();
 
@@ -1022,11 +1028,15 @@ public partial class CardSlotItem
             Vector3 worldPos = GetWorldPosFromScreen(screenPos);
             float radius = m_CardData.TableRow.AreaRadius;
             CardPreviewDisplayShader.Instance.ShowActionPreview(worldPos, radius);
+
+            // 更新目标描边
+            UpdateTargetOutlines(worldPos);
         }
         else
         {
-            // 非战场区域：隐藏蓝色圆形
+            // 非战场区域：隐藏蓝色圆形 + 清除目标描边
             CardPreviewDisplayShader.Instance.HideActionPreview();
+            ClearCardTargetOutlines();
         }
     }
 
@@ -1051,6 +1061,78 @@ public partial class CardSlotItem
         }
 
         return Vector3.zero;
+    }
+
+    /// <summary>
+    /// 更新策略卡目标描边（增量更新）
+    /// </summary>
+    private void UpdateTargetOutlines(Vector3 worldPos)
+    {
+        var newTargets = GetAffectedTargets(m_CardData, worldPos);
+
+        // 移除不再是目标的描边
+        for (int i = m_PreviewTargets.Count - 1; i >= 0; i--)
+        {
+            var old = m_PreviewTargets[i];
+            if (old == null || !newTargets.Contains(old))
+            {
+                if (old != null && old.OutlineController != null)
+                {
+                    old.OutlineController.HideOutline();
+                }
+                m_PreviewTargets.RemoveAt(i);
+            }
+        }
+
+        // 添加新目标的描边
+        Color allyColor = Color.green;
+        Color enemyColor = Color.red;
+        float outlineSize = 20f;
+
+        foreach (var target in newTargets)
+        {
+            if (target == null || target.OutlineController == null)
+                continue;
+
+            if (!m_PreviewTargets.Contains(target))
+            {
+                m_PreviewTargets.Add(target);
+            }
+
+            // 根据阵营决定颜色
+            Color color = target.Camp == (int)CampType.Player ? allyColor : enemyColor;
+            target.OutlineController.ShowOutline(color, outlineSize);
+        }
+    }
+
+    /// <summary>
+    /// 清除所有策略卡目标描边，并恢复选中棋子的描边
+    /// </summary>
+    private void ClearCardTargetOutlines()
+    {
+        foreach (var target in m_PreviewTargets)
+        {
+            if (target != null && target.OutlineController != null)
+            {
+                target.OutlineController.HideOutline();
+            }
+        }
+        m_PreviewTargets.Clear();
+
+        // 恢复选中棋子的黄色描边
+        RestoreSelectionOutline();
+    }
+
+    /// <summary>
+    /// 恢复当前选中棋子的选中描边
+    /// </summary>
+    private void RestoreSelectionOutline()
+    {
+        var selected = ChessSelectionManager.Instance?.SelectedChess;
+        if (selected != null && selected.OutlineController != null)
+        {
+            selected.OutlineController.ShowOutline(new Color(1f, 0.85f, 0f), 20f);
+        }
     }
 
     /// <summary>

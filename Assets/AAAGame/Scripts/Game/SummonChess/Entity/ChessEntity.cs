@@ -62,7 +62,7 @@ public class ChessEntity : MonoBehaviour
     public ChessCombatController CombatController { get; private set; }
 
     /// <summary>描边控制器</summary>
-    public ChessOutlineController OutlineController { get; private set; }
+    public OutlineController OutlineController { get; private set; }
 
     #endregion
 
@@ -287,12 +287,11 @@ public class ChessEntity : MonoBehaviour
 #endif
 
         // 13. 初始化描边控制器
-        OutlineController = gameObject.GetComponent<ChessOutlineController>();
+        OutlineController = gameObject.GetComponent<OutlineController>();
         if (OutlineController == null)
         {
-            OutlineController = gameObject.AddComponent<ChessOutlineController>();
+            OutlineController = gameObject.AddComponent<OutlineController>();
         }
-        OutlineController.Initialize(this);
 
         // 14. 注册属性事件
         Attribute.OnHpChanged += OnHpChangedHandler;

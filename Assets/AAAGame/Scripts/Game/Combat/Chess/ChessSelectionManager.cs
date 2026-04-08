@@ -41,6 +41,9 @@ public class ChessSelectionManager
     /// <summary>当前选中的棋子</summary>
     private ChessEntity m_SelectedChess;
 
+    /// <summary>当前选中的棋子（只读）</summary>
+    public ChessEntity SelectedChess => m_SelectedChess;
+
     /// <summary>棋子Layer</summary>
     private LayerMask m_ChessLayerMask;
 
@@ -322,10 +325,10 @@ public class ChessSelectionManager
 
         m_SelectedChess = entity;
 
-        // 使用描边控制器设置选中状态
+        // 使用描边控制器显示选中描边（黄色）
         if (entity.OutlineController != null)
         {
-            entity.OutlineController.SetSelected(true);
+            entity.OutlineController.ShowOutline(new Color(1f, 0.85f, 0f), 20f);
         }
 
         // 通知UI显示棋子详情
@@ -349,10 +352,10 @@ public class ChessSelectionManager
     {
         if (m_SelectedChess != null)
         {
-            // 使用描边控制器取消选中状态
+            // 使用描边控制器隐藏选中描边
             if (m_SelectedChess.OutlineController != null)
             {
-                m_SelectedChess.OutlineController.SetSelected(false);
+                m_SelectedChess.OutlineController.HideOutline();
             }
 
             // 通知测试输入组件（取消选中）
