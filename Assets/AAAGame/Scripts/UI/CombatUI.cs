@@ -16,6 +16,12 @@ public partial class CombatUI : StateAwareUIForm
     /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
     private ChessEntity m_CurrentDetailChess;
 
+    /// <summary>装备槽列表（预创建固定数量）</summary>
+    private List<InventorySlotUI> m_EquipSlots = new List<InventorySlotUI>();
+
+    /// <summary>装备槽容器</summary>
+    private InventorySlotContainerImpl m_EquipSlotContainer;
+
     #endregion
 
     #region 事件订阅
@@ -94,6 +100,15 @@ public partial class CombatUI : StateAwareUIForm
             DebugEx.LogModule("CombatUI", "CardManager 已初始化");
         }
 
+        // 订阅背包数据变化事件
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager != null)
+            inventoryManager.OnInventoryChanged += OnInventoryChanged;
+
+        // 初始化装备槽（仅首次进入战斗）
+        if (m_EquipSlots.Count == 0)
+            InitializeEquipSlots();
+
         ShowUI();
         RefreshCombatUI();
     }
@@ -116,6 +131,11 @@ public partial class CombatUI : StateAwareUIForm
             CardManager.Instance.Clear();
             DebugEx.LogModule("CombatUI", "CardManager 已清理");
         }
+
+        // 取消订阅背包数据变化事件
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager != null)
+            inventoryManager.OnInventoryChanged -= OnInventoryChanged;
 
         // 清理 CardSlotContainer 的状态
         var container = GetCardSlotContainer();
@@ -344,7 +364,6 @@ public partial class CombatUI : StateAwareUIForm
         RefreshPlayerStatus();
         RefreshEquipmentPanel();
         RefreshCardSlots();
-        RefreshBuffPanel();
         BindButtonEvents();
 
         DebugEx.LogModule("CombatUI", "战斗UI已刷新");
@@ -456,49 +475,92 @@ public partial class CombatUI : StateAwareUIForm
     }
 
     /// <summary>
-    /// 刷新装备面板
+    /// 初始化装备槽（战斗进入时调用一次）
+    /// 预创建 9 个装备槽，始终显示
     /// </summary>
-    private void RefreshEquipmentPanel()
+    private void InitializeEquipSlots()
     {
-        if (varEquipmentPanel == null || varEquipSlotItem == null)
-        {
+        if (varEquipmentPanel == null || varInventorySlotUI == null)
             return;
+
+        // 初始化容器（如果还未初始化）
+        if (m_EquipSlotContainer == null)
+        {
+            m_EquipSlotContainer = GetComponent<InventorySlotContainerImpl>();
+            if (m_EquipSlotContainer == null)
+                m_EquipSlotContainer = gameObject.AddComponent<InventorySlotContainerImpl>();
         }
 
-        // 清理所有装备槽
-        for (int i = varEquipmentPanel.transform.childCount - 1; i >= 0; i--)
+        const int equipSlotsCount = 9;
+        for (int i = 0; i < equipSlotsCount; i++)
         {
-            var child = varEquipmentPanel.transform.GetChild(i);
-            if (child.gameObject != varEquipSlotItem)
-            {
-                Destroy(child.gameObject);
-            }
+            var go = Instantiate(varInventorySlotUI, varEquipmentPanel.transform);
+            if (!go.TryGetComponent<InventorySlotUI>(out var slotUI))
+                continue;
+
+            slotUI.SetSlotIndex(i);
+            slotUI.SetContainerType(SlotContainerType.Equip);
+            slotUI.SetSlotContainer(m_EquipSlotContainer);
+            slotUI.gameObject.SetActive(true);
+            slotUI.gameObject.name = $"EquipSlot_{i}";
+            m_EquipSlots.Add(slotUI);
         }
 
-        // TODO: 从玩家数据获取装备列表并创建装备槽
-        // 示例：创建3个装备槽
-        for (int i = 0; i < 3; i++)
-        {
-            CreateEquipSlot(i);
-        }
+        DebugEx.LogModule("CombatUI", $"装备栏初始化完成，共 {m_EquipSlots.Count} 个装备槽");
     }
 
     /// <summary>
-    /// 创建装备槽
+    /// 刷新装备面板：从背包显示装备到预创建的槽位
     /// </summary>
-    private void CreateEquipSlot(int index)
+    private void RefreshEquipmentPanel()
     {
-        GameObject slotGo = Instantiate(varEquipSlotItem, varEquipmentPanel.transform);
-        // ✅ 隐藏实例而非模板
-        slotGo.SetActive(true);
-        slotGo.name = $"EquipSlot_{index}";
+        if (m_EquipSlots.Count == 0)
+            return;
 
-        EquipSlotItem slotItem = slotGo.GetComponent<EquipSlotItem>();
-        if (slotItem != null)
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager == null)
         {
-            // TODO: 设置装备数据
-            slotItem.SetData(index);
+            DebugEx.WarningModule("CombatUI", "InventoryManager 未初始化");
+            return;
         }
+
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        var allSlots = inventoryManager.GetAllSlots();
+        int displayIndex = 0;
+
+        // 遍历背包所有槽位，过滤装备类型并填充到预创建的槽位
+        for (int i = 0; i < allSlots.Count; i++)
+        {
+            var slot = allSlots[i];
+            if (slot.IsEmpty)
+                continue;
+
+            var row = itemTable?.GetDataRow(slot.ItemStack.Item.ItemId);
+            if (row == null || row.Type != (int)ItemType.Equipment)
+                continue;
+
+            if (displayIndex >= m_EquipSlots.Count)
+                break;
+
+            m_EquipSlots[displayIndex].SetData(slot.ItemStack);
+            displayIndex++;
+        }
+
+        // 清空未填充的槽位
+        for (int i = displayIndex; i < m_EquipSlots.Count; i++)
+        {
+            m_EquipSlots[i].SetData(null);
+        }
+
+        DebugEx.LogModule("CombatUI", $"装备面板已刷新，显示 {displayIndex} 个装备");
+    }
+
+    /// <summary>
+    /// 背包数据变化回调
+    /// </summary>
+    private void OnInventoryChanged()
+    {
+        RefreshEquipmentPanel();
     }
 
     /// <summary>
@@ -569,47 +631,6 @@ public partial class CombatUI : StateAwareUIForm
     private CardSlotContainer GetCardSlotContainer()
     {
         return varCardSlots?.GetComponent<CardSlotContainer>();
-    }
-
-    /// <summary>
-    /// 刷新Buff面板
-    /// </summary>
-    private void RefreshBuffPanel()
-    {
-        if (varBuffPanel == null || varBuffItem == null)
-        {
-            return;
-        }
-
-        // 清理所有Buff
-        for (int i = varBuffPanel.transform.childCount - 1; i >= 0; i--)
-        {
-            var child = varBuffPanel.transform.GetChild(i);
-            if (child.gameObject != varBuffItem)
-            {
-                Destroy(child.gameObject);
-            }
-        }
-
-        // TODO: 从玩家数据获取Buff列表并创建Buff项
-        // 此处应遍历玩家或棋子的BuffManager.GetAllBuffs()获取实际Buff数据
-    }
-
-    /// <summary>
-    /// 创建Buff项
-    /// </summary>
-    private void CreateBuffItem(int buffId)
-    {
-        GameObject buffGo = Instantiate(varBuffItem, varBuffPanel.transform);
-        buffGo.SetActive(true);
-        buffGo.name = $"Buff_{buffId}";
-
-        BuffItem buffItem = buffGo.GetComponent<BuffItem>();
-        if (buffItem != null)
-        {
-            buffItem.SetData(buffId);
-            DebugEx.LogModule("CombatUI", $"创建Buff项: ID={buffId}");
-        }
     }
 
     /// <summary>

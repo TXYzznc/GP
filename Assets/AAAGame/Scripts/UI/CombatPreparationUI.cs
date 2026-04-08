@@ -35,9 +35,6 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>选中动画时长</summary>
     private const float SELECTED_ANIMATION_DURATION = 0.3f;
 
-    /// <summary>已生成的Buff UI项</summary>
-    private List<GameObject> m_SpawnedBuffItems = new List<GameObject>();
-
     /// <summary>可选的Buff ID列表（用于三选一）</summary>
     private List<int> m_AvailableBuffIds = new List<int>();
 
@@ -55,6 +52,12 @@ public partial class CombatPreparationUI : UIFormBase
 
     /// <summary>⭐ 新增：棋子卡容器（管理扇形排列和进场动效）</summary>
     private ChessSlotContainer m_ChessSlotContainer;
+
+    /// <summary>装备槽列表（预创建固定数量）</summary>
+    private List<InventorySlotUI> m_EquipSlots = new List<InventorySlotUI>();
+
+    /// <summary>装备槽容器</summary>
+    private InventorySlotContainerImpl m_EquipSlotContainer;
 
     #endregion
 
@@ -146,8 +149,16 @@ public partial class CombatPreparationUI : UIFormBase
         ChessSelectionManager.OnChessSelected += OnSceneChessSelectedHandler;
         ChessSelectionManager.OnChessDeselected += OnSceneChessDeselectedHandler;
 
+        // 订阅背包数据变化事件
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager != null)
+            inventoryManager.OnInventoryChanged += OnInventoryChanged;
+
+        // 初始化装备槽（仅首次打开）
+        if (m_EquipSlots.Count == 0)
+            InitializeEquipSlots();
+
         // 刷新各个面板
-        RefreshBuffPanel();
         RefreshEquipmentPanel();
         RefreshChessPanel();
 
@@ -187,6 +198,11 @@ public partial class CombatPreparationUI : UIFormBase
         ChessSelectionManager.OnChessSelected -= OnSceneChessSelectedHandler;
         ChessSelectionManager.OnChessDeselected -= OnSceneChessDeselectedHandler;
 
+        // 取消订阅背包数据变化事件
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager != null)
+            inventoryManager.OnInventoryChanged -= OnInventoryChanged;
+
         // 清理生成的UI项
         ClearSpawnedItems();
 
@@ -222,44 +238,95 @@ public partial class CombatPreparationUI : UIFormBase
 
     #endregion
 
-    #region Buff 面板
-
-    /// <summary>
-    /// 刷新全局Buff面板
-    /// </summary>
-    private void RefreshBuffPanel()
-    {
-        // 清理生成的Buff项
-        ClearBuffItems();
-
-        // TODO: 从全局Buff管理器获取当前生效的全局Buff列表
-        // 目前暂时没有全局Buff系统，跳过
-        // 示例代码：
-        // var globalBuffs = GlobalBuffManager.Instance.GetActiveBuffs();
-        // foreach (var buff in globalBuffs)
-        // {
-        //     var item = SpawnItem<UIItemObject>(varBuffItem, varBuffPanel.transform);
-        //     (item.itemLogic as BuffItem).SetData(buff.Id);
-        //     m_SpawnedBuffItems.Add(item.gameObject);
-        // }
-
-        DebugEx.LogModule("CombatPreparationUI", "Buff面板已刷新（当前无全局Buff）");
-    }
-
-    #endregion
-
     #region 装备面板
 
     /// <summary>
-    /// 刷新装备面板
+    /// 初始化装备槽（首次打开时调用一次）
+    /// 预创建 9 个装备槽，始终显示
+    /// </summary>
+    private void InitializeEquipSlots()
+    {
+        if (varEquipmentPanel == null || varInventorySlotUI == null)
+            return;
+
+        // 初始化容器（如果还未初始化）
+        if (m_EquipSlotContainer == null)
+        {
+            m_EquipSlotContainer = GetComponent<InventorySlotContainerImpl>();
+            if (m_EquipSlotContainer == null)
+                m_EquipSlotContainer = gameObject.AddComponent<InventorySlotContainerImpl>();
+        }
+
+        const int equipSlotsCount = 9;
+        for (int i = 0; i < equipSlotsCount; i++)
+        {
+            var go = Instantiate(varInventorySlotUI, varEquipmentPanel.transform);
+            if (!go.TryGetComponent<InventorySlotUI>(out var slotUI))
+                continue;
+
+            slotUI.SetSlotIndex(i);
+            slotUI.SetContainerType(SlotContainerType.Equip);
+            slotUI.SetSlotContainer(m_EquipSlotContainer);
+            slotUI.gameObject.SetActive(true);
+            slotUI.gameObject.name = $"EquipSlot_{i}";
+            m_EquipSlots.Add(slotUI);
+        }
+
+        DebugEx.LogModule("CombatPreparationUI", $"装备栏初始化完成，共 {m_EquipSlots.Count} 个装备槽");
+    }
+
+    /// <summary>
+    /// 刷新装备面板：从背包显示装备到预创建的槽位
     /// </summary>
     private void RefreshEquipmentPanel()
     {
-        // TODO: 从装备系统获取当前装备列表
-        // 目前装备系统尚未实现，跳过
-        // 实现时应使用 Instantiate(varEquipSlotItem) 创建实例，而非隐藏模板
+        if (m_EquipSlots.Count == 0)
+            return;
 
-        DebugEx.LogModule("CombatPreparationUI", "装备面板已刷新（当前无装备）");
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager == null)
+        {
+            DebugEx.WarningModule("CombatPreparationUI", "InventoryManager 未初始化");
+            return;
+        }
+
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        var allSlots = inventoryManager.GetAllSlots();
+        int displayIndex = 0;
+
+        // 遍历背包所有槽位，过滤装备类型并填充到预创建的槽位
+        for (int i = 0; i < allSlots.Count; i++)
+        {
+            var slot = allSlots[i];
+            if (slot.IsEmpty)
+                continue;
+
+            var row = itemTable?.GetDataRow(slot.ItemStack.Item.ItemId);
+            if (row == null || row.Type != (int)ItemType.Equipment)
+                continue;
+
+            if (displayIndex >= m_EquipSlots.Count)
+                break;
+
+            m_EquipSlots[displayIndex].SetData(slot.ItemStack);
+            displayIndex++;
+        }
+
+        // 清空未填充的槽位
+        for (int i = displayIndex; i < m_EquipSlots.Count; i++)
+        {
+            m_EquipSlots[i].SetData(null);
+        }
+
+        DebugEx.LogModule("CombatPreparationUI", $"装备面板已刷新，显示 {displayIndex} 个装备");
+    }
+
+    /// <summary>
+    /// 背包数据变化回调
+    /// </summary>
+    private void OnInventoryChanged()
+    {
+        RefreshEquipmentPanel();
     }
 
     #endregion
@@ -947,7 +1014,6 @@ public partial class CombatPreparationUI : UIFormBase
     private void ClearSpawnedItems()
     {
         ClearChessItems();
-        ClearBuffItems();
 
         // 清理选中状态
         m_SelectedChessInstanceId = string.Empty;
@@ -971,18 +1037,6 @@ public partial class CombatPreparationUI : UIFormBase
             UnspawnAllItem<UIItemObject>(varChessItemUI);
             m_SpawnedChessItems.Clear();
             m_ChessItemUIDict.Clear();
-        }
-    }
-
-    /// <summary>
-    /// 清理Buff UI项
-    /// </summary>
-    private void ClearBuffItems()
-    {
-        if (varBuffItem != null && m_SpawnedBuffItems.Count > 0)
-        {
-            UnspawnAllItem<UIItemObject>(varBuffItem);
-            m_SpawnedBuffItems.Clear();
         }
     }
 
