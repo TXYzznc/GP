@@ -45,3 +45,19 @@
 /UserSettings
 Assets/AAAGame/Font/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset
 Assets/AAAGame/Font/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset
+
+# Graphify 临时文件和输出（大文件）
+.graphify_*.json
+.graphify_*.txt
+graphify-out/
+graphify-out-game/
+graphify-out-docs/
+Assets/AAAGame/Scripts/graphify-out/
+Assets/AAAGame/Scripts/Game/graphify-out/
+项目知识库（AI）/graphify-out/
+
+# 开发临时文件
+temp_*.txt
+temp_*.py
+unpack_*.py
+temp_*/

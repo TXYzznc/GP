@@ -4,7 +4,11 @@
       "Bash(grep \"\\\\.cs$\")",
       "Bash(openspec status:*)",
       "Bash(openspec instructions:*)",
-      "Bash(npx openspec:*)"
+      "Bash(npx openspec:*)",
+      "Bash(ls -lh 输出图片/高分辨率/*.png)",
+      "Bash(ls -lh 输出图片/矢量图/*.svg)",
+      "Bash(python)",
+      "Bash(python -c ':*)"
     ]
   }
 }
