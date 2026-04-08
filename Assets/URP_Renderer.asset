@@ -77,6 +77,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   BlurShader: {fileID: 0}
+  DilationShader: {fileID: 0}
+  UseSharpOutline: 1
   DefaultColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   DefaultBlurSize: 20
   ClipSize: 0.5
@@ -102,11 +104,13 @@ MonoBehaviour:
   OutlineShader: {fileID: 4800000, guid: b76ba460f59364774b90f4cf93ebbaf0, type: 3}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 2147500480
+    m_Bits: 2147500992
   BlurShader: {fileID: 4800000, guid: fcacfc263cbd94b82b49bc0f97b36a4f, type: 3}
+  DilationShader: {fileID: 4800000, guid: 898938181895a89499bffc23f4686d5c, type: 3}
+  UseSharpOutline: 1
   DefaultColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   DefaultBlurSize: 20
-  ClipSize: 0.5
+  ClipSize: 1
   Intensity: 1
   ExpPower: 1
   RTDownsample: 2

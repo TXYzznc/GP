@@ -20,7 +20,7 @@ public class OutlineController : MonoBehaviour
     public static readonly Color EnemyColor = Color.red;
 
     /// <summary>默认描边宽度</summary>
-    public static readonly float DefaultSize = 20f;
+    public static readonly float DefaultSize = 1f;
 
     #endregion
 

@@ -20,8 +20,15 @@ public class OutlineRenderFeature : ScriptableRendererFeature
     [Tooltip("渲染层级")]
     [SerializeField] private LayerMask m_LayerMask = -1;
 
-    [Tooltip("模糊着色器，用于生成描边模糊效果")]
+    [Tooltip("模糊着色器，用于生成描边模糊效果（柔和模式）")]
     public Shader BlurShader;
+
+    [Tooltip("膨胀着色器，用于生成锐利描边效果（锐利模式）")]
+    public Shader DilationShader;
+
+    [Header("=== 描边模式 ===")]
+    [Tooltip("启用锐利描边（类似Unity编辑器选中效果）\n关闭则使用柔和发光描边")]
+    public bool UseSharpOutline = true;
 
     [Header("=== 默认外观 ===")]
     [Tooltip("默认描边颜色")]
@@ -247,6 +254,10 @@ public class SimpleOutlineRenderPass : ScriptableRenderPass
         if (feature == null || feature.OutlineShader == null || feature.BlurShader == null)
             return false;
 
+        // 锐利模式需要 DilationShader
+        if (feature.UseSharpOutline && feature.DilationShader == null)
+            return false;
+
         var cameraData = renderingData.cameraData;
         if (cameraData.isSceneViewCamera || cameraData.isPreviewCamera)
             return false;
@@ -412,6 +423,7 @@ public class OutlineDrawer
     private const int BLUR_COUNT = 3;
     private RenderTexture[] _blurRts = new RenderTexture[BLUR_COUNT];
     private Material[] _blurMats = new Material[BLUR_COUNT];
+    private Material[] _dilateMats = new Material[BLUR_COUNT];
     private Material _outlineMat;
 
     private List<Renderer> _renderers;
@@ -508,18 +520,33 @@ public class OutlineDrawer
                 cmd.DrawRenderer(renderer, _outlineMat, 0, 0);
         }
 
-        // Step 2: 模糊
+        // Step 2: 模糊或膨胀
+        bool useSharp = feature.UseSharpOutline && feature.DilationShader != null;
         float blurStep = _outlineSize / BLUR_COUNT;
         for (int i = 0; i < BLUR_COUNT; i++)
         {
-            if (_blurMats[i] == null)
-                _blurMats[i] = new Material(feature.BlurShader);
-
-            _blurMats[i].SetFloat("_BlurSize", blurStep * (i + 1));
-
             RenderTexture srcRt = (i == 0) ? _srcRt : _blurRts[i - 1];
-            _blurMats[i].SetTexture("_MainTex", srcRt);
-            cmd.Blit(srcRt, _blurRts[i], _blurMats[i]);
+
+            if (useSharp)
+            {
+                // 膨胀模式：使用 Max Filter
+                if (_dilateMats[i] == null)
+                    _dilateMats[i] = new Material(feature.DilationShader);
+
+                _dilateMats[i].SetFloat("_DilateSize", blurStep * (i + 1));
+                _dilateMats[i].SetTexture("_MainTex", srcRt);
+                cmd.Blit(srcRt, _blurRts[i], _dilateMats[i]);
+            }
+            else
+            {
+                // 模糊模式：使用高斯模糊
+                if (_blurMats[i] == null)
+                    _blurMats[i] = new Material(feature.BlurShader);
+
+                _blurMats[i].SetFloat("_BlurSize", blurStep * (i + 1));
+                _blurMats[i].SetTexture("_MainTex", srcRt);
+                cmd.Blit(srcRt, _blurRts[i], _blurMats[i]);
+            }
         }
 
         // Step 3: 生成轮廓
@@ -570,6 +597,11 @@ public class OutlineDrawer
             {
                 Object.DestroyImmediate(_blurMats[i]);
                 _blurMats[i] = null;
+            }
+            if (_dilateMats[i] != null)
+            {
+                Object.DestroyImmediate(_dilateMats[i]);
+                _dilateMats[i] = null;
             }
         }
     }

@@ -328,7 +328,7 @@ public class ChessSelectionManager
         // 使用描边控制器显示选中描边（黄色）
         if (entity.OutlineController != null)
         {
-            entity.OutlineController.ShowOutline(new Color(1f, 0.85f, 0f), 20f);
+            entity.OutlineController.ShowOutline(new Color(1f, 0.85f, 0f), OutlineController.DefaultSize);
         }
 
         // 通知UI显示棋子详情
