@@ -5,48 +5,80 @@
 **类型**: 流程图  
 **用途**: 展示 Buff 的生命周期
 
-## Mermaid 代码
+## Graphviz DOT 代码
 
-```mermaid
-flowchart TD
-    Start([Buff 应用]) --> GetBuff["获取 Buff 数据"]
-    GetBuff --> CheckStack["检查堆叠规则"]
-    CheckStack --> StackType{堆叠类型?}
+```dot
+digraph G {
+    rankdir=TB;
+    splines=orthogonal;
+    nodesep=0.8;
+    ranksep=1.0;
     
-    StackType -->|覆盖| RemoveOld["移除旧 Buff"]
-    RemoveOld --> ApplyNew["应用新 Buff"]
+    // 节点定义
+    Start [shape=ellipse, label="Buff 应用", style=filled, fillcolor="#90EE90"];
+    GetBuff [shape=box, label="获取 Buff 数据"];
+    CheckStack [shape=box, label="检查堆叠规则"];
+    StackType [shape=diamond, label="堆叠类型?"];
     
-    StackType -->|叠加| CheckMax["检查最大层数"]
-    CheckMax --> IsMax{达到上限?}
-    IsMax -->|是| RemoveOldest["移除最旧层"]
-    RemoveOldest --> AddLayer["增加新层"]
-    IsMax -->|否| AddLayer
+    RemoveOld [shape=box, label="移除旧 Buff"];
+    CheckMax [shape=box, label="检查最大层数"];
+    IsMax [shape=diamond, label="达到上限?"];
+    RemoveOldest [shape=box, label="移除最旧层"];
+    AddLayer [shape=box, label="增加新层"];
     
-    StackType -->|独立| ApplyNew
+    ApplyNew [shape=box, label="应用新 Buff"];
+    InitBuff [shape=box, label="初始化 Buff"];
+    ApplyEffect [shape=box, label="应用 Buff 效果", style=filled, fillcolor="#FFD700"];
+    StartDuration [shape=box, label="启动持续时间"];
+    Active [shape=box, label="Buff 激活", style=filled, fillcolor="#87CEEB"];
     
-    ApplyNew --> InitBuff["初始化 Buff"]
-    InitBuff --> ApplyEffect["应用 Buff 效果"]
-    ApplyEffect --> StartDuration["启动持续时间"]
-    StartDuration --> Active["Buff 激活"]
+    Update [shape=box, label="每帧更新", style=filled, fillcolor="#DDA0DD"];
+    CheckDuration [shape=diamond, label="持续时间到期?"];
+    CheckTrigger [shape=diamond, label="触发条件?"];
+    TriggerEffect [shape=box, label="触发效果"];
     
-    Active --> Update["每帧更新"]
-    Update --> CheckDuration{持续时间到期?}
-    CheckDuration -->|否| CheckTrigger{触发条件?}
-    CheckTrigger -->|是| TriggerEffect["触发效果"]
-    TriggerEffect --> Update
-    CheckTrigger -->|否| Update
+    RemoveBuff [shape=box, label="移除 Buff"];
+    RemoveEffect [shape=box, label="移除 Buff 效果", style=filled, fillcolor="#FF6347"];
+    Cleanup [shape=box, label="清理资源"];
+    End [shape=ellipse, label="Buff 结束", style=filled, fillcolor="#FFB6C6"];
     
-    CheckDuration -->|是| RemoveBuff["移除 Buff"]
-    RemoveBuff --> RemoveEffect["移除 Buff 效果"]
-    RemoveEffect --> Cleanup["清理资源"]
-    Cleanup --> End([Buff 结束])
+    // 应用阶段
+    Start -> GetBuff;
+    GetBuff -> CheckStack;
+    CheckStack -> StackType;
     
-    style Start fill:#90EE90
-    style End fill:#FFB6C6
-    style Active fill:#87CEEB
-    style ApplyEffect fill:#FFD700
-    style RemoveEffect fill:#FF6347
-    style Update fill:#DDA0DD
+    StackType -> RemoveOld [label="覆盖"];
+    RemoveOld -> ApplyNew;
+    
+    StackType -> CheckMax [label="叠加"];
+    CheckMax -> IsMax;
+    IsMax -> RemoveOldest [label="是"];
+    RemoveOldest -> AddLayer;
+    IsMax -> AddLayer [label="否"];
+    AddLayer -> ApplyNew;
+    
+    StackType -> ApplyNew [label="独立"];
+    
+    // 激活阶段
+    ApplyNew -> InitBuff;
+    InitBuff -> ApplyEffect;
+    ApplyEffect -> StartDuration;
+    StartDuration -> Active;
+    
+    // 活跃阶段
+    Active -> Update;
+    Update -> CheckDuration;
+    CheckDuration -> CheckTrigger [label="否"];
+    CheckTrigger -> TriggerEffect [label="是"];
+    TriggerEffect -> Update;
+    CheckTrigger -> Update [label="否"];
+    
+    // 移除阶段
+    CheckDuration -> RemoveBuff [label="是"];
+    RemoveBuff -> RemoveEffect;
+    RemoveEffect -> Cleanup;
+    Cleanup -> End;
+}
 ```
 
 ## 说明

@@ -1,58 +1,28 @@
 # 图2：GameFramework 框架结构
 
-```mermaid
-classDiagram
-    class GameFramework {
-        +Procedure
-        +FSM
-        +Event
-        +Entity
-        +UI
-        +Resource
-    }
+```dot
+digraph {
+    rankdir=TB;
+    nodesep=0.9;
+    ranksep=1.2;
+    splines=orthogonal;
     
-    class Procedure {
-        +Initialize()
-        +Update()
-        +Shutdown()
-    }
+    GameFramework [label="GameFramework\n\n+ Procedure\n+ FSM\n+ Event\n+ Entity\n+ UI\n+ Resource", style="filled", fillcolor="#fff3e0", shape="box"];
     
-    class FSM {
-        +AddState()
-        +ChangeState()
-        +GetCurrentState()
-    }
+    Procedure [label="Procedure\n\n+ Initialize()\n+ Update()\n+ Shutdown()", style="filled", fillcolor="#fff9c4", shape="box"];
+    FSM [label="FSM\n\n+ AddState()\n+ ChangeState()\n+ GetCurrentState()", style="filled", fillcolor="#fff9c4", shape="box"];
+    Event [label="Event\n\n+ Subscribe()\n+ Unsubscribe()\n+ Publish()", style="filled", fillcolor="#fff9c4", shape="box"];
+    Entity [label="Entity\n\n+ Create()\n+ Destroy()\n+ GetComponent()", style="filled", fillcolor="#fff9c4", shape="box"];
+    UI [label="UI\n\n+ OpenForm()\n+ CloseForm()\n+ GetForm()", style="filled", fillcolor="#fff9c4", shape="box"];
+    Resource [label="Resource\n\n+ LoadAsset()\n+ UnloadAsset()\n+ GetAsset()", style="filled", fillcolor="#fff9c4", shape="box"];
     
-    class Event {
-        +Subscribe()
-        +Unsubscribe()
-        +Publish()
-    }
-    
-    class Entity {
-        +Create()
-        +Destroy()
-        +GetComponent()
-    }
-    
-    class UI {
-        +OpenForm()
-        +CloseForm()
-        +GetForm()
-    }
-    
-    class Resource {
-        +LoadAsset()
-        +UnloadAsset()
-        +GetAsset()
-    }
-    
-    GameFramework --> Procedure
-    GameFramework --> FSM
-    GameFramework --> Event
-    GameFramework --> Entity
-    GameFramework --> UI
-    GameFramework --> Resource
+    GameFramework -> Procedure;
+    GameFramework -> FSM;
+    GameFramework -> Event;
+    GameFramework -> Entity;
+    GameFramework -> UI;
+    GameFramework -> Resource;
+}
 ```
 
 ## 说明

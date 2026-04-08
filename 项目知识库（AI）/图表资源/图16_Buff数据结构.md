@@ -5,58 +5,30 @@
 **类型**: 类图  
 **用途**: 展示 Buff 的数据模型
 
-## Mermaid 代码
+## Graphviz DOT 代码
 
-```mermaid
-classDiagram
-    class Buff {
-        -int id
-        -string name
-        -int duration
-        -int remaining_time
-        -float value
-        -string effect_type
-        -int stack_count
-        -Entity target
-        +Apply()
-        +Update()
-        +Remove()
-        +GetRemainingTime()
-        +IsActive()
-    }
-
-    class BuffEffect {
-        -string type
-        -float value
-        -string condition
-        +Execute()
-        +Undo()
-    }
-
-    class BuffManager {
-        -List~Buff~ active_buffs
-        +AddBuff()
-        +RemoveBuff()
-        +UpdateBuffs()
-        +GetBuffsByType()
-        +GetTotalValue()
-    }
-
-    class Entity {
-        -int id
-        -float hp
-        -float attack
-        -float defense
-        -List~Buff~ buffs
-        +ApplyBuff()
-        +RemoveBuff()
-        +GetModifiedStats()
-    }
-
-    Buff --> BuffEffect
-    BuffManager --> Buff
-    Entity --> Buff
-    Entity --> BuffManager
+```dot
+digraph G {
+    rankdir=LR;
+    splines=orthogonal;
+    nodesep=0.7;
+    ranksep=1.0;
+    
+    // 类定义
+    Buff [shape=record, label="{Buff|- id: int\n- name: string\n- duration: int\n- remaining_time: int\n- value: float\n- effect_type: string\n- stack_count: int\n- target: Entity|+ Apply()\n+ Update()\n+ Remove()\n+ GetRemainingTime()\n+ IsActive()}", style=filled, fillcolor="#FFE4B5"];
+    
+    BuffEffect [shape=record, label="{BuffEffect|- type: string\n- value: float\n- condition: string|+ Execute()\n+ Undo()}", style=filled, fillcolor="#87CEEB"];
+    
+    BuffManager [shape=record, label="{BuffManager|- active_buffs: List~Buff~|+ AddBuff()\n+ RemoveBuff()\n+ UpdateBuffs()\n+ GetBuffsByType()\n+ GetTotalValue()}", style=filled, fillcolor="#F0E68C"];
+    
+    Entity [shape=record, label="{Entity|- id: int\n- hp: float\n- attack: float\n- defense: float\n- buffs: List~Buff~|+ ApplyBuff()\n+ RemoveBuff()\n+ GetModifiedStats()}", style=filled, fillcolor="#DDA0DD"];
+    
+    // 关系定义
+    Buff -> BuffEffect [label="has", arrowhead=vee];
+    BuffManager -> Buff [label="manages", arrowhead=vee];
+    Entity -> Buff [label="contains", arrowhead=vee];
+    Entity -> BuffManager [label="uses", arrowhead=vee];
+}
 ```
 
 ## 说明

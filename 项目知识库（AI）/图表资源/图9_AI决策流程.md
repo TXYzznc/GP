@@ -7,39 +7,50 @@
 
 ## Mermaid 代码
 
-```mermaid
-flowchart TD
-    Start([AI 决策开始]) --> GetState["获取当前战斗状态"]
-    GetState --> GetOptions["获取可用行动列表"]
-    GetOptions --> EvaluateAll["评估所有行动"]
+```dot
+digraph {
+    rankdir=TB;
+    nodesep=0.8;
+    ranksep=1.0;
+    splines=orthogonal;
     
-    EvaluateAll --> Loop["遍历每个行动"]
-    Loop --> CalcScore["计算行动评分"]
-    CalcScore --> CheckDamage["评估伤害输出"]
-    CheckDamage --> CheckDefense["评估防御效果"]
-    CheckDefense --> CheckBuff["评估 Buff 效果"]
-    CheckBuff --> CheckHeal["评估治疗效果"]
-    CheckHeal --> CalcPriority["计算优先级"]
+    Start [label="AI 决策开始", style="filled", fillcolor="#90EE90", shape="ellipse"];
+    GetState [label="获取当前战斗状态", style="filled", fillcolor="#87CEEB", shape="box"];
+    GetOptions [label="获取可用行动列表", style="filled", fillcolor="#87CEEB", shape="box"];
+    EvaluateAll [label="评估所有行动", style="filled", fillcolor="#FFD700", shape="box"];
+    Loop [label="遍历每个行动", style="filled", fillcolor="#87CEEB", shape="box"];
+    CalcScore [label="计算行动评分", style="filled", fillcolor="#FFD700", shape="box"];
+    CheckDamage [label="评估伤害输出", style="filled", fillcolor="#87CEEB", shape="box"];
+    CheckDefense [label="评估防御效果", style="filled", fillcolor="#87CEEB", shape="box"];
+    CheckBuff [label="评估 Buff 效果", style="filled", fillcolor="#87CEEB", shape="box"];
+    CheckHeal [label="评估治疗效果", style="filled", fillcolor="#87CEEB", shape="box"];
+    CalcPriority [label="计算优先级", style="filled", fillcolor="#87CEEB", shape="box"];
+    MoreActions [label="还有行动?", style="filled", fillcolor="#87CEEB", shape="diamond"];
+    SelectBest [label="选择评分最高的行动", style="filled", fillcolor="#DDA0DD", shape="box"];
+    CheckRandom [label="随机因子?", style="filled", fillcolor="#87CEEB", shape="diamond"];
+    ApplyRandom [label="应用随机波动", style="filled", fillcolor="#DDA0DD", shape="box"];
+    FinalAction [label="最终行动", style="filled", fillcolor="#DDA0DD", shape="box"];
+    End [label="返回选定行动", style="filled", fillcolor="#FFB6C6", shape="ellipse"];
     
-    CalcPriority --> MoreActions{还有行动?}
-    MoreActions -->|是| Loop
-    MoreActions -->|否| SelectBest["选择评分最高的行动"]
-    
-    SelectBest --> CheckRandom{随机因子?}
-    CheckRandom -->|是| ApplyRandom["应用随机波动"]
-    CheckRandom -->|否| FinalAction["最终行动"]
-    ApplyRandom --> FinalAction
-    
-    FinalAction --> End([返回选定行动])
-    
-    style Start fill:#90EE90
-    style End fill:#FFB6C6
-    style GetState fill:#87CEEB
-    style GetOptions fill:#87CEEB
-    style EvaluateAll fill:#FFD700
-    style CalcScore fill:#FFD700
-    style SelectBest fill:#DDA0DD
-    style FinalAction fill:#DDA0DD
+    Start -> GetState;
+    GetState -> GetOptions;
+    GetOptions -> EvaluateAll;
+    EvaluateAll -> Loop;
+    Loop -> CalcScore;
+    CalcScore -> CheckDamage;
+    CheckDamage -> CheckDefense;
+    CheckDefense -> CheckBuff;
+    CheckBuff -> CheckHeal;
+    CheckHeal -> CalcPriority;
+    CalcPriority -> MoreActions;
+    MoreActions -> Loop [label="是"];
+    MoreActions -> SelectBest [label="否"];
+    SelectBest -> CheckRandom;
+    CheckRandom -> ApplyRandom [label="是"];
+    CheckRandom -> FinalAction [label="否"];
+    ApplyRandom -> FinalAction;
+    FinalAction -> End;
+}
 ```
 
 ## 说明
