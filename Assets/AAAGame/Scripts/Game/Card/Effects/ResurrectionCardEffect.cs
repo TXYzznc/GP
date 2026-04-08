@@ -35,16 +35,29 @@ public class ResurrectionCardEffect : ICardEffect
             return;
         }
 
+        float radius = m_CardData.TableRow.AreaRadius;
+        ChessEntity closestDead = null;
+        float closestDistance = float.MaxValue;
+
         foreach (var chess in allChess)
         {
             if (chess != null && chess.Camp == (int)CampType.Player && chess.CurrentState == ChessState.Dead)
             {
-                float reviveHp = (float)(chess.Attribute.MaxHp * 0.5f);
-                CardEffectHelper.HealTarget(chess, reviveHp);
-                chess.ChangeState(ChessState.Idle);
-                DebugEx.LogModule("ResurrectionCardEffect", $"复活 {chess.Config?.Name}");
-                break;
+                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (distance <= radius && distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestDead = chess;
+                }
             }
+        }
+
+        if (closestDead != null)
+        {
+            float reviveHp = (float)(closestDead.Attribute.MaxHp * 0.5f);
+            CardEffectHelper.HealTarget(closestDead, reviveHp);
+            closestDead.ChangeState(ChessState.Idle);
+            DebugEx.LogModule("ResurrectionCardEffect", $"复活 {closestDead.Config?.Name}");
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);

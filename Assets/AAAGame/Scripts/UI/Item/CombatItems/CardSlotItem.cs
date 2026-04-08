@@ -411,6 +411,7 @@ public partial class CardSlotItem
     private bool m_IsDragging;  // 正在拖拽标志
     private float m_DragStartTime;  // 拖拽开始时间
     private float m_LastDragUpdateTime;  // 上次拖拽更新时间
+    private bool m_HasLeftGreenArea;  // 拖拽后是否已离开过 GreenArea
 
     /// <summary>
     /// 开始拖拽
@@ -421,6 +422,7 @@ public partial class CardSlotItem
             return;
 
         m_IsDragging = true;
+        m_HasLeftGreenArea = false;
         m_DragStartTime = Time.realtimeSinceStartup;
         m_LastDragUpdateTime = m_DragStartTime;
 
@@ -568,8 +570,16 @@ public partial class CardSlotItem
         }
 
         // 检测区域并更新预览（优先级：吸附区 > 无效区 > 战场区）
-        bool isInRetractArea = IsPositionInAdsorptionArea(eventData.position);
+        bool isInGreenAreaRaw = IsPositionInAdsorptionArea(eventData.position);
         bool isInInvalidArea = IsPositionInInvalidArea(eventData.position);
+
+        // 拖拽后必须先离开 GreenArea 一次，再回来才算"吸附"
+        if (!m_HasLeftGreenArea && !isInGreenAreaRaw)
+        {
+            m_HasLeftGreenArea = true;
+        }
+        bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
+
         UpdateAreaHighlight(isInRetractArea, isInInvalidArea);
 
         // 通知容器拖拽中的位置
@@ -615,9 +625,13 @@ public partial class CardSlotItem
         // 通知容器拖拽结束
         m_Container?.OnCardEndDrag(this);
 
-        // 判断释放位置：直接检查是否在吸附区或无效区
-        bool isInRetractArea = IsPositionInAdsorptionArea(eventData.position);
+        // 判断释放位置：只有离开过 GreenArea 后回来才算吸附区
+        bool isInGreenAreaRaw = IsPositionInAdsorptionArea(eventData.position);
+        bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
         bool isInInvalidArea = IsPositionInInvalidArea(eventData.position);
+
+        // 重置标记
+        m_HasLeftGreenArea = false;
 
         if (isInRetractArea || isInInvalidArea)
         {
@@ -630,7 +644,7 @@ public partial class CardSlotItem
         {
             // 战场区域：执行卡牌效果
             DebugEx.LogModule("CardSlotItem", $"释放位置在战场，执行卡牌效果");
-            ExecuteCardEffect(eventData.position);
+            ExecuteCardEffect(GetWorldPosFromScreen(eventData.position));
         }
 
         // 隐藏区域高亮显示
@@ -1018,7 +1032,8 @@ public partial class CardSlotItem
             return;
 
         // 战场区域 = 不在吸附区 且 不在无效区
-        bool isInRetractArea = IsPositionInAdsorptionArea(screenPos);
+        bool isInGreenAreaRaw = IsPositionInAdsorptionArea(screenPos);
+        bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
         bool isInInvalidArea = IsPositionInInvalidArea(screenPos);
         bool isInBattle = !isInRetractArea && !isInInvalidArea;
 
@@ -1087,7 +1102,7 @@ public partial class CardSlotItem
         // 添加新目标的描边
         Color allyColor = Color.green;
         Color enemyColor = Color.red;
-        float outlineSize = 20f;
+        float outlineSize = OutlineController.DefaultSize;
 
         foreach (var target in newTargets)
         {
@@ -1131,7 +1146,7 @@ public partial class CardSlotItem
         var selected = ChessSelectionManager.Instance?.SelectedChess;
         if (selected != null && selected.OutlineController != null)
         {
-            selected.OutlineController.ShowOutline(new Color(1f, 0.85f, 0f), 20f);
+            selected.OutlineController.ShowOutline(new Color(1f, 0.85f, 0f), OutlineController.DefaultSize);
         }
     }
 
@@ -1147,37 +1162,75 @@ public partial class CardSlotItem
             return targets;
 
         float radius = cardData.TableRow.AreaRadius;
+        int targetType = cardData.TableRow.TargetType;
 
-        foreach (var chess in allChess)
+        switch (targetType)
         {
-            if (chess == null)
-                continue;
-
-            bool isTarget = false;
-
-            switch (cardData.TableRow.TargetType)
+            case 1: // 自身 — 查找范围内最近的友方单位
+            case 2: // 友方单体
             {
-                case 3:  // 友方全体
-                    isTarget = chess.Camp == (int)CampType.Player;
-                    break;
-                case 5:  // 敌方全体
-                    isTarget = chess.Camp == (int)CampType.Enemy;
-                    break;
-                case 6:  // 全场
-                    isTarget = true;
-                    break;
-                default:
-                    // 范围判断
-                    if (radius > 0)
+                ChessEntity nearest = null;
+                float nearestDist = float.MaxValue;
+                foreach (var chess in allChess)
+                {
+                    if (chess == null || chess.Camp != (int)CampType.Player)
+                        continue;
+                    float dist = Vector3.Distance(chess.transform.position, targetPos);
+                    if (dist <= radius && dist < nearestDist)
                     {
-                        isTarget = Vector3.Distance(chess.transform.position, targetPos) <= radius;
+                        nearestDist = dist;
+                        nearest = chess;
                     }
-                    break;
+                }
+                if (nearest != null)
+                    targets.Add(nearest);
+                break;
             }
-
-            if (isTarget)
+            case 3: // 友方全体
             {
-                targets.Add(chess);
+                foreach (var chess in allChess)
+                {
+                    if (chess != null && chess.Camp == (int)CampType.Player)
+                        targets.Add(chess);
+                }
+                break;
+            }
+            case 4: // 敌方单体
+            {
+                ChessEntity nearest = null;
+                float nearestDist = float.MaxValue;
+                foreach (var chess in allChess)
+                {
+                    if (chess == null || chess.Camp != (int)CampType.Enemy)
+                        continue;
+                    float dist = Vector3.Distance(chess.transform.position, targetPos);
+                    if (dist <= radius && dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = chess;
+                    }
+                }
+                if (nearest != null)
+                    targets.Add(nearest);
+                break;
+            }
+            case 5: // 敌方全体
+            {
+                foreach (var chess in allChess)
+                {
+                    if (chess != null && chess.Camp == (int)CampType.Enemy)
+                        targets.Add(chess);
+                }
+                break;
+            }
+            case 6: // 全场
+            {
+                foreach (var chess in allChess)
+                {
+                    if (chess != null)
+                        targets.Add(chess);
+                }
+                break;
             }
         }
 

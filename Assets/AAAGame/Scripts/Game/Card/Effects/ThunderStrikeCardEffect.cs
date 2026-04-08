@@ -35,6 +35,7 @@ public class ThunderStrikeCardEffect : ICardEffect
             return;
         }
 
+        float radius = m_CardData.TableRow.AreaRadius;
         ChessEntity closestEnemy = null;
         float closestDistance = float.MaxValue;
 
@@ -43,7 +44,7 @@ public class ThunderStrikeCardEffect : ICardEffect
             if (chess != null && chess.Camp == (int)CampType.Enemy)
             {
                 float distance = Vector3.Distance(chess.transform.position, targetPosition);
-                if (distance < closestDistance)
+                if (distance <= radius && distance < closestDistance)
                 {
                     closestDistance = distance;
                     closestEnemy = chess;

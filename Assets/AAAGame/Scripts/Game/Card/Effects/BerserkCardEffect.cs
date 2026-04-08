@@ -21,17 +21,30 @@ public class BerserkCardEffect : ICardEffect
 
         DebugEx.LogModule("BerserkCardEffect", "执行狂暴: 进入狂暴状态");
 
+        float radius = m_CardData.TableRow.AreaRadius;
         var allChess = BattleChessManager.Instance.GetAllChessEntities();
+        ChessEntity closestAlly = null;
+        float closestDistance = float.MaxValue;
+
         foreach (var chess in allChess)
         {
             if (chess != null && chess.Camp == (int)CampType.Player)
             {
-                var buffManager = chess.GetComponent<BuffManager>();
-                if (buffManager != null)
+                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (distance <= radius && distance < closestDistance)
                 {
-                    buffManager.AddBuff(10308);
+                    closestDistance = distance;
+                    closestAlly = chess;
                 }
-                break;
+            }
+        }
+
+        if (closestAlly != null)
+        {
+            var buffManager = closestAlly.GetComponent<BuffManager>();
+            if (buffManager != null)
+            {
+                buffManager.AddBuff(10308);
             }
         }
 
