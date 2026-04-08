@@ -195,6 +195,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\StartMenuUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessGhostPreview.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\InventoryManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Manager\ChessEquipmentManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\WarehouseTester.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\UIUtils.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\LevelTable.cs" />
@@ -345,6 +346,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Interface\ISummonerSkill.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PlayerSkillSlot.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\GameTestManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Components\ChessSlotContainerImpl.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\GameUIForm.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\WorldItemPickup.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\LanguagesDialog.Variables.cs" />

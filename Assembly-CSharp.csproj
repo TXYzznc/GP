@@ -67,17 +67,22 @@
     <Compile Include="Assets\特效\子弹特效\Scripts\UniqueProjectiles\CameraShakeSimpleScript.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\测试输出日志\unity_log_20260408_184052.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\AAAGame\DataTable\Core\LanguagesTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SynergyTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Fonts\chars.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_172906.txt" />
     <None Include="Assets\AAAGame\DataTable\SpecialEffectTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Credits.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_184134.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_173322.txt" />
     <None Include="Assets\AAAGame\DataTable\ColorTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260408_113315.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\Additive_Scroll01.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_183551.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\EntityGroupTable.txt" />
     <None Include="Assets\AAAGame\DataTable\ItemTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260408_150615.txt" />
@@ -99,6 +104,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260408_113501.txt" />
     <None Include="Assets\TA\Sky\SkyboxBlendingAdvanced.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_175431.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
@@ -114,6 +120,7 @@
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Aura.shader" />
     <None Include="Assets\AAAGame\DataTable\EscapeRuleTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_173806.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlendedMobile_Scroll01.shader" />
     <None Include="Assets\AAAGame\Shader\TextMeshFont.shader" />
@@ -134,6 +141,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\AAAGame\Config\GameConfig.txt" />
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_171644.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\HDRP URP Gamma Readme.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessSkillTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
@@ -142,9 +150,11 @@
     <None Include="Assets\AAAGame\HotfixDlls\HotfixFileList.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_EdgeSoft.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260408_111552.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_174932.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260408_112251.txt" />
     <None Include="Assets\TA\Combat\CirclePreview.shader" />
     <None Include="Assets\TA\溶解\Dissolve.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_174713.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260408_111351.txt" />
     <None Include="Assets\AAAGame\Shader\ASE\FastLit.shader" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_Scroll01.shader" />
@@ -168,6 +178,7 @@
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_front.shader" />
     <None Include="Assets\TA\UI\HealthBarGrid.shader" />
     <None Include="Assets\AAAGame\DataTable\SummonerSkillTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_182227.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260408_150818.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceRuleTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Sprite.shader" />
