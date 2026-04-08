@@ -1,159 +1,116 @@
 # Buff系统类图
 
 ```dot
-// Buff系统类图 - Graphviz DOT格式
-// 强制正交线条，从左到右显示类关系
-digraph BuffSystemClassDiagram {
-    graph [
-        rankdir=LR
-        splines=orthogonal
-        nodesep=0.7
-        ranksep=1.0
-        fontname="SimHei,sans-serif"
-    ]
+digraph BuffSystem {
+    rankdir=LR;
+    nodesep=0.6;
+    ranksep=1.0;
+    splines=orthogonal;
     
-    node [shape=plaintext, fontname="SimHei,sans-serif"]
+    node [shape=box, style=filled, fontsize=10];
+    edge [arrowhead=vee];
     
-    // 核心类
-    subgraph cluster_core {
-        label="核心管理"
-        style=filled
-        fillcolor="#f0f0f0"
-        
-        BuffManager [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#e3f2fd" COLOR="#1976d2">
-                <TR><TD><B>BuffManager</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">m_ActiveBuffs: List&lt;Buff&gt;<BR/>m_Owner: ChessEntity</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">AddBuff()<BR/>RemoveBuff()<BR/>Tick()<BR/>GetBuffByType()<BR/>HasBuff()</TD></TR>
-            </TABLE>
-        >]
-    }
+    BuffManager [label="{BuffManager|+ m_ActiveBuffs: BaseBuff[]\n+ m_Owner: ChessEntity\n+ m_BuffFactory: BuffFactory\n---\n+ AddBuff(buffId, caster)\n+ RemoveBuff(buffId)\n+ RemoveBuffByType(type)\n+ Tick(deltaTime)\n+ GetBuffByType(type): BaseBuff\n+ HasBuff(buffId): bool}", shape=record, fillcolor="#e3f2fd", color="#1976d2", penwidth=2];
     
-    // 抽象基类
-    subgraph cluster_base {
-        label="Buff基类"
-        style=filled
-        fillcolor="#f0f0f0"
-        
-        Buff [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#fff3e0" COLOR="#e65100">
-                <TR><TD><I>&laquo;abstract&raquo;</I><BR/><B>Buff</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">Id: int<BR/>Name: string<BR/>Type: BuffType<BR/>StackCount: int<BR/>Duration: float<BR/>RemainingTime: float<BR/>EffectType: BuffEffectType</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">OnApply()<BR/>OnTick()<BR/>OnRemove()<BR/>CanStack()</TD></TR>
-            </TABLE>
-        >]
-    }
+    BaseBuff [label="{BaseBuff|# m_Id: int\n# m_Name: string\n# m_Type: BuffType\n# m_StackCount: int\n# m_Duration: float\n# m_RemainingTime: float\n# m_EffectType: BuffEffectType\n# m_Caster: ChessEntity\n# m_Owner: ChessEntity\n---\n+ OnApply()*\n+ OnTick(deltaTime)*\n+ OnRemove()*\n+ CanStack(): bool\n+ Refresh()\n+ IsExpired(): bool}", shape=record, fillcolor="#fff3e0", color="#e65100", penwidth=2];
     
-    // Buff具体实现
-    subgraph cluster_impl {
-        label="Buff实现"
-        style=filled
-        fillcolor="#f0f0f0"
-        
-        StatModBuff [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#bbdefb" COLOR="#1565c0">
-                <TR><TD><B>StatModBuff</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">AttackModifier: float<BR/>DefenseModifier: float<BR/>HPModifier: float</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">OnApply()<BR/>OnRemove()<BR/>CalculateModifier()</TD></TR>
-            </TABLE>
-        >]
-        FrostBuff [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#bbdefb" COLOR="#1565c0">
-                <TR><TD><B>FrostBuff</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">SlowPercentage: float<BR/>CanAttack: bool</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">OnApply()<BR/>OnTick()</TD></TR>
-            </TABLE>
-        >]
-        BurnBuff [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#bbdefb" COLOR="#1565c0">
-                <TR><TD><B>BurnBuff</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">DamagePerTick: float<BR/>TickInterval: float</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">OnApply()<BR/>OnTick()</TD></TR>
-            </TABLE>
-        >]
-        ShieldBuff [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#bbdefb" COLOR="#1565c0">
-                <TR><TD><B>ShieldBuff</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">ShieldAmount: float</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">BlockNextDamage()</TD></TR>
-            </TABLE>
-        >]
-    }
+    StatModBuff [label="{StatModBuff|+ m_AttrType: AttributeType\n+ m_ModValue: float\n+ m_ModType: ModifierType\n---\n+ OnApply()\n+ OnRemove()\n+ CalculateModifier(): float}", shape=record, fillcolor="#bbdefb", color="#1565c0", penwidth=2];
     
-    // 配置与执行
-    subgraph cluster_config {
-        label="配置与执行"
-        style=filled
-        fillcolor="#f0f0f0"
-        
-        BuffTable [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#fff9c4" COLOR="#f57f17">
-                <TR><TD><I>&laquo;DataTable&raquo;</I><BR/><B>BuffTable</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">Id: int<BR/>Name: string<BR/>Type: BuffType<BR/>EffectType: BuffEffectType<BR/>Duration: float<BR/>Parameter1/2: float<BR/>StackLimit: int<BR/>IsStackable: bool</TD></TR>
-            </TABLE>
-        >]
-        SkillConfig [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#f3e5f5" COLOR="#4a148c">
-                <TR><TD><B>SkillConfig</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">BuffIds: int[]<BR/>SelfBuffIds: int[]<BR/>BuffTriggerType: int</TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">GetBuffsToApply()<BR/>GetSelfBuffsToApply()</TD></TR>
-            </TABLE>
-        >]
-        EffectExecutor [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#f1f8e9" COLOR="#558b2f">
-                <TR><TD><I>&laquo;static&raquo;</I><BR/><B>EffectExecutor</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">ApplyBuffsOnHit()$<BR/>ApplyDamageBuffs()$<BR/>CalculateBuffModifier()$</TD></TR>
-            </TABLE>
-        >]
-    }
+    FrostBuff [label="{FrostBuff|+ m_SlowPercentage: float\n+ m_CanAttack: bool\n---\n+ OnApply()\n+ OnTick(deltaTime)}", shape=record, fillcolor="#bbdefb", color="#1565c0", penwidth=2];
     
-    // 上下文
-    subgraph cluster_context {
-        label="执行上下文"
-        style=filled
-        fillcolor="#f0f0f0"
-        
-        HitContext [label=<
-            <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" BGCOLOR="#fce4ec" COLOR="#c2185b">
-                <TR><TD><B>HitContext</B></TD></TR>
-                <HR/>
-                <TR><TD ALIGN="LEFT">Attacker: ChessEntity<BR/>LockedTarget: ChessEntity<BR/>SkillConfig: SkillConfig<BR/>OnHitCallback: Action</TD></TR>
-            </TABLE>
-        >]
-    }
+    BurnBuff [label="{BurnBuff|+ m_DamagePerTick: float\n+ m_TickInterval: float\n---\n+ OnApply()\n+ OnTick(deltaTime)}", shape=record, fillcolor="#bbdefb", color="#1565c0", penwidth=2];
+    
+    ShieldBuff [label="{ShieldBuff|+ m_ShieldAmount: float\n+ m_RemainingShield: float\n---\n+ OnApply()\n+ BlockDamage(damage): float}", shape=record, fillcolor="#bbdefb", color="#1565c0", penwidth=2];
+    
+    BuffFactory [label="{BuffFactory|---\n+ CreateBuff(buffId, caster, owner): BaseBuff\n+ GetBuffConfig(buffId): BuffTable}", shape=record, fillcolor="#f1f8e9", color="#558b2f", penwidth=2];
+    
+    BuffTable [label="{BuffTable|+ Id: int\n+ Name: string\n+ Type: BuffType\n+ EffectType: BuffEffectType\n+ Duration: float\n+ Parameter1: float\n+ Parameter2: float\n+ StackLimit: int\n+ IsStackable: bool}", shape=record, fillcolor="#fff9c4", color="#f57f17", penwidth=2];
+    
+    SkillConfig [label="{SkillConfig|+ BuffIds: int[]\n+ SelfBuffIds: int[]\n+ BuffTriggerType: int\n---\n+ GetBuffsToApply(): int[]\n+ GetSelfBuffsToApply(): int[]}", shape=record, fillcolor="#f3e5f5", color="#4a148c", penwidth=2];
+    
+    EffectExecutor [label="{EffectExecutor|---\n+ ApplyBuffsOnHit(context)\n+ ApplyDamageBuffs(target)\n+ CalculateBuffModifier(entity)}", shape=record, fillcolor="#e8f5e9", color="#1b5e20", penwidth=2];
+    
+    HitContext [label="{HitContext|+ Attacker: ChessEntity\n+ LockedTarget: ChessEntity\n+ SkillConfig: SkillConfig\n+ OnHitCallback: Action}", shape=record, fillcolor="#fce4ec", color="#c2185b", penwidth=2];
+    
+    BuffEventArgs [label="{BuffEventArgs|+ buffId: int\n+ caster: ChessEntity\n+ target: ChessEntity\n+ eventType: BuffEventType\n+ stackCount: int}", shape=record, fillcolor="#fce4ec", color="#c2185b", penwidth=2];
+    
+    // 组合关系
+    BuffManager -> BaseBuff [label="管理Buff列表", arrowhead=diamond];
+    BuffManager -> BuffFactory [label="委托创建"];
     
     // 继承关系
-    Buff -> StatModBuff [label="实现", style=dashed]
-    Buff -> FrostBuff [label="实现", style=dashed]
-    Buff -> BurnBuff [label="实现", style=dashed]
-    Buff -> ShieldBuff [label="实现", style=dashed]
+    StatModBuff -> BaseBuff [arrowhead=empty, label="继承"];
+    FrostBuff -> BaseBuff [arrowhead=empty, label="继承"];
+    BurnBuff -> BaseBuff [arrowhead=empty, label="继承"];
+    ShieldBuff -> BaseBuff [arrowhead=empty, label="继承"];
     
-    // 包含关系
-    BuffManager -> Buff [label="contains"]
+    // 工厂关系
+    BuffFactory -> BaseBuff [label="创建", style=dashed];
+    BuffFactory -> BuffTable [label="读取配置", style=dashed];
     
     // 配置关系
-    BuffTable -> BuffManager [label="configures"]
-    SkillConfig -> EffectExecutor [label="provides"]
-    EffectExecutor -> BuffManager [label="applies"]
+    BaseBuff -> BuffTable [label="引用配置", style=dashed];
     
-    // 使用关系
-    HitContext -> SkillConfig [label="contains"]
-    EffectExecutor -> HitContext [label="uses"]
+    // 执行关系
+    EffectExecutor -> BuffManager [label="调用添加Buff"];
+    EffectExecutor -> HitContext [label="使用上下文"];
+    HitContext -> SkillConfig [label="持有配置", arrowhead=diamond];
+    SkillConfig -> BuffTable [label="引用BuffId", style=dashed];
+    
+    // 事件
+    BuffManager -> BuffEventArgs [label="发布事件", style=dashed];
 }
 ```
+
+## 类设计说明
+
+### 核心管理
+
+**BuffManager** (Buff管理器)
+- 管理棋子身上所有活跃Buff
+- 处理Buff的添加、移除、刷新、叠层
+- 每帧Tick驱动所有Buff更新
+
+### Buff基类与实现
+
+**BaseBuff** (Buff抽象基类)
+- 所有Buff的基类，定义生命周期接口
+- OnApply/OnTick/OnRemove 三阶段回调
+- 支持叠层、刷新、过期判定
+
+**具体Buff实现**:
+- **StatModBuff**: 属性修正Buff（攻击力/防御力/生命值等修正）
+- **FrostBuff**: 冰冻Buff（减速、禁止攻击）
+- **BurnBuff**: 灼烧Buff（持续伤害DOT）
+- **ShieldBuff**: 护盾Buff（吸收伤害）
+
+### 配置与工厂
+
+**BuffFactory** (Buff工厂)
+- 根据BuffId创建对应的Buff实例
+- 读取BuffTable配置数据
+
+**BuffTable** (Buff配置表)
+- 来自Excel配置表的Buff参数
+- 包含类型、持续时间、效果参数、叠层限制等
+
+### 执行与上下文
+
+**EffectExecutor** (效果执行器)
+- 技能命中后调用，负责Buff的应用
+- 通过HitContext获取技能配置中的BuffId列表
+
+**HitContext** (命中上下文)
+- 传递攻击者、目标、技能配置等信息
+
+**BuffEventArgs** (Buff事件参数)
+- Buff添加/移除/刷新时发布事件
+- UI系统订阅此事件更新显示
+
+## 关键设计特点
+
+1. **工厂模式**: BuffFactory根据配置表创建不同类型Buff
+2. **模板方法**: BaseBuff定义OnApply/OnTick/OnRemove生命周期
+3. **配置驱动**: 所有Buff参数来自BuffTable
+4. **事件驱动**: Buff状态变化通过事件通知UI
+5. **叠层机制**: 支持Buff叠层和刷新策略
