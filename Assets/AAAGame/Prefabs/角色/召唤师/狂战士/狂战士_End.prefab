@@ -264,9 +264,6 @@ PrefabInstance:
       addedObject: {fileID: 3817690311121497928}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8667042154302096859}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 468744309537056066}
   m_SourcePrefab: {fileID: 100100000, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
 --- !u!1 &7777384509973940845 stripped
@@ -364,26 +361,6 @@ MonoBehaviour:
   animator: {fileID: 0}
   playerInteraction: {fileID: 0}
   topDownRotationSpeed: 10
---- !u!114 &8667042154302096859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7777384509973940845}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280f4dba90fae0349afe16329f069b93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EnemyOutlineConfig: {fileID: 11400000, guid: 08bbf85987d15994e8840684507a0d05, type: 2}
-  m_AllyOutlineConfig: {fileID: 11400000, guid: 672bb44103caf4e47834980b3072d74a, type: 2}
-  m_SelectedOutlineConfig: {fileID: 11400000, guid: 3a78e0c4228bc43449795e24fd8ef630, type: 2}
-  m_NeutralOutlineConfig: {fileID: 11400000, guid: 60d7060d6c55858488d95b6cdab735f4, type: 2}
-  m_EnemyConfigPath: Assets/TA/OuterGlow/Enemy.asset
-  m_AllyConfigPath: Assets/TA/OuterGlow/Ally.asset
-  m_SelectedConfigPath: Assets/TA/OuterGlow/Selected.asset
-  m_NeutralConfigPath: Assets/TA/OuterGlow/Interactive.asset
 --- !u!114 &468744309537056066
 MonoBehaviour:
   m_ObjectHideFlags: 0
