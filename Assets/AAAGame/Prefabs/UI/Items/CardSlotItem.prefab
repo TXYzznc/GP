@@ -403,6 +403,7 @@ RectTransform:
   - {fileID: 3751644852708130080}
   - {fileID: 8635529352548186409}
   - {fileID: 5951559737380677259}
+  - {fileID: 8175933280637605019}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -453,12 +454,18 @@ MonoBehaviour:
     - {fileID: 4607947216112616877}
     VarType: TMPro.TextMeshProUGUI
     VarPrefix: 0
+  - VarName: varFollowPoint
+    Targets:
+    - {fileID: 7483448687423824005}
+    VarType: UnityEngine.RectTransform
+    VarPrefix: 0
   varBtn: {fileID: 2204124800538550836}
   varCardImg: {fileID: 339444985342669025}
   varDecsText: {fileID: 7451755930944844915}
   varStoryText: {fileID: 3006636004874749698}
   varNameText: {fileID: 3708745720469763839}
   varCost: {fileID: 8842982490828234976}
+  varFollowPoint: {fileID: 8175933280637605019}
 --- !u!1 &1798621198544723524
 GameObject:
   m_ObjectHideFlags: 0
@@ -1224,6 +1231,50 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7483448687423824005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8175933280637605019}
+  - component: {fileID: 17051225003122165}
+  m_Layer: 5
+  m_Name: FollowPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8175933280637605019
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7483448687423824005}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 513416898930619495}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 67, y: -102}
+  m_SizeDelta: {x: 134, y: 204}
+  m_Pivot: {x: 1, y: 0}
+--- !u!222 &17051225003122165
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7483448687423824005}
+  m_CullTransparentMesh: 1
 --- !u!1 &7638811697022843855
 GameObject:
   m_ObjectHideFlags: 0

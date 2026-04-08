@@ -28,7 +28,8 @@ public partial class CombatUI
 	[SerializeField] private Text varMpText = null;
 	[SerializeField] private Button varBtn_Population = null;
 	[SerializeField] private Button varBtn_Refresh = null;
-	[SerializeField] private Image varCardSlotAdsorptionArea = null;
 	[SerializeField] private GameObject varDetailInfoUI = null;
 	[SerializeField] private RectTransform varCardSlots = null;
+	[SerializeField] private Image varGreenArea = null;
+	[SerializeField] private Image varRedArea = null;
 }

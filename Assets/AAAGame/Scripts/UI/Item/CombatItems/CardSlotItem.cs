@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -30,7 +31,6 @@ public partial class CardSlotItem
     private GameObject m_DragPreview;
     private Image m_DragPreviewImage;
     private CanvasGroup m_DragPreviewCanvasGroup;
-    private Vector3 m_DragStartPosition;
     private float m_LastRaycastTime;
     private const float RAYCAST_INTERVAL = 0.1f;
 
@@ -110,6 +110,25 @@ public partial class CardSlotItem
         m_DragPreviewTween?.Kill();
 
         DebugEx.LogModule("CardSlotItem", $"卡牌状态已重置: {m_CardData?.Name ?? "unknown"}");
+    }
+
+    /// <summary>
+    /// 对象销毁时清理所有资源和动画
+    /// </summary>
+    private void OnDestroy()
+    {
+        // 清理所有 DOTween 动画，防止访问已销毁对象
+        DOTween.Kill(this);
+
+        // 清理拖拽预览对象
+        if (m_DragPreview != null)
+        {
+            m_DragPreviewTween?.Kill();
+            Destroy(m_DragPreview);
+            m_DragPreview = null;
+        }
+
+        DebugEx.LogModule("CardSlotItem", $"卡牌UI已销毁: {m_CardData?.Name ?? "unknown"}");
     }
 
     #endregion
@@ -227,8 +246,11 @@ public partial class CardSlotItem
             sequence.Append(btnImage.DOFade(0f, 0.3f).SetEase(Ease.InQuad));
             sequence.Join(btnTransform.DOScale(Vector3.one * 0.5f, 0.3f).SetEase(Ease.InQuad));
 
-            await UniTask.Delay(300); // 等待 0.3 秒
+            await UniTask.Delay(300, cancellationToken: this.GetCancellationTokenOnDestroy()); // 等待 0.3 秒（销毁时自动取消）
         }
+
+        // 销毁游戏对象前，清理所有 DOTween
+        DOTween.Kill(this);
 
         // 销毁游戏对象
         Destroy(gameObject);
@@ -383,6 +405,10 @@ public partial class CardSlotItem
 
     #region 拖拽交互
 
+    private bool m_IsDragging;  // 正在拖拽标志
+    private float m_DragStartTime;  // 拖拽开始时间
+    private float m_LastDragUpdateTime;  // 上次拖拽更新时间
+
     /// <summary>
     /// 开始拖拽
     /// </summary>
@@ -391,7 +417,12 @@ public partial class CardSlotItem
         if (m_CardData == null)
             return;
 
-        DebugEx.LogModule("CardSlotItem", $"开始拖拽卡牌: {m_CardData.Name}");
+        m_IsDragging = true;
+        m_DragStartTime = Time.realtimeSinceStartup;
+        m_LastDragUpdateTime = m_DragStartTime;
+
+        DebugEx.LogModule("CardSlotItem",
+            $"[拖拽开始] 卡牌: {m_CardData.Name}, 时间: {m_DragStartTime:F4}, 鼠标位置: {eventData.position}");
 
         // 取消选中状态（如果已选中）
         if (m_IsSelected)
@@ -399,8 +430,9 @@ public partial class CardSlotItem
             DeselectCard();
         }
 
-        // 保存拖拽起始位置
-        m_DragStartPosition = transform.localPosition;
+        // 停止所有位置相关的动画，避免干扰拖拽
+        m_SelectTween?.Kill();
+        m_PositionTween?.Kill();
 
         // 拖拽时卡牌变暗
         if (m_BtnCanvasGroup != null)
@@ -411,6 +443,33 @@ public partial class CardSlotItem
         // 创建拖拽预览对象
         CreateDragPreview();
 
+        // 立即更新卡牌位置，跟随鼠标（避免延迟）
+        Vector2 screenPos = eventData.position;
+        if (m_ItemRectTransform != null)
+        {
+            var canvasRectTransform = m_ItemRectTransform.parent as RectTransform;
+            var canvas = GetComponentInParent<Canvas>();
+
+            if (canvasRectTransform != null && canvas != null)
+            {
+                // 获取卡牌尺寸，计算右下角位置
+                Vector2 cardSize = m_ItemRectTransform.sizeDelta;
+                Vector2 cardRightBottomOffset = new Vector2(cardSize.x / 2f, -cardSize.y / 2f);
+
+                // 计算所需的卡牌锚点位置
+                Vector2 canvasSize = canvasRectTransform.sizeDelta;
+                Vector2 targetCardAnchoredPos = screenPos - cardRightBottomOffset - new Vector2(canvasSize.x / 2f, canvasSize.y / 2f);
+                m_ItemRectTransform.anchoredPosition = targetCardAnchoredPos;
+
+                DebugEx.LogModule("CardSlotItem",
+                    $"[拖拽开始] 鼠标屏幕: {screenPos:F2}, 卡牌尺寸: {cardSize:F2}, 右下角偏移: {cardRightBottomOffset:F2}, 目标锚点: {targetCardAnchoredPos:F2}");
+            }
+
+            // 旋转回正（取消扇形布局的旋转）
+            m_ItemRectTransform.localRotation = Quaternion.identity;
+            DebugEx.LogModule("CardSlotItem", "[拖拽开始] 卡牌旋转已重置为正常");
+        }
+
         // 通知容器拖拽开始
         m_Container?.OnCardBeginDrag(this);
     }
@@ -420,25 +479,101 @@ public partial class CardSlotItem
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
+        DebugEx.LogModule("CardSlotItem", $"[OnDrag] 鼠标位置={eventData.position}");
+
         if (m_DragPreview == null)
             return;
 
+        float currentTime = Time.realtimeSinceStartup;
+        float timeSinceDragStart = currentTime - m_DragStartTime;
+        float timeSinceLastUpdate = currentTime - m_LastDragUpdateTime;
+
+        // 屏幕坐标
+        Vector2 screenPos = eventData.position;
+
+        // 计算卡牌位置，使卡牌右下角坐标与鼠标屏幕坐标一致
+        if (m_ItemRectTransform != null)
+        {
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                // 1. 获取卡牌尺寸
+                Vector2 cardSize = m_ItemRectTransform.sizeDelta;
+                Vector2 cardRightBottomOffset = new Vector2(cardSize.x / 2f, -cardSize.y / 2f);
+
+                // 2. 获取当前卡牌在世界空间的位置（4个角）
+                Vector3[] cardCorners = new Vector3[4];
+                m_ItemRectTransform.GetWorldCorners(cardCorners);
+                // 0=左下, 1=左上, 2=右上, 3=右下
+                Vector2 currentCardRightBottomScreenPos = canvas.worldCamera.WorldToScreenPoint(cardCorners[3]);
+
+                // 3. 计算偏移：鼠标位置 - 卡牌右下角当前屏幕位置
+                Vector2 offsetNeeded = screenPos - currentCardRightBottomScreenPos;
+
+                // 4. 调整卡牌锚点位置
+                Vector2 currentCardAnchoredPos = m_ItemRectTransform.anchoredPosition;
+                Vector2 newCardAnchoredPos = currentCardAnchoredPos + offsetNeeded;
+                m_ItemRectTransform.anchoredPosition = newCardAnchoredPos;
+
+                // 详细日志
+                DebugEx.LogModule("CardSlotItem",
+                    $"[拖拽中-右下角对齐] " +
+                    $"鼠标屏幕: {screenPos:F2} | " +
+                    $"卡牌尺寸: {cardSize:F2} | " +
+                    $"右下角偏移: {cardRightBottomOffset:F2} | " +
+                    $"当前右下角屏幕: {currentCardRightBottomScreenPos:F2} | " +
+                    $"需要偏移: {offsetNeeded:F2} | " +
+                    $"卡牌新锚点: {newCardAnchoredPos:F2}");
+
+                // 验证日志
+                Vector3[] newCardCorners = new Vector3[4];
+                m_ItemRectTransform.GetWorldCorners(newCardCorners);
+                Vector2 newCardRightBottomScreenPos = canvas.worldCamera.WorldToScreenPoint(newCardCorners[3]);
+                Vector2 alignmentError = screenPos - newCardRightBottomScreenPos;
+                DebugEx.LogModule("CardSlotItem",
+                    $"[验证] 新右下角屏幕位置: {newCardRightBottomScreenPos:F2} | " +
+                    $"鼠标屏幕位置: {screenPos:F2} | " +
+                    $"对齐偏差: {alignmentError:F2} (应接近 0)");
+
+                // 总耗时日志
+                DebugEx.LogModule("CardSlotItem",
+                    $"[时间统计] 总耗时: {timeSinceDragStart:F4}s, 帧耗时: {timeSinceLastUpdate:F4}s");
+            }
+        }
+
+        m_LastDragUpdateTime = currentTime;
+
         // 更新拖拽预览位置，跟随鼠标
-        m_DragPreview.transform.position = eventData.position;
+        var dragPreviewRect = m_DragPreview.GetComponent<RectTransform>();
+        if (dragPreviewRect != null)
+        {
+            // Screen Space - Camera 模式：屏幕坐标 → anchoredPosition
+            var canvasRectTransform = dragPreviewRect.parent as RectTransform;
+            if (canvasRectTransform != null)
+            {
+                Vector2 canvasSize = canvasRectTransform.sizeDelta;
+                Vector2 anchoredPos = screenPos - new Vector2(canvasSize.x / 2f, canvasSize.y / 2f);
+                dragPreviewRect.anchoredPosition = anchoredPos;
+            }
+        }
 
         // 限制射线检测频率（0.1 秒/次）
         if (Time.time - m_LastRaycastTime >= RAYCAST_INTERVAL)
         {
             m_LastRaycastTime = Time.time;
-            PerformRaycast(eventData.position);
+            PerformRaycast();
         }
 
-        // 检测吸附区域并高亮
-        bool isInAdsorptionArea = IsPositionInAdsorptionArea(eventData.position);
-        UpdateAdsorptionAreaHighlight(isInAdsorptionArea);
+        // 检测区域并更新预览（优先级：吸附区 > 无效区 > 战场区）
+        bool isInRetractArea = IsPositionInAdsorptionArea(eventData.position);
+        bool isInInvalidArea = IsPositionInInvalidArea(eventData.position);
+        UpdateAreaHighlight(isInRetractArea, isInInvalidArea);
 
         // 通知容器拖拽中的位置
         m_Container?.OnCardDrag(this, eventData.position);
+
+        // ⭐ 新增：显示卡牌预览
+        UpdateCardPreview(eventData.position);
     }
 
     /// <summary>
@@ -449,7 +584,12 @@ public partial class CardSlotItem
         if (m_CardData == null)
             return;
 
+        m_IsDragging = false;
+
         DebugEx.LogModule("CardSlotItem", $"结束拖拽卡牌: {m_CardData.Name}");
+
+        // ⭐ 新增：隐藏蓝色圆形预览
+        CardPreviewDisplayShader.Instance?.HideAll();
 
         // 恢复卡牌透明度
         if (m_BtnCanvasGroup != null)
@@ -457,34 +597,47 @@ public partial class CardSlotItem
             m_BtnCanvasGroup.DOFade(1f, 0.2f).SetEase(Ease.OutQuad);
         }
 
-        // 销毁拖拽预览
+        // 销毁拖拽预览（先清理动画，再销毁对象）
         if (m_DragPreview != null)
         {
+            m_DragPreviewTween?.Kill();
             Destroy(m_DragPreview);
             m_DragPreview = null;
+            m_DragPreviewTween = null;
         }
 
         // 通知容器拖拽结束
         m_Container?.OnCardEndDrag(this);
 
-        // 判断释放位置
-        bool isInBattleArea = IsPositionInBattleArea(eventData.position);
-        bool isInAdsorptionArea = IsPositionInAdsorptionArea(eventData.position);
+        // 判断释放位置：直接检查是否在吸附区或无效区
+        bool isInRetractArea = IsPositionInAdsorptionArea(eventData.position);
+        bool isInInvalidArea = IsPositionInInvalidArea(eventData.position);
 
-        if (isInBattleArea)
+        if (isInRetractArea || isInInvalidArea)
         {
-            // 战场区域释放：执行卡牌效果
-            ExecuteCardEffect(eventData.position);
-        }
-        else if (isInAdsorptionArea)
-        {
-            // 吸附区域释放：返回卡槽
+            // 吸附区或无效区：返回卡槽
+            DebugEx.LogModule("CardSlotItem",
+                $"释放位置在保留/无效区 (吸附={isInRetractArea}, 无效={isInInvalidArea})，卡牌返回卡槽");
             ReturnToSlot();
         }
         else
         {
-            // 无效区域释放：返回卡槽
-            ReturnToSlot();
+            // 战场区域：执行卡牌效果
+            DebugEx.LogModule("CardSlotItem", $"释放位置在战场，执行卡牌效果");
+            ExecuteCardEffect(eventData.position);
+        }
+
+        // 隐藏区域高亮显示
+        var combatUI = GetComponentInParent<CombatUI>();
+        if (combatUI != null)
+        {
+            var greenArea = combatUI.GetCardSlotAdsorptionArea();
+            var redArea = combatUI.GetInvalidAreaPreview();
+            if (greenArea != null)
+                greenArea.color = new Color(greenArea.color.r, greenArea.color.g, greenArea.color.b, 0f);
+            if (redArea != null)
+                redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
+            DebugEx.LogModule("CardSlotItem", "拖拽结束，隐藏区域高亮");
         }
     }
 
@@ -493,9 +646,17 @@ public partial class CardSlotItem
     /// </summary>
     private void CreateDragPreview()
     {
-        // 创建预览对象
+        // 显式找到 Canvas
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            DebugEx.ErrorModule("CardSlotItem", "找不到Canvas，无法创建拖拽预览");
+            return;
+        }
+
+        // 创建预览对象，放到 Canvas 下
         m_DragPreview = new GameObject("CardDragPreview");
-        m_DragPreview.transform.SetParent(transform.root);
+        m_DragPreview.transform.SetParent(canvas.transform);
         m_DragPreview.transform.localScale = Vector3.one;
 
         // 添加 Image 组件
@@ -521,6 +682,9 @@ public partial class CardSlotItem
         var rectTransform = m_DragPreview.GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(100, 100);
 
+        // 将预览对象设置为最后一个子对象，确保在最上层显示且不挡住交互
+        m_DragPreview.transform.SetAsLastSibling();
+
         // 播放预览旋转动画（轻微旋转）
         var previewTransform = m_DragPreview.transform;
         m_DragPreviewTween?.Kill();
@@ -535,24 +699,41 @@ public partial class CardSlotItem
     /// <summary>
     /// 执行射线检测
     /// </summary>
-    private void PerformRaycast(Vector3 screenPosition)
+    private void PerformRaycast()
     {
         // 这里可以添加更复杂的射线检测逻辑
         // 例如检测是否在特定区域上方
     }
 
     /// <summary>
-    /// 检查位置是否在战场区域
+    /// 检查位置是否在无效区域（红色区域内）
     /// </summary>
-    private bool IsPositionInBattleArea(Vector3 screenPosition)
+    private bool IsPositionInInvalidArea(Vector3 screenPosition)
     {
-        // TODO: 根据实际战场区域的 RectTransform 进行检测
-        // 这里简化处理：假设屏幕中心上方为战场区域
-        return screenPosition.y > Screen.height * 0.4f;
+        var combatUI = GetComponentInParent<CombatUI>();
+        if (combatUI == null)
+            return false;
+
+        var invalidAreaImage = combatUI.GetInvalidAreaPreview();
+        if (invalidAreaImage == null)
+            return false;
+
+        var rectTransform = invalidAreaImage.GetComponent<RectTransform>();
+        if (rectTransform == null)
+            return false;
+
+        var canvas = GetComponentInParent<Canvas>();
+        Camera canvasCamera = canvas != null ? canvas.worldCamera : null;
+
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            rectTransform,
+            screenPosition,
+            canvasCamera
+        );
     }
 
     /// <summary>
-    /// 检查位置是否在卡槽吸附区域
+    /// 检查位置是否在卡槽吸附区域（绿色矩形区域）
     /// </summary>
     private bool IsPositionInAdsorptionArea(Vector3 screenPosition)
     {
@@ -560,17 +741,24 @@ public partial class CardSlotItem
         if (combatUI == null)
             return false;
 
-        // 获取吸附区域的 RectTransform
-        var adsorptionArea = combatUI.GetCardSlotAdsorptionArea();
-        if (adsorptionArea == null)
-            return false;
+        var canvas = GetComponentInParent<Canvas>();
+        Camera canvasCamera = canvas != null ? canvas.worldCamera : null;
 
-        // 检查屏幕位置是否在吸附区域内
-        return RectTransformUtility.RectangleContainsScreenPoint(
-            adsorptionArea.rectTransform,
-            screenPosition,
-            null
-        );
+        // 获取绿色矩形区域的 Image（吸附区域）
+        var retractAreaImage = combatUI.GetCardSlotAdsorptionArea();
+        if (retractAreaImage == null)
+        {
+            return false;
+        }
+
+        bool result = RectTransformUtility.RectangleContainsScreenPoint(
+                retractAreaImage.rectTransform,
+                screenPosition,
+                canvasCamera
+            );
+        DebugEx.LogModule("CardSlotItem",
+            $"[IsPositionInAdsorptionArea] 使用 GetCardSlotAdsorptionArea | 鼠标={screenPosition} | 结果={result}");
+        return result;
     }
 
     /// <summary>
@@ -623,8 +811,11 @@ public partial class CardSlotItem
     {
         DebugEx.LogModule("CardSlotItem", $"卡牌返回卡槽: {m_CardData.Name}");
 
-        // 恢复到原始位置
-        transform.DOLocalMove(m_DragStartPosition, 0.2f).SetEase(Ease.OutQuad);
+        // 恢复到基准位置
+        if (m_ItemRectTransform != null)
+        {
+            m_ItemRectTransform.DOAnchorPos(m_BaseAnchoredPos, 0.2f).SetEase(Ease.OutQuad);
+        }
     }
 
     #endregion
@@ -664,6 +855,10 @@ public partial class CardSlotItem
     /// </summary>
     public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData)
     {
+        // 拖拽中禁止处理悬停事件
+        if (m_IsDragging)
+            return;
+
         if (m_IsSelected || varBtn == null)
             return;
 
@@ -696,6 +891,10 @@ public partial class CardSlotItem
     /// </summary>
     public void OnPointerExit(UnityEngine.EventSystems.PointerEventData eventData)
     {
+        // 拖拽中禁止处理悬停事件
+        if (m_IsDragging)
+            return;
+
         if (m_IsSelected || varBtn == null)
             return;
 
@@ -746,39 +945,161 @@ public partial class CardSlotItem
     }
 
     /// <summary>
-    /// 更新吸附区域高亮状态
+    /// 更新区域高亮状态（GreenArea 和 RedArea）
     /// </summary>
-    private void UpdateAdsorptionAreaHighlight(bool isInAdsorptionArea)
+    /// <summary>
+    /// 更新区域高亮显示
+    /// 优先级：吸附区(绿色) > 无效区(红色) > 战场(隐藏)
+    /// </summary>
+    private void UpdateAreaHighlight(bool isInRetractArea, bool isInInvalidArea)
     {
         var combatUI = GetComponentInParent<CombatUI>();
         if (combatUI == null)
-            return;
-
-        var adsorptionArea = combatUI.GetCardSlotAdsorptionArea();
-        if (adsorptionArea == null)
-            return;
-
-        var areaImage = adsorptionArea.GetComponent<Image>();
-        if (areaImage == null)
-            return;
-
-        // 进入吸附区域时高亮，离开时恢复
-        if (isInAdsorptionArea)
         {
-            // 高亮：增加透明度和亮度
-            var highlightColor = areaImage.color;
-            highlightColor.a = Mathf.Clamp01(highlightColor.a + 0.3f);
-            areaImage.color = highlightColor;
+            DebugEx.WarningModule("CardSlotItem", "无法获取 CombatUI，区域预览无法更新");
+            return;
+        }
 
-            DebugEx.LogModule("CardSlotItem", "进入吸附区域，高亮显示");
+        var greenArea = combatUI.GetCardSlotAdsorptionArea();
+        var redArea = combatUI.GetInvalidAreaPreview();
+
+        if (greenArea == null || redArea == null)
+        {
+            DebugEx.WarningModule("CardSlotItem", $"区域预览对象为空: greenArea={greenArea}, redArea={redArea}");
+            return;
+        }
+
+        // 优先级：吸附区 > 无效区 > 战场
+        if (isInRetractArea)
+        {
+            // 在吸附区：显示绿色，隐藏红色
+            Color newGreenColor = new Color(0.165f, 1f, 0.352f, 0.5f);
+            greenArea.color = newGreenColor;
+            redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
+
+            DebugEx.LogModule("CardSlotItem",
+                $"✓ 显示 GreenArea (吸附区) | 设置颜色={newGreenColor}");
+        }
+        else if (isInInvalidArea)
+        {
+            // 在无效区：显示红色，隐藏绿色
+            greenArea.color = new Color(greenArea.color.r, greenArea.color.g, greenArea.color.b, 0f);
+            Color newRedColor = new Color(1f, 0f, 0f, 0.5f);
+            redArea.color = newRedColor;
+
+            DebugEx.LogModule("CardSlotItem",
+                $"✓ 显示 RedArea (无效区) | 设置颜色={newRedColor}");
         }
         else
         {
-            // 恢复：降低透明度
-            var normalColor = areaImage.color;
-            normalColor.a = Mathf.Max(0.2f, normalColor.a - 0.3f);
-            areaImage.color = normalColor;
+            // 在战场：隐藏所有预览
+            greenArea.color = new Color(greenArea.color.r, greenArea.color.g, greenArea.color.b, 0f);
+            redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
+            DebugEx.LogModule("CardSlotItem", "→ 在战场区域，隐藏所有预览");
         }
+    }
+
+    #endregion
+
+    #region 卡牌预览
+
+    /// <summary>
+    /// 更新卡牌预览显示（蓝色圆形只在战场显示）
+    /// </summary>
+    private void UpdateCardPreview(Vector3 screenPos)
+    {
+        if (m_CardData == null || m_CardData.TableRow == null || CardPreviewDisplayShader.Instance == null)
+            return;
+
+        // 战场区域 = 不在吸附区 且 不在无效区
+        bool isInRetractArea = IsPositionInAdsorptionArea(screenPos);
+        bool isInInvalidArea = IsPositionInInvalidArea(screenPos);
+        bool isInBattle = !isInRetractArea && !isInInvalidArea;
+
+        if (isInBattle)
+        {
+            // 战场区域：显示蓝色作用范围
+            Vector3 worldPos = GetWorldPosFromScreen(screenPos);
+            float radius = m_CardData.TableRow.AreaRadius;
+            CardPreviewDisplayShader.Instance.ShowActionPreview(worldPos, radius);
+        }
+        else
+        {
+            // 非战场区域：隐藏蓝色圆形
+            CardPreviewDisplayShader.Instance.HideActionPreview();
+        }
+    }
+
+    /// <summary>
+    /// 将屏幕坐标转换为世界坐标
+    /// </summary>
+    private Vector3 GetWorldPosFromScreen(Vector3 screenPos)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+
+        // 检测战斗场景的地面（Y = 0 平面）
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            return hit.point;
+        }
+
+        // 如果射线检测失败，假设击中 Y = 0 平面
+        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        if (groundPlane.Raycast(ray, out float distance))
+        {
+            return ray.origin + ray.direction * distance;
+        }
+
+        return Vector3.zero;
+    }
+
+    /// <summary>
+    /// 获取卡牌作用的目标列表
+    /// </summary>
+    private List<ChessEntity> GetAffectedTargets(CardData cardData, Vector3 targetPos)
+    {
+        var targets = new List<ChessEntity>();
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+
+        if (allChess == null || allChess.Count == 0)
+            return targets;
+
+        float radius = cardData.TableRow.AreaRadius;
+
+        foreach (var chess in allChess)
+        {
+            if (chess == null)
+                continue;
+
+            bool isTarget = false;
+
+            switch (cardData.TableRow.TargetType)
+            {
+                case 3:  // 友方全体
+                    isTarget = chess.Camp == (int)CampType.Player;
+                    break;
+                case 5:  // 敌方全体
+                    isTarget = chess.Camp == (int)CampType.Enemy;
+                    break;
+                case 6:  // 全场
+                    isTarget = true;
+                    break;
+                default:
+                    // 范围判断
+                    if (radius > 0)
+                    {
+                        isTarget = Vector3.Distance(chess.transform.position, targetPos) <= radius;
+                    }
+                    break;
+            }
+
+            if (isTarget)
+            {
+                targets.Add(chess);
+            }
+        }
+
+        return targets;
     }
 
     #endregion

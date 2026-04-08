@@ -448,10 +448,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CardSpacing: 200
-  m_StartOffsetX: 180
-  m_VerticalOffset: 160
+  m_StartOffsetX: -700
+  m_VerticalOffset: 40
   m_EnterDuration: 0.35
   m_CardDealInterval: 0.1
+  m_EnterStartOffsetX: 100
+  m_EnterStartOffsetY: 0
+  m_EnterEase: 6
   m_RearrangeDuration: 0.25
   m_RearrangeEase: 9
 --- !u!1 &1980906766688487571

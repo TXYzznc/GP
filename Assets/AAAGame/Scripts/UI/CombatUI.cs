@@ -81,7 +81,10 @@ public partial class CombatUI : StateAwareUIForm
     private void OnCombatEnter(object sender, GameEventArgs e)
     {
         DebugEx.LogModule("CombatUI", "收到战斗进入事件");
-        
+
+        // ⭐ 新增：创建卡牌预览管理器
+        CreateCardPreviewManager();
+
         // 初始化 CardManager
         if (CardManager.Instance != null)
         {
@@ -90,7 +93,7 @@ public partial class CombatUI : StateAwareUIForm
             CardManager.Instance.OnCardRemoved += OnCardRemoved;
             DebugEx.LogModule("CombatUI", "CardManager 已初始化");
         }
-        
+
         ShowUI();
         RefreshCombatUI();
     }
@@ -98,6 +101,13 @@ public partial class CombatUI : StateAwareUIForm
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
         DebugEx.LogModule("CombatUI", "收到战斗离开事件");
+
+        // ⭐ 新增：销毁卡牌预览管理器
+        if (CardPreviewDisplayShader.Instance != null)
+        {
+            Destroy(CardPreviewDisplayShader.Instance.gameObject);
+            DebugEx.LogModule("CombatUI", "卡牌预览管理器已销毁");
+        }
 
         // 清理 CardManager
         if (CardManager.Instance != null)
@@ -115,6 +125,37 @@ public partial class CombatUI : StateAwareUIForm
         }
 
         HideUI();
+    }
+
+    /// <summary>
+    /// 创建卡牌预览管理器（生成到 WorldCanvas 下）
+    /// </summary>
+    private void CreateCardPreviewManager()
+    {
+        // 检查是否已存在
+        if (CardPreviewDisplayShader.Instance != null)
+            return;
+
+        // 查找 WorldCanvas
+        var worldCanvas = FindObjectOfType<Canvas>();
+        Transform parentTransform = transform.parent;
+
+        // 尝试找到名字为 "WorldCanvas" 的 Canvas
+        var allCanvas = FindObjectsOfType<Canvas>();
+        foreach (var canvas in allCanvas)
+        {
+            if (canvas.gameObject.name == "WorldCanvas")
+            {
+                parentTransform = canvas.transform;
+                break;
+            }
+        }
+
+        var go = new GameObject("CardPreviewDisplayShader");
+        go.transform.SetParent(parentTransform);
+        go.AddComponent<CardPreviewDisplayShader>();
+
+        DebugEx.LogModule("CombatUI", "卡牌预览管理器已创建");
     }
 
     /// <summary>
@@ -153,14 +194,20 @@ public partial class CombatUI : StateAwareUIForm
     }
 
     /// <summary>
-    /// 获取卡槽吸附区域
+    /// 获取卡槽吸附区域（使用绿色区域作为吸附检测）
     /// </summary>
     public Image GetCardSlotAdsorptionArea()
     {
-        return varCardSlotAdsorptionArea;
+        return varGreenArea;
     }
 
-
+    /// <summary>
+    /// 获取无效区域预览（红色覆盖，用于碰撞检测）
+    /// </summary>
+    public Image GetInvalidAreaPreview()
+    {
+        return varRedArea;
+    }
 
     /// <summary>
     /// 战斗阶段棋子被选中，显示详情
