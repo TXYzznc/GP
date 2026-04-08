@@ -54,6 +54,12 @@ public static class ChessStateEvents
     /// </summary>
     public static event Action<int, int> OnBuffRemoved;
 
+    /// <summary>
+    /// 棋子装备变更（穿戴或卸下）
+    /// 参数：chessId, slotIndex
+    /// </summary>
+    public static event Action<int, int> OnEquipmentChanged;
+
     #endregion
 
     #region 事件触发方法（供内部系统调用）
@@ -92,6 +98,12 @@ public static class ChessStateEvents
         OnBuffRemoved?.Invoke(chessId, buffId);
     }
 
+    internal static void FireEquipmentChanged(int chessId, int slotIndex)
+    {
+        DebugEx.LogModule("ChessStateEvents", $"装备变更 [{chessId}]: SlotIndex={slotIndex}");
+        OnEquipmentChanged?.Invoke(chessId, slotIndex);
+    }
+
     #endregion
 
     #region 清理
@@ -107,6 +119,7 @@ public static class ChessStateEvents
         OnBattleChessDataChanged = null;
         OnBuffAdded = null;
         OnBuffRemoved = null;
+        OnEquipmentChanged = null;
 
         DebugEx.LogModule("ChessStateEvents", "所有事件订阅已清除");
     }

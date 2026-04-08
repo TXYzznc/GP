@@ -130,15 +130,9 @@ public class ChessSelectionManager
         // 左键点击
         if (inputManager.LeftMouseButtonDown)
         {
-            // 检查是否点击 UI 上
+            // 点击在 UI 上 → 不处理（不取消选中，由各 UI 自行决定）
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
-                // 点击在 UI 上 → 取消选择
-                if (m_SelectedChess != null)
-                {
-                    Log.Info("ChessSelectionManager: 点击在UI上，取消选择");
-                    DeselectChess();
-                }
                 return;
             }
 
@@ -230,9 +224,12 @@ public class ChessSelectionManager
     /// </summary>
     private void HandleRightClick()
     {
-        // 在选择模式下，右键只取消选择，不召回棋子
+        // 在选择模式下，右键取消选择（但点击 UI 时不取消）
         if (m_IsSelectionOnlyMode)
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
             if (m_SelectedChess != null)
             {
                 Log.Info("ChessSelectionManager: 仅选择模式，右键取消选择");
@@ -348,6 +345,14 @@ public class ChessSelectionManager
     /// <summary>
     /// 取消选择
     /// </summary>
+    /// <summary>
+    /// 外部强制取消选中（如策略卡选中时调用）
+    /// </summary>
+    public void ForceDeselect()
+    {
+        DeselectChess();
+    }
+
     private void DeselectChess()
     {
         if (m_SelectedChess != null)
