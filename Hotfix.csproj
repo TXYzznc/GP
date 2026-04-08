@@ -95,7 +95,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\EntityExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\CombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\SneakDebuffSelectionUI.Variables.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineTest.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PostCombatStealth.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarAction.cs" />
@@ -159,7 +158,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\GF.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardManager.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\EquipSlotItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CombatPreparationUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\SummonChessSkillTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyIdleState.cs" />
@@ -424,7 +422,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ProjectileHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Framework\SingletonBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CloudArchiveUI.Variables.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\EquipSlotItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestExample.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PlayerSkillSlot.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\LayerHelper.cs" />
@@ -441,7 +438,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Utils\Game\ChessTargetFinder.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\PlayerInfoItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\SummonChessStateUI.Variables.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\ChessOutlineController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerBuffHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PlayerDataTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineRenderFeature.cs" />
@@ -457,6 +453,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ChessProjectile.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\ExplorationState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\SoundGroupTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatPreparationReadyEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\WarehouseManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyChaseState.cs" />
@@ -479,7 +476,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessStateEvents.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyAlertState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EndCombatUI.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineDisplayManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Detection\PlayerDetectionInfo.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\UITopbar.Variables.cs" />
