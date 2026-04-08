@@ -973,7 +973,7 @@ public partial class CardSlotItem
         if (isInRetractArea)
         {
             // 在吸附区：显示绿色，隐藏红色
-            Color newGreenColor = new Color(0.165f, 1f, 0.352f, 0.5f);
+            Color newGreenColor = new Color(0.165f, 1f, 0.352f, 0.7f);
             greenArea.color = newGreenColor;
             redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
 
@@ -984,7 +984,7 @@ public partial class CardSlotItem
         {
             // 在无效区：显示红色，隐藏绿色
             greenArea.color = new Color(greenArea.color.r, greenArea.color.g, greenArea.color.b, 0f);
-            Color newRedColor = new Color(1f, 0f, 0f, 0.5f);
+            Color newRedColor = new Color(1f, 0f, 0f, 0.7f);
             redArea.color = newRedColor;
 
             DebugEx.LogModule("CardSlotItem",

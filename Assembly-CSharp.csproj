@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\测试输出日志\unity_log_20260407_171350.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_103017.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\AAAGame\DataTable\Core\LanguagesTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SynergyTable.txt" />
@@ -83,6 +84,7 @@
     <None Include="Assets\AAAGame\DataTable\ItemTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260408_102735.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260407_175318.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260407_185912.txt" />
