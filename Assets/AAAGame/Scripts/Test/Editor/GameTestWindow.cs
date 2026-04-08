@@ -27,6 +27,12 @@ public class GameTestWindow : EditorWindow
     private CombatTestController m_CombatTestController;
     private EnemyTestController m_EnemyTestController;
     private ProjectileTestController m_ProjectileTestController;
+    private object m_OutlineTestController; // 使用 object 避免程序集问题
+
+    // 描边测试相关
+    private GameObject m_OutlineTestTarget;
+    private Color m_CustomOutlineColor = Color.cyan;
+    private float m_CustomOutlineSize = 20f;
 
     // 游戏状态
     private GameTestManager m_GameTestManager;
@@ -50,7 +56,7 @@ public class GameTestWindow : EditorWindow
 
     // 页签系统
     private int m_SelectedTab = 0;
-    private readonly string[] m_TabNames = { "🧪 Buff", "📦 物品", "⚔️ 战斗", "🎲 状态", "📋 日志" };
+    private readonly string[] m_TabNames = { "🧪 Buff", "📦 物品", "⚔️ 战斗", "🎲 状态", "✨ 描边", "📋 日志" };
 
     #endregion
 
@@ -130,7 +136,11 @@ public class GameTestWindow : EditorWindow
                 DrawGameStateTestSection();
                 break;
 
-            case 4: // 日志系统
+            case 4: // 描边测试
+                DrawOutlineTestSection();
+                break;
+
+            case 5: // 日志系统
                 EditorGUILayout.LabelField("📋 日志系统", EditorStyles.boldLabel);
                 DrawLogsSection();
                 break;
@@ -560,6 +570,126 @@ public class GameTestWindow : EditorWindow
         if (GUILayout.Button("重置统计", GUILayout.Height(BUTTON_HEIGHT)))
             m_ProjectileTestController.ResetStats();
         EditorGUILayout.EndHorizontal();
+    }
+
+    #endregion
+
+    #region 描边系统测试
+
+    private void DrawOutlineTestSection()
+    {
+        EditorGUILayout.LabelField("✨ 描边系统", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("测试 OutlineController 的描边效果（选中/友方/敌方/自定义）", MessageType.Info);
+
+        // 获取 OutlineTestController（反射方式）
+        if (m_OutlineTestController == null)
+        {
+            var type = System.Type.GetType("OutlineTestController");
+            if (type != null)
+            {
+                m_OutlineTestController = FindObjectOfType(type);
+            }
+        }
+
+        if (m_OutlineTestController == null)
+        {
+            EditorGUILayout.HelpBox("场景中未找到 OutlineTestController 组件，请先添加到场景中的 GameTestManager 上", MessageType.Warning);
+            if (GUILayout.Button("自动添加到 GameTestManager", GUILayout.Height(BUTTON_HEIGHT)))
+            {
+                var gtm = FindObjectOfType<GameTestManager>();
+                if (gtm != null)
+                {
+                    var type = System.Type.GetType("OutlineTestController");
+                    if (type != null)
+                    {
+                        m_OutlineTestController = gtm.gameObject.AddComponent(type);
+                    }
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("错误", "场景中未找到 GameTestManager", "确定");
+                }
+            }
+            return;
+        }
+
+        // 测试目标
+        EditorGUILayout.LabelField("测试目标", EditorStyles.boldLabel);
+        m_OutlineTestTarget = EditorGUILayout.ObjectField("目标对象:", m_OutlineTestTarget, typeof(GameObject), true) as GameObject;
+
+        // 通过反射设置 ManualTarget 字段
+        if (m_OutlineTestTarget != null)
+        {
+            var field = m_OutlineTestController.GetType().GetField("ManualTarget");
+            if (field != null)
+            {
+                field.SetValue(m_OutlineTestController, m_OutlineTestTarget);
+            }
+        }
+
+        EditorGUILayout.Space();
+
+        // 单体描边测试
+        EditorGUILayout.LabelField("单体描边", EditorStyles.boldLabel);
+
+        EditorGUILayout.BeginHorizontal();
+        GUI.backgroundColor = new Color(1f, 0.85f, 0f); // 黄色
+        if (GUILayout.Button("选中描边（黄）", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "TestSelectionOutline");
+        GUI.backgroundColor = Color.green;
+        if (GUILayout.Button("友方描边（绿）", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "TestAllyOutline");
+        GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
+        if (GUILayout.Button("敌方描边（红）", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "TestEnemyOutline");
+        GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
+        // 自定义描边
+        EditorGUILayout.LabelField("自定义描边", EditorStyles.boldLabel);
+        EditorGUILayout.BeginHorizontal();
+        m_CustomOutlineColor = EditorGUILayout.ColorField("颜色:", m_CustomOutlineColor, GUILayout.Width(250));
+        m_CustomOutlineSize = EditorGUILayout.Slider("宽度:", m_CustomOutlineSize, 1f, 50f);
+        EditorGUILayout.EndHorizontal();
+
+        if (GUILayout.Button("应用自定义描边", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            var method = m_OutlineTestController.GetType().GetMethod("TestCustomOutline");
+            if (method != null)
+            {
+                method.Invoke(m_OutlineTestController, new object[] { m_CustomOutlineColor, m_CustomOutlineSize });
+            }
+        }
+
+        EditorGUILayout.Space();
+
+        // 批量描边测试
+        EditorGUILayout.LabelField("批量描边", EditorStyles.boldLabel);
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("所有友方（绿）", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "TestAllAllyOutlines");
+        if (GUILayout.Button("所有敌方（红）", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "TestAllEnemyOutlines");
+        if (GUILayout.Button("按阵营全显示", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "TestAllCampOutlines");
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
+        // 状态和清理
+        EditorGUILayout.LabelField("状态", EditorStyles.boldLabel);
+        var getCountMethod = m_OutlineTestController.GetType().GetMethod("GetActiveCount");
+        int activeCount = getCountMethod != null ? (int)getCountMethod.Invoke(m_OutlineTestController, null) : 0;
+        EditorGUILayout.LabelField($"当前活跃描边数: {activeCount}");
+
+        EditorGUILayout.Space();
+        GUI.backgroundColor = Color.red;
+        if (GUILayout.Button("清除所有描边", GUILayout.Height(BUTTON_HEIGHT)))
+            InvokeMethod(m_OutlineTestController, "ClearAll");
+        GUI.backgroundColor = Color.white;
     }
 
     #endregion
