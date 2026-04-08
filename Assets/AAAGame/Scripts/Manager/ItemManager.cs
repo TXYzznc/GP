@@ -333,7 +333,6 @@ public class ItemManager : SingletonBase<ItemManager>
             CanUse = row.CanUse == 1,
             UseEffectId = row.UseEffectId,
             CanEquip = row.CanEquip == 1,
-            EquipType = (EquipType)row.EquipType,
             SpecialEffectId = row.SpecialEffectId,
             AffixPoolIds = row.GetAffixPoolIdList(),
             AffixMinCount = row.AffixMinCount,

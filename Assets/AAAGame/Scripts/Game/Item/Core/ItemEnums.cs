@@ -25,18 +25,6 @@ public enum ItemQuality
     Legendary = 5, // 传说（橙色）
 }
 
-/// <summary>
-/// 装备类型
-/// </summary>
-public enum EquipType
-{
-    None = 0,
-    Weapon = 1, // 武器
-    Armor = 2, // 防具
-    Accessory = 3, // 饰品
-    Treasure = 4, // 宝物
-}
-
 #endregion
 
 #region 效果类型枚举

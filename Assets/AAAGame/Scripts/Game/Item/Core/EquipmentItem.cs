@@ -24,11 +24,6 @@ public class EquipmentItem : ItemBase
     }
 
     /// <summary>
-    /// 装备类型
-    /// </summary>
-    public EquipType EquipType => ItemData?.EquipType ?? EquipType.None;
-
-    /// <summary>
     /// 特殊效果ID
     /// </summary>
     public int SpecialEffectId => ItemData?.SpecialEffectId ?? 0;
@@ -68,9 +63,6 @@ public class EquipmentItem : ItemBase
     public override string GetDetailInfo()
     {
         string baseInfo = base.GetDetailInfo();
-
-        // 添加装备类型信息
-        baseInfo += $"\n\n[装备类型] {EquipType}";
 
         // 添加基础属性信息
         if (BaseAttributes != null && BaseAttributes.Count > 0)

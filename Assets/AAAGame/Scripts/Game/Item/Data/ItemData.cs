@@ -20,7 +20,6 @@ public class ItemData
     public bool CanUse; // 是否可使用
     public int UseEffectId; // 使用效果ID
     public bool CanEquip; // 是否可装备
-    public EquipType EquipType; // 装备类型
     public int SpecialEffectId; // 特殊效果ID
     public List<int> AffixPoolIds; // 词条池ID列表
     public int AffixMinCount; // 词条最小数量
