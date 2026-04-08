@@ -1532,11 +1532,6 @@ MonoBehaviour:
     - {fileID: 6675964589194027476}
     VarType: UnityEngine.UI.Text
     VarPrefix: 0
-  - VarName: varEquipmentPanel
-    Targets:
-    - {fileID: 1270040341018978247}
-    VarType: UnityEngine.UI.VerticalLayoutGroup
-    VarPrefix: 0
   - VarName: varInventorySlotUI
     Targets:
     - {fileID: 1296400950039012804, guid: fff3a5aa7932dfe46a3cda139b071891, type: 3}
@@ -1611,6 +1606,11 @@ MonoBehaviour:
     - {fileID: 4535198737039608236}
     VarType: UnityEngine.UI.Image
     VarPrefix: 0
+  - VarName: varEquipmentPanel
+    Targets:
+    - {fileID: 1270040341018978247}
+    VarType: UnityEngine.UI.GridLayoutGroup
+    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
@@ -1624,7 +1624,6 @@ MonoBehaviour:
   varHPSlider: {fileID: 67556326829692104}
   varMPSlider: {fileID: 942476314430501415}
   varHpText: {fileID: 6168245171192536820}
-  varEquipmentPanel: {fileID: 0}
   varInventorySlotUI: {fileID: 1296400950039012804, guid: fff3a5aa7932dfe46a3cda139b071891, type: 3}
   varCardSlotItem: {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
   varConsumeNum_Population: {fileID: 3696306745156276776}
@@ -1645,6 +1644,7 @@ MonoBehaviour:
   varCardSlots: {fileID: 5201136782821436809}
   varGreenArea: {fileID: 4441049866934657974}
   varRedArea: {fileID: 579597201747092494}
+  varEquipmentPanel: {fileID: 3385283420491791991}
 --- !u!1 &4109415548441067921
 GameObject:
   m_ObjectHideFlags: 0
@@ -3766,7 +3766,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 256.5, y: -60}
-  m_SizeDelta: {x: 0, y: 120}
+  m_SizeDelta: {x: 47, y: 120}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &7810874124405202739
 CanvasRenderer:
@@ -4012,7 +4012,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 246.5, y: -60}
-  m_SizeDelta: {x: 0, y: 120}
+  m_SizeDelta: {x: 150, y: 120}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &4965670465957194936
 CanvasRenderer:

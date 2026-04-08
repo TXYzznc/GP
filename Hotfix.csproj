@@ -246,6 +246,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\GameUIForm.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\StarPhoneUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Core\EnemyEntityAI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Test\OutlineTestController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Manager\GlobalChessManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\SettingDialog.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Manager\ChessLifecycleHandler.cs" />
