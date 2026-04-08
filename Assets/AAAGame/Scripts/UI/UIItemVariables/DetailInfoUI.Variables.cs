@@ -13,4 +13,6 @@ public partial class DetailInfoUI
 	[SerializeField] private GameObject varBuffItem = null;
 	[SerializeField] private Text varDesc_1Text = null;
 	[SerializeField] private Text varDesc_2Text = null;
+	[SerializeField] private GridLayoutGroup varEquipBg = null;
+	[SerializeField] private GameObject varInventorySlotUI = null;
 }

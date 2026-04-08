@@ -57,7 +57,7 @@ public partial class CombatPreparationUI : UIFormBase
     private List<InventorySlotUI> m_EquipSlots = new List<InventorySlotUI>();
 
     /// <summary>装备槽容器</summary>
-    private InventorySlotContainerImpl m_EquipSlotContainer;
+    private EquipSlotContainerImpl m_EquipSlotContainer;
 
     #endregion
 
@@ -252,9 +252,9 @@ public partial class CombatPreparationUI : UIFormBase
         // 初始化容器（如果还未初始化）
         if (m_EquipSlotContainer == null)
         {
-            m_EquipSlotContainer = GetComponent<InventorySlotContainerImpl>();
+            m_EquipSlotContainer = GetComponent<EquipSlotContainerImpl>();
             if (m_EquipSlotContainer == null)
-                m_EquipSlotContainer = gameObject.AddComponent<InventorySlotContainerImpl>();
+                m_EquipSlotContainer = gameObject.AddComponent<EquipSlotContainerImpl>();
         }
 
         const int equipSlotsCount = 9;
@@ -308,6 +308,7 @@ public partial class CombatPreparationUI : UIFormBase
             if (displayIndex >= m_EquipSlots.Count)
                 break;
 
+            m_EquipSlots[displayIndex].SetSlotIndex(i); // 使用实际背包槽位索引
             m_EquipSlots[displayIndex].SetData(slot.ItemStack);
             displayIndex++;
         }

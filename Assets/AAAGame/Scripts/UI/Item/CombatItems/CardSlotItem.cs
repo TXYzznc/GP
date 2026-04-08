@@ -291,6 +291,9 @@ public partial class CardSlotItem
     {
         m_IsSelected = true;
 
+        // 取消场景中选中的棋子（点策略卡时应取消棋子选中）
+        ChessSelectionManager.Instance?.ForceDeselect();
+
         // 实现单选逻辑：取消之前选中的卡牌
         if (CardManager.Instance != null && CardManager.Instance.CurrentSelectedCard != null)
         {

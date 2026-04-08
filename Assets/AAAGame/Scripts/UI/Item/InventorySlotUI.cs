@@ -10,6 +10,7 @@ public enum SlotContainerType
     Warehouse,
     Equip,
     FastBar,
+    Chess,
 }
 
 /// <summary>

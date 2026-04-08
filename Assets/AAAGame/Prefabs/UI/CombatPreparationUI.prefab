@@ -448,7 +448,7 @@ MonoBehaviour:
   m_CardSpacing: 200
   m_StartOffsetX: -700
   m_VerticalOffset: 40
-  m_EnterDuration: 0.35
+  m_EnterDuration: 0.1
   m_CardDealInterval: 0.1
   m_EnterStartOffsetX: 100
   m_EnterStartOffsetY: 0
@@ -1420,6 +1420,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4914284569294859816, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_Pivot.x
       value: 1
@@ -1543,6 +1563,10 @@ PrefabInstance:
     - target: {fileID: 5491171031536684199, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6106032115052287071, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7447328875938651699, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_AnchorMax.y

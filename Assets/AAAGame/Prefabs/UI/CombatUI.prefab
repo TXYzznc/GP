@@ -3766,7 +3766,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 256.5, y: -60}
-  m_SizeDelta: {x: 47, y: 120}
+  m_SizeDelta: {x: 0, y: 120}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &7810874124405202739
 CanvasRenderer:
@@ -4012,7 +4012,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 246.5, y: -60}
-  m_SizeDelta: {x: 150, y: 120}
+  m_SizeDelta: {x: 0, y: 120}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &4965670465957194936
 CanvasRenderer:
@@ -4135,6 +4135,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3812299790996274186, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4411123238795100253, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -4264,7 +4284,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6106032115052287071, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_RaycastTarget
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6920544861518186118, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_RaycastTarget
