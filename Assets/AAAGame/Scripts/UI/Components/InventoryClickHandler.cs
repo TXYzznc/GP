@@ -139,6 +139,23 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
 
         DebugEx.Log("InventoryClickHandler", $"[HandleRightClick] 格子有物品，分发给 InventorySlotUI");
 
+        // 装备栏右键 → 无效果
+        if (m_SourceSlot.ContainerType == SlotContainerType.Equip)
+        {
+            return;
+        }
+
+        // 棋子装备槽右键 → 卸下装备
+        if (m_SourceSlot.ContainerType == SlotContainerType.Chess)
+        {
+            var detailInfoUI = m_SourceSlot.GetComponentInParent<DetailInfoUI>();
+            if (detailInfoUI != null)
+            {
+                detailInfoUI.UnequipFromSlot(m_SourceSlot.SlotIndex);
+                return;
+            }
+        }
+
         // 分发给 InventorySlotUI 处理
         m_SourceSlot.OnRightClick(position);
     }

@@ -1,6 +1,6 @@
 ﻿/// <summary>
 /// 背包容器实现
-/// 规则：背包 → 背包/仓库/快捷栏
+/// 规则：背包 → 背包/仓库/快捷栏/装备栏
 /// </summary>
 public class InventorySlotContainerImpl : SlotContainerBase
 {
@@ -53,11 +53,13 @@ public class InventorySlotContainerImpl : SlotContainerBase
         };
 
         // ⚠️ 清空条件：目标格子为空 OR 目标是同种物品（堆叠）
-        // 不清空：背包→背包（MoveItem 已处理）或 目标是不同物品（交换失败）
-        if (success && targetContainer is not InventorySlotContainerImpl &&
-            (targetIsEmpty || targetSlot.ItemId == itemId))
+        // 不清空：背包→背包（MoveItem 已处理）
+        if (success && targetContainer is not InventorySlotContainerImpl)
         {
-            m_InventoryManager.RemoveItem(itemId, count);
+            if (targetIsEmpty || targetSlot.ItemId == itemId)
+            {
+                m_InventoryManager.RemoveItem(itemId, count);
+            }
         }
 
         return success;
@@ -92,4 +94,5 @@ public class InventorySlotContainerImpl : SlotContainerBase
         DebugEx.Log("InventorySlotContainer", $"[背包→快捷栏] StoreItemToSlot {ok}");
         return ok;
     }
+
 }
