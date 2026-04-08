@@ -1,16 +1,16 @@
-﻿#	ItemTable																							
-#	Id		Name	Type	Quality	Description	IconId	DetailIconId	CanStack	MaxStackCount	CanUse	UseEffectId	CanEquip	EquipType	SpecialEffectId	AffixPoolIds	AffixMinCount	AffixMaxCount	SynergyIds	BaseAttributes	SellPrice	Weight	MaxDurability	Rarity
-#	int		string	int	int	string	int	int	int	int	int	int	int	int	int	int[]	int	int	int[]	string	int	int	int	int
-#	物品ID	备注	物品名称	物品类型	品质等级	物品描述	缩略图资源ID	详细图资源ID	是否可堆叠	最大堆叠数	是否可使用	使用效果ID	是否可装备	装备类型	特殊效果ID	词条池ID列表	词条最小数量	词条最大数量	羁绊ID列表	基础属性(JSON格式)	售价	重量(克)	最大耐久度	稀有度
-	1		钱包	1	2	使用后随机获得100-500金币	1901	0	1	99	1	1001	0	0	0	0	0	0	0	{}	50	50	0	1
-	2		生命药水	1	1	恢复500点生命值	1902	0	1	99	1	1002	0	0	0	0	0	0	0	{}	10	100	0	1
-	3		魔法药水	1	1	恢复300点魔法值	1903	0	1	99	1	1003	0	0	0	0	0	0	0	{}	10	100	0	1
-	4		经验宝石	1	3	使用后获得1000点经验值	1904	0	1	20	1	1004	0	0	0	0	0	0	0	{}	100	200	0	3
-	5		神秘钥匙	2	3	打开神秘宝箱的钥匙	1905	0	0	1	0	0	0	0	0	0	0	0	0	{}	0	50	0	3
-	6		古老卷轴	2	4	记载着远古秘密的卷轴	1906	0	0	1	0	0	0	0	0	0	0	0	0	{}	0	30	0	4
-	7		八尺琼勾玉	3	5	传说中的三神器之一，蕴含神秘力量	1907	0	0	1	0	0	1	4	3001	0	0	0	3001	{"MaxHP":"500","CritRate":"15%"}	0	500	100	5
-	8		天丛云剑	3	5	传说中的三神器之一，削铁如泥	1908	0	0	1	0	0	1	4	3002	0	0	0	3001	{"Attack":"200","CritDamage":"50%"}	0	800	100	5
-	9		八咫镜	3	5	传说中的三神器之一，可以反射一切	1909	0	0	1	0	0	1	4	3003	0	0	0	3001	{"Defense":"300","DamageReduction":"20%"}	0	600	100	5
-	10		石中剑	4	4	传说中的圣剑，只有王者才能拔出	1910	0	0	1	0	0	1	1	4001	2001,2003	2	3	0	{"Attack":"60","CritRate":"10%"}	500	700	80	4
-	11		龙鳞铠甲	4	4	由巨龙鳞片打造的铠甲	1911	0	0	1	0	0	1	2	4002	2002,2006	2	3	0	{"MaxHP":"200","Defense":"50"}	500	1200	80	4
-	12		精灵之戒	4	3	精灵族的传家宝	1912	0	0	1	0	0	1	3	4003	2004,2005	1	2	0	{"MoveSpeed":"15%","Evasion":"10%"}	300	100	80	3
+﻿#	ItemTable																						
+#	Id		Name	Type	Quality	Description	IconId	DetailIconId	CanStack	MaxStackCount	CanUse	UseEffectId	CanEquip	SpecialEffectId	AffixPoolIds	AffixMinCount	AffixMaxCount	SynergyIds	BaseAttributes	SellPrice	Weight	MaxDurability	Rarity
+#	int		string	int	int	string	int	int	int	int	int	int	int	int	int[]	int	int	int[]	string	int	int	int	int
+#	物品ID	备注	物品名称	物品类型	品质等级	物品描述	缩略图资源ID	详细图资源ID	是否可堆叠	最大堆叠数	是否可使用	使用效果ID	是否可装备	特殊效果ID	词条池ID列表	词条最小数量	词条最大数量	羁绊ID列表	基础属性(JSON格式)	售价	重量(克)	最大耐久度	稀有度
+	1		钱包	1	2	使用后随机获得100-500金币	1901	0	1	99	1	1001	0	0	0	0	0	0	{}	50	50	0	1
+	2		生命药水	1	1	恢复500点生命值	1902	0	1	99	1	1002	0	0	0	0	0	0	{}	10	100	0	1
+	3		魔法药水	1	1	恢复300点魔法值	1903	0	1	99	1	1003	0	0	0	0	0	0	{}	10	100	0	1
+	4		经验宝石	1	3	使用后获得1000点经验值	1904	0	1	20	1	1004	0	0	0	0	0	0	{}	100	200	0	3
+	5		神秘钥匙	2	3	打开神秘宝箱的钥匙	1905	0	0	1	0	0	0	0	0	0	0	0	{}	0	50	0	3
+	6		古老卷轴	2	4	记载着远古秘密的卷轴	1906	0	0	1	0	0	0	0	0	0	0	0	{}	0	30	0	4
+	7		八尺琼勾玉	3	5	传说中的三神器之一，蕴含神秘力量	1907	0	0	1	0	0	1	3001	0	0	0	3001	{"MaxHP":"500","CritRate":"15%"}	0	500	100	5
+	8		天丛云剑	3	5	传说中的三神器之一，削铁如泥	1908	0	0	1	0	0	1	3002	0	0	0	3001	{"Attack":"200","CritDamage":"50%"}	0	800	100	5
+	9		八咫镜	3	5	传说中的三神器之一，可以反射一切	1909	0	0	1	0	0	1	3003	0	0	0	3001	{"Defense":"300","DamageReduction":"20%"}	0	600	100	5
+	10		石中剑	4	4	传说中的圣剑，只有王者才能拔出	1910	0	0	1	0	0	1	4001	2001,2003	2	3	0	{"Attack":"60","CritRate":"10%"}	500	700	80	4
+	11		龙鳞铠甲	4	4	由巨龙鳞片打造的铠甲	1911	0	0	1	0	0	1	4002	2002,2006	2	3	0	{"MaxHP":"200","Defense":"50"}	500	1200	80	4
+	12		精灵之戒	4	3	精灵族的传家宝	1912	0	0	1	0	0	1	4003	2004,2005	1	2	0	{"MoveSpeed":"15%","Evasion":"10%"}	300	100	80	3

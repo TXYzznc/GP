@@ -128,15 +128,6 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
-        /// 装备类型
-        /// </summary>
-        public int EquipType
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 特殊效果ID
         /// </summary>
         public int SpecialEffectId
@@ -249,7 +240,6 @@ public partial class ItemTable : DataRowBase
             CanUse = int.Parse(columnStrings[index++]);
             UseEffectId = int.Parse(columnStrings[index++]);
             CanEquip = int.Parse(columnStrings[index++]);
-            EquipType = int.Parse(columnStrings[index++]);
             SpecialEffectId = int.Parse(columnStrings[index++]);
             AffixPoolIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             AffixMinCount = int.Parse(columnStrings[index++]);
@@ -282,7 +272,6 @@ public partial class ItemTable : DataRowBase
                     CanUse = binaryReader.Read7BitEncodedInt32();
                     UseEffectId = binaryReader.Read7BitEncodedInt32();
                     CanEquip = binaryReader.Read7BitEncodedInt32();
-                    EquipType = binaryReader.Read7BitEncodedInt32();
                     SpecialEffectId = binaryReader.Read7BitEncodedInt32();
                     AffixPoolIds = binaryReader.ReadArray<int>();
                     AffixMinCount = binaryReader.Read7BitEncodedInt32();
