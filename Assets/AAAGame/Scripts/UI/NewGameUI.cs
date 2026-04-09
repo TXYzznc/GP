@@ -88,9 +88,6 @@ public partial class NewGameUI : UIFormBase
                 storyTypewriter = varStoryText.gameObject.AddComponent<TypewriterEffect>();
             }
 
-            // 重置打字机状态（清除可能的自动播放）
-            storyTypewriter.Reset();
-
             // 配置打字机效果
             storyTypewriter.SetTypeSpeed(0.05f);
             storyTypewriter.SetLocalizationKey(STORY_TEXT_KEY);
@@ -859,10 +856,7 @@ public partial class NewGameUI : UIFormBase
             // 设置模型旋转为 180 度，让模型面向玩家
             m_ModelViewer.SetModelRotation(180f);
 
-            // 播放 Idle 待机动画
-            m_ModelViewer.PlayIdleAnimation();
-
-            Log.Info($"召唤师模型加载成功: {summoner.Name}，旋转角度设置为 (0, 180, 0)，已播放 Idle 动画");
+            Log.Info($"召唤师模型加载成功: {summoner.Name}，旋转角度设置为 (0, 180, 0)");
         }
     }
 
