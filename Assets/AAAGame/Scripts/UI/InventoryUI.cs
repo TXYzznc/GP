@@ -4,7 +4,6 @@ using GameExtension;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -97,13 +96,10 @@ public partial class InventoryUI : UIFormBase
         BuildPageLabels();
         RefreshAll();
         LockPlayerMovement(true);
-
-        PlayOpenAnimation();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        DOTween.Kill(gameObject, true);
         base.OnClose(isShutdown, userData);
 
         if (m_InventoryManager != null)
@@ -557,30 +553,6 @@ public partial class InventoryUI : UIFormBase
 
         // 使用后刷新快捷栏显示
         RefreshHotbarSlot(hotbarIndex);
-    }
-
-    #endregion
-
-    #region 动画
-
-    private void PlayOpenAnimation()
-    {
-        DOTween.Kill(gameObject);
-        Interactable = false;
-        var rt = GetComponent<RectTransform>();
-        var cg = GetComponent<CanvasGroup>();
-        UIAnimationHelper.SlideIn(rt, cg, UIAnimationHelper.SlideDirection.FromRight, 200f, 0.35f)
-            .OnComplete(() => Interactable = true);
-    }
-
-    public override void OnClickClose()
-    {
-        Interactable = false;
-        DOTween.Kill(gameObject);
-        var rt = GetComponent<RectTransform>();
-        var cg = GetComponent<CanvasGroup>();
-        UIAnimationHelper.SlideOut(rt, cg, UIAnimationHelper.SlideDirection.FromRight, 200f, 0.25f)
-            .OnComplete(() => GF.UI.Close(this.UIForm));
     }
 
     #endregion
