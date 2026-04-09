@@ -253,106 +253,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u7075\u529B"
---- !u!1 &1270040341018978247
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8523288737225564745}
-  - component: {fileID: 3309095232628964081}
-  - component: {fileID: 6692029944015164607}
-  - component: {fileID: 3385283420491791991}
-  m_Layer: 5
-  m_Name: EquipmentPanel
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &8523288737225564745
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1270040341018978247}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2807487736641636209}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 10, y: 117}
-  m_SizeDelta: {x: 80, y: 600}
-  m_Pivot: {x: 0, y: 0.5}
---- !u!222 &3309095232628964081
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1270040341018978247}
-  m_CullTransparentMesh: 1
---- !u!114 &6692029944015164607
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1270040341018978247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5411765}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &3385283420491791991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1270040341018978247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 5
-    m_Bottom: 0
-  m_ChildAlignment: 1
-  m_StartCorner: 0
-  m_StartAxis: 1
-  m_CellSize: {x: 70, y: 70}
-  m_Spacing: {x: 0, y: 5}
-  m_Constraint: 1
-  m_ConstraintCount: 1
 --- !u!1 &2138753385662107589
 GameObject:
   m_ObjectHideFlags: 0
@@ -1421,7 +1321,6 @@ RectTransform:
   - {fileID: 303998038062756980}
   - {fileID: 7771311422078316944}
   - {fileID: 8205323209672771731}
-  - {fileID: 8523288737225564745}
   - {fileID: 4816555005261922589}
   - {fileID: 1061678346500934693}
   - {fileID: 4886538633187150742}
@@ -1532,11 +1431,6 @@ MonoBehaviour:
     - {fileID: 6675964589194027476}
     VarType: UnityEngine.UI.Text
     VarPrefix: 0
-  - VarName: varInventorySlotUI
-    Targets:
-    - {fileID: 1296400950039012804, guid: fff3a5aa7932dfe46a3cda139b071891, type: 3}
-    VarType: UnityEngine.GameObject
-    VarPrefix: 0
   - VarName: varCardSlotItem
     Targets:
     - {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
@@ -1606,11 +1500,6 @@ MonoBehaviour:
     - {fileID: 4535198737039608236}
     VarType: UnityEngine.UI.Image
     VarPrefix: 0
-  - VarName: varEquipmentPanel
-    Targets:
-    - {fileID: 1270040341018978247}
-    VarType: UnityEngine.UI.GridLayoutGroup
-    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
@@ -1624,7 +1513,6 @@ MonoBehaviour:
   varHPSlider: {fileID: 67556326829692104}
   varMPSlider: {fileID: 942476314430501415}
   varHpText: {fileID: 6168245171192536820}
-  varInventorySlotUI: {fileID: 1296400950039012804, guid: fff3a5aa7932dfe46a3cda139b071891, type: 3}
   varCardSlotItem: {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
   varConsumeNum_Population: {fileID: 3696306745156276776}
   varConsumeNum_Refresh: {fileID: 481041151104300104}
@@ -1644,7 +1532,6 @@ MonoBehaviour:
   varCardSlots: {fileID: 5201136782821436809}
   varGreenArea: {fileID: 4441049866934657974}
   varRedArea: {fileID: 579597201747092494}
-  varEquipmentPanel: {fileID: 3385283420491791991}
 --- !u!1 &4109415548441067921
 GameObject:
   m_ObjectHideFlags: 0
@@ -3766,7 +3653,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 256.5, y: -60}
-  m_SizeDelta: {x: 0, y: 120}
+  m_SizeDelta: {x: 47, y: 120}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &7810874124405202739
 CanvasRenderer:
@@ -4012,7 +3899,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 246.5, y: -60}
-  m_SizeDelta: {x: 0, y: 120}
+  m_SizeDelta: {x: 150, y: 120}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!222 &4965670465957194936
 CanvasRenderer:

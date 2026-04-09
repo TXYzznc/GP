@@ -412,8 +412,6 @@ public partial class CardSlotItem
     #region 拖拽交互
 
     private bool m_IsDragging;  // 正在拖拽标志
-    private float m_DragStartTime;  // 拖拽开始时间
-    private float m_LastDragUpdateTime;  // 上次拖拽更新时间
     private bool m_HasLeftGreenArea;  // 拖拽后是否已离开过 GreenArea
 
     /// <summary>
@@ -426,11 +424,9 @@ public partial class CardSlotItem
 
         m_IsDragging = true;
         m_HasLeftGreenArea = false;
-        m_DragStartTime = Time.realtimeSinceStartup;
-        m_LastDragUpdateTime = m_DragStartTime;
 
         DebugEx.LogModule("CardSlotItem",
-            $"[拖拽开始] 卡牌: {m_CardData.Name}, 时间: {m_DragStartTime:F4}, 鼠标位置: {eventData.position}");
+            $"[拖拽开始] 卡牌: {m_CardData.Name}, 鼠标位置: {eventData.position}");
 
         // 取消选中状态（如果已选中）
         if (m_IsSelected)
@@ -492,10 +488,6 @@ public partial class CardSlotItem
         if (m_DragPreview == null)
             return;
 
-        float currentTime = Time.realtimeSinceStartup;
-        float timeSinceDragStart = currentTime - m_DragStartTime;
-        float timeSinceLastUpdate = currentTime - m_LastDragUpdateTime;
-
         // 屏幕坐标
         Vector2 screenPos = eventData.position;
 
@@ -505,51 +497,24 @@ public partial class CardSlotItem
             var canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
             {
-                // 1. 获取卡牌尺寸
-                Vector2 cardSize = m_ItemRectTransform.sizeDelta;
-                Vector2 cardRightBottomOffset = new Vector2(cardSize.x / 2f, -cardSize.y / 2f);
+                RectTransform parentRect = m_ItemRectTransform.parent as RectTransform;
+                if (parentRect != null &&
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        parentRect, screenPos, canvas.worldCamera, out Vector2 mouseLocalPos))
+                {
+                    // 当前卡牌右下角在父级本地坐标系中的位置
+                    Vector3[] corners = new Vector3[4];
+                    m_ItemRectTransform.GetWorldCorners(corners);
+                    // corners[3] = 右下角（世界坐标）
+                    Vector2 currentRBLocal = parentRect.InverseTransformPoint(corners[3]);
 
-                // 2. 获取当前卡牌在世界空间的位置（4个角）
-                Vector3[] cardCorners = new Vector3[4];
-                m_ItemRectTransform.GetWorldCorners(cardCorners);
-                // 0=左下, 1=左上, 2=右上, 3=右下
-                Vector2 currentCardRightBottomScreenPos = canvas.worldCamera.WorldToScreenPoint(cardCorners[3]);
-
-                // 3. 计算偏移：鼠标位置 - 卡牌右下角当前屏幕位置
-                Vector2 offsetNeeded = screenPos - currentCardRightBottomScreenPos;
-
-                // 4. 调整卡牌锚点位置
-                Vector2 currentCardAnchoredPos = m_ItemRectTransform.anchoredPosition;
-                Vector2 newCardAnchoredPos = currentCardAnchoredPos + offsetNeeded;
-                m_ItemRectTransform.anchoredPosition = newCardAnchoredPos;
-
-                // 详细日志
-                DebugEx.LogModule("CardSlotItem",
-                    $"[拖拽中-右下角对齐] " +
-                    $"鼠标屏幕: {screenPos:F2} | " +
-                    $"卡牌尺寸: {cardSize:F2} | " +
-                    $"右下角偏移: {cardRightBottomOffset:F2} | " +
-                    $"当前右下角屏幕: {currentCardRightBottomScreenPos:F2} | " +
-                    $"需要偏移: {offsetNeeded:F2} | " +
-                    $"卡牌新锚点: {newCardAnchoredPos:F2}");
-
-                // 验证日志
-                Vector3[] newCardCorners = new Vector3[4];
-                m_ItemRectTransform.GetWorldCorners(newCardCorners);
-                Vector2 newCardRightBottomScreenPos = canvas.worldCamera.WorldToScreenPoint(newCardCorners[3]);
-                Vector2 alignmentError = screenPos - newCardRightBottomScreenPos;
-                DebugEx.LogModule("CardSlotItem",
-                    $"[验证] 新右下角屏幕位置: {newCardRightBottomScreenPos:F2} | " +
-                    $"鼠标屏幕位置: {screenPos:F2} | " +
-                    $"对齐偏差: {alignmentError:F2} (应接近 0)");
-
-                // 总耗时日志
-                DebugEx.LogModule("CardSlotItem",
-                    $"[时间统计] 总耗时: {timeSinceDragStart:F4}s, 帧耗时: {timeSinceLastUpdate:F4}s");
+                    // 偏移 = 鼠标目标位置 - 当前右下角位置（都在父级本地坐标系）
+                    Vector2 delta = mouseLocalPos - currentRBLocal;
+                    m_ItemRectTransform.anchoredPosition += delta;
+                }
             }
         }
 
-        m_LastDragUpdateTime = currentTime;
 
         // 更新拖拽预览位置，跟随鼠标
         var dragPreviewRect = m_DragPreview.GetComponent<RectTransform>();
@@ -793,6 +758,19 @@ public partial class CardSlotItem
         {
             DebugEx.ErrorModule("CardSlotItem", "卡牌数据为空，无法执行效果");
             return;
+        }
+
+        // 灵力消耗检查
+        float spiritCost = m_CardData.SpiritCost;
+        if (spiritCost > 0)
+        {
+            bool consumed = SummonerRuntimeDataManager.Instance.ConsumeMP(spiritCost);
+            if (!consumed)
+            {
+                DebugEx.LogModule("CardSlotItem", $"灵力不足，无法使用卡牌: {m_CardData.Name} (需要 {spiritCost})");
+                ReturnToSlot();
+                return;
+            }
         }
 
         DebugEx.LogModule("CardSlotItem", $"执行卡牌效果: {m_CardData.Name}");
@@ -1165,12 +1143,49 @@ public partial class CardSlotItem
             return targets;
 
         float radius = cardData.TableRow.AreaRadius;
-        int targetType = cardData.TableRow.TargetType;
+        CardTargetType targetType = cardData.CTargetType;
 
         switch (targetType)
         {
-            case 1: // 自身 — 查找范围内最近的友方单位
-            case 2: // 友方单体
+            case CardTargetType.Self: // 自身（召唤师）— 暂用最近友方代替
+            {
+                ChessEntity nearest = null;
+                float nearestDist = float.MaxValue;
+                foreach (var chess in allChess)
+                {
+                    if (chess == null || chess.Camp != (int)CampType.Player)
+                        continue;
+                    float dist = Vector3.Distance(chess.transform.position, targetPos);
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = chess;
+                    }
+                }
+                if (nearest != null)
+                    targets.Add(nearest);
+                break;
+            }
+            case CardTargetType.AllAllyExcludeSummoner: // 全体友方（不含召唤师）
+            case CardTargetType.AllAlly: // 全体友方
+            {
+                foreach (var chess in allChess)
+                {
+                    if (chess != null && chess.Camp == (int)CampType.Player)
+                        targets.Add(chess);
+                }
+                break;
+            }
+            case CardTargetType.AllEnemy: // 敌方全体
+            {
+                foreach (var chess in allChess)
+                {
+                    if (chess != null && chess.Camp == (int)CampType.Enemy)
+                        targets.Add(chess);
+                }
+                break;
+            }
+            case CardTargetType.SingleAlly: // 单体友方（最近友方）
             {
                 ChessEntity nearest = null;
                 float nearestDist = float.MaxValue;
@@ -1189,16 +1204,7 @@ public partial class CardSlotItem
                     targets.Add(nearest);
                 break;
             }
-            case 3: // 友方全体
-            {
-                foreach (var chess in allChess)
-                {
-                    if (chess != null && chess.Camp == (int)CampType.Player)
-                        targets.Add(chess);
-                }
-                break;
-            }
-            case 4: // 敌方单体
+            case CardTargetType.SingleEnemy: // 单体敌方（最近敌方）
             {
                 ChessEntity nearest = null;
                 float nearestDist = float.MaxValue;
@@ -1217,21 +1223,29 @@ public partial class CardSlotItem
                     targets.Add(nearest);
                 break;
             }
-            case 5: // 敌方全体
+            case CardTargetType.AreaAlly: // 范围内友方
+            {
+                foreach (var chess in allChess)
+                {
+                    if (chess != null && chess.Camp == (int)CampType.Player)
+                    {
+                        float dist = Vector3.Distance(chess.transform.position, targetPos);
+                        if (dist <= radius)
+                            targets.Add(chess);
+                    }
+                }
+                break;
+            }
+            case CardTargetType.AreaEnemy: // 范围内敌方
             {
                 foreach (var chess in allChess)
                 {
                     if (chess != null && chess.Camp == (int)CampType.Enemy)
-                        targets.Add(chess);
-                }
-                break;
-            }
-            case 6: // 全场
-            {
-                foreach (var chess in allChess)
-                {
-                    if (chess != null)
-                        targets.Add(chess);
+                    {
+                        float dist = Vector3.Distance(chess.transform.position, targetPos);
+                        if (dist <= radius)
+                            targets.Add(chess);
+                    }
                 }
                 break;
             }

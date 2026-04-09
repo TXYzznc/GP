@@ -178,6 +178,10 @@ public class ChessSlotContainer : MonoBehaviour
             await UniTask.Delay((int)(delayTime * 1000));
         }
 
+        // 延迟后检查卡牌是否已被销毁（UI关闭时可能发生）
+        if (card == null)
+            return;
+
         // 播放新卡进场动画
         await PlayCardEnterAnimationAsync(card);
 
@@ -326,6 +330,10 @@ public class ChessSlotContainer : MonoBehaviour
 
         await sequence.AsyncWaitForCompletion();
 
+        // 动画完成后检查对象是否已被销毁
+        if (card == null)
+            return;
+
         DebugEx.LogModule("ChessSlotContainer", $"棋子进场动画完成");
     }
 
@@ -348,6 +356,8 @@ public class ChessSlotContainer : MonoBehaviour
         for (int i = 0; i < m_Cards.Count; i++)
         {
             var card = m_Cards[i];
+            if (card == null)
+                continue;
             var cardRect = card.GetComponent<RectTransform>();
             if (cardRect == null)
                 continue;
@@ -392,6 +402,8 @@ public class ChessSlotContainer : MonoBehaviour
         for (int i = 0; i < m_Cards.Count; i++)
         {
             var card = m_Cards[i];
+            if (card == null)
+                continue;
             var cardRect = card.GetComponent<RectTransform>();
             if (cardRect == null)
                 continue;

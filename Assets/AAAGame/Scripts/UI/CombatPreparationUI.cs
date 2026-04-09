@@ -1033,6 +1033,12 @@ public partial class CombatPreparationUI : UIFormBase
     /// </summary>
     private void ClearChessItems()
     {
+        // 先清理容器状态（动画、列表）
+        if (m_ChessSlotContainer != null)
+        {
+            m_ChessSlotContainer.ClearState();
+        }
+
         if (varChessItemUI != null && m_SpawnedChessItems.Count > 0)
         {
             UnspawnAllItem<UIItemObject>(varChessItemUI);
