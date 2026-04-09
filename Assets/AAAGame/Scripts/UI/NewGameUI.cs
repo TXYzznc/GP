@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using DG.Tweening;
 
 /// <summary>
 /// 新游戏UI - 角色创建界面
@@ -174,23 +173,11 @@ public partial class NewGameUI : UIFormBase
 
         // 开始第一步：输入名字
         StartFlow(CreateCharacterState.InputName);
-
-        PlayOpenAnimation();
     }
 
     /// <summary>
     /// 加载可选召唤师列表
     /// </summary>
-    private void PlayOpenAnimation()
-    {
-        DOTween.Kill(gameObject);
-        Interactable = false;
-        var cg = GetComponent<CanvasGroup>();
-        cg.alpha = 0f;
-        cg.DOFade(1f, 0.35f).SetEase(Ease.OutQuart).SetUpdate(true)
-            .OnComplete(() => Interactable = true);
-    }
-
     private void LoadAvailableSummoners()
     {
         m_AvailableSummoners.Clear();
@@ -219,7 +206,6 @@ public partial class NewGameUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        DOTween.Kill(gameObject, true);
         // 清理技能提示框
         HideSkillTooltip();
 
