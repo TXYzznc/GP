@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using GameFramework.Event;
 using System.Collections.Generic;
-using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -196,37 +195,6 @@ public partial class CurrencyUI : StateAwareUIForm
     {
         ClearCurrencyItems();
         base.OnClose(isShutdown, userData);
-    }
-
-    #endregion
-
-    #region 动画
-
-    protected new void ShowUI()
-    {
-        var cg = GetComponent<CanvasGroup>();
-        var rt = GetComponent<RectTransform>();
-        if (cg == null) { base.ShowUI(); return; }
-        DOTween.Kill(gameObject);
-        cg.alpha = 0f; cg.blocksRaycasts = true; cg.interactable = true;
-        var orig = rt.anchoredPosition;
-        rt.anchoredPosition = orig + new Vector2(0, 30f);
-        DOTween.Sequence().SetUpdate(true)
-            .Join(cg.DOFade(1f, 0.25f).SetEase(Ease.OutQuart))
-            .Join(rt.DOAnchorPos(orig, 0.25f).SetEase(Ease.OutQuart));
-    }
-
-    protected new void HideUI()
-    {
-        var cg = GetComponent<CanvasGroup>();
-        var rt = GetComponent<RectTransform>();
-        if (cg == null) { base.HideUI(); return; }
-        DOTween.Kill(gameObject);
-        var orig = rt.anchoredPosition;
-        DOTween.Sequence().SetUpdate(true)
-            .Join(cg.DOFade(0f, 0.2f).SetEase(Ease.InQuart))
-            .Join(rt.DOAnchorPos(orig + new Vector2(0, 30f), 0.2f).SetEase(Ease.InQuart))
-            .OnComplete(() => { cg.interactable = false; cg.blocksRaycasts = false; });
     }
 
     #endregion

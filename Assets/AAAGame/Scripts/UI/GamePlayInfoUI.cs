@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using GameFramework.Event;
-using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -322,12 +321,9 @@ public partial class GamePlayInfoUI : StateAwareUIForm
             varWeatherText.text = "晴";  // TODO: 从游戏数据获取
         }
 
-        // 隐身文本：根据当前隐身状态决定显示
+        // 隐身文本默认隐藏（仅隐身激活时由 OnStealthChanged 显示）
         if (varStealthText != null)
-        {
-            bool stealthActive = m_SubscribedStealth != null && m_SubscribedStealth.IsRunning;
-            varStealthText.gameObject.SetActive(stealthActive);
-        }
+            varStealthText.gameObject.SetActive(false);
 
         // 刷新污染值（使用HP滑条显示）
         RefreshCorruption();
@@ -400,45 +396,6 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         {
             varStealthText.text = $"隐身 {m_SubscribedStealth.RemainingTime:F0}s";
         }
-    }
-
-    #endregion
-
-    #region 动画
-
-    protected new void ShowUI()
-    {
-        var cg = GetComponent<CanvasGroup>();
-        var rt = GetComponent<RectTransform>();
-        if (cg == null) { base.ShowUI(); return; }
-
-        DOTween.Kill(gameObject);
-        cg.alpha = 0f;
-        cg.blocksRaycasts = true;
-        cg.interactable = true;
-        var orig = rt.anchoredPosition;
-        rt.anchoredPosition = orig + new Vector2(-80f, 0);
-        DOTween.Sequence().SetUpdate(true)
-            .Join(cg.DOFade(1f, 0.3f).SetEase(Ease.OutQuart))
-            .Join(rt.DOAnchorPos(orig, 0.3f).SetEase(Ease.OutQuart));
-    }
-
-    protected new void HideUI()
-    {
-        var cg = GetComponent<CanvasGroup>();
-        var rt = GetComponent<RectTransform>();
-        if (cg == null) { base.HideUI(); return; }
-
-        DOTween.Kill(gameObject);
-        var orig = rt.anchoredPosition;
-        DOTween.Sequence().SetUpdate(true)
-            .Join(cg.DOFade(0f, 0.2f).SetEase(Ease.InQuart))
-            .Join(rt.DOAnchorPos(orig + new Vector2(-80f, 0), 0.2f).SetEase(Ease.InQuart))
-            .OnComplete(() =>
-            {
-                cg.interactable = false;
-                cg.blocksRaycasts = false;
-            });
     }
 
     #endregion
