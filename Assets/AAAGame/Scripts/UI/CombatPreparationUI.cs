@@ -167,8 +167,6 @@ public partial class CombatPreparationUI : UIFormBase
 
         // 更新倒计时显示
         UpdateCountdownText();
-
-        PlayOpenAnimation();
     }
 
     protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
@@ -192,7 +190,6 @@ public partial class CombatPreparationUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        DOTween.Kill(gameObject, true);
         // 取消订阅棋子库存事件
         ChessDeploymentTracker.Instance.OnChessDeployed -= OnChessDeployedHandler;
         ChessDeploymentTracker.Instance.OnChessRecalled -= OnChessRecalledHandler;
@@ -672,45 +669,6 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>
     /// 更新倒计时文本
     /// </summary>
-    private void PlayOpenAnimation()
-    {
-        DOTween.Kill(gameObject);
-        Interactable = false;
-        var cg = GetComponent<CanvasGroup>();
-        cg.alpha = 0f;
-
-        var seq = DOTween.Sequence().SetUpdate(true);
-
-        // 整体淡入
-        seq.Join(cg.DOFade(1f, 0.3f).SetEase(Ease.OutQuart));
-
-        // 棋子面板从底部滑入
-        if (varChessPanel != null)
-        {
-            var chessPanelRT = varChessPanel.GetComponent<RectTransform>();
-            if (chessPanelRT != null)
-            {
-                var originalPos = chessPanelRT.anchoredPosition;
-                chessPanelRT.anchoredPosition = originalPos + new Vector2(0, -80f);
-                seq.Join(chessPanelRT.DOAnchorPos(originalPos, 0.35f).SetEase(Ease.OutQuart));
-            }
-        }
-
-        // 装备面板从右侧滑入
-        if (varEquipmentPanel != null)
-        {
-            var equipRT = varEquipmentPanel.GetComponent<RectTransform>();
-            if (equipRT != null)
-            {
-                var originalPos = equipRT.anchoredPosition;
-                equipRT.anchoredPosition = originalPos + new Vector2(120f, 0);
-                seq.Join(equipRT.DOAnchorPos(originalPos, 0.35f).SetEase(Ease.OutQuart));
-            }
-        }
-
-        seq.OnComplete(() => Interactable = true);
-    }
-
     private void UpdateCountdownText()
     {
         if (varCountdownText != null)
