@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+using DG.Tweening;
 
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 public class CommonDialog : UIFormBase
@@ -41,6 +42,24 @@ public class CommonDialog : UIFormBase
         content.text = Params.Get<VarString>("Content");
         //buttons[1].gameObject.SetActive(positiveAction != null);
         buttons[0].gameObject.SetActive(negativeAction != null);
+        DOTween.Kill(gameObject);
+        Interactable = false;
+        UIAnimationHelper.PopIn(GetComponent<RectTransform>(), GetComponent<CanvasGroup>(), 0.3f)
+            .OnComplete(() => Interactable = true);
+    }
+
+    protected override void OnClose(bool isShutdown, object userData)
+    {
+        DOTween.Kill(gameObject, true);
+        base.OnClose(isShutdown, userData);
+    }
+
+    public override void OnClickClose()
+    {
+        Interactable = false;
+        DOTween.Kill(gameObject);
+        UIAnimationHelper.PopOut(GetComponent<RectTransform>(), GetComponent<CanvasGroup>(), 0.2f)
+            .OnComplete(() => GF.UI.Close(this.UIForm));
     }
     private void ClickButton(int btTag)
     {

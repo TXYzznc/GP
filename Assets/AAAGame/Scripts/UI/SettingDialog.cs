@@ -51,13 +51,30 @@ public partial class SettingDialog : UIFormBase
         m_ClickCount = 0;
         m_LastClickTime = Time.time;
         InitSettings();
+        PlayOpenAnimation();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         GF.Event.Unsubscribe(LoadDictionarySuccessEventArgs.EventId, OnLanguageReloaded);
-
         base.OnClose(isShutdown, userData);
+    }
+
+    public override void OnClickClose()
+    {
+        Interactable = false;
+        DOTween.Kill(gameObject);
+        UIAnimationHelper.PopOut(GetComponent<RectTransform>(), GetComponent<CanvasGroup>(), 0.2f)
+            .OnComplete(() => GF.UI.Close(this.UIForm));
+    }
+
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        Interactable = false;
+        UIAnimationHelper.PopIn(GetComponent<RectTransform>(), GetComponent<CanvasGroup>(), 0.3f)
+            .OnComplete(() => Interactable = true);
     }
     private void InitSettings()
     {
