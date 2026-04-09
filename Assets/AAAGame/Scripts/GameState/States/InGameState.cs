@@ -131,6 +131,13 @@ public class InGameState : FsmState<GameStateManager>
         CombatEndEventArgs eventArgs = (CombatEndEventArgs)e;
         DebugEx.LogModule("InGameState", $"收到战斗结束事件 - {(eventArgs.IsVictory ? "胜利" : "失败")}");
 
+        // 如果已经不在战斗状态，忽略此事件（防止测试强制退出后重复触发）
+        if (!(m_SubFsm?.CurrentState is CombatState))
+        {
+            DebugEx.WarningModule("InGameState", "当前不在战斗状态，忽略战斗结束事件");
+            return;
+        }
+
         // ⭐ 在切换状态前先恢复玩家位置
         if (PlayerCharacterManager.Instance != null)
         {

@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameFramework;
@@ -16,7 +17,7 @@ public class CombatPreparationState : FsmState<InGameState>
     private IFsm<InGameState> m_Fsm;
     private bool m_IsArenaSpawned;
     private int m_CombatPreparationUIFormId;  // 缓存 CombatPreparationUI 的序列号
-    // ⭐ 缓存战斗前的视角模式（新增，实际上不需要这个字段，因为在 ThirdPersonCamera 中已经缓存）
+    private CancellationTokenSource m_Cts;    // 防止重复进入时异步链竞态
 
     #endregion
 
@@ -35,6 +36,11 @@ public class CombatPreparationState : FsmState<InGameState>
 
         m_Fsm = fsm;
 
+        // 取消上一次未完成的异步链（防止重复进入竞态）
+        m_Cts?.Cancel();
+        m_Cts?.Dispose();
+        m_Cts = new CancellationTokenSource();
+
         // ⭐ 记录玩家位置（战斗前）
         if (PlayerCharacterManager.Instance != null)
         {
@@ -42,13 +48,13 @@ public class CombatPreparationState : FsmState<InGameState>
         }
 
         // ⭐ 先显示战斗进入提示，等待提示完成后再继续初始化
-        ShowEnterCombatTipAndContinue().Forget();
+        ShowEnterCombatTipAndContinue(m_Cts.Token).Forget();
     }
 
     /// <summary>
     /// 显示战斗进入提示并等待完成后继续初始化
     /// </summary>
-    private async UniTaskVoid ShowEnterCombatTipAndContinue()
+    private async UniTaskVoid ShowEnterCombatTipAndContinue(CancellationToken ct)
     {
         DebugEx.LogModule("CombatPreparationState", "显示战斗进入提示...");
 
@@ -65,7 +71,7 @@ public class CombatPreparationState : FsmState<InGameState>
             if (uiFormId <= 0)
             {
                 DebugEx.Error("CombatPreparationState", "战斗进入提示UI打开失败，直接继续初始化");
-                await ContinueCombatPreparationInitAsync();
+                await ContinueCombatPreparationInitAsync(ct);
                 return;
             }
 
@@ -74,16 +80,23 @@ public class CombatPreparationState : FsmState<InGameState>
             // 使用事件监听机制等待UI关闭，避免轮询延迟
             await WaitForUIFormClosedByEvent(uiFormId);
 
+            ct.ThrowIfCancellationRequested();
+
             DebugEx.Success("CombatPreparationState", "战斗进入提示已完成，开始战斗准备初始化");
 
             // 继续战斗准备的初始化流程
-            await ContinueCombatPreparationInitAsync();
+            await ContinueCombatPreparationInitAsync(ct);
+        }
+        catch (System.OperationCanceledException)
+        {
+            DebugEx.LogModule("CombatPreparationState", "战斗进入提示流程已取消");
         }
         catch (System.Exception ex)
         {
             DebugEx.Error("CombatPreparationState", $"战斗进入提示流程异常: {ex.Message}");
             // 异常情况下也要继续初始化，确保游戏流程不中断
-            await ContinueCombatPreparationInitAsync();
+            if (!ct.IsCancellationRequested)
+                await ContinueCombatPreparationInitAsync(ct);
         }
     }
 
@@ -211,16 +224,18 @@ public class CombatPreparationState : FsmState<InGameState>
     /// <summary>
     /// 继续战斗准备的初始化流程（原OnEnter中的后续代码）
     /// </summary>
-    private async UniTask ContinueCombatPreparationInitAsync()
+    private async UniTask ContinueCombatPreparationInitAsync(CancellationToken ct)
     {
         DebugEx.LogModule("CombatPreparationState", "开始战斗准备初始化流程");
 
         // ⭐ 缓存当前视角模式并切换到战斗视角
         SetupCombatCamera();
 
-        // ⭐ 先销毁敌人实体（在加载战斗场景之前，确保视觉上先消失）
-        DebugEx.LogModule("CombatPreparationState", "销毁敌人实体...");
-        EnemyEntityManager.Instance?.DestroyCurrentCombatEnemy();
+        // ⭐ 标记玩家进入战斗（敌人AI将跳过对该玩家的索敌）
+        SetPlayerCombatFlag(true);
+
+        // ⭐ 摄像机排除 Enemy Layer（敌人从画面中消失，但仍在场景中正常运行）
+        CameraRegistry.ThirdPersonCamera?.ExcludeLayer(LayerHelper.Layer.Enemy);
 
         // 确保CombatTickDriver存在
         var updater = CombatTickDriver.Instance;
@@ -260,7 +275,7 @@ public class CombatPreparationState : FsmState<InGameState>
         InitializeCombatSessionData();
 
         // 生成战斗场地
-        SpawnBattleArena();
+        SpawnBattleArenaAsync(ct).Forget();
 
         // 启用棋子放置系统
         EnablePlacementSystem();
@@ -276,7 +291,8 @@ public class CombatPreparationState : FsmState<InGameState>
         float waitTime = 0f;
         while (!GF.UI.HasUIForm(m_CombatPreparationUIFormId))
         {
-            await UniTask.Delay(50);
+            ct.ThrowIfCancellationRequested();
+            await UniTask.Delay(50, cancellationToken: ct);
             waitTime += 0.05f;
         }
 
@@ -326,6 +342,11 @@ public class CombatPreparationState : FsmState<InGameState>
     protected override void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
     {
         DebugEx.LogModule("CombatPreparationState", "离开战斗准备状态");
+
+        // 取消所有正在进行的异步操作
+        m_Cts?.Cancel();
+        m_Cts?.Dispose();
+        m_Cts = null;
 
         // 禁用放置系统
         DisablePlacementSystem();
@@ -535,12 +556,11 @@ public class CombatPreparationState : FsmState<InGameState>
     /// <summary>
     /// 生成战斗场地（带溶解过渡）
     /// </summary>
-    private async void SpawnBattleArena()
+    private async UniTaskVoid SpawnBattleArenaAsync(CancellationToken ct)
     {
         if (BattleArenaManager.Instance != null)
         {
             // 在玩家当前位置附近生成战斗场地
-            Vector3 spawnPos = Vector3.zero;
             if (
                 PlayerCharacterManager.Instance != null
                 && PlayerCharacterManager.Instance.CurrentPlayerCharacter != null
@@ -551,6 +571,8 @@ public class CombatPreparationState : FsmState<InGameState>
                 );
             }
 
+            ct.ThrowIfCancellationRequested();
+
             // ⭐ 先开始移动相机（不等待，与场景加载并行）
             StartCameraSmoothMove();
 
@@ -560,6 +582,8 @@ public class CombatPreparationState : FsmState<InGameState>
             {
                 await DissolveTransitionManager.Instance.TransitionToBattle(arena);
             }
+
+            ct.ThrowIfCancellationRequested();
 
             // 加载敌人波次配置（使用保存的战斗数据）
             LoadEnemyWaveConfig();
@@ -740,6 +764,22 @@ public class CombatPreparationState : FsmState<InGameState>
             "CombatPreparationState",
             $"相机已移动到 CameraAnchor: Pos={cameraAnchor.position}, Rot={cameraAnchor.rotation.eulerAngles}"
         );
+    }
+
+    /// <summary>
+    /// 设置玩家战斗状态标记
+    /// </summary>
+    private void SetPlayerCombatFlag(bool isInCombat)
+    {
+        var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        if (playerGo == null) return;
+
+        var flag = playerGo.GetComponent<PlayerCombatFlag>();
+        if (flag == null)
+            flag = playerGo.AddComponent<PlayerCombatFlag>();
+
+        flag.IsInCombat = isInCombat;
+        DebugEx.LogModule("CombatPreparationState", $"玩家战斗标记: {isInCombat}");
     }
 
     #endregion

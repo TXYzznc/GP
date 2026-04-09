@@ -1,3 +1,4 @@
+using System.Threading;
 using GameFramework.Fsm;
 using UnityGameFramework.Runtime;
 using GameFramework;
@@ -9,6 +10,13 @@ using Cysharp.Threading.Tasks;
 /// </summary>
 public class CombatState : FsmState<InGameState>
 {
+    #region 字段
+
+    /// <summary>防止重复进入时异步链竞态</summary>
+    private CancellationTokenSource m_Cts;
+
+    #endregion
+
     #region FSM 生命周期
 
     protected override void OnInit(IFsm<InGameState> fsm)
@@ -17,10 +25,21 @@ public class CombatState : FsmState<InGameState>
         DebugEx.LogModule("CombatState", "初始化");
     }
 
-    protected override async void OnEnter(IFsm<InGameState> fsm)
+    protected override void OnEnter(IFsm<InGameState> fsm)
     {
         base.OnEnter(fsm);
         DebugEx.LogModule("CombatState", "进入战斗状态");
+
+        // 取消上一次未完成的异步链（防止重复进入竞态）
+        m_Cts?.Cancel();
+        m_Cts?.Dispose();
+        m_Cts = new CancellationTokenSource();
+
+        OnEnterAsync(fsm, m_Cts.Token).Forget();
+    }
+
+    private async UniTaskVoid OnEnterAsync(IFsm<InGameState> fsm, CancellationToken ct)
+    {
 
         // 初始化召唤师运行时数据管理器
         SummonerRuntimeDataManager.Instance.Initialize();
@@ -68,22 +87,28 @@ public class CombatState : FsmState<InGameState>
         await ChessStateUIWorldManager.EnsureExistsAsync();
         await ChessStateUIWorldManager.Instance.EnterCombatAsync();
 
+        ct.ThrowIfCancellationRequested();
+
         // 订阅战斗结束事件
         GF.Event.Subscribe(CombatEndEventArgs.EventId, OnCombatEnd);
 
         // 生成敌人并等待完成，然后启用所有棋子的战斗AI
         await SpawnEnemiesAndEnableAI();
 
+        ct.ThrowIfCancellationRequested();
+
         // 初始化战斗特效管理器（异步等待完成）
-        InitializeCombatVFXAsync().Forget();
+        InitializeCombatVFXAsync(ct).Forget();
     }
 
     /// <summary>
     /// 异步初始化战斗特效并开始战斗
     /// </summary>
-    private async UniTaskVoid InitializeCombatVFXAsync()
+    private async UniTaskVoid InitializeCombatVFXAsync(CancellationToken ct)
     {
         await CombatVFXManager.InitializeAndWaitAsync();
+
+        ct.ThrowIfCancellationRequested();
         CombatVFXUpdater.EnsureExists();
         DebugEx.LogModule("CombatState", "战斗特效管理器已初始化");
 
@@ -94,9 +119,14 @@ public class CombatState : FsmState<InGameState>
         GF.Event.Fire(this, ReferencePool.Acquire<CombatEnterEventArgs>());
     }
 
-    protected override async void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
+    protected override void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
     {
         DebugEx.LogModule("CombatState", "离开战斗状态");
+
+        // 取消所有正在进行的异步操作
+        m_Cts?.Cancel();
+        m_Cts?.Dispose();
+        m_Cts = null;
 
         // 取消订阅战斗结束事件
         GF.Event.Unsubscribe(CombatEndEventArgs.EventId, OnCombatEnd);
@@ -106,62 +136,106 @@ public class CombatState : FsmState<InGameState>
             ChessStateUIWorldManager.Instance.LeaveCombat();
         }
 
-        // 1. 禁用 PlayerController（准备过渡）
+        // 1. 禁用战斗管理器（必须在销毁棋子之前，防止棋子注销触发 CombatEndEvent）
+        DisableCombatManager();
+
+        // 2. 禁用 PlayerController（准备过渡）
         DisablePlayerController();
 
-        // 2. 禁用所有棋子的战斗AI
+        // 3. 禁用所有棋子的战斗AI
         DisableAllChessCombatAI();
 
-        // 3. 销毁所有棋子的 GameObject 实例
+        // 4. 销毁所有棋子的 GameObject 实例
         DestroyAllChessInstances();
 
-        // 4. 清空 CombatEntityTracker 的注册表
+        // 5. 清空 CombatEntityTracker 的注册表
         if (CombatEntityTracker.Instance != null)
         {
             CombatEntityTracker.Instance.Clear();
             DebugEx.LogModule("CombatState", "CombatEntityTracker 已清空");
         }
 
-        // 5. 重置玩家棋子的出战状态
+        // 6. 重置玩家棋子的出战状态
         if (ChessDeploymentTracker.Instance != null)
         {
             ChessDeploymentTracker.Instance.OnBattleEnd();
             DebugEx.LogModule("CombatState", "玩家棋子出战状态已重置");
         }
 
-        // 6. 禁用选择系统
+        // 7. 禁用选择系统
         DisableSelectionSystem();
 
-        // 7. 禁用鼠标位置预览
+        // 8. 禁用鼠标位置预览
         DisableMousePreview();
 
-        // 8. 禁用战斗管理器
-        DisableCombatManager();
+        // 9. 清理战斗特效管理器
+        CleanupCombatVFX();
 
-        // ⭐ 9. 恢复玩家位置（在溶解前）
+        // 10. 清理卡牌系统
+        CleanupCardSystem();
+
+        // 11. 清理战斗管理器
+        CleanupCombatManagers();
+
+        // 12. 清理召唤师运行时数据管理器
+        SummonerRuntimeDataManager.Instance.Cleanup();
+
+        // 13. 清理临时数据
+        CombatSessionData.Instance.Clear();
+
+        // 14. 清除战斗触发上下文（防止脏数据残留到下一场）
+        CombatTriggerManager.Instance?.ClearContext();
+
+        // 15. 解锁相机视角（必须在同步阶段完成，ExplorationState.OnEnter 需要用）
+        ThirdPersonCamera cameraController = CameraRegistry.ThirdPersonCamera;
+        if (cameraController != null)
+        {
+            cameraController.SetViewModeLocked(false);
+            cameraController.ClearOverrideFOV();
+
+            // 恢复 Enemy Layer 渲染（战斗准备时排除的）
+            cameraController.IncludeLayer(LayerHelper.Layer.Enemy);
+
+            DebugEx.LogModule("CombatState", "已解锁视角切换并清除FOV覆盖，已恢复 Enemy Layer（同步）");
+        }
+
+        // 16. 清除玩家战斗标记（敌人可重新索敌该玩家）
+        SetPlayerCombatFlag(false);
+
+        // 17. 触发战斗离开事件
+        GF.Event.Fire(this, ReferencePool.Acquire<CombatLeaveEventArgs>());
+
+        base.OnLeave(fsm, isShutdown);
+
+        // 异步部分：恢复场景（溶解、相机、玩家位置），不阻塞状态切换
+        OnLeaveRestoreAsync().Forget();
+    }
+
+    /// <summary>
+    /// 离开战斗后的异步恢复（溶解过渡、相机恢复、玩家位置恢复）
+    /// 不阻塞 FSM 状态切换，但确保所有同步清理已在 OnLeave 中完成
+    /// </summary>
+    private async UniTaskVoid OnLeaveRestoreAsync()
+    {
+        // ⭐ 恢复玩家位置（在溶解前）
         if (PlayerCharacterManager.Instance != null)
         {
             PlayerCharacterManager.Instance.RestorePositionAfterCombat();
             DebugEx.LogModule("CombatState", "玩家位置已恢复");
         }
 
-        // ⭐ 10. 播放溶解过渡并等待完成
+        // ⭐ 播放溶解过渡并等待完成
         DebugEx.LogModule("CombatState", "开始溶解过渡...");
         await DissolveTransitionManager.Instance.TransitionToExploration();
         DebugEx.LogModule("CombatState", "溶解过渡完成");
 
-        // ⭐ 11. 解锁视角并恢复视角模式
+        // ⭐ 恢复视角模式（解锁已在 OnLeave 同步完成）
         ThirdPersonCamera cameraController = CameraRegistry.ThirdPersonCamera;
         if (cameraController != null)
         {
-            cameraController.SetViewModeLocked(false);
-            cameraController.ClearOverrideFOV(); // 清除FOV覆盖
-            DebugEx.LogModule("CombatState", "已解锁视角切换并清除FOV覆盖");
-
             cameraController.RestoreCachedViewMode();
             DebugEx.LogModule("CombatState", $"已恢复相机视角为 {cameraController.GetViewMode()}");
 
-            // ⭐ 如果是第三人称视角，同步相机 Yaw 到玩家旋转
             if (cameraController.GetViewMode() == CameraViewMode.ThirdPerson)
             {
                 cameraController.SyncYawToTarget();
@@ -169,7 +243,7 @@ public class CombatState : FsmState<InGameState>
             }
         }
 
-        // ⭐ 12. 同步 PlayerInputManager 的视角模式
+        // ⭐ 同步 PlayerInputManager 的视角模式
         if (PlayerInputManager.Instance != null && cameraController != null)
         {
             CameraViewMode restoredMode = cameraController.GetViewMode();
@@ -177,31 +251,11 @@ public class CombatState : FsmState<InGameState>
             DebugEx.LogModule("CombatState", $"已同步 PlayerInputManager 视角为 {restoredMode}");
         }
 
-        // ⭐ 13. 启用 PlayerController
+        // ⭐ 启用 PlayerController
         EnablePlayerController();
 
-        // 14. 销毁战斗场地
+        // 销毁战斗场地
         DestroyBattleArenaImmediate();
-
-        // 15. 清理战斗特效管理器
-        CleanupCombatVFX();
-
-        // 16. 清理卡牌系统
-        CleanupCardSystem();
-
-        // 17. 清理战斗管理器
-        CleanupCombatManagers();
-
-        // 18. 清理召唤师运行时数据管理器
-        SummonerRuntimeDataManager.Instance.Cleanup();
-
-        // 19. 清理临时数据
-        CombatSessionData.Instance.Clear();
-
-        // 20. 触发战斗离开事件
-        GF.Event.Fire(this, ReferencePool.Acquire<CombatLeaveEventArgs>());
-
-        base.OnLeave(fsm, isShutdown);
     }
 
     protected override void OnDestroy(IFsm<InGameState> fsm)
@@ -587,6 +641,22 @@ public class CombatState : FsmState<InGameState>
     {
         CombatVFXManager.Cleanup();
         DebugEx.LogModule("CombatState", "战斗特效管理器已清理");
+    }
+
+    /// <summary>
+    /// 设置玩家战斗状态标记
+    /// </summary>
+    private void SetPlayerCombatFlag(bool isInCombat)
+    {
+        var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        if (playerGo == null) return;
+
+        var flag = playerGo.GetComponent<PlayerCombatFlag>();
+        if (flag != null)
+        {
+            flag.IsInCombat = isInCombat;
+            DebugEx.LogModule("CombatState", $"玩家战斗标记: {isInCombat}");
+        }
     }
 
     #endregion
