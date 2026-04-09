@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+using DG.Tweening;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 public partial class UITopbar : UIFormBase
 {
@@ -23,11 +24,35 @@ public partial class UITopbar : UIFormBase
         varTxtCoin.text = playerDm.Coins.ToString();
         varTxtEnergy.text = playerDm.GetData(PlayerDataType.Energy).ToString();
         varTxtGem.text = playerDm.GetData(PlayerDataType.Diamond).ToString();
+
+        PlayOpenAnimation();
     }
+
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         GF.Event.Unsubscribe(PlayerDataChangedEventArgs.EventId, OnPlayerDataChanged);
         base.OnClose(isShutdown, userData);
+    }
+
+    public override void OnClickClose()
+    {
+        Interactable = false;
+        DOTween.Kill(gameObject);
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.SlideOut(rt, cg, UIAnimationHelper.SlideDirection.FromTop, 80f, 0.25f)
+            .OnComplete(() => GF.UI.Close(this.UIForm));
+    }
+
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        Interactable = false;
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.SlideIn(rt, cg, UIAnimationHelper.SlideDirection.FromTop, 80f, 0.3f)
+            .OnComplete(() => Interactable = true);
     }
     private void OnPlayerDataChanged(object sender, GameEventArgs e)
     {
@@ -55,15 +80,15 @@ public partial class UITopbar : UIFormBase
         }
         else if (btSelf == varBtnCoin)
         {
-            GF.UI.ShowToast("¼Ó½ð±Ò");
+            GF.UI.ShowToast("ï¿½Ó½ï¿½ï¿½");
         }
         else if (btSelf == varBtnGem)
         {
-            GF.UI.ShowToast("¼Ó×êÊ¯");
+            GF.UI.ShowToast("ï¿½ï¿½ï¿½ï¿½Ê¯");
         }
         else if (btSelf == varBtnEnergy)
         {
-            GF.UI.ShowToast("¼ÓÄÜÁ¿");
+            GF.UI.ShowToast("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
         }
     }
 }
