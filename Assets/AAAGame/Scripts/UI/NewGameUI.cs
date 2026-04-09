@@ -675,6 +675,8 @@ public partial class NewGameUI : UIFormBase
         // 使用打字机播放故事，自动从多语言系统获取文本
         if (storyTypewriter != null)
         {
+            // 重置打字机状态，避免自动播放时的状态污染
+            storyTypewriter.Reset();
             storyTypewriter.Play();
         }
     }
@@ -851,6 +853,9 @@ public partial class NewGameUI : UIFormBase
         {
             // 设置模型旋转为 180 度，让模型面向玩家
             m_ModelViewer.SetModelRotation(180f);
+
+            // 确保播放 Idle 待机动画
+            m_ModelViewer.PlayIdleAnimation();
 
             Log.Info($"召唤师模型加载成功: {summoner.Name}，旋转角度设置为 (0, 180, 0)");
         }
