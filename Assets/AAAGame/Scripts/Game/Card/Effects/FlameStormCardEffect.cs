@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 烈焰风暴 (ID=1002)
-/// 对敌方全体造成魔法伤害
+/// 对敌方全体造成魔法伤害，命中时附加灼烧
 /// </summary>
 public class FlameStormCardEffect : ICardEffect
 {
@@ -11,41 +11,28 @@ public class FlameStormCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("FlameStormCardEffect", "初始化烈焰风暴效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("FlameStormCardEffect", "执行烈焰风暴: 对敌方全体造成魔法伤害");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        var battleChessManager = BattleChessManager.Instance;
-        if (battleChessManager == null)
-        {
-            DebugEx.ErrorModule("FlameStormCardEffect", "BattleChessManager 为空");
-            return;
-        }
-
-        var allChess = battleChessManager.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
-        {
-            DebugEx.WarningModule("FlameStormCardEffect", "没有找到任何棋子");
-            return;
-        }
+        float damage = m_CardData.TableRow.BaseDamage;
+        int damageType = m_CardData.TableRow.DamageType;
 
         foreach (var chess in allChess)
         {
             if (chess != null && chess.Camp == (int)CampType.Enemy)
             {
-                float damage = m_CardData.TableRow.BaseDamage;
-                CardEffectHelper.DealDamage(chess, damage, 1);
+                CardEffectHelper.DealDamage(chess, damage, damageType);
 
-                var buffManager = chess.GetComponent<BuffManager>();
-                if (buffManager != null)
+                // HitBuffs：命中目标时施加
+                foreach (int buffId in m_CardData.HitBuffIds)
                 {
-                    buffManager.AddBuff(10302);
+                    CardEffectHelper.ApplyBuff(chess, buffId);
                 }
             }
         }

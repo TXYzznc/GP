@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 狂暴 (ID=1008)
 /// 使自身进入狂暴状态，大幅提升攻击力但降低防御
+/// TargetType=1（自身），对释放位置最近的友方施加 Buff
 /// </summary>
 public class BerserkCardEffect : ICardEffect
 {
@@ -11,18 +12,16 @@ public class BerserkCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("BerserkCardEffect", "初始化狂暴效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("BerserkCardEffect", "执行狂暴: 进入狂暴状态");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        float radius = m_CardData.TableRow.AreaRadius;
-        var allChess = BattleChessManager.Instance.GetAllChessEntities();
+        // 找最近的友方棋子（代表"自身"）
         ChessEntity closestAlly = null;
         float closestDistance = float.MaxValue;
 
@@ -31,7 +30,7 @@ public class BerserkCardEffect : ICardEffect
             if (chess != null && chess.Camp == (int)CampType.Player)
             {
                 float distance = Vector3.Distance(chess.transform.position, targetPosition);
-                if (distance <= radius && distance < closestDistance)
+                if (distance < closestDistance)
                 {
                     closestDistance = distance;
                     closestAlly = chess;
@@ -41,10 +40,10 @@ public class BerserkCardEffect : ICardEffect
 
         if (closestAlly != null)
         {
-            var buffManager = closestAlly.GetComponent<BuffManager>();
-            if (buffManager != null)
+            // InstantBuffs：对自身施加
+            foreach (int buffId in m_CardData.InstantBuffIds)
             {
-                buffManager.AddBuff(10308);
+                CardEffectHelper.ApplyBuff(closestAlly, buffId);
             }
         }
 

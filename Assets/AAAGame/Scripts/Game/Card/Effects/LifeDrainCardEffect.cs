@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 生命汲取 (ID=1006)
-/// 对敌方全体造成伤害并为自身回复生命
+/// 对敌方全体造成伤害，并为当前 HP 最低的友方棋子回复生命
 /// </summary>
 public class LifeDrainCardEffect : ICardEffect
 {
@@ -11,49 +11,51 @@ public class LifeDrainCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("LifeDrainCardEffect", "初始化生命汲取效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("LifeDrainCardEffect", "执行生命汲取: 对敌方全体造成伤害并回复生命");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        var battleChessManager = BattleChessManager.Instance;
-        if (battleChessManager == null)
-        {
-            DebugEx.ErrorModule("LifeDrainCardEffect", "BattleChessManager 为空");
-            return;
-        }
+        float damage = m_CardData.TableRow.BaseDamage;
+        int damageType = m_CardData.TableRow.DamageType;
+        float healRatio = m_CardData.GetParam("healRatio", 0.5f);
 
-        var allChess = battleChessManager.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
-        {
-            DebugEx.WarningModule("LifeDrainCardEffect", "没有找到任何棋子");
-            return;
-        }
-
+        // 对敌方全体造成伤害
         float totalDamage = 0f;
         foreach (var chess in allChess)
         {
             if (chess != null && chess.Camp == (int)CampType.Enemy)
             {
-                float damage = m_CardData.TableRow.BaseDamage;
-                CardEffectHelper.DealDamage(chess, damage, 1);
+                CardEffectHelper.DealDamage(chess, damage, damageType);
                 totalDamage += damage;
             }
         }
 
+        // 找到当前 HP 最低的友方棋子进行治疗
+        ChessEntity lowestHpAlly = null;
+        double lowestHp = double.MaxValue;
         foreach (var chess in allChess)
         {
-            if (chess != null && chess.Camp == (int)CampType.Player)
+            if (chess != null && chess.Camp == (int)CampType.Player && chess.Attribute != null)
             {
-                float healAmount = totalDamage * 0.5f;
-                CardEffectHelper.HealTarget(chess, healAmount);
-                break;
+                double currentHp = chess.Attribute.CurrentHp;
+                if (currentHp < lowestHp)
+                {
+                    lowestHp = currentHp;
+                    lowestHpAlly = chess;
+                }
             }
+        }
+
+        if (lowestHpAlly != null)
+        {
+            float healAmount = totalDamage * healRatio;
+            CardEffectHelper.HealTarget(lowestHpAlly, healAmount);
+            DebugEx.LogModule("LifeDrainCardEffect", $"治疗 HP 最低的友方 {lowestHpAlly.Config?.Name}，回复 {healAmount}");
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);

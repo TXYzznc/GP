@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 暗影突袭 (ID=1005)
 /// 对单个敌人造成高额物理伤害并眩晕
+/// 伤害公式：BaseDamage + DamageCoeff × 施法者攻击力
 /// </summary>
 public class ShadowAssaultCardEffect : ICardEffect
 {
@@ -11,31 +12,16 @@ public class ShadowAssaultCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("ShadowAssaultCardEffect", "初始化暗影突袭效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("ShadowAssaultCardEffect", "执行暗影突袭: 对单个敌人造成高额物理伤害并眩晕");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        var battleChessManager = BattleChessManager.Instance;
-        if (battleChessManager == null)
-        {
-            DebugEx.ErrorModule("ShadowAssaultCardEffect", "BattleChessManager 为空");
-            return;
-        }
-
-        var allChess = battleChessManager.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
-        {
-            DebugEx.WarningModule("ShadowAssaultCardEffect", "没有找到任何棋子");
-            return;
-        }
-
-        float radius = m_CardData.TableRow.AreaRadius;
+        float radius = m_CardData.AreaRadius;
         ChessEntity closestEnemy = null;
         float closestDistance = float.MaxValue;
 
@@ -54,13 +40,16 @@ public class ShadowAssaultCardEffect : ICardEffect
 
         if (closestEnemy != null)
         {
-            float damage = m_CardData.TableRow.BaseDamage + m_CardData.TableRow.DamageCoeff * 100f;
-            CardEffectHelper.DealDamage(closestEnemy, damage, 0);
+            // TODO: 施法者攻击力需要从召唤师或指定棋子获取，暂用 0
+            float casterAtk = 0f;
+            float damage = m_CardData.TableRow.BaseDamage + m_CardData.TableRow.DamageCoeff * casterAtk;
+            int damageType = m_CardData.TableRow.DamageType;
+            CardEffectHelper.DealDamage(closestEnemy, damage, damageType);
 
-            var buffManager = closestEnemy.GetComponent<BuffManager>();
-            if (buffManager != null)
+            // HitBuffs：命中目标时施加
+            foreach (int buffId in m_CardData.HitBuffIds)
             {
-                buffManager.AddBuff(10305);
+                CardEffectHelper.ApplyBuff(closestEnemy, buffId);
             }
         }
 

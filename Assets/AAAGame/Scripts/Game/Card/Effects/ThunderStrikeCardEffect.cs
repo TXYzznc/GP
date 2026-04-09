@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 雷霆一击 (ID=1010)
@@ -11,31 +11,16 @@ public class ThunderStrikeCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("ThunderStrikeCardEffect", "初始化雷霆一击效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("ThunderStrikeCardEffect", "执行雷霆一击: 对单个敌人造成真实伤害");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        var battleChessManager = BattleChessManager.Instance;
-        if (battleChessManager == null)
-        {
-            DebugEx.ErrorModule("ThunderStrikeCardEffect", "BattleChessManager 为空");
-            return;
-        }
-
-        var allChess = battleChessManager.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
-        {
-            DebugEx.WarningModule("ThunderStrikeCardEffect", "没有找到任何棋子");
-            return;
-        }
-
-        float radius = m_CardData.TableRow.AreaRadius;
+        float radius = m_CardData.AreaRadius;
         ChessEntity closestEnemy = null;
         float closestDistance = float.MaxValue;
 
@@ -55,7 +40,8 @@ public class ThunderStrikeCardEffect : ICardEffect
         if (closestEnemy != null)
         {
             float damage = m_CardData.TableRow.BaseDamage;
-            CardEffectHelper.DealDamage(closestEnemy, damage, 2);
+            int damageType = m_CardData.TableRow.DamageType;
+            CardEffectHelper.DealDamage(closestEnemy, damage, damageType);
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);

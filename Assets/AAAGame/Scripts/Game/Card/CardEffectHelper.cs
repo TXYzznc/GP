@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityGameFramework.Runtime;
 
 /// <summary>
@@ -9,6 +9,9 @@ public static class CardEffectHelper
     /// <summary>
     /// 对目标造成伤害
     /// </summary>
+    /// <param name="target">目标棋子</param>
+    /// <param name="damage">伤害数值</param>
+    /// <param name="damageType">伤害类型：0=无, 1=物理, 2=魔法, 3=真实（与 CardTable.DamageType 一致）</param>
     public static void DealDamage(ChessEntity target, float damage, int damageType = 0)
     {
         if (target == null || target.Attribute == null)
@@ -17,9 +20,9 @@ public static class CardEffectHelper
             return;
         }
 
-        // damageType: 0=物理, 1=魔法, 2=真实
-        bool isMagic = damageType == 1;
-        bool isTrueDamage = damageType == 2;
+        // damageType: 1=物理, 2=魔法, 3=真实
+        bool isMagic = damageType == 2;
+        bool isTrueDamage = damageType == 3;
 
         target.Attribute.TakeDamage(damage, isMagic, isTrueDamage);
         DebugEx.LogModule("CardEffectHelper", $"对 {target.Config?.Name} 造成 {damage} 伤害 (类型: {damageType})");

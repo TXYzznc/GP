@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 冰霜新星 (ID=1007)
@@ -11,31 +11,17 @@ public class FrostNovaCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("FrostNovaCardEffect", "初始化冰霜新星效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("FrostNovaCardEffect", "执行冰霜新星: 冰冻范围内所有敌人");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        var battleChessManager = BattleChessManager.Instance;
-        if (battleChessManager == null)
-        {
-            DebugEx.ErrorModule("FrostNovaCardEffect", "BattleChessManager 为空");
-            return;
-        }
+        float aoeRadius = m_CardData.AreaRadius;
 
-        var allChess = battleChessManager.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
-        {
-            DebugEx.WarningModule("FrostNovaCardEffect", "没有找到任何棋子");
-            return;
-        }
-
-        float aoeRadius = m_CardData.TableRow.AreaRadius;
         foreach (var chess in allChess)
         {
             if (chess != null && chess.Camp == (int)CampType.Enemy)
@@ -43,16 +29,15 @@ public class FrostNovaCardEffect : ICardEffect
                 float distance = Vector3.Distance(chess.transform.position, targetPosition);
                 if (distance <= aoeRadius)
                 {
-                    var buffManager = chess.GetComponent<BuffManager>();
-                    if (buffManager != null)
+                    // HitBuffs：命中目标时施加
+                    foreach (int buffId in m_CardData.HitBuffIds)
                     {
-                        buffManager.AddBuff(10307);
+                        CardEffectHelper.ApplyBuff(chess, buffId);
                     }
                 }
             }
         }
 
-        CardRangePreview.Instance?.ShowPreview(targetPosition, aoeRadius);
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
     }
 }

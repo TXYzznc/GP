@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 时间回溯 (ID=1003)
-/// 使一个友方单位恢复到3秒前的状态
+/// 恢复一个友方单位的生命值
 /// </summary>
 public class TimeRewindCardEffect : ICardEffect
 {
@@ -11,32 +11,17 @@ public class TimeRewindCardEffect : ICardEffect
     public void Init(CardData cardData)
     {
         m_CardData = cardData;
-        DebugEx.LogModule("TimeRewindCardEffect", "初始化时间回溯效果");
     }
 
     public void Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null)
-            return;
+        if (m_CardData == null) return;
 
-        DebugEx.LogModule("TimeRewindCardEffect", "执行时间回溯: 恢复友方单位状态");
+        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChess == null || allChess.Count == 0) return;
 
-        var battleChessManager = BattleChessManager.Instance;
-        if (battleChessManager == null)
-        {
-            DebugEx.ErrorModule("TimeRewindCardEffect", "BattleChessManager 为空");
-            return;
-        }
-
-        var allChess = battleChessManager.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
-        {
-            DebugEx.WarningModule("TimeRewindCardEffect", "没有找到任何棋子");
-            return;
-        }
-
-        float radius = m_CardData.TableRow.AreaRadius;
-        ChessEntity closestChess = null;
+        float radius = m_CardData.AreaRadius;
+        ChessEntity closestAlly = null;
         float closestDistance = float.MaxValue;
 
         foreach (var chess in allChess)
@@ -47,15 +32,15 @@ public class TimeRewindCardEffect : ICardEffect
                 if (distance <= radius && distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestChess = chess;
+                    closestAlly = chess;
                 }
             }
         }
 
-        if (closestChess != null)
+        if (closestAlly != null)
         {
-            CardEffectHelper.HealTarget(closestChess, 200f);
-            DebugEx.LogModule("TimeRewindCardEffect", $"对 {closestChess.Config?.Name} 执行时间回溯");
+            float healAmount = m_CardData.GetParam("healAmount", 200f);
+            CardEffectHelper.HealTarget(closestAlly, healAmount);
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
