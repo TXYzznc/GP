@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -38,10 +39,13 @@ public partial class WarehouseUI : UIFormBase
 
         BuildSlots();
         RefreshWarehouse();
+
+        PlayOpenAnimation();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         if (m_WarehouseManager != null)
         {
             m_WarehouseManager.OnItemStored -= OnWarehouseChanged;
@@ -58,6 +62,26 @@ public partial class WarehouseUI : UIFormBase
 
         // 检查菜单外部点击关闭
         CheckContextMenuClickOutside();
+    }
+
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        Interactable = false;
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.SlideIn(rt, cg, UIAnimationHelper.SlideDirection.FromLeft, 200f, 0.35f)
+            .OnComplete(() => Interactable = true);
+    }
+
+    public override void OnClickClose()
+    {
+        Interactable = false;
+        DOTween.Kill(gameObject);
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.SlideOut(rt, cg, UIAnimationHelper.SlideDirection.FromLeft, 200f, 0.25f)
+            .OnComplete(() => GF.UI.Close(this.UIForm));
     }
 
     /// <summary>

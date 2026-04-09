@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using GameExtension;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 /// <summary>
 /// 云存档UI界面
@@ -29,10 +30,13 @@ public partial class CloudArchiveUI : UIFormBase
 
         // 刷新存档信息显示
         RefreshArchiveInfo();
+
+        PlayOpenAnimation();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         base.OnClose(isShutdown, userData);
 
         Log.Info("CloudArchiveUI 已关闭");
@@ -76,10 +80,23 @@ public partial class CloudArchiveUI : UIFormBase
         GF.UI.ShowToast("正在从云端下载存档...", UIExtension.ToastStyle.Blue);
     }
 
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        Interactable = false;
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.PopIn(rt, cg, 0.3f).OnComplete(() => Interactable = true);
+    }
+
     private void OnCloseButtonClick()
     {
         Log.Info("关闭云存档界面");
-        GF.UI.Close(this.UIForm);
+        Interactable = false;
+        DOTween.Kill(gameObject);
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.PopOut(rt, cg, 0.2f).OnComplete(() => GF.UI.Close(this.UIForm));
     }
 
     #endregion
