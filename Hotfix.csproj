@@ -235,7 +235,9 @@
     <Compile Include="Assets\AAAGame\Scripts\Common\FlowLayoutGroup.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Common\LocalizationTextMesh.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Common\DOTweenSequence.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardTargetType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiUltimate.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\ConfusedBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\SettingDialog.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataTableExtension.cs" />

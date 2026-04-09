@@ -8,7 +8,8 @@
       "Bash(ls -lh 输出图片/高分辨率/*.png)",
       "Bash(ls -lh 输出图片/矢量图/*.svg)",
       "Bash(python)",
-      "Bash(python -c ':*)"
+      "Bash(python -c ':*)",
+      "Bash(openspec new:*)"
     ]
   }
 }
