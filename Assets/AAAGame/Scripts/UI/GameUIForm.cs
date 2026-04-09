@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityGameFramework.Runtime;
 using DG.Tweening;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]

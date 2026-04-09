@@ -47,7 +47,7 @@ public partial class StartMenuUI : UIFormBase
         var cg = GetComponent<CanvasGroup>();
 
         // 1. 背景淡入
-        var bgCg = varImgBackground.GetOrAddComponent<CanvasGroup>();
+        var bgCg = varImgBackground.gameObject.GetOrAddComponent<CanvasGroup>();
         bgCg.alpha = 0f;
         bgCg.DOFade(1f, 0.4f).SetEase(Ease.OutQuart).SetUpdate(true);
 
@@ -67,7 +67,7 @@ public partial class StartMenuUI : UIFormBase
             var originalPos = rt.anchoredPosition;
             rt.anchoredPosition = originalPos + new Vector2(0, -30f);
 
-            var btnCg = buttons[i].GetOrAddComponent<CanvasGroup>();
+            var btnCg = buttons[i].gameObject.GetOrAddComponent<CanvasGroup>();
             btnCg.alpha = 0f;
 
             float delay = startDelay + i * 0.07f;
