@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 /// <summary>
 /// 脱战结果UI
@@ -49,6 +50,7 @@ public partial class EscapeResultUI : UIFormBase
         if (resultData != null)
         {
             ShowResult(resultData);
+            PlayOpenAnimation();
             // 延迟2秒后自动隐藏
             ScheduleAutoHide();
         }
@@ -60,6 +62,7 @@ public partial class EscapeResultUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         base.OnClose(isShutdown, userData);
 
         // 取消待处理的自动隐藏
@@ -124,6 +127,19 @@ public partial class EscapeResultUI : UIFormBase
                 : $"脱战失败，生命损失: {resultData.HealthLoss:P0}, 冷却: {resultData.CooldownTurns}回合");
     }
 
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        var orig = rt.anchoredPosition;
+        rt.anchoredPosition = orig + new Vector2(0, 100f);
+        cg.alpha = 0f;
+        DOTween.Sequence().SetUpdate(true)
+            .Join(rt.DOAnchorPos(orig, 0.3f).SetEase(Ease.OutQuart))
+            .Join(cg.DOFade(1f, 0.25f).SetEase(Ease.OutQuart));
+    }
+
     /// <summary>
     /// 安排自动隐藏
     /// 延迟2秒后自动关闭UI
@@ -147,16 +163,29 @@ public partial class EscapeResultUI : UIFormBase
             // 延迟 2 秒
             await UniTask.Delay(2000, cancellationToken: cancellationToken);
 
-            // 关闭 UI
+            // 退场动画后关闭
             if (this.UIForm != null)
             {
-                GF.UI.Close(this.UIForm);
+                var rt = GetComponent<RectTransform>();
+                var cg = GetComponent<CanvasGroup>();
+                DOTween.Kill(gameObject);
+                bool closed = false;
+                DOTween.Sequence().SetUpdate(true)
+                    .Join(rt.DOAnchorPos(rt.anchoredPosition + new Vector2(0, 100f), 0.25f).SetEase(Ease.InQuart))
+                    .Join(cg.DOFade(0f, 0.25f).SetEase(Ease.InQuart))
+                    .OnComplete(() =>
+                    {
+                        if (!closed && this.UIForm != null)
+                        {
+                            closed = true;
+                            GF.UI.Close(this.UIForm);
+                        }
+                    });
                 DebugEx.LogModule("EscapeResultUI", "自动隐藏触发");
             }
         }
         catch (System.OperationCanceledException)
         {
-            // 任务被取消（UI提前关闭或页面切换）
             DebugEx.LogModule("EscapeResultUI", "自动隐藏被取消");
         }
     }

@@ -95,6 +95,7 @@ public partial class CombatUI : StateAwareUIForm
         }
 
         ShowUI();
+        ShowUIAnimated();
         RefreshCombatUI();
     }
 
@@ -125,6 +126,7 @@ public partial class CombatUI : StateAwareUIForm
         }
 
         HideUI();
+        HideUIAnimated();
     }
 
     /// <summary>
@@ -334,6 +336,54 @@ public partial class CombatUI : StateAwareUIForm
     #endregion
 
     #region UI 刷新
+
+    private void ShowUIAnimated()
+    {
+        var cg = GetComponent<CanvasGroup>();
+        DOTween.Kill(gameObject);
+
+        var seq = DOTween.Sequence().SetUpdate(true);
+        seq.Join(cg.DOFade(1f, 0.3f).SetEase(Ease.OutQuart));
+
+        // 顶部敌人区域从上方滑入
+        if (varEnemyTitle != null)
+        {
+            var rt = varEnemyTitle.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                var orig = rt.anchoredPosition;
+                rt.anchoredPosition = orig + new Vector2(0, 80f);
+                seq.Join(rt.DOAnchorPos(orig, 0.3f).SetEase(Ease.OutQuart));
+            }
+        }
+
+        // 底部卡牌区域从下方滑入
+        if (varCardSlots != null)
+        {
+            var orig = varCardSlots.anchoredPosition;
+            varCardSlots.anchoredPosition = orig + new Vector2(0, -100f);
+            seq.Join(varCardSlots.DOAnchorPos(orig, 0.35f).SetEase(Ease.OutQuart));
+        }
+    }
+
+    private void HideUIAnimated()
+    {
+        var cg = GetComponent<CanvasGroup>();
+        DOTween.Kill(gameObject);
+
+        var seq = DOTween.Sequence().SetUpdate(true);
+        seq.Join(cg.DOFade(0f, 0.2f).SetEase(Ease.InQuart));
+
+        if (varEnemyTitle != null)
+        {
+            var rt = varEnemyTitle.GetComponent<RectTransform>();
+            if (rt != null)
+                seq.Join(rt.DOAnchorPos(rt.anchoredPosition + new Vector2(0, 80f), 0.2f).SetEase(Ease.InQuart));
+        }
+
+        if (varCardSlots != null)
+            seq.Join(varCardSlots.DOAnchorPos(varCardSlots.anchoredPosition + new Vector2(0, -100f), 0.2f).SetEase(Ease.InQuart));
+    }
 
     /// <summary>
     /// 刷新战斗UI
