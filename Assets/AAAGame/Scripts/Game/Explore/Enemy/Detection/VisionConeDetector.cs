@@ -33,6 +33,9 @@ public class VisionConeDetector : MonoBehaviour
     /// <summary>缓存的玩家战后隐身组件</summary>
     private PostCombatStealth m_PlayerStealth;
 
+    /// <summary>缓存的玩家战斗状态标记</summary>
+    private PlayerCombatFlag m_PlayerCombatFlag;
+
     /// <summary>用于OverlapSphere检测的缓存数组</summary>
     private Collider[] m_OverlapResults = new Collider[10];
 
@@ -129,9 +132,15 @@ public class VisionConeDetector : MonoBehaviour
         if (m_PlayerStealth == null)
             m_PlayerStealth = playerTransform.GetComponent<PostCombatStealth>();
 
-        // 保底视野屏蔽（溶解过渡期）或玩家处于战后隐身时，忽略检测，衰减警觉度
+        // 缓存战斗标记组件
+        if (m_PlayerCombatFlag == null)
+            m_PlayerCombatFlag = playerTransform.GetComponent<PlayerCombatFlag>();
+
+        // 保底视野屏蔽（过渡期）或玩家处于战后隐身时，忽略检测，衰减警觉度
+        // 玩家正在战斗中时也跳过检测（多人支持：只屏蔽战斗中的玩家）
         if ((EnemyEntityManager.Instance != null && EnemyEntityManager.Instance.IsDetectionBlocked)
-            || (m_PlayerStealth != null && m_PlayerStealth.IsActive))
+            || (m_PlayerStealth != null && m_PlayerStealth.IsActive)
+            || (m_PlayerCombatFlag != null && m_PlayerCombatFlag.IsInCombat))
         {
             m_PlayerInCircle = false;
             m_PlayerInCone = false;

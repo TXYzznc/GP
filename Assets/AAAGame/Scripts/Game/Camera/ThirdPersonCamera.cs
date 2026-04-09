@@ -335,6 +335,28 @@ public class ThirdPersonCamera : MonoBehaviour
         );
     }
 
+    /// <summary>
+    /// 从摄像机 cullingMask 中排除指定 Layer（战斗时隐藏敌人等）
+    /// </summary>
+    public void ExcludeLayer(LayerHelper.Layer layer)
+    {
+        if (m_Camera == null) return;
+        int mask = LayerHelper.GetMask(layer);
+        m_Camera.cullingMask &= ~mask;
+        DebugEx.LogModule("ThirdPersonCamera", $"排除 Layer: {layer}");
+    }
+
+    /// <summary>
+    /// 将指定 Layer 恢复到摄像机 cullingMask 中
+    /// </summary>
+    public void IncludeLayer(LayerHelper.Layer layer)
+    {
+        if (m_Camera == null) return;
+        int mask = LayerHelper.GetMask(layer);
+        m_Camera.cullingMask |= mask;
+        DebugEx.LogModule("ThirdPersonCamera", $"恢复 Layer: {layer}");
+    }
+
     #endregion
 
     #region 更新逻辑
