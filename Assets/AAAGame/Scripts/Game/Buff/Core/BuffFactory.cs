@@ -44,9 +44,9 @@ public static class BuffFactory
         Register(5002, () => new BurnBuff());         // 烈焰风暴·灼烧（周期伤害）
         Register(5003, () => new StatModBuff());      // 战争号角（攻击+30%，移速+20%，配置驱动）
         Register(5005, () => new StunBuff());         // 暗影突袭·眩晕
-        Register(5007, () => new FrostBuff());        // 冰霜新星·冰冻
+        Register(5007, () => new StunBuff());         // 冰霜新星·冰冻（完全无法行动，SpecialState="Freeze"）
         Register(5008, () => new StatModBuff());      // 狂暴（攻击+80%，防御-30%，配置驱动）
-        Register(5010, () => new StatModBuff());      // 混乱诅咒·混乱（暂用 StatModBuff，实际需要特殊状态逻辑）
+        Register(5009, () => new ConfusedBuff());     // 混乱诅咒·混乱（特殊状态：有概率攻击队友）
 
         DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
     }

@@ -1,10 +1,12 @@
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
 /// <summary>
-/// 灼烧 Buff (ID=1)
-/// 最多10层，每秒每层造成 EffectValue 点伤害
+/// 灼烧 Buff (ID=1, 5002)
+/// 最多叠层，每秒每层造成固定伤害
 /// 达到5层/10层时，额外降低50点护甲
+/// CustomData 格式：{"DamagePerStack":5}
 /// </summary>
 public class BurnBuff : BuffBase
 {
@@ -20,11 +22,38 @@ public class BurnBuff : BuffBase
 
     #region 私有字段
 
+    /// <summary>每层每秒伤害（从 CustomData 读取）</summary>
+    private double m_DamagePerStack;
+
     /// <summary>是否已应用5层护甲削弱</summary>
     private bool m_ArmorReduced5;
 
     /// <summary>是否已应用10层护甲削弱</summary>
     private bool m_ArmorReduced10;
+
+    #endregion
+
+    #region 初始化
+
+    public override void Init(BuffContext ctx, BuffTable config)
+    {
+        base.Init(ctx, config);
+
+        // 从 CustomData 读取每层伤害
+        m_DamagePerStack = 5; // 默认值
+        if (!string.IsNullOrEmpty(config?.CustomData) && config.CustomData != "{}")
+        {
+            try
+            {
+                var json = JObject.Parse(config.CustomData);
+                if (json.TryGetValue("DamagePerStack", out var token))
+                {
+                    m_DamagePerStack = token.ToObject<double>();
+                }
+            }
+            catch { }
+        }
+    }
 
     #endregion
 
@@ -42,18 +71,14 @@ public class BurnBuff : BuffBase
     {
         if (Ctx?.OwnerAttribute == null) return;
 
-        // 每秒每层造成 EffectValue 点伤害
-        double damage = Config.EffectValue * StackCount;
-
-        // 使用灼烧专属的飘字类型
+        double damage = m_DamagePerStack * StackCount;
         Ctx.OwnerAttribute.TakeDamage(damage, false, true, false, CombatVFXManager.DamageType.BurnDamage);
 
-        DebugEx.LogModule("BurnBuff", $"灼烧伤害: {damage:F1} ({StackCount}层 × {Config.EffectValue})");
+        DebugEx.LogModule("BurnBuff", $"灼烧伤害: {damage:F1} ({StackCount}层 × {m_DamagePerStack})");
     }
 
     public override void OnExit()
     {
-        // 恢复护甲削弱
         if (m_ArmorReduced10 && Ctx?.OwnerAttribute != null)
         {
             Ctx.OwnerAttribute.ModifyArmor(ARMOR_REDUCE_AT_10);
@@ -74,7 +99,6 @@ public class BurnBuff : BuffBase
 
     public override bool OnStack()
     {
-        // 叠加不刷新持续时间（灼烧Buff设计只增加层数）
         if (StackCount < Config.MaxStack)
         {
             StackCount++;
@@ -83,9 +107,6 @@ public class BurnBuff : BuffBase
         return true;
     }
 
-    /// <summary>
-    /// 添加指定数量的层数（例如大招一次加2层）
-    /// </summary>
     public void AddStacks(int count)
     {
         for (int i = 0; i < count; i++)
@@ -101,26 +122,19 @@ public class BurnBuff : BuffBase
         CheckArmorReduce();
     }
 
-    /// <summary>
-    /// 减少层数（用于融化效果消耗）
-    /// </summary>
     public override void ReduceStacks(int count)
     {
         if (count <= 0) return;
 
         int oldStacks = StackCount;
-
-        // 先检查是否需要恢复护甲
         bool wasAt5 = oldStacks >= 5;
         bool wasAt10 = oldStacks >= 10;
 
-        // 减少层数
         StackCount = Mathf.Max(0, StackCount - count);
 
         bool nowAt5 = StackCount >= 5;
         bool nowAt10 = StackCount >= 10;
 
-        // 恢复护甲
         if (wasAt10 && !nowAt10 && m_ArmorReduced10)
         {
             Ctx?.OwnerAttribute?.ModifyArmor(ARMOR_REDUCE_AT_10);
@@ -132,7 +146,6 @@ public class BurnBuff : BuffBase
             m_ArmorReduced5 = false;
         }
 
-        // 如果层数归零则结束
         if (StackCount <= 0)
         {
             IsFinished = true;
@@ -145,14 +158,10 @@ public class BurnBuff : BuffBase
 
     #region 私有方法
 
-    /// <summary>
-    /// 检查并应用护甲削弱
-    /// </summary>
     private void CheckArmorReduce()
     {
         if (Ctx?.OwnerAttribute == null) return;
 
-        // 5层降护甲
         if (StackCount >= 5 && !m_ArmorReduced5)
         {
             Ctx.OwnerAttribute.ModifyArmor(-ARMOR_REDUCE_AT_5);
@@ -160,7 +169,6 @@ public class BurnBuff : BuffBase
             DebugEx.LogModule("BurnBuff", "灼烧达到5层，护甲-50");
         }
 
-        // 10层再降护甲
         if (StackCount >= 10 && !m_ArmorReduced10)
         {
             Ctx.OwnerAttribute.ModifyArmor(-ARMOR_REDUCE_AT_10);
