@@ -74,7 +74,7 @@ public partial class CardTable : DataRowBase
         }
 
         /// <summary>
-        /// 目标类型(1=自身 2=友方单体 3=友方全体 4=敌方单体 5=敌方全体 6=全场)
+        /// 目标类型(1=自身，2=全体友方（不含召唤师），3=全体友方，4=敌方全体，5=单体友方，6=范围内友方，7=范围内敌方，8=单体敌方)
         /// </summary>
         public int TargetType
         {

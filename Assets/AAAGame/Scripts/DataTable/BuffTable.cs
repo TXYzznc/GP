@@ -74,15 +74,6 @@ public partial class BuffTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果数值
-        /// </summary>
-        public double EffectValue
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 属性修改参数(JSON)：例如 {"AtkDamage":"25%","AtkRange":"30%"}；值为数值表示固定增量，带%表示按当前属性百分比计算
         /// </summary>
         public string StatMods
@@ -171,7 +162,6 @@ public partial class BuffTable : DataRowBase
             Desc = columnStrings[index++];
             BuffType = int.Parse(columnStrings[index++]);
             EffectType = int.Parse(columnStrings[index++]);
-            EffectValue = double.Parse(columnStrings[index++]);
             StatMods = columnStrings[index++];
             CustomData = columnStrings[index++];
             Duration = double.Parse(columnStrings[index++]);
@@ -196,7 +186,6 @@ public partial class BuffTable : DataRowBase
                     Desc = binaryReader.ReadString();
                     BuffType = binaryReader.Read7BitEncodedInt32();
                     EffectType = binaryReader.Read7BitEncodedInt32();
-                    EffectValue = binaryReader.ReadDouble();
                     StatMods = binaryReader.ReadString();
                     CustomData = binaryReader.ReadString();
                     Duration = binaryReader.ReadDouble();
