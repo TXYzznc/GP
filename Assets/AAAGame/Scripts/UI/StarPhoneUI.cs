@@ -2,6 +2,7 @@ using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+using DG.Tweening;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -127,6 +128,35 @@ public partial class StarPhoneUI : StateAwareUIForm
         // TODO: 后续需要根据实际需求修改此处逻辑
         GF.UI.OpenUIForm(UIViews.InventoryUI);
         DebugEx.Success("StarPhoneUI", "已打开背包UI（临时功能）");
+    }
+
+    #endregion
+
+    #region 动画
+
+    protected new void ShowUI()
+    {
+        var cg = GetComponent<CanvasGroup>();
+        var rt = GetComponent<RectTransform>();
+        if (cg == null) { base.ShowUI(); return; }
+        DOTween.Kill(gameObject);
+        cg.alpha = 0f; cg.blocksRaycasts = true; cg.interactable = true;
+        rt.localScale = Vector3.one * 0.8f;
+        DOTween.Sequence().SetUpdate(true)
+            .Join(cg.DOFade(1f, 0.25f).SetEase(Ease.OutQuart))
+            .Join(rt.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutQuart));
+    }
+
+    protected new void HideUI()
+    {
+        var cg = GetComponent<CanvasGroup>();
+        var rt = GetComponent<RectTransform>();
+        if (cg == null) { base.HideUI(); return; }
+        DOTween.Kill(gameObject);
+        DOTween.Sequence().SetUpdate(true)
+            .Join(cg.DOFade(0f, 0.2f).SetEase(Ease.InQuart))
+            .Join(rt.DOScale(Vector3.one * 0.8f, 0.2f).SetEase(Ease.InQuart))
+            .OnComplete(() => { cg.interactable = false; cg.blocksRaycasts = false; });
     }
 
     #endregion
