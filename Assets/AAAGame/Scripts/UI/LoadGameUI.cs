@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using UnityEngine.Events;
+using DG.Tweening;
 
 /// <summary>
 /// 加载存档UI
@@ -31,15 +32,42 @@ public partial class LoadGameUI : UIFormBase
 
         // 刷新存档列表
         RefreshSaveList();
+
+        PlayOpenAnimation();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         base.OnClose(isShutdown, userData);
         Log.Info("LoadGameUI 已关闭");
 
         // 清理
         m_SelectedSaveId = null;
+    }
+
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        Interactable = false;
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.PopIn(rt, cg, 0.3f).OnComplete(() =>
+        {
+            Interactable = true;
+            // 列表项依次入场
+            if (varGameContent != null)
+                UIAnimationHelper.StaggerChildren(varGameContent.content, 0.06f, 0.25f);
+        });
+    }
+
+    private void PlayCloseAnimation(System.Action onComplete)
+    {
+        Interactable = false;
+        DOTween.Kill(gameObject);
+        var rt = GetComponent<RectTransform>();
+        var cg = GetComponent<CanvasGroup>();
+        UIAnimationHelper.PopOut(rt, cg, 0.2f).OnComplete(() => onComplete?.Invoke());
     }
 
     #endregion
@@ -98,7 +126,7 @@ public partial class LoadGameUI : UIFormBase
     private void OnCloseButtonClick()
     {
         Log.Info("关闭存档列表界面");
-        GF.UI.CloseUIForm(this.UIForm);
+        PlayCloseAnimation(() => GF.UI.CloseUIForm(this.UIForm));
     }
 
     #endregion

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+using DG.Tweening;
 
 /// <summary>
 /// 开始菜单UI
@@ -28,13 +29,57 @@ public partial class StartMenuUI : UIFormBase
 
         // 检查是否有存档，决定是否启用"继续游戏"按钮
         CheckSaveData();
+
+        PlayOpenAnimation();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DOTween.Kill(gameObject, true);
         base.OnClose(isShutdown, userData);
+    }
 
-        // ?? 如果需要手动清理按钮事件，可能会自动清理
+    private void PlayOpenAnimation()
+    {
+        DOTween.Kill(gameObject);
+        Interactable = false;
+
+        var cg = GetComponent<CanvasGroup>();
+
+        // 1. 背景淡入
+        var bgCg = varImgBackground.GetOrAddComponent<CanvasGroup>();
+        bgCg.alpha = 0f;
+        bgCg.DOFade(1f, 0.4f).SetEase(Ease.OutQuart).SetUpdate(true);
+
+        // 2. Logo 缩放入场（延迟 0.1s）
+        varName.rectTransform.localScale = Vector3.zero;
+        varNameEn.rectTransform.localScale = Vector3.zero;
+        varName.rectTransform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack).SetDelay(0.1f).SetUpdate(true);
+        varNameEn.rectTransform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack).SetDelay(0.18f).SetUpdate(true);
+
+        // 3. 按钮依次从底部滑入（stagger）
+        Button[] buttons = { varBtnNewGame, varBtnContinue, varBtnLoadSave, varBtnSettings, varBtnQuit, var存档上云 };
+        float startDelay = 0.3f;
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            if (buttons[i] == null) continue;
+            var rt = buttons[i].GetComponent<RectTransform>();
+            var originalPos = rt.anchoredPosition;
+            rt.anchoredPosition = originalPos + new Vector2(0, -30f);
+
+            var btnCg = buttons[i].GetOrAddComponent<CanvasGroup>();
+            btnCg.alpha = 0f;
+
+            float delay = startDelay + i * 0.07f;
+            rt.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutQuart).SetDelay(delay).SetUpdate(true);
+            btnCg.DOFade(1f, 0.25f).SetEase(Ease.OutQuart).SetDelay(delay).SetUpdate(true)
+                .OnComplete(() => { if (i == buttons.Length - 1) Interactable = true; });
+        }
+
+        // 整体 CanvasGroup 整体先淡入
+        cg.alpha = 0f;
+        cg.DOFade(1f, 0.3f).SetEase(Ease.OutQuart).SetUpdate(true)
+            .OnComplete(() => Interactable = true);
     }
 
     #endregion
