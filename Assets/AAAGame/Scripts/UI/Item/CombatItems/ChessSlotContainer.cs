@@ -301,14 +301,8 @@ public class ChessSlotContainer : MonoBehaviour
         var cardRect = card.GetComponent<RectTransform>();
         var cardImage = card.GetComponent<CanvasGroup>();
 
-        if (cardRect == null)
+        if (cardRect == null || cardImage == null)
             return;
-
-        // 如果没有 CanvasGroup，则添加（与 SetInitialPositionAsync 保持一致）
-        if (cardImage == null)
-        {
-            cardImage = card.gameObject.AddComponent<CanvasGroup>();
-        }
 
         // 计算目标位置
         var fanTransforms = CalculateFanPositions();
