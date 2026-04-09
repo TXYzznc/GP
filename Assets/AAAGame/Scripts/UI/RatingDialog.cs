@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 public partial class RatingDialog : UIFormBase
 {
@@ -24,24 +23,6 @@ public partial class RatingDialog : UIFormBase
     {
         base.OnOpen(userData);
         SetStar();
-        DOTween.Kill(gameObject);
-        Interactable = false;
-        UIAnimationHelper.PopIn(GetComponent<RectTransform>(), GetComponent<CanvasGroup>(), 0.3f)
-            .OnComplete(() => Interactable = true);
-    }
-
-    protected override void OnClose(bool isShutdown, object userData)
-    {
-        DOTween.Kill(gameObject, true);
-        base.OnClose(isShutdown, userData);
-    }
-
-    public override void OnClickClose()
-    {
-        Interactable = false;
-        DOTween.Kill(gameObject);
-        UIAnimationHelper.PopOut(GetComponent<RectTransform>(), GetComponent<CanvasGroup>(), 0.2f)
-            .OnComplete(() => GF.UI.Close(this.UIForm));
     }
     protected override void OnButtonClick(object sender, Button btSelf)
     {

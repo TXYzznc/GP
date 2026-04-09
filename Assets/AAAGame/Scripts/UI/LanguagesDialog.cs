@@ -1,4 +1,3 @@
-using DG.Tweening;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 public partial class LanguagesDialog : UIFormBase
 {
@@ -10,24 +9,11 @@ public partial class LanguagesDialog : UIFormBase
         base.OnOpen(userData);
         m_VarAction = Params.Get<VarAction>(P_LangChangedCb);
         RefreshList();
-        DOTween.Kill(gameObject);
-        Interactable = false;
-        UIAnimationHelper.PopIn(GetComponent<UnityEngine.RectTransform>(), GetComponent<UnityEngine.CanvasGroup>(), 0.3f)
-            .OnComplete(() => Interactable = true);
     }
-
     protected override void OnClose(bool isShutdown, object userData)
     {
-        DOTween.Kill(gameObject, true);
         base.OnClose(isShutdown, userData);
-    }
-
-    public override void OnClickClose()
-    {
-        Interactable = false;
-        DOTween.Kill(gameObject);
-        UIAnimationHelper.PopOut(GetComponent<UnityEngine.RectTransform>(), GetComponent<UnityEngine.CanvasGroup>(), 0.2f)
-            .OnComplete(() => GF.UI.Close(this.UIForm));
+        //UnspawnAll();
     }
     void RefreshList()
     {
