@@ -556,10 +556,13 @@ public partial class CombatPreparationUI : UIFormBase
         // 播放取消选中动效
         PlayChessDeselectAnimation(previousInstanceId);
 
-        // 隐藏 DetailInfoUI
+        // 隐藏 DetailInfoUI（带滑出动画）
         if (varDetailInfoUI != null)
         {
-            varDetailInfoUI.SetActive(false);
+            if (varDetailInfoUI.TryGetComponent<DetailInfoUI>(out var detailUI))
+                detailUI.HideWithAnimation();
+            else
+                varDetailInfoUI.SetActive(false);
         }
     }
 
@@ -1155,11 +1158,13 @@ public partial class CombatPreparationUI : UIFormBase
 
         m_CurrentDetailChess = null;
 
-        // 隐藏棋子详情
+        // 隐藏棋子详情（带滑出动画）
         if (varDetailInfoUI != null)
         {
-            varDetailInfoUI.SetActive(false);
-            Log.Info("CombatPreparationUI: 隐藏棋子详情");
+            if (varDetailInfoUI.TryGetComponent<DetailInfoUI>(out var detailUI))
+                detailUI.HideWithAnimation();
+            else
+                varDetailInfoUI.SetActive(false);
         }
     }
 

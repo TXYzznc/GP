@@ -311,7 +311,10 @@ public partial class CombatUI : StateAwareUIForm
 
         if (varDetailInfoUI != null)
         {
-            varDetailInfoUI.SetActive(false);
+            if (varDetailInfoUI.TryGetComponent<DetailInfoUI>(out var detailUI))
+                detailUI.HideWithAnimation();
+            else
+                varDetailInfoUI.SetActive(false);
         }
     }
 

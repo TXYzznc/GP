@@ -10,8 +10,8 @@ public partial class DetailInfoUI : UIItemBase
 {
     #region 常量
 
-    private const float SLIDE_IN_DURATION = 0.4f;
-    private const float INITIAL_X = 360f;
+    private const float SLIDE_DURATION = 0.35f;
+    private const float OFFSCREEN_X = 360f;
     private const float TARGET_X = 0f;
 
     #endregion
@@ -331,7 +331,7 @@ public partial class DetailInfoUI : UIItemBase
     #region 动画
 
     /// <summary>
-    /// 显示 DetailInfoUI 并播放滑入动画
+    /// 显示 DetailInfoUI 并播放滑入动画（从右到左）
     /// </summary>
     public void ShowWithAnimation()
     {
@@ -342,26 +342,40 @@ public partial class DetailInfoUI : UIItemBase
             return;
         }
 
-        // 杀死之前的动画
         m_SlideInTween?.Kill();
 
-        // 设置初始位置（x = 360）
+        // 设置初始位置（屏幕右侧外）
         var anchoredPos = m_RectTransform.anchoredPosition;
-        anchoredPos.x = INITIAL_X;
+        anchoredPos.x = OFFSCREEN_X;
         m_RectTransform.anchoredPosition = anchoredPos;
 
-        // 激活 GameObject
         gameObject.SetActive(true);
 
-        // 播放滑入动画（x: 360 → 0）
-        m_SlideInTween = m_RectTransform.DOAnchorPosX(TARGET_X, SLIDE_IN_DURATION)
-            .SetEase(Ease.OutQuad)
+        // 从右滑入（x: 360 → 0）
+        m_SlideInTween = m_RectTransform.DOAnchorPosX(TARGET_X, SLIDE_DURATION)
+            .SetEase(Ease.OutCubic);
+    }
+
+    /// <summary>
+    /// 隐藏 DetailInfoUI 并播放滑出动画（从左到右）
+    /// </summary>
+    public void HideWithAnimation()
+    {
+        if (m_RectTransform == null || !gameObject.activeSelf)
+        {
+            if (gameObject.activeSelf) gameObject.SetActive(false);
+            return;
+        }
+
+        m_SlideInTween?.Kill();
+
+        // 滑出到右侧（x → 360）
+        m_SlideInTween = m_RectTransform.DOAnchorPosX(OFFSCREEN_X, SLIDE_DURATION)
+            .SetEase(Ease.InCubic)
             .OnComplete(() =>
             {
-                DebugEx.LogModule("DetailInfoUI", "滑入动画完成");
+                gameObject.SetActive(false);
             });
-
-        DebugEx.LogModule("DetailInfoUI", "开始播放滑入动画");
     }
 
     #endregion
