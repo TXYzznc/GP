@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -12,6 +13,7 @@ public class PlayerInteraction : MonoBehaviour
 
     private bool m_IsInteracting;
     private int m_CurrentInteractIndex;
+    private Action m_OnInteractComplete;
 
     #region 初始化
 
@@ -43,7 +45,22 @@ public class PlayerInteraction : MonoBehaviour
             animator.SetInteger("InteractIndex", interactIndex);
         }
 
-        Log.Info($"触发交互动画，索引: {interactIndex}");
+        DebugEx.LogModule("PlayerInteraction", $"触发交互动画，索引: {interactIndex}");
+    }
+
+    /// <summary>
+    /// 触发交互动画（带完成回调）
+    /// 动画播放完毕后自动调用 onComplete
+    /// </summary>
+    public void TriggerInteractWithCallback(int interactIndex, Action onComplete)
+    {
+        if (m_IsInteracting)
+        {
+            DebugEx.WarningModule("PlayerInteraction", "已在交互中，拒绝重复触发");
+            return;
+        }
+        m_OnInteractComplete = onComplete;
+        TriggerInteract(interactIndex);
     }
 
     /// <summary>
@@ -58,7 +75,12 @@ public class PlayerInteraction : MonoBehaviour
             animator.SetBool("IsInteracting", false);
         }
 
-        Log.Info("交互结束");
+        // 触发完成回调
+        var callback = m_OnInteractComplete;
+        m_OnInteractComplete = null;
+        callback?.Invoke();
+
+        DebugEx.LogModule("PlayerInteraction", "交互结束");
     }
 
     /// <summary>

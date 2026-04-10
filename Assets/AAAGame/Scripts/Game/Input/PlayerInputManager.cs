@@ -69,6 +69,9 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     // 空格键输入（用于交互/触发事件）
     public bool SpaceKeyDown { get; private set; }
 
+    // F键：交互
+    public bool InteractKeyDown { get; private set; }
+
     // ⭐ [测试功能] 游戏暂停触发（按空格键）
     public bool GamePauseTestTriggered { get; private set; }
 
@@ -111,6 +114,9 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         // G 键：仓库开关
         WarehouseToggleTriggered = Input.GetKeyDown(KeyCode.G);
 
+        // F 键：交互
+        InteractKeyDown = Input.GetKeyDown(KeyCode.F);
+
         // 背包翻页（A/D，仅背包打开时生效，由 InventoryUI 自行判断）
         InventoryPagePrevTriggered = Input.GetKeyDown(KeyCode.A);
         InventoryPageNextTriggered = Input.GetKeyDown(KeyCode.D);
@@ -128,6 +134,7 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
             MouseDelta = Vector2.zero;
             ScrollDelta = 0f;
             SprintDown = false;
+            InteractKeyDown = false;
             for (int i = 0; i < skillDown.Length; i++)
                 skillDown[i] = false;
             for (int i = 0; i < summonerSkillDown.Length; i++)
