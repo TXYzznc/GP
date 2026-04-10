@@ -130,6 +130,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260410_153831.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF.shader" />
     <None Include="Assets\测试输出日志\snapshot_20260409_182727.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260410_181508.txt" />
     <None Include="Assets\link.xml" />
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
@@ -162,6 +163,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260410_100712.txt" />
     <None Include="Assets\测试输出日志\snapshot_20260410_100638.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Blur.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260410_181319.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260409_180123.txt" />
     <None Include="Assets\AAAGame\DataTable\PlayerAccountTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles.shader" />
@@ -185,6 +187,7 @@
     <None Include="Assets\AAAGame\DataTable\ResourceRuleTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerSkillTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260410_181756.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
