@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出战预设 - Clash of Gods UI Design</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=ZCOOL+QingKe+HuangYou&display=swap');
+
+        :root {
+            /* — 主色调：神话暗金风格 — */
+            --bg-deep: #0a0b12;
+            --bg-panel: #111420;
+            --bg-card: #181c2e;
+            --bg-card-hover: #1f2540;
+            --bg-slot-empty: #14182488;
+            --border-subtle: #2a3050;
+            --border-gold: #c9a44c;
+            --border-gold-dim: #6b5a2a;
+            --gold-bright: #f5d978;
+            --gold-mid: #c9a44c;
+            --gold-dark: #8b6914;
+            --text-primary: #e8e0d0;
+            --text-secondary: #9a9280;
+            --text-dim: #5a5548;
+            --accent-blue: #4a8ec9;
+            --accent-purple: #8b5cf6;
+            --accent-green: #4ade80;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --quality-blue: #4a8ec9;
+            --quality-purple: #a855f7;
+            --quality-gold: #f5d978;
+            --quality-rainbow: linear-gradient(135deg, #f87171, #fbbf24, #34d399, #60a5fa, #a78bfa);
+            --shadow-glow: 0 0 20px rgba(201, 164, 76, 0.15);
+            --shadow-card: 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Noto Sans SC', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ============ 主容器（模拟16:9游戏画面） ============ */
+        .game-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(201,164,76,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(74,142,201,0.03) 0%, transparent 50%),
+                var(--bg-deep);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* — 背景装饰 — */
+        .game-viewport::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='none' stroke='%23ffffff' stroke-opacity='0.015' stroke-width='0.5'/%3E%3C/svg%3E") repeat;
+            pointer-events: none;
+        }
+
+        /* ============ 顶部标题栏 ============ */
+        .header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: linear-gradient(180deg, rgba(17,20,32,0.95) 0%, rgba(17,20,32,0.7) 100%);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 10;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-back:hover {
+            border-color: var(--gold-mid);
+            color: var(--gold-bright);
+        }
+        .btn-back .arrow { font-size: 16px; }
+
+        .header-title {
+            font-family: 'ZCOOL QingKe HuangYou', cursive;
+            font-size: 22px;
+            color: var(--gold-bright);
+            text-shadow: 0 0 20px rgba(245,217,120,0.3);
+            letter-spacing: 4px;
+        }
+
+        .header-right {
+            width: 100px;
+            text-align: right;
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        /* ============ 主体布局 ============ */
+        .main-content {
+            position: absolute;
+            top: 56px; bottom: 56px; left: 0; right: 0;
+            display: flex;
+        }
+
+        /* ============ 左侧预设列表 ============ */
+        .preset-sidebar {
+            width: 220px;
+            padding: 16px;
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(0,0,0,0.15);
+        }
+
+        .sidebar-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .preset-slot {
+            position: relative;
+            padding: 12px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .preset-slot:hover {
+            border-color: var(--border-gold-dim);
+            background: var(--bg-card-hover);
+        }
+        .preset-slot.active {
+            border-color: var(--border-gold);
+            background: var(--bg-card-hover);
+            box-shadow: var(--shadow-glow), inset 0 0 30px rgba(201,164,76,0.05);
+        }
+        .preset-slot.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 8px; bottom: 8px;
+            width: 3px;
+            background: var(--gold-mid);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .preset-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .preset-summary {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .preset-default-badge {
+            position: absolute;
+            top: 8px; right: 10px;
+            font-size: 10px;
+            color: var(--gold-bright);
+            background: rgba(201,164,76,0.15);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid var(--border-gold-dim);
+        }
+
+        .preset-slot.empty {
+            border-style: dashed;
+            background: var(--bg-slot-empty);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 58px;
+        }
+        .preset-slot.empty .plus-icon {
+            font-size: 24px;
+            color: var(--text-dim);
+            transition: color 0.2s;
+        }
+        .preset-slot.empty:hover .plus-icon {
+            color: var(--gold-mid);
+        }
+
+        /* ============ 右侧编辑区域 ============ */
+        .edit-area {
+            flex: 1;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        /* — 预设名称输入 — */
+        .preset-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .preset-name-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .preset-name-input {
+            flex: 1;
+            max-width: 280px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .preset-name-input:focus {
+            outline: none;
+            border-color: var(--gold-mid);
+        }
+        .preset-name-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        /* — 区段标题 — */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gold-bright);
+            letter-spacing: 1px;
+        }
+        .section-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: rgba(201,164,76,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border-gold-dim), transparent);
+        }
+
+        /* — 已选棋子/卡牌栏 — */
+        .selected-slots {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chess-slot, .card-slot {
+            width: 90px;
+            height: 110px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .chess-slot:hover, .card-slot:hover {
+            border-color: var(--border-gold-dim);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .chess-slot.filled, .card-slot.filled {
+            border-color: var(--border-gold-dim);
+        }
+        .chess-slot.filled::after {
+            content: '×';
+            position: absolute;
+            top: 2px; right: 6px;
+            font-size: 14px;
+            color: var(--accent-red);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .chess-slot.filled:hover::after,
+        .card-slot.filled:hover::after {
+            opacity: 1;
+        }
+        .card-slot.filled::after {
+            content: '×';
+            position: absolute;
+            top: 2px; right: 6px;
+            font-size: 14px;
+            color: var(--accent-red);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .slot-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .slot-name {
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .slot-info {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .slot-empty-icon {
+            font-size: 20px;
+            color: var(--text-dim);
+        }
+        .slot-empty-text {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* — 品质边框 — */
+        .quality-blue { border-color: var(--quality-blue); box-shadow: 0 0 8px rgba(74,142,201,0.2); }
+        .quality-purple { border-color: var(--quality-purple); box-shadow: 0 0 8px rgba(168,85,247,0.2); }
+        .quality-gold { border-color: var(--gold-bright); box-shadow: 0 0 8px rgba(245,217,120,0.25); }
+        .quality-rainbow {
+            border-image: linear-gradient(135deg, #f87171, #fbbf24, #34d399, #60a5fa, #a78bfa) 1;
+            box-shadow: 0 0 12px rgba(168,85,247,0.2);
+        }
+
+        /* — 可选棋子/卡牌池 — */
+        .pool-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 4px;
+            margin-bottom: 2px;
+        }
+        .pool-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pool-item {
+            width: 72px;
+            height: 88px;
+            border-radius: 5px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .pool-item:hover {
+            border-color: var(--accent-blue);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74,142,201,0.15);
+        }
+        .pool-item.selected {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .pool-item.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 24px;
+            color: var(--accent-green);
+        }
+
+        .pool-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .pool-name {
+            font-size: 10px;
+            text-align: center;
+            line-height: 1.1;
+            max-width: 64px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .pool-sub {
+            font-size: 9px;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        /* — 星级 — */
+        .stars {
+            color: var(--gold-bright);
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+
+        /* — 稀有度标签 — */
+        .rarity-tag {
+            position: absolute;
+            top: 3px; right: 3px;
+            font-size: 8px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-weight: 700;
+        }
+        .rarity-common { background: rgba(156,163,175,0.3); color: #9ca3af; }
+        .rarity-rare { background: rgba(74,142,201,0.3); color: var(--quality-blue); }
+        .rarity-epic { background: rgba(168,85,247,0.3); color: var(--quality-purple); }
+        .rarity-legend { background: rgba(245,217,120,0.2); color: var(--gold-bright); }
+
+        /* — 人口消耗 — */
+        .pop-cost {
+            position: absolute;
+            bottom: 3px; right: 5px;
+            font-size: 9px;
+            color: var(--accent-orange);
+        }
+
+        /* — 灵力消耗 — */
+        .spirit-cost {
+            position: absolute;
+            bottom: 3px; left: 5px;
+            font-size: 9px;
+            color: var(--accent-blue);
+        }
+
+        /* ============ 底部操作栏 ============ */
+        .footer {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 0 24px;
+            background: linear-gradient(0deg, rgba(17,20,32,0.95) 0%, rgba(17,20,32,0.7) 100%);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .btn {
+            padding: 8px 28px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 1px;
+        }
+
+        .btn-default {
+            background: none;
+            border: 1px solid var(--border-gold-dim);
+            color: var(--gold-mid);
+        }
+        .btn-default:hover {
+            border-color: var(--gold-bright);
+            color: var(--gold-bright);
+            box-shadow: 0 0 12px rgba(201,164,76,0.15);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-mid));
+            border: 1px solid var(--gold-mid);
+            color: #1a1000;
+            font-weight: 700;
+        }
+        .btn-save:hover {
+            background: linear-gradient(135deg, var(--gold-mid), var(--gold-bright));
+            box-shadow: 0 0 20px rgba(201,164,76,0.3);
+        }
+
+        .btn-delete {
+            background: none;
+            border: 1px solid rgba(239,68,68,0.3);
+            color: var(--accent-red);
+        }
+        .btn-delete:hover {
+            border-color: var(--accent-red);
+            background: rgba(239,68,68,0.1);
+        }
+
+        .btn-reset {
+            background: none;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+        .btn-reset:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* ============ 统御值提示 ============ */
+        .domination-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .domination-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .domination-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gold-bright);
+        }
+        .domination-max {
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+        .domination-progress {
+            width: 120px;
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .domination-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-bright));
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        /* ============ 种族/职业图标 ============ */
+        .trait-icons {
+            display: flex;
+            gap: 3px;
+            margin-top: 2px;
+        }
+        .trait-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+        }
+
+        /* ============ Tooltip ============ */
+        .tooltip {
+            display: none;
+            position: absolute;
+            z-index: 100;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-gold);
+            border-radius: 6px;
+            padding: 12px 16px;
+            width: 200px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+        .tooltip.show { display: block; }
+        .tooltip-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gold-bright);
+            margin-bottom: 6px;
+        }
+        .tooltip-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .tooltip-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px 12px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        .tooltip-stat-label { color: var(--text-dim); }
+        .tooltip-stat-value { color: var(--text-primary); text-align: right; }
+
+        /* ============ 滚动条 ============ */
+        .edit-area::-webkit-scrollbar { width: 4px; }
+        .edit-area::-webkit-scrollbar-track { background: transparent; }
+        .edit-area::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+
+        /* ============ 动画 ============ */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .edit-area > * {
+            animation: fadeIn 0.3s ease-out both;
+        }
+        .edit-area > *:nth-child(1) { animation-delay: 0.05s; }
+        .edit-area > *:nth-child(2) { animation-delay: 0.1s; }
+        .edit-area > *:nth-child(3) { animation-delay: 0.15s; }
+        .edit-area > *:nth-child(4) { animation-delay: 0.2s; }
+        .edit-area > *:nth-child(5) { animation-delay: 0.25s; }
+        .edit-area > *:nth-child(6) { animation-delay: 0.3s; }
+        .edit-area > *:nth-child(7) { animation-delay: 0.35s; }
+        .edit-area > *:nth-child(8) { animation-delay: 0.4s; }
+
+        /* ============ 分隔线 ============ */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+            margin: 4px 0;
+        }
+
+        /* — 棋子图标背景色 — */
+        .chess-bg-warrior { background: linear-gradient(135deg, #7c3aed22, #7c3aed44); }
+        .chess-bg-mage { background: linear-gradient(135deg, #3b82f622, #3b82f644); }
+        .chess-bg-archer { background: linear-gradient(135deg, #10b98122, #10b98144); }
+        .chess-bg-tank { background: linear-gradient(135deg, #f59e0b22, #f59e0b44); }
+        .chess-bg-assassin { background: linear-gradient(135deg, #ef444422, #ef444444); }
+        .chess-bg-support { background: linear-gradient(135deg, #06b6d422, #06b6d444); }
+
+        /* — 卡牌图标背景色 — */
+        .card-bg-damage { background: linear-gradient(135deg, #ef444422, #ef444444); }
+        .card-bg-heal { background: linear-gradient(135deg, #10b98122, #10b98144); }
+        .card-bg-buff { background: linear-gradient(135deg, #f59e0b22, #f59e0b44); }
+        .card-bg-control { background: linear-gradient(135deg, #3b82f622, #3b82f644); }
+        .card-bg-shield { background: linear-gradient(135deg, #8b5cf622, #8b5cf644); }
+    </style>
+</head>
+<body>
+
+<div class="game-viewport">
+
+    <!-- ========== 顶部标题栏 ========== -->
+    <div class="header">
+        <button class="btn-back">
+            <span class="arrow">‹</span> 返回
+        </button>
+        <div class="header-title">出 战 预 设</div>
+        <div class="header-right">ESC 返回</div>
+    </div>
+
+    <!-- ========== 主体区域 ========== -->
+    <div class="main-content">
+
+        <!-- ===== 左侧：预设列表 ===== -->
+        <div class="preset-sidebar">
+            <div class="sidebar-label">预设方案</div>
+
+            <!-- 预设1 - 当前选中 + 默认 -->
+            <div class="preset-slot active">
+                <span class="preset-default-badge">★ 默认</span>
+                <div class="preset-name">主力阵容</div>
+                <div class="preset-summary">棋子 4/5 · 策略卡 6/8</div>
+            </div>
+
+            <!-- 预设2 -->
+            <div class="preset-slot">
+                <div class="preset-name">速攻流</div>
+                <div class="preset-summary">棋子 3/5 · 策略卡 8/8</div>
+            </div>
+
+            <!-- 预设3 -->
+            <div class="preset-slot">
+                <div class="preset-name">防御塔阵</div>
+                <div class="preset-summary">棋子 5/5 · 策略卡 4/8</div>
+            </div>
+
+            <!-- 空槽位 -->
+            <div class="preset-slot empty">
+                <span class="plus-icon">+</span>
+            </div>
+
+            <div class="preset-slot empty">
+                <span class="plus-icon">+</span>
+            </div>
+        </div>
+
+        <!-- ===== 右侧：编辑区域 ===== -->
+        <div class="edit-area">
+
+            <!-- 预设名称 -->
+            <div class="preset-name-row">
+                <span class="preset-name-label">预设名称</span>
+                <input type="text" class="preset-name-input" value="主力阵容" placeholder="输入预设名称...">
+                <div class="domination-bar">
+                    <span class="domination-label">统御值</span>
+                    <div class="domination-progress">
+                        <div class="domination-fill" style="width: 60%"></div>
+                    </div>
+                    <span class="domination-value">6 <span class="domination-max">/ 10</span></span>
+                </div>
+            </div>
+
+            <!-- ===== 出战棋子区段 ===== -->
+            <div class="section-header">
+                <span class="section-title">出战棋子</span>
+                <span class="section-count">4 / 5</span>
+                <div class="section-line"></div>
+            </div>
+
+            <!-- 已选棋子槽位 -->
+            <div class="selected-slots">
+                <!-- 已选棋子1 - 金色品质 -->
+                <div class="chess-slot filled quality-gold">
+                    <div class="slot-icon chess-bg-warrior">⚔️</div>
+                    <div class="slot-name">炎龙骑士</div>
+                    <div class="stars">★★★</div>
+                    <span class="pop-cost">▲3</span>
+                </div>
+
+                <!-- 已选棋子2 - 紫色品质 -->
+                <div class="chess-slot filled quality-purple">
+                    <div class="slot-icon chess-bg-mage">🔮</div>
+                    <div class="slot-name">暗影法师</div>
+                    <div class="stars">★★</div>
+                    <span class="pop-cost">▲2</span>
+                </div>
+
+                <!-- 已选棋子3 - 蓝色品质 -->
+                <div class="chess-slot filled quality-blue">
+                    <div class="slot-icon chess-bg-archer">🏹</div>
+                    <div class="slot-name">精灵射手</div>
+                    <div class="stars">★★</div>
+                    <span class="pop-cost">▲1</span>
+                </div>
+
+                <!-- 已选棋子4 - 紫色品质 -->
+                <div class="chess-slot filled quality-purple">
+                    <div class="slot-icon chess-bg-tank">🛡️</div>
+                    <div class="slot-name">岩石守卫</div>
+                    <div class="stars">★★</div>
+                    <span class="pop-cost">▲2</span>
+                </div>
+
+                <!-- 空槽位 -->
+                <div class="chess-slot">
+                    <span class="slot-empty-icon">+</span>
+                    <span class="slot-empty-text">选择棋子</span>
+                </div>
+            </div>
+
+            <!-- 可选棋子池 -->
+            <div class="pool-label">可选棋子（点击添加）</div>
+            <div class="pool-grid">
+                <div class="pool-item selected quality-gold">
+                    <div class="pool-icon chess-bg-warrior">⚔️</div>
+                    <div class="pool-name">炎龙骑士</div>
+                    <div class="pool-sub">★★★ · ▲3</div>
+                </div>
+                <div class="pool-item selected quality-purple">
+                    <div class="pool-icon chess-bg-mage">🔮</div>
+                    <div class="pool-name">暗影法师</div>
+                    <div class="pool-sub">★★ · ▲2</div>
+                </div>
+                <div class="pool-item selected quality-blue">
+                    <div class="pool-icon chess-bg-archer">🏹</div>
+                    <div class="pool-name">精灵射手</div>
+                    <div class="pool-sub">★★ · ▲1</div>
+                </div>
+                <div class="pool-item selected quality-purple">
+                    <div class="pool-icon chess-bg-tank">🛡️</div>
+                    <div class="pool-name">岩石守卫</div>
+                    <div class="pool-sub">★★ · ▲2</div>
+                </div>
+                <div class="pool-item quality-gold">
+                    <div class="pool-icon chess-bg-assassin">🗡️</div>
+                    <div class="pool-name">幻影刺客</div>
+                    <div class="pool-sub">★★★ · ▲3</div>
+                </div>
+                <div class="pool-item quality-blue">
+                    <div class="pool-icon chess-bg-support">💫</div>
+                    <div class="pool-name">圣光祭司</div>
+                    <div class="pool-sub">★★ · ▲1</div>
+                </div>
+                <div class="pool-item quality-purple">
+                    <div class="pool-icon chess-bg-warrior">⚔️</div>
+                    <div class="pool-name">雷霆战神</div>
+                    <div class="pool-sub">★★ · ▲2</div>
+                </div>
+                <div class="pool-item quality-blue">
+                    <div class="pool-icon chess-bg-mage">🔮</div>
+                    <div class="pool-name">冰霜女巫</div>
+                    <div class="pool-sub">★ · ▲1</div>
+                </div>
+                <div class="pool-item quality-blue">
+                    <div class="pool-icon chess-bg-archer">🏹</div>
+                    <div class="pool-name">风行猎手</div>
+                    <div class="pool-sub">★ · ▲1</div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- ===== 策略卡组区段 ===== -->
+            <div class="section-header">
+                <span class="section-title">策略卡组</span>
+                <span class="section-count">6 / 8</span>
+                <div class="section-line"></div>
+            </div>
+
+            <!-- 已选策略卡槽位 -->
+            <div class="selected-slots">
+                <div class="card-slot filled quality-purple">
+                    <div class="slot-icon card-bg-shield">🛡️</div>
+                    <div class="slot-name">神圣庇护</div>
+                    <div class="slot-info">30灵力</div>
+                    <span class="rarity-tag rarity-epic">史诗</span>
+                </div>
+                <div class="card-slot filled quality-gold">
+                    <div class="slot-icon card-bg-damage">🔥</div>
+                    <div class="slot-name">烈焰风暴</div>
+                    <div class="slot-info">45灵力</div>
+                    <span class="rarity-tag rarity-legend">传说</span>
+                </div>
+                <div class="card-slot filled quality-blue">
+                    <div class="slot-icon card-bg-heal">💚</div>
+                    <div class="slot-name">时间回溯</div>
+                    <div class="slot-info">25灵力</div>
+                    <span class="rarity-tag rarity-rare">稀有</span>
+                </div>
+                <div class="card-slot filled quality-purple">
+                    <div class="slot-icon card-bg-buff">⚡</div>
+                    <div class="slot-name">战争号角</div>
+                    <div class="slot-info">20灵力</div>
+                    <span class="rarity-tag rarity-epic">史诗</span>
+                </div>
+                <div class="card-slot filled quality-gold">
+                    <div class="slot-icon card-bg-damage">🗡️</div>
+                    <div class="slot-name">暗影突袭</div>
+                    <div class="slot-info">35灵力</div>
+                    <span class="rarity-tag rarity-legend">传说</span>
+                </div>
+                <div class="card-slot filled quality-blue">
+                    <div class="slot-icon card-bg-control">❄️</div>
+                    <div class="slot-name">冰霜新星</div>
+                    <div class="slot-info">30灵力</div>
+                    <span class="rarity-tag rarity-rare">稀有</span>
+                </div>
+                <div class="card-slot">
+                    <span class="slot-empty-icon">+</span>
+                    <span class="slot-empty-text">选择卡牌</span>
+                </div>
+                <div class="card-slot">
+                    <span class="slot-empty-icon">+</span>
+                    <span class="slot-empty-text">选择卡牌</span>
+                </div>
+            </div>
+
+            <!-- 可选策略卡池 -->
+            <div class="pool-label">可选策略卡（点击添加）</div>
+            <div class="pool-grid">
+                <div class="pool-item selected">
+                    <div class="pool-icon card-bg-shield">🛡️</div>
+                    <div class="pool-name">神圣庇护</div>
+                    <div class="pool-sub">30灵力</div>
+                </div>
+                <div class="pool-item selected">
+                    <div class="pool-icon card-bg-damage">🔥</div>
+                    <div class="pool-name">烈焰风暴</div>
+                    <div class="pool-sub">45灵力</div>
+                </div>
+                <div class="pool-item selected">
+                    <div class="pool-icon card-bg-heal">💚</div>
+                    <div class="pool-name">时间回溯</div>
+                    <div class="pool-sub">25灵力</div>
+                </div>
+                <div class="pool-item selected">
+                    <div class="pool-icon card-bg-buff">⚡</div>
+                    <div class="pool-name">战争号角</div>
+                    <div class="pool-sub">20灵力</div>
+                </div>
+                <div class="pool-item selected">
+                    <div class="pool-icon card-bg-damage">🗡️</div>
+                    <div class="pool-name">暗影突袭</div>
+                    <div class="pool-sub">35灵力</div>
+                </div>
+                <div class="pool-item selected">
+                    <div class="pool-icon card-bg-control">❄️</div>
+                    <div class="pool-name">冰霜新星</div>
+                    <div class="pool-sub">30灵力</div>
+                </div>
+                <div class="pool-item">
+                    <span class="rarity-tag rarity-epic">史诗</span>
+                    <div class="pool-icon card-bg-damage">💀</div>
+                    <div class="pool-name">生命汲取</div>
+                    <div class="pool-sub">40灵力</div>
+                </div>
+                <div class="pool-item">
+                    <span class="rarity-tag rarity-rare">稀有</span>
+                    <div class="pool-icon card-bg-buff">💪</div>
+                    <div class="pool-name">狂暴</div>
+                    <div class="pool-sub">15灵力</div>
+                </div>
+                <div class="pool-item">
+                    <span class="rarity-tag rarity-rare">稀有</span>
+                    <div class="pool-icon card-bg-heal">💖</div>
+                    <div class="pool-name">群体治疗</div>
+                    <div class="pool-sub">35灵力</div>
+                </div>
+                <div class="pool-item">
+                    <span class="rarity-tag rarity-legend">传说</span>
+                    <div class="pool-icon card-bg-damage">⚡</div>
+                    <div class="pool-name">雷霆一击</div>
+                    <div class="pool-sub">40灵力</div>
+                </div>
+                <div class="pool-item">
+                    <span class="rarity-tag rarity-epic">史诗</span>
+                    <div class="pool-icon card-bg-control">🌀</div>
+                    <div class="pool-name">混乱诅咒</div>
+                    <div class="pool-sub">35灵力</div>
+                </div>
+                <div class="pool-item">
+                    <span class="rarity-tag rarity-legend">传说</span>
+                    <div class="pool-icon card-bg-heal">✨</div>
+                    <div class="pool-name">不屈意志</div>
+                    <div class="pool-sub">50灵力</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========== 底部操作栏 ========== -->
+    <div class="footer">
+        <button class="btn btn-default">设为默认</button>
+        <button class="btn btn-reset">重置</button>
+        <button class="btn btn-save">保 存</button>
+        <button class="btn btn-delete">删除预设</button>
+    </div>
+
+</div>
+
+<!-- ========== 交互脚本 ========== -->
+<script>
+    // 预设槽位点击切换
+    document.querySelectorAll('.preset-slot:not(.empty)').forEach(slot => {
+        slot.addEventListener('click', () => {
+            document.querySelectorAll('.preset-slot').forEach(s => s.classList.remove('active'));
+            slot.classList.add('active');
+        });
+    });
+
+    // 可选棋子池 - 点击添加到已选
+    document.querySelectorAll('.pool-item:not(.selected)').forEach(item => {
+        item.addEventListener('click', () => {
+            item.classList.toggle('selected');
+        });
+    });
+
+    // 已选槽位 - 悬停显示移除按钮效果（已通过CSS实现）
+
+    // Tooltip 示例（可扩展）
+    document.querySelectorAll('.chess-slot.filled, .card-slot.filled').forEach(slot => {
+        slot.addEventListener('mouseenter', (e) => {
+            // 可在此添加tooltip逻辑
+        });
+    });
+</script>
+
+</body>
+</html>
