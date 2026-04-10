@@ -96,7 +96,7 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         GamePauseTestTriggered = Input.GetKeyDown(KeyCode.Space);
         if (GamePauseTestTriggered)
         {
-            Time.timeScale = Time.timeScale == 0f ? 1f : 0f;  // 切换暂停状态
+            //Time.timeScale = Time.timeScale == 0f ? 1f : 0f;  // 切换暂停状态
         }
 
         // Tab 键：背包开关

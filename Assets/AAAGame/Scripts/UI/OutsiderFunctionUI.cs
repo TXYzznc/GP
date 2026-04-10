@@ -138,7 +138,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
         switch (functionName)
         {
             case "图鉴":
-                // 打开图鉴UI
+                GF.UI.OpenUIForm(UIViews.DictionariesUI);
                 break;
             case "商店":
                 // 打开商店UI
