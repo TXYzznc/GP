@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4560971535602908920}
   - component: {fileID: 5349286084268990726}
   - component: {fileID: 8645416973592928343}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 8900476949156498166}
   - component: {fileID: 4243146003658011199}
   - component: {fileID: 8915983233921358648}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,7 +279,7 @@ GameObject:
   - component: {fileID: 7440499241049048773}
   - component: {fileID: 6521764130223574858}
   - component: {fileID: 6503289518304315967}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SelectedBg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -326,7 +326,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.79, g: 0.64, b: 0.3, a: 1}
+  m_Color: {r: 0.788, g: 0.643, b: 0.298, a: 0.05}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 6069492929733928187}
   - component: {fileID: 4834530482283863836}
   - component: {fileID: 8734947380117670268}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CardPoolLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -379,8 +379,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 24}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &6069492929733928187
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -409,7 +409,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u53EF\u9009\u7B56\u7565\u5361\uFF08\u70B9\u51FB\u6DFB\u52A0\uFF09"
+  m_text: "\u53EF\u9009\u7B56\u7565\u5361"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -418,8 +418,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4282864729
-  m_fontColor: {r: 0.35, g: 0.33, b: 0.28, a: 1}
+    rgba: 4282930522
+  m_fontColor: {r: 0.353, g: 0.333, b: 0.282, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -436,8 +436,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 11
-  m_fontSizeBase: 11
+  m_fontSize: 13
+  m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -509,7 +509,7 @@ GameObject:
   - component: {fileID: 4409726490837848166}
   - component: {fileID: 8500359421203109110}
   - component: {fileID: 9052073759808345322}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: FooterButtons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -592,7 +592,7 @@ GameObject:
   - component: {fileID: 4151818547168822613}
   - component: {fileID: 7304500572367239359}
   - component: {fileID: 2091784646821193493}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BtnDelete
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -640,7 +640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.094, g: 0.11, b: 0.18, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -745,7 +745,7 @@ GameObject:
   - component: {fileID: 1757033213414107203}
   - component: {fileID: 7565358351919330471}
   - component: {fileID: 371309854424962767}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ChessPoolLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -769,8 +769,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 24}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &1757033213414107203
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -799,7 +799,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u53EF\u9009\u68CB\u5B50\uFF08\u70B9\u51FB\u6DFB\u52A0\uFF09"
+  m_text: "\u53EF\u9009\u68CB\u5B50"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -808,8 +808,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4282864729
-  m_fontColor: {r: 0.35, g: 0.33, b: 0.28, a: 1}
+    rgba: 4282930522
+  m_fontColor: {r: 0.353, g: 0.333, b: 0.282, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -826,8 +826,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 11
-  m_fontSizeBase: 11
+  m_fontSize: 13
+  m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -899,7 +899,7 @@ GameObject:
   - component: {fileID: 6387768723413941820}
   - component: {fileID: 7929561302201249709}
   - component: {fileID: 1549178623143810290}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BgPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -946,7 +946,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.04, g: 0.04, b: 0.07, a: 0.95}
+  m_Color: {r: 0.039, g: 0.043, b: 0.071, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -974,7 +974,7 @@ GameObject:
   - component: {fileID: 3677982163908427146}
   - component: {fileID: 2388416394340706627}
   - component: {fileID: 936930712124722691}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SidebarLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -997,8 +997,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -12}
-  m_SizeDelta: {x: 0, y: 30}
+  m_AnchoredPosition: {x: 0, y: -16}
+  m_SizeDelta: {x: -32, y: 30}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2388416394340706627
 CanvasRenderer:
@@ -1031,14 +1031,16 @@ MonoBehaviour:
   m_text: "\u9884\u8BBE\u65B9\u6848"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_sharedMaterial: {fileID: 0}
+  m_fontSharedMaterials:
+  - {fileID: 0}
   m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_fontMaterials:
+  - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4282864729
-  m_fontColor: {r: 0.35, g: 0.33, b: 0.28, a: 1}
+    rgba: 4282930522
+  m_fontColor: {r: 0.353, g: 0.333, b: 0.282, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1054,9 +1056,9 @@ MonoBehaviour:
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+    rgba: 0
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1109,7 +1111,7 @@ GameObject:
   - component: {fileID: 1596846599103307191}
   - component: {fileID: 90961497771819770}
   - component: {fileID: 5550543780576213083}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SelectedChessContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1130,11 +1132,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8591400371505444290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24, y: -290}
-  m_SizeDelta: {x: 0, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 120}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1596846599103307191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1188,7 +1190,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2264945662394105999}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -1207,7 +1209,7 @@ GameObject:
   - component: {fileID: 1628622597195415353}
   - component: {fileID: 98397401924250858}
   - component: {fileID: 3090727298228478472}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CardSectionTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1261,7 +1263,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u7B56\u7565\u5361\u7EC4"
+  m_text: "\u7B56 \u7565 \u5361"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1271,7 +1273,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4286110197
-  m_fontColor: {r: 0.96, g: 0.85, b: 0.47, a: 1}
+  m_fontColor: {r: 0.961, g: 0.851, b: 0.471, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1288,8 +1290,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1363,7 +1365,7 @@ GameObject:
   - component: {fileID: 2996351708452336106}
   - component: {fileID: 5366475865601543888}
   - component: {fileID: 8072381147587265769}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BtnSave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1411,7 +1413,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.788, g: 0.643, b: 0.298, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1515,7 +1517,7 @@ GameObject:
   - component: {fileID: 4617164914005997107}
   - component: {fileID: 2330549508346569695}
   - component: {fileID: 4865449523629941309}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1650,7 +1652,7 @@ GameObject:
   - component: {fileID: 1194610342517230077}
   - component: {fileID: 5457875926405082177}
   - component: {fileID: 6772727868075137791}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BtnBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1698,7 +1700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.165, g: 0.188, b: 0.314, a: 0.6}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1782,7 +1784,7 @@ GameObject:
   - component: {fileID: 7116993991618984721}
   - component: {fileID: 4249143581976747535}
   - component: {fileID: 7852871525506395894}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1845,8 +1847,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4282664175
+  m_fontColor: {r: 0.937, g: 0.267, b: 0.267, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1918,7 +1920,7 @@ GameObject:
   - component: {fileID: 3372309915454171632}
   - component: {fileID: 6028434651843129323}
   - component: {fileID: 9085783453871422002}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BtnSetDefault
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1966,7 +1968,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.094, g: 0.11, b: 0.18, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2071,7 +2073,7 @@ GameObject:
   - component: {fileID: 4588180657847291581}
   - component: {fileID: 3324021988118852477}
   - component: {fileID: 6878884951651722143}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetNameLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2128,14 +2130,16 @@ MonoBehaviour:
   m_text: "\u9884\u8BBE\u540D\u79F0"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_sharedMaterial: {fileID: 0}
+  m_fontSharedMaterials:
+  - {fileID: 0}
   m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_fontMaterials:
+  - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4286615961
-  m_fontColor: {r: 0.6, g: 0.57, b: 0.5, a: 1}
+    rgba: 4286616218
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2151,9 +2155,9 @@ MonoBehaviour:
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 13
-  m_fontSizeBase: 13
+    rgba: 0
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2225,7 +2229,7 @@ GameObject:
   - component: {fileID: 6755718007145623835}
   - component: {fileID: 1732881914171393519}
   - component: {fileID: 2844795920206300172}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2288,8 +2292,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4286616218
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2359,7 +2363,7 @@ GameObject:
   - component: {fileID: 6969273947778404280}
   - component: {fileID: 2404704791533212966}
   - component: {fileID: 3981269690113526895}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CardPoolContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2383,8 +2387,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 120}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2404704791533212966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2441,7 +2445,7 @@ GameObject:
   - component: {fileID: 671669789610975173}
   - component: {fileID: 6252020636286143348}
   - component: {fileID: 8752373718843122906}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ChessSectionHeader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2465,11 +2469,11 @@ RectTransform:
   - {fileID: 212727416411813512}
   m_Father: {fileID: 8591400371505444290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 534, y: -178}
-  m_SizeDelta: {x: 1020, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 30}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &671669789610975173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2523,7 +2527,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4029875467617057416}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -2542,7 +2546,7 @@ GameObject:
   - component: {fileID: 5622438491895452148}
   - component: {fileID: 7247915738830044378}
   - component: {fileID: 7476806377429956660}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ChessDivider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2589,7 +2593,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.42, g: 0.35, b: 0.16, a: 0.5}
+  m_Color: {r: 0.42, g: 0.353, b: 0.165, a: 0.5}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2636,7 +2640,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1547455233815777352}
   - component: {fileID: 2963853707303219956}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2690,7 +2694,7 @@ GameObject:
   - component: {fileID: 814258111659472822}
   - component: {fileID: 8357597791439099961}
   - component: {fileID: 4858145743637056204}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ChessSectionTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2744,17 +2748,19 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u51FA\u6218\u68CB\u5B50"
+  m_text: "\u51FA \u6218 \u68CB \u5B50"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_sharedMaterial: {fileID: 0}
+  m_fontSharedMaterials:
+  - {fileID: 0}
   m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_fontMaterials:
+  - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
     rgba: 4286110197
-  m_fontColor: {r: 0.96, g: 0.85, b: 0.47, a: 1}
+  m_fontColor: {r: 0.961, g: 0.851, b: 0.471, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2770,9 +2776,9 @@ MonoBehaviour:
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+    rgba: 0
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2846,7 +2852,7 @@ GameObject:
   - component: {fileID: 8406031695973523502}
   - component: {fileID: 7962367229559527868}
   - component: {fileID: 2615554252320286795}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: EditArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2869,8 +2875,8 @@ RectTransform:
   m_Father: {fileID: 3652046479248785542}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 110, y: 0}
   m_SizeDelta: {x: -220, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4593965704351595025
@@ -2894,7 +2900,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2953,7 +2959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShowMaskGraphic: 1
+  m_ShowMaskGraphic: 0
 --- !u!1 &4867462458768192074
 GameObject:
   m_ObjectHideFlags: 0
@@ -2963,7 +2969,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6319806236453032521}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Header
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3003,7 +3009,7 @@ GameObject:
   - component: {fileID: 8663460639212663744}
   - component: {fileID: 4823843781029963955}
   - component: {fileID: 4759293377510724846}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3057,7 +3063,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u91CD\u7F6E"
+  m_text: "\u91CD \u7F6E"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3066,8 +3072,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4286616218
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3138,7 +3144,7 @@ GameObject:
   - component: {fileID: 7154007496415407805}
   - component: {fileID: 1712077225798166017}
   - component: {fileID: 6145527207740962813}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SectionDivider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3162,8 +3168,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 1}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &7154007496415407805
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3185,7 +3191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.16, g: 0.19, b: 0.31, a: 0.5}
+  m_Color: {r: 0.165, g: 0.188, b: 0.314, a: 0.5}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3235,7 +3241,7 @@ GameObject:
   - component: {fileID: 2711790535480467775}
   - component: {fileID: 9015708063133422775}
   - component: {fileID: 7034494873117229892}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BattlePresetUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3249,7 +3255,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5061184292564692669}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3443,7 +3449,7 @@ GameObject:
   - component: {fileID: 385550435491774378}
   - component: {fileID: 8746338472307925806}
   - component: {fileID: 6101561369796684333}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetSlotContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3467,8 +3473,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -46}
-  m_SizeDelta: {x: -24, y: 0}
+  m_AnchoredPosition: {x: 0, y: -52}
+  m_SizeDelta: {x: -32, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &8746338472307925806
 MonoBehaviour:
@@ -3489,9 +3495,9 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 0
   m_Spacing: 8
-  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -3521,7 +3527,7 @@ GameObject:
   - component: {fileID: 9024511484963994804}
   - component: {fileID: 5712804483594509228}
   - component: {fileID: 7696505776962644296}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetSidebar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3545,9 +3551,9 @@ RectTransform:
   m_Father: {fileID: 3652046479248785542}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 220, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &5712804483594509228
 CanvasRenderer:
@@ -3600,7 +3606,7 @@ GameObject:
   - component: {fileID: 2891190636411089765}
   - component: {fileID: 7079463382253065511}
   - component: {fileID: 6326375328131686800}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetNameInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3648,7 +3654,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.094, g: 0.11, b: 0.18, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3794,7 +3800,7 @@ GameObject:
   - component: {fileID: 2478547275180731920}
   - component: {fileID: 6097982218719362871}
   - component: {fileID: 8614806639582304369}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: FooterBg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3871,7 +3877,7 @@ GameObject:
   - component: {fileID: 4184147864903057439}
   - component: {fileID: 8386690095557497313}
   - component: {fileID: 2341014714029885714}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BtnReset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3919,7 +3925,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.094, g: 0.11, b: 0.18, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4024,7 +4030,7 @@ GameObject:
   - component: {fileID: 2778658794041355045}
   - component: {fileID: 5144835196994071137}
   - component: {fileID: 3471937030339021302}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: SelectedCardContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4045,11 +4051,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8591400371505444290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24, y: -701}
-  m_SizeDelta: {x: 0, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 120}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &2778658794041355045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4103,7 +4109,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6177512431974248989}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -4121,7 +4127,7 @@ GameObject:
   - component: {fileID: 3652046479248785542}
   - component: {fileID: 2252219980870131317}
   - component: {fileID: 883552341478010898}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: MainContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4156,7 +4162,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6207201563551728405}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
   m_Name: 
@@ -4182,7 +4188,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6207201563551728405}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -4200,7 +4206,8 @@ GameObject:
   - component: {fileID: 879500152803968875}
   - component: {fileID: 1292492511933062953}
   - component: {fileID: 5793544249827666868}
-  m_Layer: 0
+  - component: {fileID: 6856900451976731217}
+  m_Layer: 5
   m_Name: TitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4257,14 +4264,16 @@ MonoBehaviour:
   m_text: "\u51FA \u6218 \u9884 \u8BBE"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_sharedMaterial: {fileID: 0}
+  m_fontSharedMaterials:
+  - {fileID: 0}
   m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_fontMaterials:
+  - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4286110197
+  m_fontColor: {r: 0.961, g: 0.851, b: 0.471, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4280,9 +4289,9 @@ MonoBehaviour:
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+    rgba: 0
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4323,6 +4332,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6856900451976731217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232309057301348252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6366ee97f6b541449155028b9487355a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6426044792043696386
 GameObject:
   m_ObjectHideFlags: 0
@@ -4335,7 +4356,7 @@ GameObject:
   - component: {fileID: 624212682013007190}
   - component: {fileID: 7895062468285575749}
   - component: {fileID: 7562398601718873683}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CardCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4398,8 +4419,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4286615961
-  m_fontColor: {r: 0.6, g: 0.57, b: 0.5, a: 1}
+    rgba: 4286616218
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4416,8 +4437,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -4487,7 +4508,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2631430625946670269}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Footer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4527,7 +4548,7 @@ GameObject:
   - component: {fileID: 1487118349292710509}
   - component: {fileID: 2529338475953982806}
   - component: {fileID: 5848075523685915710}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CardSectionHeader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4551,11 +4572,11 @@ RectTransform:
   - {fileID: 5162440314230914332}
   m_Father: {fileID: 8591400371505444290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 534, y: -589}
-  m_SizeDelta: {x: 1020, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 30}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1487118349292710509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4609,7 +4630,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6705229682336672528}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -4627,7 +4648,7 @@ GameObject:
   - component: {fileID: 153882524358977188}
   - component: {fileID: 5351977822661285612}
   - component: {fileID: 5967600592781974119}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4691,7 +4712,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.91, g: 0.88, b: 0.82, a: 1}
+  m_fontColor: {r: 0.91, g: 0.878, b: 0.816, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4762,7 +4783,7 @@ GameObject:
   - component: {fileID: 4997804771910976131}
   - component: {fileID: 6892613321700680304}
   - component: {fileID: 4431320115979501212}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetNameRow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4785,10 +4806,10 @@ RectTransform:
   - {fileID: 8039049484632019295}
   m_Father: {fileID: 8591400371505444290}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 270, y: -66}
-  m_SizeDelta: {x: 492, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4997804771910976131
 MonoBehaviour:
@@ -4843,7 +4864,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6989564623666182010}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
@@ -4861,7 +4882,7 @@ GameObject:
   - component: {fileID: 3398992672016425623}
   - component: {fileID: 3896866977925600723}
   - component: {fileID: 5063096821433261246}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ChessPoolContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4885,8 +4906,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 120}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &3896866977925600723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4943,7 +4964,7 @@ GameObject:
   - component: {fileID: 43722832558219488}
   - component: {fileID: 5354175811255349590}
   - component: {fileID: 338087797956735641}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ChessCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5006,8 +5027,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4286615961
-  m_fontColor: {r: 0.6, g: 0.57, b: 0.5, a: 1}
+    rgba: 4286616218
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5024,8 +5045,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5097,7 +5118,7 @@ GameObject:
   - component: {fileID: 816528985815843198}
   - component: {fileID: 4897511149515660583}
   - component: {fileID: 1313789464661795142}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5154,14 +5175,16 @@ MonoBehaviour:
   m_text: "< \u8FD4\u56DE"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_sharedMaterial: {fileID: 0}
+  m_fontSharedMaterials:
+  - {fileID: 0}
   m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
+  m_fontMaterials:
+  - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4286616218
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5177,7 +5200,7 @@ MonoBehaviour:
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 0
   m_fontSize: 14
   m_fontSizeBase: 14
   m_fontWeight: 400
@@ -5232,7 +5255,7 @@ GameObject:
   - component: {fileID: 2332931030560267801}
   - component: {fileID: 1162298142488007749}
   - component: {fileID: 232770027433039475}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CardDivider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5279,7 +5302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.42, g: 0.35, b: 0.16, a: 0.5}
+  m_Color: {r: 0.42, g: 0.353, b: 0.165, a: 0.5}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5327,7 +5350,7 @@ GameObject:
   - component: {fileID: 5223622973559348407}
   - component: {fileID: 8020742342550621440}
   - component: {fileID: 731675987840511032}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HeaderBg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5402,7 +5425,7 @@ GameObject:
   - component: {fileID: 455853017078979688}
   - component: {fileID: 4797230182141533722}
   - component: {fileID: 757426401829440872}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetSummary
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5466,7 +5489,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.6, g: 0.57, b: 0.5, a: 1}
+  m_fontColor: {r: 0.604, g: 0.573, b: 0.502, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5536,7 +5559,7 @@ GameObject:
   - component: {fileID: 4686184007896364994}
   - component: {fileID: 7811695502332737194}
   - component: {fileID: 5935712930913576856}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5599,8 +5622,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4279372554
+  m_fontColor: {r: 0.039, g: 0.043, b: 0.071, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5670,7 +5693,7 @@ GameObject:
   - component: {fileID: 6839077020408688232}
   - component: {fileID: 1787320308028241329}
   - component: {fileID: 3414292923473196728}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: DefaultBadge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5724,7 +5747,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2605 \u9ED8\u8BA4"
+  m_text: "\u9ED8\u8BA4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 0}
   m_sharedMaterial: {fileID: 0}
@@ -5734,7 +5757,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.96, g: 0.85, b: 0.47, a: 1}
+  m_fontColor: {r: 0.961, g: 0.851, b: 0.471, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -5805,7 +5828,7 @@ GameObject:
   - component: {fileID: 8283225729455817534}
   - component: {fileID: 3057414698676226728}
   - component: {fileID: 6365465665238653836}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: PresetSlotItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5929,7 +5952,7 @@ GameObject:
   - component: {fileID: 8591400371505444290}
   - component: {fileID: 6780807536686812646}
   - component: {fileID: 7192546099784955020}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: EditContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5960,10 +5983,10 @@ RectTransform:
   - {fileID: 6969273947778404280}
   m_Father: {fileID: 4000241777101688654}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 941.0003}
-  m_SizeDelta: {x: -48, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &6780807536686812646
 MonoBehaviour:
@@ -5998,9 +6021,9 @@ MonoBehaviour:
     m_Bottom: 16
   m_ChildAlignment: 0
   m_Spacing: 12
-  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0

@@ -149,6 +149,9 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
             case "召唤师":
                 // 打开召唤师UI
                 break;
+            case "出战预设":
+                GF.UI.OpenUIForm(UIViews.BattlePresetUI);
+                break;
             case "挑战":
                 // 打开挑战UI
                 break;
