@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1267pt" height="814pt" viewBox="0.00 0.00 1267.37 814.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 810)">
+<title>ItemSystemClassDiagram</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-810 1263.374,-810 1263.374,4 -4,4"/>
+<!-- ItemBase -->
+<g id="node1" class="node">
+<title>ItemBase</title>
+<polygon fill="#fff3e0" stroke="#e65100" stroke-width="2" points="1081.991,-483.5 1081.991,-611.5 1259.374,-611.5 1259.374,-483.5 1081.991,-483.5"/>
+<text text-anchor="middle" x="1116.8155" y="-550.5" font-family="Times,serif" font-size="10.00" fill="#000000">ItemBase</text>
+<text text-anchor="middle" x="1116.8155" y="-538.5" font-family="Times,serif" font-size="10.00" fill="#000000">&lt;&lt;abstract&gt;&gt;</text>
+<polyline fill="none" stroke="#e65100" stroke-width="2" points="1151.64,-483.5 1151.64,-611.5 "/>
+<text text-anchor="middle" x="1205.507" y="-598.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Id: int</text>
+<text text-anchor="middle" x="1205.507" y="-586.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Name: string</text>
+<text text-anchor="middle" x="1205.507" y="-574.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Type: ItemType</text>
+<text text-anchor="middle" x="1205.507" y="-562.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Quality: ItemQuality</text>
+<text text-anchor="middle" x="1205.507" y="-550.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Description: string</text>
+<text text-anchor="middle" x="1205.507" y="-538.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ IconPath: string</text>
+<text text-anchor="middle" x="1205.507" y="-526.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ IsStackable: bool</text>
+<text text-anchor="middle" x="1205.507" y="-514.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="1205.507" y="-502.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnUse()*</text>
+<text text-anchor="middle" x="1205.507" y="-490.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ GetInfo()*</text>
+</g>
+<!-- ConsumableItem -->
+<g id="node2" class="node">
+<title>ConsumableItem</title>
+<polygon fill="#ffccbc" stroke="#d84315" stroke-width="2" points="715.2964,-737.5 715.2964,-805.5 968.9724,-805.5 968.9724,-737.5 715.2964,-737.5"/>
+<text text-anchor="middle" x="757.4564" y="-768.5" font-family="Times,serif" font-size="10.00" fill="#000000">ConsumableItem</text>
+<polyline fill="none" stroke="#d84315" stroke-width="2" points="799.6164,-737.5 799.6164,-805.5 "/>
+<text text-anchor="middle" x="884.2944" y="-792.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ StackLimit: int</text>
+<text text-anchor="middle" x="884.2944" y="-780.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ EffectType: ConsumableEffectType</text>
+<text text-anchor="middle" x="884.2944" y="-768.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="884.2944" y="-756.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnUse()</text>
+<text text-anchor="middle" x="884.2944" y="-744.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ CanUse()</text>
+</g>
+<!-- ConsumableItem&#45;&gt;ItemBase -->
+<g id="edge1" class="edge">
+<title>ConsumableItem-&gt;ItemBase</title>
+<path fill="none" stroke="#000000" d="M928.0697,-737.4741C942.0844,-730.8245 956.187,-723.4291 968.9724,-715.5 1013.8095,-687.6933 1059.3434,-650.6806 1095.7751,-618.4743"/>
+<polygon fill="none" stroke="#000000" points="1098.2655,-620.9432 1103.4075,-611.6798 1093.6111,-615.7148 1098.2655,-620.9432"/>
+<text text-anchor="middle" x="1025.4817" y="-690.7" font-family="Times,serif" font-size="14.00" fill="#000000">继承</text>
+</g>
+<!-- QuestItem -->
+<g id="node3" class="node">
+<title>QuestItem</title>
+<polygon fill="#ffccbc" stroke="#d84315" stroke-width="2" points="771.3839,-637.5 771.3839,-693.5 912.8849,-693.5 912.8849,-637.5 771.3839,-637.5"/>
+<text text-anchor="middle" x="800.2099" y="-662.5" font-family="Times,serif" font-size="10.00" fill="#000000">QuestItem</text>
+<polyline fill="none" stroke="#d84315" stroke-width="2" points="829.0359,-637.5 829.0359,-693.5 "/>
+<text text-anchor="middle" x="870.9604" y="-680.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ QuestId: string</text>
+<text text-anchor="middle" x="870.9604" y="-668.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ IsActive: bool</text>
+<text text-anchor="middle" x="870.9604" y="-656.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="870.9604" y="-644.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnUse()</text>
+</g>
+<!-- QuestItem&#45;&gt;ItemBase -->
+<g id="edge2" class="edge">
+<title>QuestItem-&gt;ItemBase</title>
+<path fill="none" stroke="#000000" d="M913.02,-640.041C959.5479,-623.3302 1021.043,-601.2439 1072.2872,-582.8393"/>
+<polygon fill="none" stroke="#000000" points="1073.502,-586.1219 1081.7304,-579.4477 1071.1359,-579.5339 1073.502,-586.1219"/>
+<text text-anchor="middle" x="1025.4817" y="-610.7" font-family="Times,serif" font-size="14.00" fill="#000000">继承</text>
+</g>
+<!-- TreasureItem -->
+<g id="node4" class="node">
+<title>TreasureItem</title>
+<polygon fill="#ffccbc" stroke="#d84315" stroke-width="2" points="738.9179,-501.5 738.9179,-593.5 945.3509,-593.5 945.3509,-501.5 738.9179,-501.5"/>
+<text text-anchor="middle" x="773.5674" y="-544.5" font-family="Times,serif" font-size="10.00" fill="#000000">TreasureItem</text>
+<polyline fill="none" stroke="#d84315" stroke-width="2" points="808.2169,-501.5 808.2169,-593.5 "/>
+<text text-anchor="middle" x="876.7839" y="-580.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ SpecialEffect: SpecialEffect</text>
+<text text-anchor="middle" x="876.7839" y="-568.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Affixes: Affix[]</text>
+<text text-anchor="middle" x="876.7839" y="-556.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Synergies: Synergy[]</text>
+<text text-anchor="middle" x="876.7839" y="-544.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="876.7839" y="-532.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnEquip()</text>
+<text text-anchor="middle" x="876.7839" y="-520.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnUnequip()</text>
+<text text-anchor="middle" x="876.7839" y="-508.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ GetTotalBonus()</text>
+</g>
+<!-- TreasureItem&#45;&gt;ItemBase -->
+<g id="edge3" class="edge">
+<title>TreasureItem-&gt;ItemBase</title>
+<path fill="none" stroke="#000000" d="M945.6381,-547.5C985.8679,-547.5 1031.7581,-547.5 1071.5592,-547.5"/>
+<polygon fill="none" stroke="#000000" points="1071.8069,-551.0001 1081.8069,-547.5 1071.8069,-544.0001 1071.8069,-551.0001"/>
+<text text-anchor="middle" x="1025.4817" y="-551.7" font-family="Times,serif" font-size="14.00" fill="#000000">继承</text>
+</g>
+<!-- EquipmentItem -->
+<g id="node5" class="node">
+<title>EquipmentItem</title>
+<polygon fill="#ffccbc" stroke="#d84315" stroke-width="2" points="749.1789,-4.5 749.1789,-96.5 935.0899,-96.5 935.0899,-4.5 749.1789,-4.5"/>
+<text text-anchor="middle" x="788.2844" y="-47.5" font-family="Times,serif" font-size="10.00" fill="#000000">EquipmentItem</text>
+<polyline fill="none" stroke="#d84315" stroke-width="2" points="827.3899,-4.5 827.3899,-96.5 "/>
+<text text-anchor="middle" x="881.2399" y="-83.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ AttackBonus: int</text>
+<text text-anchor="middle" x="881.2399" y="-71.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ DefenseBonus: int</text>
+<text text-anchor="middle" x="881.2399" y="-59.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Effect: SpecialEffect</text>
+<text text-anchor="middle" x="881.2399" y="-47.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="881.2399" y="-35.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnEquip()</text>
+<text text-anchor="middle" x="881.2399" y="-23.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnUnequip()</text>
+<text text-anchor="middle" x="881.2399" y="-11.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ GetStatBonus()</text>
+</g>
+<!-- EquipmentItem&#45;&gt;ItemBase -->
+<g id="edge4" class="edge">
+<title>EquipmentItem-&gt;ItemBase</title>
+<path fill="none" stroke="#000000" d="M935.1423,-92.4328C947.3765,-100.3403 959.0804,-109.3635 968.9724,-119.5 1068.0568,-221.0332 1125.2545,-380.3681 1151.9854,-473.303"/>
+<polygon fill="none" stroke="#000000" points="1148.6935,-474.524 1154.7866,-483.1914 1155.4285,-472.616 1148.6935,-474.524"/>
+<text text-anchor="middle" x="1025.4817" y="-215.7" font-family="Times,serif" font-size="14.00" fill="#000000">继承</text>
+</g>
+<!-- InventoryManager -->
+<g id="node6" class="node">
+<title>InventoryManager</title>
+<polygon fill="#e3f2fd" stroke="#1976d2" stroke-width="2" points="336.8477,-136.5 336.8477,-240.5 559.0467,-240.5 559.0467,-136.5 336.8477,-136.5"/>
+<text text-anchor="middle" x="382.0532" y="-185.5" font-family="Times,serif" font-size="10.00" fill="#000000">InventoryManager</text>
+<polyline fill="none" stroke="#1976d2" stroke-width="2" points="427.2587,-136.5 427.2587,-240.5 "/>
+<text text-anchor="middle" x="493.1527" y="-227.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ m_Items: List&lt;ItemStack&gt;</text>
+<text text-anchor="middle" x="493.1527" y="-215.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ MaxSlots: int</text>
+<text text-anchor="middle" x="493.1527" y="-203.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="493.1527" y="-191.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ AddItem()</text>
+<text text-anchor="middle" x="493.1527" y="-179.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ RemoveItem()</text>
+<text text-anchor="middle" x="493.1527" y="-167.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ GetItemCount()</text>
+<text text-anchor="middle" x="493.1527" y="-155.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ UseItem()</text>
+<text text-anchor="middle" x="493.1527" y="-143.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ SortInventory()</text>
+</g>
+<!-- ItemStack -->
+<g id="node7" class="node">
+<title>ItemStack</title>
+<polygon fill="#e3f2fd" stroke="#1976d2" stroke-width="2" points="764.3039,-141.5 764.3039,-233.5 919.9649,-233.5 919.9649,-141.5 764.3039,-141.5"/>
+<text text-anchor="middle" x="792.5749" y="-184.5" font-family="Times,serif" font-size="10.00" fill="#000000">ItemStack</text>
+<polyline fill="none" stroke="#1976d2" stroke-width="2" points="820.8459,-141.5 820.8459,-233.5 "/>
+<text text-anchor="middle" x="870.4054" y="-220.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Item: ItemBase</text>
+<text text-anchor="middle" x="870.4054" y="-208.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Quantity: int</text>
+<text text-anchor="middle" x="870.4054" y="-196.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ MaxStackSize: int</text>
+<text text-anchor="middle" x="870.4054" y="-184.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="870.4054" y="-172.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ CanAddQuantity()</text>
+<text text-anchor="middle" x="870.4054" y="-160.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ AddQuantity()</text>
+<text text-anchor="middle" x="870.4054" y="-148.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ RemoveQuantity()</text>
+</g>
+<!-- InventoryManager&#45;&gt;ItemStack -->
+<g id="edge5" class="edge">
+<title>InventoryManager-&gt;ItemStack</title>
+<path fill="none" stroke="#000000" d="M559.062,-188.2181C619.9425,-188.0637 694.4361,-187.8747 751.7211,-187.7294"/>
+<polygon fill="#000000" stroke="#000000" points="752.0409,-187.7287 758.0307,-183.7134 764.0409,-187.6981 758.0511,-191.7134 752.0409,-187.7287"/>
+<text text-anchor="middle" x="648.3788" y="-192.7" font-family="Times,serif" font-size="14.00" fill="#000000">包含</text>
+</g>
+<!-- ItemStack&#45;&gt;ItemBase -->
+<g id="edge6" class="edge">
+<title>ItemStack-&gt;ItemBase</title>
+<path fill="none" stroke="#000000" d="M920.0765,-221.7597C937.2114,-231.2763 954.5327,-242.5985 968.9724,-255.5 1039.4029,-318.4282 1097.8102,-410.6911 1133.3403,-474.5953"/>
+<polygon fill="#000000" stroke="#000000" points="1138.2008,-483.4182 1129.434,-476.8307 1135.7881,-479.0388 1133.3755,-474.6594 1133.3755,-474.6594 1133.3755,-474.6594 1135.7881,-479.0388 1137.317,-472.488 1138.2008,-483.4182 1138.2008,-483.4182"/>
+<text text-anchor="middle" x="1025.4817" y="-338.7" font-family="Times,serif" font-size="14.00" fill="#000000">持有物品</text>
+</g>
+<!-- EquipmentManager -->
+<g id="node8" class="node">
+<title>EquipmentManager</title>
+<polygon fill="#e8f5e9" stroke="#1b5e20" stroke-width="2" points="314.4332,-.5 314.4332,-92.5 581.4612,-92.5 581.4612,-.5 314.4332,-.5"/>
+<text text-anchor="middle" x="362.1432" y="-43.5" font-family="Times,serif" font-size="10.00" fill="#000000">EquipmentManager</text>
+<polyline fill="none" stroke="#1b5e20" stroke-width="2" points="409.8532,-.5 409.8532,-92.5 "/>
+<text text-anchor="middle" x="495.6572" y="-79.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ m_EquippedItems: EquipmentItem[]</text>
+<text text-anchor="middle" x="495.6572" y="-67.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ OnEquipmentChanged: Action</text>
+<text text-anchor="middle" x="495.6572" y="-55.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="495.6572" y="-43.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Equip()</text>
+<text text-anchor="middle" x="495.6572" y="-31.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Unequip()</text>
+<text text-anchor="middle" x="495.6572" y="-19.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ GetEquippedItem()</text>
+<text text-anchor="middle" x="495.6572" y="-7.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ CalculateTotalBonus()</text>
+</g>
+<!-- EquipmentManager&#45;&gt;EquipmentItem -->
+<g id="edge7" class="edge">
+<title>EquipmentManager-&gt;EquipmentItem</title>
+<path fill="none" stroke="#000000" d="M581.676,-47.857C633.0582,-48.3784 690.8701,-48.9651 738.9512,-49.453"/>
+<polygon fill="#000000" stroke="#000000" points="749.0576,-49.5555 739.0124,-53.9537 744.0579,-49.5047 739.0581,-49.4539 739.0581,-49.4539 739.0581,-49.4539 744.0579,-49.5047 739.1038,-44.9542 749.0576,-49.5555 749.0576,-49.5555"/>
+<text text-anchor="middle" x="648.3788" y="-53.7" font-family="Times,serif" font-size="14.00" fill="#000000">管理装备</text>
+</g>
+<!-- TreasureManager -->
+<g id="node9" class="node">
+<title>TreasureManager</title>
+<polygon fill="#e0f2f1" stroke="#00695c" stroke-width="2" points="315.8447,-377.5 315.8447,-469.5 580.0497,-469.5 580.0497,-377.5 315.8447,-377.5"/>
+<text text-anchor="middle" x="359.0987" y="-420.5" font-family="Times,serif" font-size="10.00" fill="#000000">TreasureManager</text>
+<polyline fill="none" stroke="#00695c" stroke-width="2" points="402.3527,-377.5 402.3527,-469.5 "/>
+<text text-anchor="middle" x="491.2012" y="-456.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ m_TreasureItems: TreasureItem[]</text>
+<text text-anchor="middle" x="491.2012" y="-444.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ m_AffixPool: AffixPool</text>
+<text text-anchor="middle" x="491.2012" y="-432.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ m_SynergyDetector: SynergyDetector</text>
+<text text-anchor="middle" x="491.2012" y="-420.5" font-family="Times,serif" font-size="10.00" fill="#000000">---</text>
+<text text-anchor="middle" x="491.2012" y="-408.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ GenerateAffix()</text>
+<text text-anchor="middle" x="491.2012" y="-396.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ CheckSynergies()</text>
+<text text-anchor="middle" x="491.2012" y="-384.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ CalculateSynergyBonus()</text>
+</g>
+<!-- TreasureManager&#45;&gt;TreasureItem -->
+<g id="edge8" class="edge">
+<title>TreasureManager-&gt;TreasureItem</title>
+<path fill="none" stroke="#000000" d="M580.3024,-465.1352C628.5376,-480.3086 682.5924,-497.3126 729.0063,-511.9131"/>
+<polygon fill="#000000" stroke="#000000" points="738.7897,-514.9907 727.9002,-516.2825 734.0201,-513.4903 729.2505,-511.9899 729.2505,-511.9899 729.2505,-511.9899 734.0201,-513.4903 730.6009,-507.6973 738.7897,-514.9907 738.7897,-514.9907"/>
+<text text-anchor="middle" x="648.3788" y="-496.7" font-family="Times,serif" font-size="14.00" fill="#000000">管理宝物</text>
+</g>
+<!-- AffixData -->
+<g id="node10" class="node">
+<title>AffixData</title>
+<polygon fill="#f3e5f5" stroke="#4a148c" stroke-width="2" points="764.4454,-389.5 764.4454,-457.5 919.8234,-457.5 919.8234,-389.5 764.4454,-389.5"/>
+<text text-anchor="middle" x="792.7114" y="-420.5" font-family="Times,serif" font-size="10.00" fill="#000000">AffixData</text>
+<polyline fill="none" stroke="#4a148c" stroke-width="2" points="820.9774,-389.5 820.9774,-457.5 "/>
+<text text-anchor="middle" x="870.4004" y="-444.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Id: int</text>
+<text text-anchor="middle" x="870.4004" y="-432.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Name: string</text>
+<text text-anchor="middle" x="870.4004" y="-420.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Type: AffixType</text>
+<text text-anchor="middle" x="870.4004" y="-408.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Value: float</text>
+<text text-anchor="middle" x="870.4004" y="-396.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Description: string</text>
+</g>
+<!-- TreasureManager&#45;&gt;AffixData -->
+<g id="edge9" class="edge">
+<title>TreasureManager-&gt;AffixData</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M580.3024,-423.5C637.651,-423.5 703.2259,-423.5 754.4051,-423.5"/>
+<polygon fill="#000000" stroke="#000000" points="764.4423,-423.5 754.4423,-428.0001 759.4423,-423.5 754.4423,-423.5001 754.4423,-423.5001 754.4423,-423.5001 759.4423,-423.5 754.4422,-419.0001 764.4423,-423.5 764.4423,-423.5"/>
+<text text-anchor="middle" x="648.3788" y="-427.7" font-family="Times,serif" font-size="14.00" fill="#000000">生成词缀</text>
+</g>
+<!-- SynergyData -->
+<g id="node11" class="node">
+<title>SynergyData</title>
+<polygon fill="#f3e5f5" stroke="#4a148c" stroke-width="2" points="746.9574,-277.5 746.9574,-345.5 937.3114,-345.5 937.3114,-277.5 746.9574,-277.5"/>
+<text text-anchor="middle" x="781.0589" y="-308.5" font-family="Times,serif" font-size="10.00" fill="#000000">SynergyData</text>
+<polyline fill="none" stroke="#4a148c" stroke-width="2" points="815.1604,-277.5 815.1604,-345.5 "/>
+<text text-anchor="middle" x="876.2359" y="-332.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Id: int</text>
+<text text-anchor="middle" x="876.2359" y="-320.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Name: string</text>
+<text text-anchor="middle" x="876.2359" y="-308.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ RequiredTreasures: int[]</text>
+<text text-anchor="middle" x="876.2359" y="-296.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ SynergyBonus: float</text>
+<text text-anchor="middle" x="876.2359" y="-284.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Effect: string</text>
+</g>
+<!-- TreasureManager&#45;&gt;SynergyData -->
+<g id="edge10" class="edge">
+<title>TreasureManager-&gt;SynergyData</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M580.3024,-385.8941C631.3588,-371.3875 688.9353,-355.0283 737.069,-341.3521"/>
+<polygon fill="#000000" stroke="#000000" points="746.8776,-338.5652 738.4883,-345.6271 742.068,-339.9318 737.2584,-341.2984 737.2584,-341.2984 737.2584,-341.2984 742.068,-339.9318 736.0284,-336.9697 746.8776,-338.5652 746.8776,-338.5652"/>
+<text text-anchor="middle" x="648.3788" y="-378.7" font-family="Times,serif" font-size="14.00" fill="#000000">检测羁绊</text>
+</g>
+<!-- ItemTable -->
+<g id="node12" class="node">
+<title>ItemTable</title>
+<polygon fill="#fff9c4" stroke="#f57f17" stroke-width="2" points="0,-76.5 0,-156.5 179.044,-156.5 179.044,-76.5 0,-76.5"/>
+<text text-anchor="middle" x="40.099" y="-119.5" font-family="Times,serif" font-size="10.00" fill="#000000">ItemTable</text>
+<text text-anchor="middle" x="40.099" y="-107.5" font-family="Times,serif" font-size="10.00" fill="#000000">&lt;&lt;DataTable&gt;&gt;</text>
+<polyline fill="none" stroke="#f57f17" stroke-width="2" points="80.198,-76.5 80.198,-156.5 "/>
+<text text-anchor="middle" x="129.621" y="-143.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Id: int</text>
+<text text-anchor="middle" x="129.621" y="-131.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Name: string</text>
+<text text-anchor="middle" x="129.621" y="-119.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Type: int</text>
+<text text-anchor="middle" x="129.621" y="-107.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Quality: int</text>
+<text text-anchor="middle" x="129.621" y="-95.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ Description: string</text>
+<text text-anchor="middle" x="129.621" y="-83.5" font-family="Times,serif" font-size="10.00" fill="#000000">+ IconPath: string</text>
+</g>
+<!-- ItemTable&#45;&gt;InventoryManager -->
+<g id="edge11" class="edge">
+<title>ItemTable-&gt;InventoryManager</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M179.5052,-134.5757C224.1258,-143.539 278.6544,-154.4927 326.882,-164.1806"/>
+<polygon fill="#000000" stroke="#000000" points="336.7547,-166.1638 326.0643,-168.6061 331.8526,-165.179 326.9506,-164.1943 326.9506,-164.1943 326.9506,-164.1943 331.8526,-165.179 327.8369,-159.7824 336.7547,-166.1638 336.7547,-166.1638"/>
+<text text-anchor="middle" x="246.7386" y="-156.7" font-family="Times,serif" font-size="14.00" fill="#000000">提供配置</text>
+</g>
+<!-- ItemTable&#45;&gt;EquipmentManager -->
+<g id="edge12" class="edge">
+<title>ItemTable-&gt;EquipmentManager</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M179.5052,-98.9264C217.2287,-91.559 262.0341,-82.8086 304.1266,-74.588"/>
+<polygon fill="#000000" stroke="#000000" points="314.1927,-72.6221 305.2407,-78.9555 309.2854,-73.5805 304.3782,-74.5389 304.3782,-74.5389 304.3782,-74.5389 309.2854,-73.5805 303.5156,-70.1224 314.1927,-72.6221 314.1927,-72.6221"/>
+<text text-anchor="middle" x="246.7386" y="-96.7" font-family="Times,serif" font-size="14.00" fill="#000000">提供配置</text>
+</g>
+</g>
+</svg>

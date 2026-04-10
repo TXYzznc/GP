@@ -1,0 +1,1231 @@
+<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:oel="http://schemas.microsoft.com/office/2019/extlst" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16sdtfl="http://schemas.microsoft.com/office/word/2024/wordml/sdtformatlock" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16sdtfl w16du wp14">
+  <w:body>
+    <w:p w14:paraId="5F2A8ADC" w14:textId="24695169" w:rsidR="00381D9D" w:rsidRPr="00CC03ED" w:rsidRDefault="00013FE5" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:jc w:val="center"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="28"/>
+          <w:szCs w:val="28"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="28"/>
+          <w:szCs w:val="28"/>
+        </w:rPr>
+        <w:t>本科</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="28"/>
+          <w:szCs w:val="28"/>
+        </w:rPr>
+        <w:t>论文共性问题</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="08362982" w14:textId="5822B695" w:rsidR="005B0BE3" w:rsidRPr="00CC03ED" w:rsidRDefault="005B0BE3" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="1"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:jc w:val="left"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>内容</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1DF7F59E" w14:textId="200442B7" w:rsidR="005B0BE3" w:rsidRPr="00CC03ED" w:rsidRDefault="005F7198" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>各章节比重</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>：1章（5-6），2章（</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>7-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>8），3章</w:t>
+      </w:r>
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>需求</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>（</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>5-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>6），4章</w:t>
+      </w:r>
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>设计</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>（</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>1</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>2</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>-1</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>4），5章</w:t>
+      </w:r>
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>实现</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>（</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>1</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>4</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>16），6章</w:t>
+      </w:r>
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>测试</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>（</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>4-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>5）；</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>7</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>章</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>总结</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>（</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>1-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>2）；参考文献（3），致谢前</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>至少6</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>0页左右。</w:t>
+      </w:r>
+      
+    </w:p>
+    <w:p w14:paraId="0BBAB4DD" w14:textId="29BFE499" w:rsidR="000C4E02" w:rsidRPr="00290015" w:rsidRDefault="000C4E02" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>摘要：1页；逐字检查；</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>言语精炼，交代主要工作及贡献；</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>中英文对应。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1863F401" w14:textId="0F4AD936" w:rsidR="000C4E02" w:rsidRPr="00CC03ED" w:rsidRDefault="000C4E02" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>关键字：</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>4</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>-6个；宏观到具体；核心技术体现</w:t>
+      </w:r>
+      
+    </w:p>
+    <w:p w14:paraId="29B0D070" w14:textId="44ECB211" w:rsidR="005B0BE3" w:rsidRPr="00CC03ED" w:rsidRDefault="005B0BE3" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>2-6章开头要有</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>3</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>-4行的本章简述，结尾要有本章小结。</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="7548BCB9" w14:textId="1170A5B8" w:rsidR="00B978E9" w:rsidRPr="00CC03ED" w:rsidRDefault="00B978E9" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>关键概念及定义全文统一。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="71334FB0" w14:textId="5AA43B34" w:rsidR="00B978E9" w:rsidRPr="00CC03ED" w:rsidRDefault="00290015" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>3-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>6</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>章为核心</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>：需求分析（用例图等）、设计（类图</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>、E-R图</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>等）、实现（流程图等）、测试（</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>测试用例，</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>界面）。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="4EDE8787" w14:textId="0FA1F54F" w:rsidR="005B0BE3" w:rsidRPr="00CC03ED" w:rsidRDefault="005B0BE3" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="2"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>参考文献：数量</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>（3</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>0</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>-</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>40</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>篇）</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>、格式、近两年文献比例、中</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>英</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>文献比例</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>、</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>文中引用（标号）</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="46C3563C" w14:textId="029783DC" w:rsidR="005B0BE3" w:rsidRPr="008975A2" w:rsidRDefault="005B0BE3" w:rsidP="0034370F">
+      <w:pPr>
+        <w:jc w:val="left"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="09AA4B65" w14:textId="77777777" w:rsidR="0034370F" w:rsidRPr="0034370F" w:rsidRDefault="0034370F" w:rsidP="0034370F">
+      <w:pPr>
+        <w:jc w:val="left"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+    </w:p>
+    <w:p w14:paraId="3F69FCC7" w14:textId="3CC7CD7B" w:rsidR="005B0BE3" w:rsidRPr="00CC03ED" w:rsidRDefault="005B0BE3" w:rsidP="005B0BE3">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="1"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:jc w:val="left"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>格式</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="788C5AFC" w14:textId="328FCBAE" w:rsidR="007524F2" w:rsidRPr="00CC03ED" w:rsidRDefault="000B5402" w:rsidP="003651E7">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>字体：英文字体统一为新罗马；缩写：Virtual Reality, VR。</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="2570654E" w14:textId="3569DD33" w:rsidR="007524F2" w:rsidRPr="00CC03ED" w:rsidRDefault="000B5402" w:rsidP="003651E7">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>标点：正文不应存在英文标点。</w:t>
+      </w:r>
+      
+      
+    </w:p>
+    <w:p w14:paraId="4EA866F8" w14:textId="78E95145" w:rsidR="007524F2" w:rsidRPr="00CC03ED" w:rsidRDefault="007524F2" w:rsidP="003651E7">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>图表</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>：名称不准确；部分图表标错乱；</w:t>
+      </w:r>
+      
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>所有图表须文中引用</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>；</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>图不建议用深色背景，打印看不清；</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>图如果非自绘，必须加引用</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>；</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>表应为标准三线表</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>；</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>表跨页需要续表</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="497E503E" w14:textId="2676AD3E" w:rsidR="007524F2" w:rsidRPr="00CC03ED" w:rsidRDefault="00CC03ED" w:rsidP="003651E7">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>章节</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>编号：</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>章节编号错乱（1,1.1,1.1.1, (1), 1）</w:t>
+      </w:r>
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>/</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:b/>
+          <w:bCs/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>(a)）</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>；不应出现四级标题</w:t>
+      </w:r>
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>；标题中尽可能不出现标点</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="75F6B2BA" w14:textId="59EC572D" w:rsidR="00DD1B4B" w:rsidRPr="00CC03ED" w:rsidRDefault="00DD1B4B" w:rsidP="003651E7">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:lastRenderedPageBreak/>
+        <w:t>目录：格式及页码；更新。</w:t>
+      </w:r>
+      
+      
+      
+      
+    </w:p>
+    <w:p w14:paraId="3590A239" w14:textId="77777777" w:rsidR="009353E2" w:rsidRDefault="0059190B" w:rsidP="009353E2">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>公式：本身居中，标号居右；关键参数须文中说明</w:t>
+      </w:r>
+      
+      
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>；编号错乱</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="1F97769D" w14:textId="222F0DC7" w:rsidR="009353E2" w:rsidRDefault="009353E2" w:rsidP="009353E2">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>封皮：双指导教师（企业导师：李青山，高级</w:t>
+      </w:r>
+      
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>工程师</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>）；单位名称：软件学院；日期：2</w:t>
+      </w:r>
+      
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>02</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>5年6月；声明页：</w:t>
+      </w:r>
+      
+      
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:b/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>电子签名</w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>。</w:t>
+      </w:r>
+    </w:p>
+    <w:p w14:paraId="02FB48B1" w14:textId="2F2D8A10" w:rsidR="00E11DEC" w:rsidRDefault="00E11DEC" w:rsidP="009353E2">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>页眉：必须与章节标题对应。</w:t>
+      </w:r>
+      
+    </w:p>
+    <w:p w14:paraId="01164FF9" w14:textId="05FB3A1C" w:rsidR="003C2C53" w:rsidRPr="009353E2" w:rsidRDefault="003C2C53" w:rsidP="009353E2">
+      <w:pPr>
+        <w:pStyle w:val="a7"/>
+        <w:numPr>
+          <w:ilvl w:val="0"/>
+          <w:numId w:val="3"/>
+        </w:numPr>
+        <w:ind w:firstLineChars="0"/>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:hint="eastAsia"/>
+          <w:sz w:val="24"/>
+          <w:szCs w:val="24"/>
+        </w:rPr>
+        <w:t>排版：各章以奇数页开始；每页留白不能多于三行。</w:t>
+      </w:r>
+      
+    </w:p>
+    <w:sectPr w:rsidR="003C2C53" w:rsidRPr="009353E2">
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="851" w:footer="992" w:gutter="0"/>
+      <w:cols w:space="425"/>
+      <w:docGrid w:type="lines" w:linePitch="312"/>
+    </w:sectPr>
+  </w:body>
+</w:document>

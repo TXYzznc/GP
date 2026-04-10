@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clash of Gods - 图鉴系统</title>
+<style>
+  /* ========== 全局 & 字体 ========== */
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  :root {
+    --bg-dark: #0a0c14;
+    --bg-panel: #12152280;
+    --bg-card: #1a1e2e;
+    --bg-card-hover: #242a3e;
+    --bg-card-locked: #0d0f18;
+    --border-subtle: #2a3050;
+    --border-glow: #4a5a8a;
+    --text-primary: #e8e6e3;
+    --text-secondary: #8a8fa8;
+    --text-dim: #555a70;
+    --gold-accent: #d4a853;
+    --gold-dark: #8a6a2a;
+    /* 品质颜色 */
+    --quality-common: #b0b0b0;
+    --quality-uncommon: #61F34A;
+    --quality-rare: #4a9ff5;
+    --quality-epic: #A100FF;
+    --quality-legendary: #F3AA38;
+    /* 棋子品质 */
+    --chess-blue: #4a9ff5;
+    --chess-purple: #A100FF;
+    --chess-gold: #F3AA38;
+    --chess-rainbow: linear-gradient(135deg, #ff6b6b, #ffa500, #ffd700, #61F34A, #4a9ff5, #A100FF);
+    /* 卡牌稀有度 */
+    --card-normal: #b0b0b0;
+    --card-rare: #4a9ff5;
+    --card-epic: #A100FF;
+    --card-legend: #F3AA38;
+    /* 敌人难度 */
+    --enemy-easy: #61F34A;
+    --enemy-normal: #4a9ff5;
+    --enemy-hard: #A100FF;
+    --enemy-elite: #F3AA38;
+    --enemy-boss: #F3534B;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    user-select: none;
+  }
+
+  /* ========== 整体布局 ========== */
+  .app {
+    display: flex;
+    height: 100vh;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(74, 90, 138, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(212, 168, 83, 0.04) 0%, transparent 50%),
+      var(--bg-dark);
+  }
+
+  /* ========== 左侧分类栏 ========== */
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: linear-gradient(180deg, #0e1020 0%, #0a0c18 100%);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: relative;
+  }
+
+  .sidebar::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--gold-dark), transparent);
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .sidebar-header h1 {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--gold-accent);
+    letter-spacing: 6px;
+    text-shadow: 0 0 20px rgba(212, 168, 83, 0.3);
+    margin-bottom: 4px;
+  }
+
+  .sidebar-header .subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  .category-list {
+    flex: 1;
+    padding: 12px 0;
+    overflow-y: auto;
+  }
+
+  .category-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    border-left: 3px solid transparent;
+  }
+
+  .category-item:hover {
+    background: rgba(74, 90, 138, 0.12);
+  }
+
+  .category-item.active {
+    background: rgba(212, 168, 83, 0.08);
+    border-left-color: var(--gold-accent);
+  }
+
+  .category-item.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--gold-accent);
+    box-shadow: 0 0 8px rgba(212, 168, 83, 0.5);
+  }
+
+  .category-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .category-item.active .category-icon {
+    background: rgba(212, 168, 83, 0.12);
+  }
+
+  .category-info {
+    flex: 1;
+  }
+
+  .category-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .category-item.active .category-name {
+    color: var(--gold-accent);
+  }
+
+  .category-count {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .category-item.active .category-count {
+    color: var(--gold-dark);
+  }
+
+  /* 总进度 */
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .total-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .total-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .total-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold-accent));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 6px rgba(212, 168, 83, 0.4);
+  }
+
+  /* ========== 主内容区 ========== */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* 顶部工具栏 */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(14, 16, 32, 0.6);
+    backdrop-filter: blur(10px);
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .current-category-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .category-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .progress-bar-mini {
+    width: 120px;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-mini .fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* 搜索框 */
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 8px 14px;
+    width: 240px;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus-within {
+    border-color: var(--gold-dark);
+  }
+
+  .search-box input {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .search-box input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .search-icon {
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* 筛选按钮 */
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--border-glow);
+  }
+
+  .filter-btn.active {
+    background: rgba(212, 168, 83, 0.1);
+    border-color: var(--gold-dark);
+    color: var(--gold-accent);
+  }
+
+  /* 品质筛选标签 */
+  .quality-filters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 28px 12px;
+    background: rgba(14, 16, 32, 0.4);
+  }
+
+  .quality-tag {
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .quality-tag:hover {
+    background: rgba(255,255,255,0.06);
+  }
+
+  .quality-tag.active {
+    color: #fff;
+  }
+
+  .quality-tag[data-quality="all"].active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+  .quality-tag[data-quality="common"].active { background: rgba(176,176,176,0.2); border-color: var(--quality-common); color: var(--quality-common); }
+  .quality-tag[data-quality="uncommon"].active { background: rgba(97,243,74,0.15); border-color: var(--quality-uncommon); color: var(--quality-uncommon); }
+  .quality-tag[data-quality="rare"].active { background: rgba(74,159,245,0.15); border-color: var(--quality-rare); color: var(--quality-rare); }
+  .quality-tag[data-quality="epic"].active { background: rgba(161,0,255,0.15); border-color: var(--quality-epic); color: var(--quality-epic); }
+  .quality-tag[data-quality="legendary"].active { background: rgba(243,170,56,0.15); border-color: var(--quality-legendary); color: var(--quality-legendary); }
+
+  /* ========== 卡片网格区 ========== */
+  .grid-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-subtle) transparent;
+  }
+
+  .grid-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .grid-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .grid-container::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 3px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+
+  /* ========== 卡片样式 ========== */
+  .card {
+    position: relative;
+    background: var(--bg-card);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-subtle);
+    aspect-ratio: 3/4;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .card.unlocked:hover {
+    border-color: var(--border-glow);
+  }
+
+  /* 品质边框光效 */
+  .card.unlocked[data-quality="common"] { border-color: rgba(176,176,176,0.3); }
+  .card.unlocked[data-quality="uncommon"] { border-color: rgba(97,243,74,0.3); }
+  .card.unlocked[data-quality="uncommon"]:hover { border-color: rgba(97,243,74,0.6); box-shadow: 0 4px 20px rgba(97,243,74,0.15); }
+  .card.unlocked[data-quality="rare"] { border-color: rgba(74,159,245,0.3); }
+  .card.unlocked[data-quality="rare"]:hover { border-color: rgba(74,159,245,0.6); box-shadow: 0 4px 20px rgba(74,159,245,0.15); }
+  .card.unlocked[data-quality="epic"] { border-color: rgba(161,0,255,0.3); }
+  .card.unlocked[data-quality="epic"]:hover { border-color: rgba(161,0,255,0.6); box-shadow: 0 4px 20px rgba(161,0,255,0.15); }
+  .card.unlocked[data-quality="legendary"] { border-color: rgba(243,170,56,0.4); }
+  .card.unlocked[data-quality="legendary"]:hover { border-color: rgba(243,170,56,0.7); box-shadow: 0 4px 24px rgba(243,170,56,0.2); }
+
+  /* 卡片图标区 */
+  .card-icon-area {
+    width: 100%;
+    height: 70%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+    position: relative;
+  }
+
+  .card-icon {
+    font-size: 48px;
+    opacity: 0.9;
+  }
+
+  /* 品质条 */
+  .quality-stripe {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .card[data-quality="common"] .quality-stripe { background: var(--quality-common); opacity: 0.4; }
+  .card[data-quality="uncommon"] .quality-stripe { background: var(--quality-uncommon); opacity: 0.5; }
+  .card[data-quality="rare"] .quality-stripe { background: var(--quality-rare); opacity: 0.6; }
+  .card[data-quality="epic"] .quality-stripe { background: var(--quality-epic); opacity: 0.7; }
+  .card[data-quality="legendary"] .quality-stripe { background: linear-gradient(90deg, #F3534B, #F3AA38, #ffd700); }
+
+  /* 卡片信息区 */
+  .card-info {
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.3);
+    height: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .card-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 品质名文字颜色 */
+  .card[data-quality="common"] .card-name { color: var(--quality-common); }
+  .card[data-quality="uncommon"] .card-name { color: var(--quality-uncommon); }
+  .card[data-quality="rare"] .card-name { color: var(--quality-rare); }
+  .card[data-quality="epic"] .card-name { color: var(--quality-epic); }
+  .card[data-quality="legendary"] .card-name { color: var(--quality-legendary); }
+
+  /* 星级 */
+  .stars {
+    display: flex;
+    gap: 1px;
+    margin-top: 2px;
+  }
+
+  .star {
+    font-size: 10px;
+    color: var(--gold-accent);
+  }
+
+  .star.empty {
+    color: var(--text-dim);
+  }
+
+  /* ========== 锁定状态 ========== */
+  .card.locked {
+    border-color: rgba(255,255,255,0.04);
+  }
+
+  .card.locked .card-icon-area {
+    background: var(--bg-card-locked);
+  }
+
+  .card.locked .card-icon {
+    opacity: 0.15;
+    filter: grayscale(1);
+  }
+
+  .card.locked .card-info {
+    background: rgba(0,0,0,0.5);
+  }
+
+  .card.locked .card-name {
+    color: var(--text-dim) !important;
+  }
+
+  .card.locked .card-sub {
+    color: var(--text-dim);
+  }
+
+  .card.locked .quality-stripe {
+    opacity: 0.15 !important;
+  }
+
+  .card.locked .stars .star {
+    color: var(--text-dim);
+  }
+
+  .card.locked:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.08);
+  }
+
+  /* 锁定图标 */
+  .lock-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 2;
+  }
+
+  /* 新解锁标记 */
+  .new-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #F3534B;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 2;
+    letter-spacing: 1px;
+  }
+
+  /* ========== 右侧详情面板 ========== */
+  .detail-panel {
+    width: 0;
+    overflow: hidden;
+    transition: width 0.35s ease;
+    background: linear-gradient(180deg, #0e1022 0%, #0a0c18 100%);
+    border-left: 1px solid var(--border-subtle);
+    position: relative;
+  }
+
+  .detail-panel.open {
+    width: 360px;
+    min-width: 360px;
+  }
+
+  .detail-panel::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--gold-dark), transparent);
+  }
+
+  .detail-inner {
+    width: 360px;
+    height: 100%;
+    overflow-y: auto;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-subtle) transparent;
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+    z-index: 5;
+  }
+
+  .detail-close:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-primary);
+  }
+
+  /* 详情头部大图区 */
+  .detail-hero {
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .detail-hero-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+  }
+
+  .detail-hero-icon {
+    font-size: 96px;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+  }
+
+  .detail-quality-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(transparent, rgba(14, 16, 34, 0.95));
+    z-index: 1;
+  }
+
+  /* 详情内容 */
+  .detail-body {
+    padding: 0 24px 24px;
+    position: relative;
+    z-index: 2;
+    margin-top: -20px;
+  }
+
+  .detail-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .detail-quality-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .detail-section {
+    margin-bottom: 20px;
+  }
+
+  .detail-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .detail-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* 属性列表 */
+  .attr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .attr-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .attr-label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .attr-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* 技能标签 */
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: rgba(74, 159, 245, 0.1);
+    color: var(--quality-rare);
+    border: 1px solid rgba(74, 159, 245, 0.2);
+  }
+
+  /* 锁定详情状态 */
+  .detail-locked-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    gap: 12px;
+    height: 100%;
+  }
+
+  .detail-locked-overlay .lock-icon-lg {
+    font-size: 48px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .detail-locked-overlay .lock-text {
+    font-size: 16px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .detail-locked-overlay .lock-hint {
+    font-size: 13px;
+    color: var(--text-dim);
+    opacity: 0.6;
+    line-height: 1.5;
+  }
+
+  /* ========== 动画 ========== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    animation: fadeInUp 0.4s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.02s; }
+  .card:nth-child(2) { animation-delay: 0.04s; }
+  .card:nth-child(3) { animation-delay: 0.06s; }
+  .card:nth-child(4) { animation-delay: 0.08s; }
+  .card:nth-child(5) { animation-delay: 0.10s; }
+  .card:nth-child(6) { animation-delay: 0.12s; }
+  .card:nth-child(7) { animation-delay: 0.14s; }
+  .card:nth-child(8) { animation-delay: 0.16s; }
+  .card:nth-child(9) { animation-delay: 0.18s; }
+  .card:nth-child(10) { animation-delay: 0.20s; }
+  .card:nth-child(n+11) { animation-delay: 0.22s; }
+
+  /* 传说品质闪光边框 */
+  @keyframes legendaryGlow {
+    0%, 100% { border-color: rgba(243,170,56,0.4); box-shadow: 0 0 12px rgba(243,170,56,0.1); }
+    50% { border-color: rgba(243,170,56,0.7); box-shadow: 0 0 20px rgba(243,170,56,0.2); }
+  }
+
+  .card.unlocked[data-quality="legendary"] {
+    animation: fadeInUp 0.4s ease both, legendaryGlow 3s ease-in-out infinite;
+  }
+
+  /* 史诗品质微光 */
+  @keyframes epicShimmer {
+    0%, 100% { border-color: rgba(161,0,255,0.3); }
+    50% { border-color: rgba(161,0,255,0.5); }
+  }
+
+  .card.unlocked[data-quality="epic"] {
+    animation: fadeInUp 0.4s ease both, epicShimmer 4s ease-in-out infinite;
+  }
+
+  /* ========== 空状态 ========== */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--text-dim);
+    gap: 12px;
+  }
+
+  .empty-state-icon {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+
+  .empty-state-text {
+    font-size: 15px;
+  }
+
+  /* ========== 敌人占位样式 ========== */
+  .card.placeholder {
+    border-style: dashed;
+    border-color: rgba(255,255,255,0.06);
+  }
+
+  .card.placeholder .card-icon {
+    opacity: 0.08;
+  }
+
+  .card.placeholder .card-name {
+    color: var(--text-dim) !important;
+    font-style: italic;
+  }
+
+  .placeholder-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 9px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    padding: 2px 6px;
+    border-radius: 3px;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- 左侧分类栏 -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>图鉴</h1>
+      <div class="subtitle">COMPENDIUM</div>
+    </div>
+
+    <div class="category-list" id="categoryList">
+      <!-- JS 动态生成 -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="total-progress-label">
+        <span>总收集进度</span>
+        <span id="totalProgressText">0/0</span>
+      </div>
+      <div class="total-progress-bar">
+        <div class="total-progress-fill" id="totalProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="main-content">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="current-category-title" id="currentTitle">棋子</div>
+        <div class="category-progress">
+          <div class="progress-bar-mini">
+            <div class="fill" id="categoryProgressFill" style="width:0%; background: var(--gold-accent);"></div>
+          </div>
+          <span class="progress-text" id="categoryProgressText">0/0</span>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索名称..." id="searchInput" oninput="filterCards()">
+        </div>
+        <button class="filter-btn" id="showLockedBtn" onclick="toggleLockedFilter()">
+          🔒 <span>仅未解锁</span>
+        </button>
+        <button class="filter-btn" id="showUnlockedBtn" onclick="toggleUnlockedFilter()">
+          🔓 <span>仅已解锁</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="quality-filters" id="qualityFilters">
+      <!-- JS 动态生成 -->
+    </div>
+
+    <div class="grid-container">
+      <div class="card-grid" id="cardGrid">
+        <!-- JS 动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧详情面板 -->
+  <div class="detail-panel" id="detailPanel">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-inner" id="detailInner">
+      <!-- JS 动态填充 -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== 数据定义 ==========
+const categories = [
+  { key: 'chess', name: '棋子', icon: '♟', qualityType: 'chess' },
+  { key: 'card', name: '策略卡', icon: '🃏', qualityType: 'card' },
+  { key: 'enemy', name: '敌人', icon: '👹', qualityType: 'enemy' },
+  { key: 'equipment', name: '装备', icon: '⚔', qualityType: 'item' },
+  { key: 'treasure', name: '宝物', icon: '💎', qualityType: 'item' },
+  { key: 'consumable', name: '消耗品', icon: '🧪', qualityType: 'item' },
+  { key: 'quest', name: '任务道具', icon: '📜', qualityType: 'item' },
+];
+
+// 品质映射
+const qualityLabels = {
+  chess: { 1: '蓝', 2: '紫', 3: '金', 4: '炫彩' },
+  card: { 1: '普通', 2: '稀有', 3: '史诗', 4: '传说' },
+  item: { 1: '普通', 2: '优秀', 3: '稀有', 4: '史诗', 5: '传说' },
+  enemy: { 1: '普通', 2: '精英', 3: '稀有', 4: '头目', 5: 'BOSS' },
+};
+
+const qualityToCSS = {
+  chess: { 1: 'rare', 2: 'epic', 3: 'legendary', 4: 'legendary' },
+  card: { 1: 'common', 2: 'rare', 3: 'epic', 4: 'legendary' },
+  item: { 1: 'common', 2: 'uncommon', 3: 'rare', 4: 'epic', 5: 'legendary' },
+  enemy: { 1: 'uncommon', 2: 'rare', 3: 'epic', 4: 'legendary', 5: 'legendary' },
+};
+
+// ===== 模拟数据 =====
+const chessData = [
+  { id: 1, name: '后羿', icon: '🏹', quality: 2, star: 1, unlocked: true, isNew: false, desc: '上古神射手，精通弓术。传说他曾射落九日，拯救苍生于水火之中。', attrs: { hp: 800, atk: 120, def: 40, spd: 1.2 }, tags: ['射手', '远程'] },
+  { id: 2, name: '嫦娥', icon: '🌙', quality: 2, star: 1, unlocked: true, isNew: true, desc: '月宫仙子，掌控月之力量。其法力深不可测，善以月光之力治愈队友。', attrs: { hp: 600, atk: 90, def: 35, spd: 1.0 }, tags: ['法师', '辅助'] },
+  { id: 3, name: '哪吒', icon: '🔥', quality: 3, star: 2, unlocked: true, isNew: false, desc: '莲花化身的少年英雄，手持火尖枪、脚踏风火轮，勇猛无畏。', attrs: { hp: 1200, atk: 150, def: 70, spd: 1.5 }, tags: ['战士', '近战'] },
+  { id: 4, name: '杨戬', icon: '👁', quality: 3, star: 1, unlocked: true, isNew: false, desc: '二郎真君，天眼通明。武艺超群，善变七十二般变化。', attrs: { hp: 1100, atk: 140, def: 65, spd: 1.3 }, tags: ['战士', '多面'] },
+  { id: 5, name: '孙悟空', icon: '🐒', quality: 4, star: 3, unlocked: true, isNew: false, desc: '齐天大圣，石猴化身。筋斗云十万八千里，金箍棒如意变化，神通广大。', attrs: { hp: 1500, atk: 200, def: 80, spd: 2.0 }, tags: ['刺客', '全能'] },
+  { id: 6, name: '女娲', icon: '🌈', quality: 4, star: 2, unlocked: false, isNew: false, desc: '创世之神，炼石补天。掌控大地之力，可召唤五色石守护众生。', attrs: { hp: 900, atk: 180, def: 50, spd: 0.8 }, tags: ['法师', '创世'] },
+  { id: 7, name: '刑天', icon: '🪓', quality: 1, star: 1, unlocked: true, isNew: false, desc: '无头战神，以乳为目以脐为口。手持干戚，战意永不磨灭。', attrs: { hp: 1400, atk: 130, def: 90, spd: 0.9 }, tags: ['坦克', '近战'] },
+  { id: 8, name: '祝融', icon: '🔥', quality: 2, star: 1, unlocked: true, isNew: false, desc: '火神祝融，以火为兵。掌管南方之火，战场上烈焰滔天。', attrs: { hp: 700, atk: 160, def: 30, spd: 1.1 }, tags: ['法师', '火系'] },
+  { id: 9, name: '共工', icon: '🌊', quality: 2, star: 1, unlocked: false, isNew: false, desc: '水神共工，怒触不周山。以水之力翻江倒海，气势磅礴。', attrs: { hp: 1000, atk: 110, def: 75, spd: 0.8 }, tags: ['坦克', '水系'] },
+  { id: 10, name: '蚩尤', icon: '😈', quality: 3, star: 2, unlocked: false, isNew: false, desc: '战神蚩尤，铜头铁额。统帅九黎部落，善造五兵，威震天下。', attrs: { hp: 1600, atk: 190, def: 85, spd: 1.4 }, tags: ['战士', '领袖'] },
+  { id: 11, name: '九尾狐', icon: '🦊', quality: 3, star: 1, unlocked: true, isNew: false, desc: '九尾天狐，善用魅惑之术。修行千年，法力通天。', attrs: { hp: 650, atk: 170, def: 25, spd: 1.6 }, tags: ['法师', '控制'] },
+  { id: 12, name: '白泽', icon: '🦁', quality: 1, star: 1, unlocked: true, isNew: false, desc: '知晓天下鬼神的瑞兽，通万物之情。能驱邪辟灾，守护一方太平。', attrs: { hp: 800, atk: 80, def: 60, spd: 1.0 }, tags: ['辅助', '防御'] },
+  { id: 13, name: '精卫', icon: '🐦', quality: 1, star: 1, unlocked: false, isNew: false, desc: '炎帝之女化身之鸟，衔石填海，坚韧不拔。', attrs: { hp: 500, atk: 100, def: 30, spd: 1.8 }, tags: ['射手', '远程'] },
+  { id: 14, name: '盘古', icon: '⛰', quality: 4, star: 3, unlocked: false, isNew: false, desc: '开天辟地之神，混沌初始。身化万物，其力可移山填海。', attrs: { hp: 2000, atk: 220, def: 100, spd: 0.7 }, tags: ['坦克', '创世'] },
+];
+
+const cardData = [
+  { id: 1, name: '烈焰风暴', icon: '🔥', quality: 3, unlocked: true, isNew: false, desc: '召唤漫天烈焰，对范围内所有敌方造成大量魔法伤害。', cost: 5, type: '伤害', dmgType: '魔法' },
+  { id: 2, name: '神盾守护', icon: '🛡', quality: 2, unlocked: true, isNew: false, desc: '为全体友方施加护盾，吸收一定量伤害。', cost: 3, type: '防御', dmgType: '无' },
+  { id: 3, name: '月华洗礼', icon: '✨', quality: 2, unlocked: true, isNew: true, desc: '月光倾泻而下，治愈全体友方，恢复一定生命值。', cost: 4, type: '治疗', dmgType: '无' },
+  { id: 4, name: '雷霆万钧', icon: '⚡', quality: 4, unlocked: true, isNew: false, desc: '引天雷之力轰击单体敌人，有概率造成麻痹效果。此为上古雷法，威力惊人。', cost: 6, type: '伤害', dmgType: '魔法' },
+  { id: 5, name: '时空裂隙', icon: '🌀', quality: 4, unlocked: false, isNew: false, desc: '撕裂时空，对目标造成真实伤害并降低其攻速。传说中封印蚩尤的禁术。', cost: 8, type: '伤害', dmgType: '真实' },
+  { id: 6, name: '战意激昂', icon: '💪', quality: 1, unlocked: true, isNew: false, desc: '鼓舞士气，提升全体友方攻击力。', cost: 2, type: '增益', dmgType: '无' },
+  { id: 7, name: '冰封万里', icon: '❄', quality: 3, unlocked: true, isNew: false, desc: '极寒之力席卷战场，冻结范围内敌人并持续造成伤害。', cost: 5, type: '控制', dmgType: '魔法' },
+  { id: 8, name: '暗影突袭', icon: '🗡', quality: 2, unlocked: false, isNew: false, desc: '从暗影中发起突击，对单体造成物理伤害，无视部分护甲。', cost: 3, type: '伤害', dmgType: '物理' },
+  { id: 9, name: '大地之怒', icon: '🌋', quality: 3, unlocked: false, isNew: false, desc: '大地震颤，对全体敌方造成物理伤害并降低移速。', cost: 5, type: '伤害', dmgType: '物理' },
+  { id: 10, name: '灵力涌泉', icon: '💧', quality: 1, unlocked: true, isNew: false, desc: '恢复少量灵力，为后续策略储备资源。', cost: 0, type: '辅助', dmgType: '无' },
+  { id: 11, name: '混沌之力', icon: '☯', quality: 4, unlocked: false, isNew: false, desc: '混沌初开之力，随机产生强力效果。不可预测，但威力巨大。', cost: 7, type: '特殊', dmgType: '真实' },
+  { id: 12, name: '风行术', icon: '💨', quality: 1, unlocked: true, isNew: false, desc: '提升全体友方移动速度，持续一段时间。', cost: 1, type: '增益', dmgType: '无' },
+];
+
+const enemyData = [
+  { id: 1, name: '山林野兽', icon: '🐺', quality: 1, unlocked: true, isNew: false, desc: '游荡在山林间的野兽，攻击性不强但数量众多。', difficulty: 1, placeholder: false },
+  { id: 2, name: '邪灵侍卫', icon: '👻', quality: 2, unlocked: true, isNew: false, desc: '被黑暗力量驱使的亡灵，守护着古老遗迹。', difficulty: 2, placeholder: false },
+  { id: 3, name: '石像鬼', icon: '🗿', quality: 2, unlocked: false, isNew: false, desc: '沉睡千年的石像，被唤醒后异常凶猛。', difficulty: 2, placeholder: false },
+  { id: 4, name: '黑龙', icon: '🐉', quality: 4, unlocked: false, isNew: false, desc: '传说中的凶兽，拥有毁灭性的龙息。', difficulty: 4, placeholder: false },
+  { id: 5, name: '???', icon: '❓', quality: 3, unlocked: false, isNew: false, desc: '数据待完善', difficulty: 3, placeholder: true },
+  { id: 6, name: '???', icon: '❓', quality: 3, unlocked: false, isNew: false, desc: '数据待完善', difficulty: 3, placeholder: true },
+  { id: 7, name: '???', icon: '❓', quality: 4, unlocked: false, isNew: false, desc: '数据待完善', difficulty: 4, placeholder: true },
+  { id: 8, name: '???', icon: '❓', quality: 5, unlocked: false, isNew: false, desc: '数据待完善', difficulty: 5, placeholder: true },
+];
+
+const equipmentData = [
+  { id: 1, name: '青铜短剑', icon: '🗡', quality: 1, unlocked: true, isNew: false, desc: '基础的青铜短剑，锋利耐用。', attrs: { atk: 15 } },
+  { id: 2, name: '铁甲战盔', icon: '⛑', quality: 2, unlocked: true, isNew: false, desc: '坚固的铁制头盔，提供不错的防护。', attrs: { def: 25 } },
+  { id: 3, name: '翡翠护符', icon: '📿', quality: 3, unlocked: true, isNew: true, desc: '蕴含灵力的翡翠饰品，可增幅法术威力。', attrs: { sp: 40 } },
+  { id: 4, name: '赤霄剑', icon: '⚔', quality: 4, unlocked: false, isNew: false, desc: '斩妖除魔的神兵利器，相传为轩辕黄帝所铸。', attrs: { atk: 80, crit: 20 } },
+  { id: 5, name: '玄铁重甲', icon: '🛡', quality: 3, unlocked: true, isNew: false, desc: '以玄铁锻造的重型铠甲，防御力极高但略显笨重。', attrs: { def: 60, spd: -0.1 } },
+  { id: 6, name: '疾风靴', icon: '👢', quality: 2, unlocked: true, isNew: false, desc: '轻便灵活的战靴，穿上后如疾风般迅捷。', attrs: { spd: 0.3 } },
+  { id: 7, name: '龙鳞盾', icon: '🔰', quality: 4, unlocked: false, isNew: false, desc: '以上古龙鳞制成的盾牌，坚不可摧。', attrs: { def: 90, hp: 300 } },
+  { id: 8, name: '木杖', icon: '🪄', quality: 1, unlocked: true, isNew: false, desc: '普通的木制法杖，聊胜于无。', attrs: { sp: 10 } },
+  { id: 9, name: '破军弓', icon: '🏹', quality: 3, unlocked: false, isNew: false, desc: '穿透力极强的战弓，可一箭洞穿铁甲。', attrs: { atk: 55, pen: 15 } },
+  { id: 10, name: '布衣', icon: '👘', quality: 1, unlocked: true, isNew: false, desc: '普通的布衣，仅提供微弱防护。', attrs: { def: 5 } },
+];
+
+const treasureData = [
+  { id: 1, name: '山海经残卷', icon: '📖', quality: 4, unlocked: true, isNew: false, desc: '记载着远古异兽信息的残卷，阅读后可洞悉敌方弱点。', effect: '战斗开始时显示敌方属性' },
+  { id: 2, name: '定海神针', icon: '🔱', quality: 5, unlocked: false, isNew: false, desc: '大禹治水时所用神器，可随意变化大小，镇压一切水族。', effect: '全体攻击力+20%' },
+  { id: 3, name: '河图洛书', icon: '🗺', quality: 4, unlocked: true, isNew: true, desc: '上古奇书，蕴含天地至理。持有者可预知阵法变化。', effect: '每回合额外获得1点灵力' },
+  { id: 4, name: '照妖镜', icon: '🪞', quality: 3, unlocked: true, isNew: false, desc: '可照破一切伪装的神镜，妖邪无所遁形。', effect: '识破敌方隐身和幻象' },
+  { id: 5, name: '避尘珠', icon: '🔮', quality: 3, unlocked: false, isNew: false, desc: '可抵御尘风毒雾的宝珠，持有者百毒不侵。', effect: '免疫中毒和减速效果' },
+  { id: 6, name: '聚宝盆', icon: '🏺', quality: 2, unlocked: true, isNew: false, desc: '投入少物可获多物的神奇容器。', effect: '战斗结束时额外获得金币' },
+  { id: 7, name: '八卦炉渣', icon: '♨', quality: 1, unlocked: true, isNew: false, desc: '太上老君炼丹炉中残渣，仍余温热。', effect: '火系伤害+5%' },
+  { id: 8, name: '八尺琼勾玉', icon: '💠', quality: 5, unlocked: false, isNew: false, desc: '上古至宝，据说蕴含创世之力。', effect: '所有属性+15%' },
+];
+
+const consumableData = [
+  { id: 1, name: '生命药水', icon: '❤', quality: 1, unlocked: true, isNew: false, desc: '恢复少量生命值的基础药剂。', effect: '恢复200HP' },
+  { id: 2, name: '灵力丹', icon: '💎', quality: 2, unlocked: true, isNew: false, desc: '蕴含灵力的丹药，服用后迅速恢复灵力。', effect: '恢复3点灵力' },
+  { id: 3, name: '复活草', icon: '🌿', quality: 3, unlocked: true, isNew: false, desc: '传说中可以起死回生的仙草，极为珍贵。', effect: '复活一名已阵亡棋子' },
+  { id: 4, name: '经验宝石', icon: '💠', quality: 3, unlocked: true, isNew: true, desc: '凝聚了修炼精华的宝石，使用后大幅提升经验。', effect: '获得500经验值' },
+  { id: 5, name: '力量果实', icon: '🍎', quality: 2, unlocked: false, isNew: false, desc: '神树结出的果实，食用后永久提升攻击力。', effect: '永久攻击力+5' },
+  { id: 6, name: '传送符', icon: '🎐', quality: 1, unlocked: true, isNew: false, desc: '刻有传送法阵的符篆，可瞬间返回据点。', effect: '传送至最近的据点' },
+];
+
+const questData = [
+  { id: 1, name: '村长的信件', icon: '✉', quality: 1, unlocked: true, isNew: false, desc: '古老村庄的村长托你带给城中官员的信件，似乎记载着某种紧急求援。' },
+  { id: 2, name: '神秘钥匙', icon: '🔑', quality: 3, unlocked: true, isNew: false, desc: '在遗迹深处发现的钥匙，上面刻着不明的古老符文，似乎能打开某扇门。' },
+  { id: 3, name: '妖兽之角', icon: '🦴', quality: 2, unlocked: true, isNew: true, desc: '从强大妖兽身上掉落的角，是制作特殊武器的重要材料。' },
+  { id: 4, name: '封印碎片', icon: '🔶', quality: 4, unlocked: false, isNew: false, desc: '远古封印的碎片，收集齐全或可重塑完整封印，镇压蚩尤之魂。' },
+  { id: 5, name: '仙人指引图', icon: '🧭', quality: 2, unlocked: true, isNew: false, desc: '仙人留下的地图，标记着几处隐秘洞天福地的位置。' },
+];
+
+// 数据映射
+const allData = {
+  chess: chessData,
+  card: cardData,
+  enemy: enemyData,
+  equipment: equipmentData,
+  treasure: treasureData,
+  consumable: consumableData,
+  quest: questData,
+};
+
+// ========== 状态 ==========
+let currentCategory = 'chess';
+let currentQualityFilter = 'all';
+let showLockedOnly = false;
+let showUnlockedOnly = false;
+let selectedCard = null;
+
+// ========== 初始化 ==========
+function init() {
+  renderCategories();
+  renderQualityFilters();
+  renderCards();
+  updateProgress();
+}
+
+// ========== 分类栏 ==========
+function renderCategories() {
+  const list = document.getElementById('categoryList');
+  list.innerHTML = categories.map(cat => {
+    const data = allData[cat.key];
+    const unlocked = data.filter(d => d.unlocked).length;
+    const total = data.length;
+    return `
+      <div class="category-item ${cat.key === currentCategory ? 'active' : ''}" onclick="switchCategory('${cat.key}')">
+        <div class="category-icon">${cat.icon}</div>
+        <div class="category-info">
+          <div class="category-name">${cat.name}</div>
+          <div class="category-count">${unlocked} / ${total}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ========== 品质筛选 ==========
+function renderQualityFilters() {
+  const container = document.getElementById('qualityFilters');
+  const cat = categories.find(c => c.key === currentCategory);
+  const labels = qualityLabels[cat.qualityType];
+
+  let html = `<div class="quality-tag ${currentQualityFilter === 'all' ? 'active' : ''}" data-quality="all" onclick="setQualityFilter('all')">全部</div>`;
+
+  const cssMap = qualityToCSS[cat.qualityType];
+  for (const [level, label] of Object.entries(labels)) {
+    const css = cssMap[level];
+    html += `<div class="quality-tag ${currentQualityFilter === css ? 'active' : ''}" data-quality="${css}" onclick="setQualityFilter('${css}')">${label}</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ========== 卡片渲染 ==========
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const cat = categories.find(c => c.key === currentCategory);
+  const data = getFilteredData();
+
+  if (data.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-text">没有找到匹配的条目</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = data.map(item => {
+    const cssQuality = qualityToCSS[cat.qualityType][item.quality] || 'common';
+    const isLocked = !item.unlocked;
+    const isPlaceholder = item.placeholder;
+
+    let starHtml = '';
+    if (currentCategory === 'chess' && item.star) {
+      starHtml = '<div class="stars">';
+      for (let i = 0; i < 3; i++) {
+        starHtml += `<span class="star ${i < item.star ? '' : 'empty'}">★</span>`;
+      }
+      starHtml += '</div>';
+    }
+
+    let subText = '';
+    if (currentCategory === 'card') subText = `灵力 ${item.cost} · ${item.type}`;
+    else if (currentCategory === 'enemy') subText = isPlaceholder ? '数据待完善' : `难度 ${'★'.repeat(item.difficulty)}`;
+    else if (currentCategory === 'equipment') subText = getAttrSummary(item.attrs);
+    else if (currentCategory === 'treasure') subText = item.effect || '';
+    else if (currentCategory === 'consumable') subText = item.effect || '';
+    else if (currentCategory === 'quest') subText = '任务道具';
+    else if (currentCategory === 'chess') subText = (item.tags || []).join(' · ');
+
+    return `
+      <div class="card ${isLocked ? 'locked' : 'unlocked'} ${isPlaceholder ? 'placeholder' : ''}"
+           data-quality="${cssQuality}"
+           data-id="${item.id}"
+           onclick="openDetail(${item.id})">
+        ${item.isNew ? '<div class="new-badge">NEW</div>' : ''}
+        ${isPlaceholder ? '<div class="placeholder-badge">占位</div>' : ''}
+        <div class="card-icon-area">
+          <div class="card-icon">${item.icon}</div>
+          ${isLocked && !isPlaceholder ? '<div class="lock-badge">🔒</div>' : ''}
+          <div class="quality-stripe"></div>
+        </div>
+        <div class="card-info">
+          <div class="card-name">${isLocked && !isPlaceholder ? '???' : item.name}</div>
+          ${!isLocked ? `<div class="card-sub">${subText}</div>` : '<div class="card-sub">未解锁</div>'}
+          ${starHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 更新进度
+  updateCategoryProgress();
+}
+
+function getAttrSummary(attrs) {
+  if (!attrs) return '';
+  const parts = [];
+  if (attrs.atk) parts.push(`攻击+${attrs.atk}`);
+  if (attrs.def) parts.push(`防御+${attrs.def}`);
+  if (attrs.sp) parts.push(`法强+${attrs.sp}`);
+  if (attrs.hp) parts.push(`HP+${attrs.hp}`);
+  if (attrs.spd) parts.push(`速度${attrs.spd > 0 ? '+' : ''}${attrs.spd}`);
+  if (attrs.crit) parts.push(`暴击+${attrs.crit}%`);
+  if (attrs.pen) parts.push(`穿透+${attrs.pen}`);
+  return parts.slice(0, 2).join(' ');
+}
+
+// ========== 筛选 ==========
+function getFilteredData() {
+  const cat = categories.find(c => c.key === currentCategory);
+  let data = [...allData[currentCategory]];
+  const searchText = document.getElementById('searchInput').value.trim().toLowerCase();
+
+  // 搜索
+  if (searchText) {
+    data = data.filter(d => d.name.toLowerCase().includes(searchText));
+  }
+
+  // 品质筛选
+  if (currentQualityFilter !== 'all') {
+    data = data.filter(d => {
+      const css = qualityToCSS[cat.qualityType][d.quality];
+      return css === currentQualityFilter;
+    });
+  }
+
+  // 锁定筛选
+  if (showLockedOnly) data = data.filter(d => !d.unlocked);
+  if (showUnlockedOnly) data = data.filter(d => d.unlocked);
+
+  return data;
+}
+
+function filterCards() { renderCards(); }
+
+function setQualityFilter(quality) {
+  currentQualityFilter = quality;
+  renderQualityFilters();
+  renderCards();
+}
+
+function toggleLockedFilter() {
+  showLockedOnly = !showLockedOnly;
+  if (showLockedOnly) showUnlockedOnly = false;
+  document.getElementById('showLockedBtn').classList.toggle('active', showLockedOnly);
+  document.getElementById('showUnlockedBtn').classList.toggle('active', showUnlockedOnly);
+  renderCards();
+}
+
+function toggleUnlockedFilter() {
+  showUnlockedOnly = !showUnlockedOnly;
+  if (showUnlockedOnly) showLockedOnly = false;
+  document.getElementById('showLockedBtn').classList.toggle('active', showLockedOnly);
+  document.getElementById('showUnlockedBtn').classList.toggle('active', showUnlockedOnly);
+  renderCards();
+}
+
+// ========== 分类切换 ==========
+function switchCategory(key) {
+  currentCategory = key;
+  currentQualityFilter = 'all';
+  selectedCard = null;
+  document.getElementById('searchInput').value = '';
+  showLockedOnly = false;
+  showUnlockedOnly = false;
+  document.getElementById('showLockedBtn').classList.remove('active');
+  document.getElementById('showUnlockedBtn').classList.remove('active');
+
+  closeDetail();
+  renderCategories();
+  renderQualityFilters();
+  renderCards();
+  updateProgress();
+
+  const cat = categories.find(c => c.key === key);
+  document.getElementById('currentTitle').textContent = cat.name;
+}
+
+// ========== 进度 ==========
+function updateProgress() {
+  let totalUnlocked = 0, totalAll = 0;
+  categories.forEach(cat => {
+    const data = allData[cat.key];
+    totalUnlocked += data.filter(d => d.unlocked).length;
+    totalAll += data.length;
+  });
+  document.getElementById('totalProgressText').textContent = `${totalUnlocked} / ${totalAll}`;
+  document.getElementById('totalProgressFill').style.width = `${(totalUnlocked / totalAll * 100).toFixed(1)}%`;
+  updateCategoryProgress();
+}
+
+function updateCategoryProgress() {
+  const data = allData[currentCategory];
+  const unlocked = data.filter(d => d.unlocked).length;
+  const total = data.length;
+  const pct = total > 0 ? (unlocked / total * 100).toFixed(1) : 0;
+  document.getElementById('categoryProgressText').textContent = `${unlocked} / ${total}`;
+  document.getElementById('categoryProgressFill').style.width = `${pct}%`;
+}
+
+// ========== 详情面板 ==========
+function openDetail(id) {
+  const cat = categories.find(c => c.key === currentCategory);
+  const item = allData[currentCategory].find(d => d.id === id);
+  if (!item) return;
+  selectedCard = item;
+
+  const panel = document.getElementById('detailPanel');
+  const inner = document.getElementById('detailInner');
+  const cssQuality = qualityToCSS[cat.qualityType][item.quality] || 'common';
+  const qualityLabel = qualityLabels[cat.qualityType][item.quality] || '未知';
+
+  // 品质颜色
+  const colorMap = {
+    common: '#b0b0b0', uncommon: '#61F34A', rare: '#4a9ff5', epic: '#A100FF', legendary: '#F3AA38'
+  };
+  const qColor = colorMap[cssQuality] || '#b0b0b0';
+
+  if (!item.unlocked && !item.placeholder) {
+    inner.innerHTML = `
+      <div class="detail-locked-overlay">
+        <div class="lock-icon-lg">🔒</div>
+        <div class="lock-text">尚未解锁</div>
+        <div class="lock-hint">继续探索世界以解锁该条目<br>完成特定任务或击败敌人可能会解锁它</div>
+      </div>
+    `;
+  } else if (item.placeholder) {
+    inner.innerHTML = `
+      <div class="detail-locked-overlay">
+        <div class="lock-icon-lg">🚧</div>
+        <div class="lock-text">数据待完善</div>
+        <div class="lock-hint">该条目的数据尚在整理中<br>将在后续版本中补充完整</div>
+      </div>
+    `;
+  } else {
+    let detailContent = '';
+
+    // 棋子详情
+    if (currentCategory === 'chess') {
+      let starHtml = '';
+      for (let i = 0; i < 3; i++) {
+        starHtml += `<span style="color:${i < item.star ? '#d4a853' : '#555a70'}; font-size:16px;">★</span>`;
+      }
+      detailContent = `
+        <div class="detail-section">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span class="detail-quality-label" style="background:${qColor}22; color:${qColor}; border:1px solid ${qColor}44;">${qualityLabel}</span>
+            <span>${starHtml}</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">职业标签</div>
+          <div class="tag-row">
+            ${(item.tags||[]).map(t => `<div class="tag">${t}</div>`).join('')}
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">属性</div>
+          <div class="attr-grid">
+            <div class="attr-item"><span class="attr-label">生命</span><span class="attr-value">${item.attrs.hp}</span></div>
+            <div class="attr-item"><span class="attr-label">攻击</span><span class="attr-value">${item.attrs.atk}</span></div>
+            <div class="attr-item"><span class="attr-label">防御</span><span class="attr-value">${item.attrs.def}</span></div>
+            <div class="attr-item"><span class="attr-label">攻速</span><span class="attr-value">${item.attrs.spd}</span></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">描述</div>
+          <div class="detail-desc">${item.desc}</div>
+        </div>
+      `;
+    }
+    // 策略卡详情
+    else if (currentCategory === 'card') {
+      detailContent = `
+        <div class="detail-section">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span class="detail-quality-label" style="background:${qColor}22; color:${qColor}; border:1px solid ${qColor}44;">${qualityLabel}</span>
+            <span class="detail-quality-label" style="background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.1);">灵力 ${item.cost}</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">卡牌信息</div>
+          <div class="attr-grid">
+            <div class="attr-item"><span class="attr-label">类型</span><span class="attr-value">${item.type}</span></div>
+            <div class="attr-item"><span class="attr-label">伤害</span><span class="attr-value">${item.dmgType}</span></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">描述</div>
+          <div class="detail-desc">${item.desc}</div>
+        </div>
+      `;
+    }
+    // 敌人详情
+    else if (currentCategory === 'enemy') {
+      detailContent = `
+        <div class="detail-section">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span class="detail-quality-label" style="background:${qColor}22; color:${qColor}; border:1px solid ${qColor}44;">${qualityLabel}</span>
+            <span class="detail-quality-label" style="background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.1);">难度 ${'★'.repeat(item.difficulty)}</span>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">描述</div>
+          <div class="detail-desc">${item.desc}</div>
+        </div>
+      `;
+    }
+    // 装备详情
+    else if (currentCategory === 'equipment') {
+      const attrHtml = Object.entries(item.attrs || {}).map(([k, v]) => {
+        const labels = { atk: '攻击', def: '防御', sp: '法强', hp: '生命', spd: '攻速', crit: '暴击%', pen: '穿透' };
+        return `<div class="attr-item"><span class="attr-label">${labels[k]||k}</span><span class="attr-value" style="color:${v > 0 ? '#61F34A' : '#F3534B'}">${v > 0 ? '+' : ''}${v}</span></div>`;
+      }).join('');
+      detailContent = `
+        <div class="detail-section">
+          <span class="detail-quality-label" style="background:${qColor}22; color:${qColor}; border:1px solid ${qColor}44;">${qualityLabel}</span>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">属性加成</div>
+          <div class="attr-grid">${attrHtml}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">描述</div>
+          <div class="detail-desc">${item.desc}</div>
+        </div>
+      `;
+    }
+    // 宝物 / 消耗品 / 任务道具
+    else {
+      detailContent = `
+        <div class="detail-section">
+          <span class="detail-quality-label" style="background:${qColor}22; color:${qColor}; border:1px solid ${qColor}44;">${qualityLabel}</span>
+        </div>
+        ${item.effect ? `
+        <div class="detail-section">
+          <div class="detail-section-title">效果</div>
+          <div class="detail-desc" style="color:#61F34A;">${item.effect}</div>
+        </div>` : ''}
+        <div class="detail-section">
+          <div class="detail-section-title">描述</div>
+          <div class="detail-desc">${item.desc}</div>
+        </div>
+      `;
+    }
+
+    inner.innerHTML = `
+      <div class="detail-hero" style="background: radial-gradient(circle at 50% 40%, ${qColor}15, transparent 70%);">
+        <div class="detail-hero-icon">${item.icon}</div>
+        <div class="detail-quality-glow"></div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-name" style="color: ${qColor};">${item.name}</div>
+        ${detailContent}
+      </div>
+    `;
+  }
+
+  panel.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  selectedCard = null;
+}
+
+// ========== 键盘关闭 ==========
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDetail();
+});
+
+// ========== 启动 ==========
+init();
+</script>
+
+</body>
+</html>
