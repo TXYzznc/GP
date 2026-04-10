@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
@@ -216,12 +217,12 @@ public partial class BattlePresetUI : UIFormBase
         go.name = $"PresetSlot_{index}";
 
         // 设置名称
-        var nameText = go.transform.Find("PresetName")?.GetComponent<Text>();
+        var nameText = go.transform.Find("PresetName")?.GetComponent<TMP_Text>();
         if (nameText != null)
             nameText.text = data.DeckName;
 
         // 设置摘要
-        var summaryText = go.transform.Find("PresetSummary")?.GetComponent<Text>();
+        var summaryText = go.transform.Find("PresetSummary")?.GetComponent<TMP_Text>();
         if (summaryText != null)
             summaryText.text = $"棋子 {data.UnitCardIds.Count} · 策略卡 {data.StrategyCardIds.Count}/{BattlePresetManager.MAX_CARD_COUNT}";
 
@@ -256,11 +257,11 @@ public partial class BattlePresetUI : UIFormBase
         go.name = $"PresetSlot_Empty_{index}";
 
         // 清空名称，显示"+"
-        var nameText = go.transform.Find("PresetName")?.GetComponent<Text>();
+        var nameText = go.transform.Find("PresetName")?.GetComponent<TMP_Text>();
         if (nameText != null)
             nameText.text = "+";
 
-        var summaryText = go.transform.Find("PresetSummary")?.GetComponent<Text>();
+        var summaryText = go.transform.Find("PresetSummary")?.GetComponent<TMP_Text>();
         if (summaryText != null)
             summaryText.text = "创建新预设";
 
