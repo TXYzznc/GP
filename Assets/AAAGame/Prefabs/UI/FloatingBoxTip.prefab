@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.8627451}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -246,8 +246,6 @@ GameObject:
   - component: {fileID: 8463498599061406514}
   - component: {fileID: 83966035944270389}
   - component: {fileID: 8805742324921227372}
-  - component: {fileID: 5682389440479920275}
-  - component: {fileID: 3553744228809644441}
   m_Layer: 5
   m_Name: FloatingBoxTip
   m_TagString: Untagged
@@ -325,7 +323,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 1
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &8805742324921227372
 MonoBehaviour:
@@ -346,169 +344,9 @@ MonoBehaviour:
     VarType: UnityEngine.UI.Text
     VarPrefix: 0
   m_UIAnimationType: 0
-  m_OpenAnimation: {fileID: 5682389440479920275}
-  m_CloseAnimation: {fileID: 3553744228809644441}
+  m_OpenAnimation: {fileID: 0}
+  m_CloseAnimation: {fileID: 0}
   m_ReverseOpenAnimAsClose: 1
   m_OpenAnimationName: 
   m_CloseAnimationName: 
   varText: {fileID: 6135291795942560336}
---- !u!114 &5682389440479920275
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4016784945899346359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: caebf9616acfe0942919c4132f38fa2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Sequence:
-  - AddType: 1
-    AnimationType: 20
-    Target: {fileID: 1010364536192320734}
-    ToValue: {x: 0.8, y: 0, z: 0, w: 0}
-    UseToTarget: 0
-    ToTarget: {fileID: 0}
-    UseFromValue: 1
-    FromValue: {x: 0, y: 0, z: 0, w: 0}
-    SpeedBased: 0
-    DurationOrSpeed: 0.8
-    Delay: 0
-    UpdateType: 0
-    CustomEase: 1
-    EaseCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 0
-    Ease: 7
-    Loops: 1
-    LoopType: 0
-    Snapping: 0
-    OnPlay:
-      m_PersistentCalls:
-        m_Calls: []
-    OnUpdate:
-      m_PersistentCalls:
-        m_Calls: []
-    OnComplete:
-      m_PersistentCalls:
-        m_Calls: []
-  m_PlayOnAwake: 0
-  m_ResetOnAwake: 0
-  m_Delay: 0
-  m_Ease: 6
-  m_Loops: 1
-  m_LoopType: 0
-  m_UpdateType: 0
-  m_IgnoreTimeScale: 1
-  m_OnPlay:
-    m_PersistentCalls:
-      m_Calls: []
-  m_OnUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  m_OnComplete:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &3553744228809644441
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4016784945899346359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: caebf9616acfe0942919c4132f38fa2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Sequence:
-  - AddType: 1
-    AnimationType: 20
-    Target: {fileID: 1010364536192320734}
-    ToValue: {x: 0, y: 0, z: 0, w: 0}
-    UseToTarget: 0
-    ToTarget: {fileID: 0}
-    UseFromValue: 1
-    FromValue: {x: 0.8, y: 0, z: 0, w: 0}
-    SpeedBased: 0
-    DurationOrSpeed: 0.5
-    Delay: 0
-    UpdateType: 0
-    CustomEase: 1
-    EaseCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 0
-    Ease: 7
-    Loops: 1
-    LoopType: 0
-    Snapping: 0
-    OnPlay:
-      m_PersistentCalls:
-        m_Calls: []
-    OnUpdate:
-      m_PersistentCalls:
-        m_Calls: []
-    OnComplete:
-      m_PersistentCalls:
-        m_Calls: []
-  m_PlayOnAwake: 0
-  m_ResetOnAwake: 0
-  m_Delay: 0
-  m_Ease: 6
-  m_Loops: 1
-  m_LoopType: 0
-  m_UpdateType: 0
-  m_IgnoreTimeScale: 1
-  m_OnPlay:
-    m_PersistentCalls:
-      m_Calls: []
-  m_OnUpdate:
-    m_PersistentCalls:
-      m_Calls: []
-  m_OnComplete:
-    m_PersistentCalls:
-      m_Calls: []
