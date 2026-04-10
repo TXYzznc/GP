@@ -115,3 +115,4 @@
 	19022		1	Card/Component/Mask/Mask2.png	名字背景-稀有度2
 	19023		1	Card/Component/Mask/Mask3.png	名字背景-稀有度3
 	19024		1	Card/Component/Mask/Mask4.png	名字背景-稀有度4
+	11001		1	Enemy/默认.png	敌人图标

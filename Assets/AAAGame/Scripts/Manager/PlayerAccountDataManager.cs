@@ -375,6 +375,10 @@ public class PlayerAccountDataManager
 
         // 10. 保存存档
         m_CurrentSaveData = saveData;
+
+        // 初始化图鉴管理器
+        DictionaryManager.Instance.Initialize(saveData);
+
         SaveCurrentSave();
 
         // 11. 将存档ID添加到栈顶
@@ -518,6 +522,9 @@ public class PlayerAccountDataManager
             {
                 ChessUnlockManager.Instance.DeserializeFromSaveData(saveData.UnlockedChessIds);
             }
+
+            // 初始化图鉴管理器
+            DictionaryManager.Instance.Initialize(saveData);
 
             // 将此存档移到栈顶
             MoveToStackTop(saveId);

@@ -30,5 +30,6 @@ public enum UIViews : int
 	EnterCombatTip = 24,
 	EndCombatUI = 25,
 	EscapeResultUI = 28,
-	WarehouseUI = 29
+	WarehouseUI = 29,
+	DictionariesUI = 30
 }

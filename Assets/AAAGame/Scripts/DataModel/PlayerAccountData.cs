@@ -140,6 +140,17 @@ public class PlayerSaveData
     /// </summary>
     public int CurrentSceneId;
 
+    // ========== 图鉴解锁记录 ==========
+    /// <summary>
+    /// 已发现的物品ID列表（消耗品、任务道具、装备、宝物统一记录ItemTable的ID）
+    /// </summary>
+    public List<int> DiscoveredItemIds;
+
+    /// <summary>
+    /// 已发现的敌人ID列表（EnemyEntityTable的ID）
+    /// </summary>
+    public List<int> DiscoveredEnemyIds;
+
     // ========== 设置与统计 ==========
 
     /// <summary>
@@ -180,7 +191,9 @@ public class PlayerSaveData
         UnlockedTechIds = new List<int>();
         CurrentDeckIndex = new List<int>();
         CompletedQuestIds = new List<int>();
-        UnlockedChessIds = new List<int>();  // 初始化棋子解锁列表
+        UnlockedChessIds = new List<int>();
+        DiscoveredItemIds = new List<int>();
+        DiscoveredEnemyIds = new List<int>();
     }
 
     #region 辅助方法

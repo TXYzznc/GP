@@ -32,3 +32,4 @@
 	25	战斗结算界面	3	EndCombatUI	True	1	False
 	28	脱战结果界面	2	EscapeResultUI	True	2	False
 	29	仓库界面	2	WarehouseUI	False	1	True
+	30	图鉴界面	2	DictionariesUI	False	1	True
