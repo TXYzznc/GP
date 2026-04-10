@@ -119,7 +119,9 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatEndEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\LanguagesDialog.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\World\IChessStateUIProfile.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\DictionaryItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Interface\ISummonerPassive.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\DictionariesUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIViews.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\TimeInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\ModelController.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Procedures\PreloadProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampRelationService.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\FlameStormCardEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerCombatFlag.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\ConfigImageLoader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyPatrolState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIInteract\ButtonHighlight.cs" />
@@ -155,6 +158,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSMMeleeAI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Procedures\ChangeSceneProcedure.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Manager\DictionaryManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\GF.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardManager.cs" />
@@ -170,6 +174,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PlayerInitTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerInteraction.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\InventorySlot.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\DictionaryItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\LocalizationExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardRangePreview.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventorySlotContainerImpl.cs" />
@@ -403,6 +408,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Common\Const.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IPlayerSkill.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\ResourceExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\DictionarySlot.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\AwardItemUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\BillboardEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatEnterEventArgs.cs" />
@@ -466,6 +472,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SceneTableExtensions.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\System\EnemyRewardSystem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\InventorySlotUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\DictionariesUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CurrencyUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\OutsiderFunctionUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardPreviewDisplay.cs" />
@@ -481,6 +488,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessStateEvents.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyAlertState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EndCombatUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\DictionarySlot.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Detection\PlayerDetectionInfo.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\UITopbar.Variables.cs" />

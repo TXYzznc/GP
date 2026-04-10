@@ -352,8 +352,8 @@
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\LoadBytesCallbacks.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\UpdateVersionListSuccessCallback.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\ObjectPool\IObjectPool.cs" />
-    <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Config\IConfigManager.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Debugger\IDebuggerWindowGroup.cs" />
+    <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Config\IConfigManager.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\ResourceManager.ResourceLoader.LoadBinaryInfo.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Entity\IEntityManager.cs" />
     <Compile Include="Assets\Plugins\UnityGameFramework\GameFramework\Resource\UnloadSceneSuccessCallback.cs" />
