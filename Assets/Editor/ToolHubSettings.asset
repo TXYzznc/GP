@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 6
+  selectedIndex: 7
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -44,3 +44,7 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u7F3A\u5931\u811A\u672C\u626B\u63CF"
     description: "\u626B\u63CF\u9884\u5236\u4F53\u4E2D\u7684\u7F3A\u5931\u811A\u672CGUID\u5F15\u7528"
+  - typeName: FontReplacerPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u5B57\u4F53\u8D44\u6E90\u66FF\u6362"
+    description: "\u6279\u91CF\u66FF\u6362 Text \u548C TextMeshPro \u7684\u5B57\u4F53\u8D44\u6E90"

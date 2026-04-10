@@ -196,6 +196,20 @@ public class PrefabIconBatchGeneratorWindowProxy : ToolPanelWindow<PrefabIconBat
 }
 
 /// <summary>
+/// 字体资源替换工具 独立窗口
+/// </summary>
+public class FontReplacerWindow : ToolPanelWindow<FontReplacerPanel>
+{
+    [MenuItem("工具/UI工具/字体资源替换")]
+    public static void ShowWindow()
+    {
+        var window = GetWindow<FontReplacerWindow>("字体资源替换");
+        window.minSize = new Vector2(420, 400);
+        window.Show();
+    }
+}
+
+/// <summary>
 /// Prefab World Builder 控制台独立窗口
 /// </summary>
 public class PWBControlWindow : ToolPanelWindow<PWBControlPanel>

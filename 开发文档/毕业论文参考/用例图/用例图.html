@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Clash of Gods 用例图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; font-family: "SimSun", "宋体", serif; padding: 40px; }
+  .page {
+    width: 800px; margin: 0 auto 60px; page-break-after: always;
+  }
+  .page-title {
+    text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px;
+  }
+  svg { display: block; margin: 0 auto; }
+
+  /* SVG styles */
+  .sys-border { fill: none; stroke: #000; stroke-width: 1.5; }
+  .sys-title { font-family: "SimSun", "宋体", serif; font-size: 14px; font-weight: bold; text-anchor: middle; }
+  .usecase { fill: #fff; stroke: #000; stroke-width: 1.2; }
+  .usecase-text { font-family: "SimSun", "宋体", serif; font-size: 12px; text-anchor: middle; dominant-baseline: central; }
+  .actor-line { stroke: #000; stroke-width: 1.5; stroke-linecap: round; }
+  .actor-circle { fill: none; stroke: #000; stroke-width: 1.5; }
+  .actor-label { font-family: "SimSun", "宋体", serif; font-size: 13px; text-anchor: middle; }
+  .assoc-line { stroke: #000; stroke-width: 1; }
+  .include-line { stroke: #000; stroke-width: 1; stroke-dasharray: 6,3; }
+  .include-text { font-family: "SimSun", "宋体", serif; font-size: 10px; text-anchor: middle; }
+  .extend-line { stroke: #000; stroke-width: 1; stroke-dasharray: 6,3; }
+  .note { font-family: "SimSun", "宋体", serif; font-size: 10px; fill: #666; }
+
+  @media print {
+    .page { page-break-after: always; margin-bottom: 0; }
+    body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== 图3.2 系统总体用例图 ==================== -->
+<div class="page">
+<div class="page-title">图3.2 系统总体用例图</div>
+<svg width="780" height="680" viewBox="0 0 780 680">
+  <!-- Actor: 玩家 -->
+  <circle cx="60" cy="260" r="16" class="actor-circle"/>
+  <line x1="60" y1="276" x2="60" y2="330" class="actor-line"/>
+  <line x1="30" y1="300" x2="90" y2="300" class="actor-line"/>
+  <line x1="60" y1="330" x2="35" y2="370" class="actor-line"/>
+  <line x1="60" y1="330" x2="85" y2="370" class="actor-line"/>
+  <text x="60" y="390" class="actor-label">玩家</text>
+
+  <!-- System boundary -->
+  <rect x="140" y="20" width="620" height="640" rx="8" class="sys-border"/>
+  <text x="450" y="50" class="sys-title">Clash of Gods 游戏系统</text>
+
+  <!-- 探索系统子框 -->
+  <rect x="160" y="65" width="270" height="195" rx="5" style="fill:none;stroke:#999;stroke-width:1;stroke-dasharray:4,2"/>
+  <text x="295" y="85" style="font-family:SimSun;font-size:11px;text-anchor:middle;fill:#666">探索系统</text>
+
+  <!-- 探索用例 -->
+  <ellipse cx="295" cy="120" rx="70" ry="22" class="usecase"/>
+  <text x="295" y="120" class="usecase-text">地图探索</text>
+
+  <ellipse cx="230" cy="175" rx="55" ry="22" class="usecase"/>
+  <text x="230" y="175" class="usecase-text">触发战斗</text>
+
+  <ellipse cx="360" cy="175" rx="55" ry="22" class="usecase"/>
+  <text x="360" y="175" class="usecase-text">净化敌人</text>
+
+  <ellipse cx="295" cy="230" rx="55" ry="22" class="usecase"/>
+  <text x="295" y="230" class="usecase-text">尝试脱战</text>
+
+  <!-- 战斗系统子框 -->
+  <rect x="460" y="65" width="280" height="195" rx="5" style="fill:none;stroke:#999;stroke-width:1;stroke-dasharray:4,2"/>
+  <text x="600" y="85" style="font-family:SimSun;font-size:11px;text-anchor:middle;fill:#666">战斗系统</text>
+
+  <!-- 战斗用例 -->
+  <ellipse cx="600" cy="120" rx="65" ry="22" class="usecase"/>
+  <text x="600" y="120" class="usecase-text">部署棋子</text>
+
+  <ellipse cx="530" cy="175" rx="55" ry="22" class="usecase"/>
+  <text x="530" y="175" class="usecase-text">自动战斗</text>
+
+  <ellipse cx="670" cy="175" rx="65" ry="22" class="usecase"/>
+  <text x="670" y="175" class="usecase-text">使用策略卡</text>
+
+  <ellipse cx="600" cy="230" rx="65" ry="22" class="usecase"/>
+  <text x="600" y="230" class="usecase-text">查看战斗结算</text>
+
+  <!-- 物品系统子框 -->
+  <rect x="160" y="285" width="270" height="195" rx="5" style="fill:none;stroke:#999;stroke-width:1;stroke-dasharray:4,2"/>
+  <text x="295" y="305" style="font-family:SimSun;font-size:11px;text-anchor:middle;fill:#666">物品背包系统</text>
+
+  <!-- 物品用例 -->
+  <ellipse cx="295" cy="340" rx="65" ry="22" class="usecase"/>
+  <text x="295" y="340" class="usecase-text">管理背包</text>
+
+  <ellipse cx="230" cy="395" rx="60" ry="22" class="usecase"/>
+  <text x="230" y="395" class="usecase-text">装备物品</text>
+
+  <ellipse cx="360" cy="395" rx="65" ry="22" class="usecase"/>
+  <text x="360" y="395" class="usecase-text">使用消耗品</text>
+
+  <ellipse cx="295" cy="450" rx="65" ry="22" class="usecase"/>
+  <text x="295" y="450" class="usecase-text">查看物品详情</text>
+
+  <!-- 卡牌系统子框 -->
+  <rect x="460" y="285" width="280" height="195" rx="5" style="fill:none;stroke:#999;stroke-width:1;stroke-dasharray:4,2"/>
+  <text x="600" y="305" style="font-family:SimSun;font-size:11px;text-anchor:middle;fill:#666">策略卡系统</text>
+
+  <!-- 卡牌用例 -->
+  <ellipse cx="600" cy="340" rx="55" ry="22" class="usecase"/>
+  <text x="600" y="340" class="usecase-text">查看手牌</text>
+
+  <ellipse cx="530" cy="395" rx="55" ry="22" class="usecase"/>
+  <text x="530" y="395" class="usecase-text">使用卡牌</text>
+
+  <ellipse cx="670" cy="395" rx="65" ry="22" class="usecase"/>
+  <text x="670" y="395" class="usecase-text">查看卡牌效果</text>
+
+  <ellipse cx="600" cy="450" rx="60" ry="22" class="usecase"/>
+  <text x="600" y="450" class="usecase-text">获得卡牌</text>
+
+  <!-- 系统自动执行区域 -->
+  <rect x="160" y="505" width="580" height="140" rx="5" style="fill:none;stroke:#999;stroke-width:1;stroke-dasharray:4,2"/>
+  <text x="450" y="525" style="font-family:SimSun;font-size:11px;text-anchor:middle;fill:#666">系统自动执行</text>
+
+  <ellipse cx="240" cy="560" rx="65" ry="22" class="usecase"/>
+  <text x="240" y="560" class="usecase-text">敌人AI巡逻</text>
+
+  <ellipse cx="390" cy="560" rx="65" ry="22" class="usecase"/>
+  <text x="390" y="560" class="usecase-text">视野检测</text>
+
+  <ellipse cx="540" cy="560" rx="65" ry="22" class="usecase"/>
+  <text x="540" y="560" class="usecase-text">污染值增长</text>
+
+  <ellipse cx="680" cy="560" rx="55" ry="22" class="usecase"/>
+  <text x="680" y="560" class="usecase-text">奖励发放</text>
+
+  <ellipse cx="310" cy="615" rx="65" ry="22" class="usecase"/>
+  <text x="310" y="615" class="usecase-text">战斗结算</text>
+
+  <ellipse cx="470" cy="615" rx="65" ry="22" class="usecase"/>
+  <text x="470" y="615" class="usecase-text">场景过渡</text>
+
+  <ellipse cx="630" cy="615" rx="65" ry="22" class="usecase"/>
+  <text x="630" y="615" class="usecase-text">精英敌人广播</text>
+
+  <!-- 关联线: 玩家 → 各用例 -->
+  <line x1="90" y1="270" x2="225" y2="120" class="assoc-line"/>
+  <line x1="90" y1="280" x2="175" y2="175" class="assoc-line"/>
+  <line x1="90" y1="290" x2="240" y2="230" class="assoc-line"/>
+  <line x1="95" y1="260" x2="535" y2="120" class="assoc-line"/>
+  <line x1="95" y1="270" x2="605" y2="175" class="assoc-line"/>
+
+  <line x1="90" y1="310" x2="230" y2="340" class="assoc-line"/>
+  <line x1="90" y1="320" x2="170" y2="395" class="assoc-line"/>
+  <line x1="90" y1="340" x2="230" y2="450" class="assoc-line"/>
+
+  <line x1="95" y1="300" x2="545" y2="340" class="assoc-line"/>
+  <line x1="95" y1="310" x2="475" y2="395" class="assoc-line"/>
+
+  <!-- 包含关系: 触发战斗 ->> 偷袭/遭遇 -->
+  <!-- 净化敌人 --include--> 获得卡牌 -->
+  <line x1="395" y1="185" x2="555" y2="440" class="include-line"/>
+  <text x="490" y="320" class="include-text" transform="rotate(-30,490,320)">&lt;&lt;包含&gt;&gt;</text>
+</svg>
+</div>
+
+<!-- ==================== 图3.3 探索系统用例图 ==================== -->
+<div class="page">
+<div class="page-title">图3.3 探索系统用例图</div>
+<svg width="780" height="620" viewBox="0 0 780 620">
+  <!-- Actor: 玩家 -->
+  <circle cx="60" cy="250" r="16" class="actor-circle"/>
+  <line x1="60" y1="266" x2="60" y2="320" class="actor-line"/>
+  <line x1="30" y1="290" x2="90" y2="290" class="actor-line"/>
+  <line x1="60" y1="320" x2="35" y2="360" class="actor-line"/>
+  <line x1="60" y1="320" x2="85" y2="360" class="actor-line"/>
+  <text x="60" y="380" class="actor-label">玩家</text>
+
+  <!-- System boundary -->
+  <rect x="140" y="20" width="620" height="580" rx="8" class="sys-border"/>
+  <text x="450" y="50" class="sys-title">探索系统</text>
+
+  <!-- 主用例 -->
+  <ellipse cx="280" cy="100" rx="65" ry="22" class="usecase"/>
+  <text x="280" y="100" class="usecase-text">自由移动</text>
+
+  <ellipse cx="280" cy="170" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="170" class="usecase-text">偷袭敌人</text>
+
+  <ellipse cx="280" cy="240" rx="55" ry="22" class="usecase"/>
+  <text x="280" y="240" class="usecase-text">遭遇战</text>
+
+  <ellipse cx="280" cy="310" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="310" class="usecase-text">逃避追击</text>
+
+  <ellipse cx="280" cy="380" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="380" class="usecase-text">净化敌人</text>
+
+  <ellipse cx="280" cy="450" rx="70" ry="22" class="usecase"/>
+  <text x="280" y="450" class="usecase-text">查看游戏信息</text>
+
+  <!-- 包含用例（右侧） -->
+  <ellipse cx="530" cy="130" rx="75" ry="22" class="usecase"/>
+  <text x="530" y="130" class="usecase-text">选择偷袭Debuff</text>
+
+  <ellipse cx="530" cy="200" rx="70" ry="22" class="usecase"/>
+  <text x="530" y="200" class="usecase-text">获得先手Buff</text>
+
+  <ellipse cx="530" cy="270" rx="65" ry="22" class="usecase"/>
+  <text x="530" y="270" class="usecase-text">进入战斗</text>
+
+  <ellipse cx="530" cy="345" rx="65" ry="22" class="usecase"/>
+  <text x="530" y="345" class="usecase-text">获得策略卡</text>
+
+  <!-- 系统用例（下方） -->
+  <ellipse cx="530" cy="420" rx="70" ry="22" class="usecase"/>
+  <text x="530" y="420" class="usecase-text">敌人AI巡逻</text>
+
+  <ellipse cx="350" cy="520" rx="65" ry="22" class="usecase"/>
+  <text x="350" y="520" class="usecase-text">视野检测</text>
+
+  <ellipse cx="530" cy="490" rx="75" ry="22" class="usecase"/>
+  <text x="530" y="490" class="usecase-text">精英敌人广播</text>
+
+  <ellipse cx="530" cy="560" rx="65" ry="22" class="usecase"/>
+  <text x="530" y="560" class="usecase-text">污染值增长</text>
+
+  <ellipse cx="350" cy="560" rx="65" ry="22" class="usecase"/>
+  <text x="350" y="560" class="usecase-text">战后隐身</text>
+
+  <!-- 关联线: 玩家 → 主用例 -->
+  <line x1="90" y1="250" x2="215" y2="100" class="assoc-line"/>
+  <line x1="90" y1="255" x2="220" y2="170" class="assoc-line"/>
+  <line x1="90" y1="260" x2="225" y2="240" class="assoc-line"/>
+  <line x1="90" y1="280" x2="220" y2="310" class="assoc-line"/>
+  <line x1="90" y1="300" x2="220" y2="380" class="assoc-line"/>
+  <line x1="90" y1="320" x2="210" y2="450" class="assoc-line"/>
+
+  <!-- 包含关系 -->
+  <!-- 偷袭 --include--> 选择Debuff -->
+  <line x1="340" y1="165" x2="455" y2="135" class="include-line"/>
+  <text x="397" y="142" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 偷袭 --include--> 进入战斗 -->
+  <line x1="335" y1="185" x2="465" y2="265" class="include-line"/>
+  <text x="410" y="215" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 遭遇战 --include--> 获得先手Buff -->
+  <line x1="335" y1="235" x2="460" y2="205" class="include-line"/>
+  <text x="410" y="210" class="include-text" style="display:none">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 遭遇战 --include--> 进入战斗 -->
+  <line x1="335" y1="245" x2="465" y2="268" class="include-line"/>
+  <text x="405" y="248" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 净化 --include--> 获得策略卡 -->
+  <line x1="340" y1="378" x2="465" y2="350" class="include-line"/>
+  <text x="400" y="357" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 逃避追击 --include--> 进入战斗（敌方先手） -->
+  <line x1="340" y1="305" x2="465" y2="275" class="include-line"/>
+  <text x="410" y="282" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 系统自动标注 -->
+  <text x="680" y="422" class="note">系统自动</text>
+  <text x="680" y="492" class="note">系统自动</text>
+  <text x="680" y="562" class="note">系统自动</text>
+</svg>
+</div>
+
+<!-- ==================== 图3.4 战斗系统用例图 ==================== -->
+<div class="page">
+<div class="page-title">图3.4 战斗系统用例图</div>
+<svg width="780" height="600" viewBox="0 0 780 600">
+  <!-- Actor: 玩家 -->
+  <circle cx="60" cy="200" r="16" class="actor-circle"/>
+  <line x1="60" y1="216" x2="60" y2="270" class="actor-line"/>
+  <line x1="30" y1="240" x2="90" y2="240" class="actor-line"/>
+  <line x1="60" y1="270" x2="35" y2="310" class="actor-line"/>
+  <line x1="60" y1="270" x2="85" y2="310" class="actor-line"/>
+  <text x="60" y="330" class="actor-label">玩家</text>
+
+  <!-- System boundary -->
+  <rect x="140" y="20" width="620" height="560" rx="8" class="sys-border"/>
+  <text x="450" y="50" class="sys-title">战斗系统</text>
+
+  <!-- 玩家用例（左列） -->
+  <ellipse cx="280" cy="95" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="95" class="usecase-text">部署棋子</text>
+
+  <ellipse cx="280" cy="165" rx="55" ry="22" class="usecase"/>
+  <text x="280" y="165" class="usecase-text">确认开战</text>
+
+  <ellipse cx="280" cy="235" rx="65" ry="22" class="usecase"/>
+  <text x="280" y="235" class="usecase-text">使用策略卡</text>
+
+  <ellipse cx="280" cy="305" rx="55" ry="22" class="usecase"/>
+  <text x="280" y="305" class="usecase-text">尝试脱战</text>
+
+  <ellipse cx="280" cy="375" rx="70" ry="22" class="usecase"/>
+  <text x="280" y="375" class="usecase-text">查看战斗结算</text>
+
+  <!-- 包含/扩展用例（右列） -->
+  <ellipse cx="540" cy="95" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="95" class="usecase-text">选择棋子阵容</text>
+
+  <ellipse cx="540" cy="165" rx="65" ry="22" class="usecase"/>
+  <text x="540" y="165" class="usecase-text">施加先手效果</text>
+
+  <ellipse cx="540" cy="235" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="235" class="usecase-text">选择卡牌目标</text>
+
+  <ellipse cx="540" cy="305" rx="65" ry="22" class="usecase"/>
+  <text x="540" y="305" class="usecase-text">计算脱战概率</text>
+
+  <!-- 系统自动用例（下方） -->
+  <ellipse cx="220" cy="450" rx="60" ry="22" class="usecase"/>
+  <text x="220" y="450" class="usecase-text">棋子AI决策</text>
+
+  <ellipse cx="370" cy="450" rx="55" ry="22" class="usecase"/>
+  <text x="370" y="450" class="usecase-text">伤害计算</text>
+
+  <ellipse cx="520" cy="450" rx="60" ry="22" class="usecase"/>
+  <text x="520" y="450" class="usecase-text">Buff效果处理</text>
+
+  <ellipse cx="670" cy="450" rx="55" ry="22" class="usecase"/>
+  <text x="670" y="450" class="usecase-text">命中检测</text>
+
+  <ellipse cx="290" cy="520" rx="65" ry="22" class="usecase"/>
+  <text x="290" y="520" class="usecase-text">判定胜负</text>
+
+  <ellipse cx="460" cy="520" rx="70" ry="22" class="usecase"/>
+  <text x="460" y="520" class="usecase-text">先手效果施加</text>
+
+  <ellipse cx="630" cy="520" rx="65" ry="22" class="usecase"/>
+  <text x="630" y="520" class="usecase-text">战斗结算</text>
+
+  <!-- 关联线: 玩家 → 用例 -->
+  <line x1="90" y1="200" x2="220" y2="95" class="assoc-line"/>
+  <line x1="90" y1="210" x2="225" y2="165" class="assoc-line"/>
+  <line x1="90" y1="220" x2="215" y2="235" class="assoc-line"/>
+  <line x1="90" y1="240" x2="225" y2="305" class="assoc-line"/>
+  <line x1="90" y1="260" x2="210" y2="375" class="assoc-line"/>
+
+  <!-- 包含关系 -->
+  <line x1="340" y1="92" x2="470" y2="95" class="include-line"/>
+  <text x="405" y="85" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="335" y1="162" x2="475" y2="165" class="include-line"/>
+  <text x="405" y="155" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="345" y1="232" x2="470" y2="235" class="include-line"/>
+  <text x="405" y="225" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="335" y1="302" x2="475" y2="305" class="include-line"/>
+  <text x="405" y="295" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <!-- 系统自动标注 -->
+  <line x1="160" y1="425" x2="730" y2="425" style="stroke:#ccc;stroke-width:0.5;stroke-dasharray:3,2"/>
+  <text x="170" y="418" class="note">系统自动执行</text>
+</svg>
+</div>
+
+<!-- ==================== 图3.5 物品背包系统用例图 ==================== -->
+<div class="page">
+<div class="page-title">图3.5 物品背包系统用例图</div>
+<svg width="780" height="560" viewBox="0 0 780 560">
+  <!-- Actor: 玩家 -->
+  <circle cx="60" cy="220" r="16" class="actor-circle"/>
+  <line x1="60" y1="236" x2="60" y2="290" class="actor-line"/>
+  <line x1="30" y1="260" x2="90" y2="260" class="actor-line"/>
+  <line x1="60" y1="290" x2="35" y2="330" class="actor-line"/>
+  <line x1="60" y1="290" x2="85" y2="330" class="actor-line"/>
+  <text x="60" y="350" class="actor-label">玩家</text>
+
+  <!-- System boundary -->
+  <rect x="140" y="20" width="620" height="520" rx="8" class="sys-border"/>
+  <text x="450" y="50" class="sys-title">物品背包系统</text>
+
+  <!-- 主用例（左列） -->
+  <ellipse cx="280" cy="95" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="95" class="usecase-text">打开背包</text>
+
+  <ellipse cx="280" cy="165" rx="70" ry="22" class="usecase"/>
+  <text x="280" y="165" class="usecase-text">拖拽移动物品</text>
+
+  <ellipse cx="280" cy="235" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="235" class="usecase-text">装备物品</text>
+
+  <ellipse cx="280" cy="305" rx="55" ry="22" class="usecase"/>
+  <text x="280" y="305" class="usecase-text">卸下装备</text>
+
+  <ellipse cx="280" cy="375" rx="65" ry="22" class="usecase"/>
+  <text x="280" y="375" class="usecase-text">使用消耗品</text>
+
+  <ellipse cx="280" cy="445" rx="70" ry="22" class="usecase"/>
+  <text x="280" y="445" class="usecase-text">查看物品详情</text>
+
+  <ellipse cx="280" cy="510" rx="60" ry="22" class="usecase"/>
+  <text x="280" y="510" class="usecase-text">丢弃物品</text>
+
+  <!-- 包含/扩展用例（右列） -->
+  <ellipse cx="540" cy="95" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="95" class="usecase-text">分页浏览</text>
+
+  <ellipse cx="540" cy="165" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="165" class="usecase-text">堆叠合并</text>
+
+  <ellipse cx="540" cy="235" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="235" class="usecase-text">查看属性变化</text>
+
+  <ellipse cx="540" cy="305" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="305" class="usecase-text">检测羁绊效果</text>
+
+  <ellipse cx="540" cy="375" rx="70" ry="22" class="usecase"/>
+  <text x="540" y="375" class="usecase-text">触发使用效果</text>
+
+  <ellipse cx="540" cy="445" rx="65" ry="22" class="usecase"/>
+  <text x="540" y="445" class="usecase-text">显示词条信息</text>
+
+  <ellipse cx="540" cy="510" rx="65" ry="22" class="usecase"/>
+  <text x="540" y="510" class="usecase-text">确认丢弃</text>
+
+  <!-- 关联线: 玩家 → 用例 -->
+  <line x1="90" y1="210" x2="220" y2="95" class="assoc-line"/>
+  <line x1="90" y1="215" x2="210" y2="165" class="assoc-line"/>
+  <line x1="90" y1="225" x2="220" y2="235" class="assoc-line"/>
+  <line x1="90" y1="240" x2="225" y2="305" class="assoc-line"/>
+  <line x1="90" y1="255" x2="215" y2="375" class="assoc-line"/>
+  <line x1="90" y1="270" x2="210" y2="445" class="assoc-line"/>
+  <line x1="90" y1="285" x2="220" y2="510" class="assoc-line"/>
+
+  <!-- 包含关系 -->
+  <line x1="340" y1="92" x2="470" y2="95" class="include-line"/>
+  <text x="405" y="85" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="350" y1="162" x2="470" y2="165" class="include-line"/>
+  <text x="410" y="155" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="340" y1="232" x2="470" y2="235" class="include-line"/>
+  <text x="405" y="225" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="340" y1="240" x2="470" y2="300" class="include-line"/>
+  <text x="415" y="262" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="345" y1="372" x2="470" y2="375" class="include-line"/>
+  <text x="408" y="365" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="350" y1="442" x2="475" y2="445" class="include-line"/>
+  <text x="412" y="435" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+
+  <line x1="340" y1="508" x2="475" y2="510" class="include-line"/>
+  <text x="408" y="500" class="include-text">&lt;&lt;包含&gt;&gt;</text>
+</svg>
+</div>
+
+</body>
+</html>
