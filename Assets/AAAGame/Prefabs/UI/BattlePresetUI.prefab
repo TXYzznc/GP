@@ -700,7 +700,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4151818547168822613}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7034494873117229892}
+        m_TargetAssemblyTypeName: UIFormBase, Hotfix
+        m_MethodName: ClickUIButton
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 7304500572367239359}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2091784646821193493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -876,126 +888,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!1 &1770058873148741311
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8388939551822290306}
-  - component: {fileID: 8071236587330801848}
-  - component: {fileID: 2107250373505155236}
-  - component: {fileID: 3145287692678591329}
-  m_Layer: 0
-  m_Name: CardItemTemplate
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &8388939551822290306
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1770058873148741311}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7302821651256679681}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 90, y: 110}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &8071236587330801848
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1770058873148741311}
-  m_CullTransparentMesh: 1
---- !u!114 &2107250373505155236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1770058873148741311}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.094, g: 0.11, b: 0.18, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &3145287692678591329
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1770058873148741311}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 2107250373505155236}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1887791917659923362
 GameObject:
   m_ObjectHideFlags: 0
@@ -1579,7 +1471,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2996351708452336106}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7034494873117229892}
+        m_TargetAssemblyTypeName: UIFormBase, Hotfix
+        m_MethodName: ClickUIButton
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 5366475865601543888}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &8072381147587265769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1854,7 +1758,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5457875926405082177}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7034494873117229892}
+        m_TargetAssemblyTypeName: UIFormBase, Hotfix
+        m_MethodName: ClickUIButton
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 6772727868075137791}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2868176464169818314
 GameObject:
   m_ObjectHideFlags: 0
@@ -2110,7 +2026,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3372309915454171632}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7034494873117229892}
+        m_TargetAssemblyTypeName: UIFormBase, Hotfix
+        m_MethodName: ClickUIButton
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 6028434651843129323}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &9085783453871422002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3330,8 +3258,6 @@ RectTransform:
   - {fileID: 6319806236453032521}
   - {fileID: 3652046479248785542}
   - {fileID: 2631430625946670269}
-  - {fileID: 2060523565301407544}
-  - {fileID: 8388939551822290306}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3403,29 +3329,109 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e91da7621e03bc440ac0ec98ab87bead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fields: []
+  _fields:
+  - VarName: varBtnBack
+    Targets:
+    - {fileID: 2703539222327078180}
+    VarType: UnityEngine.UI.Button
+    VarPrefix: 0
+  - VarName: varBtnSave
+    Targets:
+    - {fileID: 2574113276123231126}
+    VarType: UnityEngine.UI.Button
+    VarPrefix: 0
+  - VarName: varBtnDelete
+    Targets:
+    - {fileID: 1637016842988033087}
+    VarType: UnityEngine.UI.Button
+    VarPrefix: 0
+  - VarName: varBtnSetDefault
+    Targets:
+    - {fileID: 2955503191344688332}
+    VarType: UnityEngine.UI.Button
+    VarPrefix: 0
+  - VarName: varBtnReset
+    Targets:
+    - {fileID: 5863911690437588643}
+    VarType: UnityEngine.UI.Button
+    VarPrefix: 0
+  - VarName: varPresetNameInput
+    Targets:
+    - {fileID: 5556642144345082066}
+    VarType: TMPro.TMP_InputField
+    VarPrefix: 0
+  - VarName: varPresetSlotItem
+    Targets:
+    - {fileID: 8435122455345883378}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varPresetSlotContainer
+    Targets:
+    - {fileID: 5230930187888982186}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varChessItemTemplate
+    Targets:
+    - {fileID: 8167598582931529252, guid: 57ce632a468176e4ba1637d2adad07c6, type: 3}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varSelectedChessContainer
+    Targets:
+    - {fileID: 2264945662394105999}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varChessPoolContainer
+    Targets:
+    - {fileID: 7064371518137055773}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varChessCountText
+    Targets:
+    - {fileID: 7406629016657985001}
+    VarType: TMPro.TextMeshProUGUI
+    VarPrefix: 0
+  - VarName: varCardItemTemplate
+    Targets:
+    - {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varSelectedCardContainer
+    Targets:
+    - {fileID: 6177512431974248989}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varCardPoolContainer
+    Targets:
+    - {fileID: 3842541045427662897}
+    VarType: UnityEngine.GameObject
+    VarPrefix: 0
+  - VarName: varCardCountText
+    Targets:
+    - {fileID: 6426044792043696386}
+    VarType: TMPro.TextMeshProUGUI
+    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
   m_ReverseOpenAnimAsClose: 1
   m_OpenAnimationName: 
   m_CloseAnimationName: 
-  varBtnBack: {fileID: 0}
-  varBtnSave: {fileID: 0}
-  varBtnDelete: {fileID: 0}
-  varBtnSetDefault: {fileID: 0}
-  varBtnReset: {fileID: 0}
-  varPresetNameInput: {fileID: 0}
-  varPresetSlotItem: {fileID: 0}
-  varPresetSlotContainer: {fileID: 0}
-  varChessItemTemplate: {fileID: 0}
-  varSelectedChessContainer: {fileID: 0}
-  varChessPoolContainer: {fileID: 0}
-  varChessCountText: {fileID: 0}
-  varCardItemTemplate: {fileID: 0}
-  varSelectedCardContainer: {fileID: 0}
-  varCardPoolContainer: {fileID: 0}
-  varCardCountText: {fileID: 0}
+  varBtnBack: {fileID: 6772727868075137791}
+  varBtnSave: {fileID: 5366475865601543888}
+  varBtnDelete: {fileID: 7304500572367239359}
+  varBtnSetDefault: {fileID: 6028434651843129323}
+  varBtnReset: {fileID: 8386690095557497313}
+  varPresetNameInput: {fileID: 7079463382253065511}
+  varPresetSlotItem: {fileID: 8435122455345883378}
+  varPresetSlotContainer: {fileID: 5230930187888982186}
+  varChessItemTemplate: {fileID: 8167598582931529252, guid: 57ce632a468176e4ba1637d2adad07c6, type: 3}
+  varSelectedChessContainer: {fileID: 2264945662394105999}
+  varChessPoolContainer: {fileID: 7064371518137055773}
+  varChessCountText: {fileID: 5354175811255349590}
+  varCardItemTemplate: {fileID: 1700501246318484649, guid: 8b8b2b3b69eb871499b69a6b44003515, type: 3}
+  varSelectedCardContainer: {fileID: 6177512431974248989}
+  varCardPoolContainer: {fileID: 3842541045427662897}
+  varCardCountText: {fileID: 7895062468285575749}
 --- !u!1 &5230930187888982186
 GameObject:
   m_ObjectHideFlags: 0
@@ -3973,7 +3979,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4184147864903057439}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7034494873117229892}
+        m_TargetAssemblyTypeName: UIFormBase, Hotfix
+        m_MethodName: ClickUIButton
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 8386690095557497313}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Button, UnityEngine.UI
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2341014714029885714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3994,126 +4012,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!1 &6163398269400505354
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2060523565301407544}
-  - component: {fileID: 7662595849666346143}
-  - component: {fileID: 7197810076426134587}
-  - component: {fileID: 3210121166473641851}
-  m_Layer: 0
-  m_Name: ChessItemTemplate
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!224 &2060523565301407544
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163398269400505354}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7302821651256679681}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 90, y: 110}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &7662595849666346143
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163398269400505354}
-  m_CullTransparentMesh: 1
---- !u!114 &7197810076426134587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163398269400505354}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.094, g: 0.11, b: 0.18, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!114 &3210121166473641851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163398269400505354}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 7197810076426134587}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &6177512431974248989
 GameObject:
   m_ObjectHideFlags: 0

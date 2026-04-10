@@ -1,4 +1,4 @@
-﻿//---------------------------------
+//---------------------------------
 //此文件由工具自动生成,请勿手动修改
 //更新自:DESKTOP-7JQ11GM
 //---------------------------------
@@ -20,9 +20,9 @@ public partial class BattlePresetUI
 	[SerializeField] private GameObject varChessItemTemplate = null;
 	[SerializeField] private GameObject varSelectedChessContainer = null;
 	[SerializeField] private GameObject varChessPoolContainer = null;
-	[SerializeField] private TMP_Text varChessCountText = null;
+	[SerializeField] private TextMeshProUGUI varChessCountText = null;
 	[SerializeField] private GameObject varCardItemTemplate = null;
 	[SerializeField] private GameObject varSelectedCardContainer = null;
 	[SerializeField] private GameObject varCardPoolContainer = null;
-	[SerializeField] private TMP_Text varCardCountText = null;
+	[SerializeField] private TextMeshProUGUI varCardCountText = null;
 }
