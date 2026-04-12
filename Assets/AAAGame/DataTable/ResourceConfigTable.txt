@@ -69,6 +69,18 @@
 	1910		1	Items/10.png	石中剑图标
 	1911		1	Items/11.png	龙鳞铠甲图标
 	1912		1	Items/12.png	精灵之戒图标
+	1913		1	Items/13.png	月华玉璧图标
+	1914		1	Items/14.png	太阴弦月弓图标
+	1915		1	Items/15.png	月轮镜图标
+	1916		1	Items/16.png	炎魔之心图标
+	1917		1	Items/17.png	炎魔之冠图标
+	1918		1	Items/18.png	炎魔之剑图标
+	1919		1	Items/19.png	古剑·樱花落图标
+	1920		1	Items/20.png	暗影斗篷图标
+	1921		1	Items/21.png	圣光铠甲图标
+	1922		1	Items/22.png	古墓盗贼手套图标
+	1923		1	Items/23.png	冰晶靴图标
+	1924		1	Items/24.png	风暴法杖图标
 	2001		2	UI/CloudInfo/PlayerInfo	角色信息预制体
 	2002		2	UI/CloudInfo/ItemsInfo	仓库信息预制体
 	2003		2	UI/CloudInfo/TimeInfo	存档时间预制体
@@ -88,6 +100,8 @@
 	3002		3	SummonChessEffect/Projectile_HouYi_Attack	后羿普攻子弹
 	3003		3	SummonChessEffect/Projectile_HouYi_Skill2	后羿大招子弹
 	3004		3	SummonChessEffect/Projectile_ChangE_Attack	嫦娥普攻子弹
+	3005		3	SummonChessEffect/Change_Skill1	嫦娥技能一子弹
+	3006		3	SummonChessEffect/Change_Skill2	嫦娥大招特效
 	6001		6	Skills/SkillParamRegistry	技能参数注册表
 	10001		1	Buff/2001.png	先手·速度爆发图标
 	10002		1	Buff/2002.png	先手·攻击强化图标
