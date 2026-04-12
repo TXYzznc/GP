@@ -31,7 +31,7 @@ public class PlayerAccountDataManager
     /// </summary>
     private PlayerAccountDataManager()
     {
-        // 订阅棋子解锁事件，确保 OwnedUnitCardIds 和 UnlockedChessIds 同步
+        // 订阅棋子解锁事件
         if (ChessUnlockManager.Instance != null)
         {
             ChessUnlockManager.Instance.OnChessUnlocked += OnChessUnlocked;
@@ -43,21 +43,8 @@ public class PlayerAccountDataManager
     /// </summary>
     private void OnChessUnlocked(int chessId)
     {
-        if (m_CurrentSaveData == null)
-            return;
-
-        // 同步到玩家拥有的卡牌列表
-        if (
-            m_CurrentSaveData.OwnedUnitCardIds != null
-            && !m_CurrentSaveData.OwnedUnitCardIds.Contains(chessId)
-        )
-        {
-            m_CurrentSaveData.OwnedUnitCardIds.Add(chessId);
-            DebugEx.LogModule(
-                "PlayerAccountDataManager",
-                $"同步已解锁棋子 {chessId} 到 OwnedUnitCardIds"
-            );
-        }
+        // 棋子数据已直接存储在 OwnedUnitCardIds 中，无需额外同步
+        DebugEx.LogModule("PlayerAccountDataManager", $"棋子已解锁: {chessId}");
     }
 
     // 当前玩家存档数据
@@ -432,13 +419,6 @@ public class PlayerAccountDataManager
                 );
             }
 
-            // 序列化棋子解锁数据
-            if (ChessUnlockManager.Instance != null)
-            {
-                m_CurrentSaveData.UnlockedChessIds =
-                    ChessUnlockManager.Instance.SerializeToSaveData();
-            }
-
             // 序列化为JSON
             string json = JsonUtility.ToJson(m_CurrentSaveData, true);
 
@@ -517,12 +497,6 @@ public class PlayerAccountDataManager
             // 从配置表加载运行时配置
             LoadRuntimeData(saveData);
 
-            // 反序列化棋子解锁数据
-            if (ChessUnlockManager.Instance != null)
-            {
-                ChessUnlockManager.Instance.DeserializeFromSaveData(saveData.UnlockedChessIds);
-            }
-
             // 初始化图鉴管理器
             DictionaryManager.Instance.Initialize(saveData);
 
@@ -559,6 +533,16 @@ public class PlayerAccountDataManager
                 saveData.ExpMultiplier = initConfig.ExpMultiplier;
                 saveData.EliteSpawnRate = initConfig.EliteSpawnRate;
             }
+        }
+
+        // 初始化棋子解锁管理器
+        if (ChessUnlockManager.Instance != null)
+        {
+            ChessUnlockManager.Instance.Initialize(saveData);
+            DebugEx.LogModule(
+                "PlayerAccountDataManager",
+                $"棋子管理器已初始化，已解锁棋子数: {saveData.OwnedUnitCardIds?.Count ?? 0}"
+            );
         }
 
         // 加载背包数据

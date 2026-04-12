@@ -7,13 +7,13 @@ using System.Linq;
 /// </summary>
 public enum DictionaryCategory
 {
-    Chess = 0,       // 棋子
-    StrategyCard,    // 策略卡
-    Enemy,           // 敌人
-    Equipment,       // 装备
-    Treasure,        // 宝物
-    Consumable,      // 消耗品
-    QuestItem,       // 任务道具
+    Chess = 0, // 棋子
+    StrategyCard, // 策略卡
+    Enemy, // 敌人
+    Equipment, // 装备
+    Treasure, // 宝物
+    Consumable, // 消耗品
+    QuestItem, // 任务道具
 }
 
 /// <summary>
@@ -25,9 +25,9 @@ public struct DictionaryEntryData
     public string Name;
     public string Description;
     public int IconId;
-    public int Quality;       // 品质/稀有度
+    public int Quality; // 品质/稀有度
     public bool IsUnlocked;
-    public string SubText;    // 副标题信息
+    public string SubText; // 副标题信息
     public DictionaryCategory Category;
 }
 
@@ -109,24 +109,29 @@ public class DictionaryManager
     /// </summary>
     public bool IsUnlocked(DictionaryCategory category, int id)
     {
-        if (m_SaveData == null) return false;
+        if (m_SaveData == null)
+            return false;
 
         switch (category)
         {
             case DictionaryCategory.Chess:
-                return m_SaveData.UnlockedChessIds != null && m_SaveData.UnlockedChessIds.Contains(id);
+                return m_SaveData.OwnedUnitCardIds != null
+                    && m_SaveData.OwnedUnitCardIds.Contains(id);
 
             case DictionaryCategory.StrategyCard:
-                return m_SaveData.OwnedStrategyCardIds != null && m_SaveData.OwnedStrategyCardIds.Contains(id);
+                return m_SaveData.OwnedStrategyCardIds != null
+                    && m_SaveData.OwnedStrategyCardIds.Contains(id);
 
             case DictionaryCategory.Enemy:
-                return m_SaveData.DiscoveredEnemyIds != null && m_SaveData.DiscoveredEnemyIds.Contains(id);
+                return m_SaveData.DiscoveredEnemyIds != null
+                    && m_SaveData.DiscoveredEnemyIds.Contains(id);
 
             case DictionaryCategory.Equipment:
             case DictionaryCategory.Treasure:
             case DictionaryCategory.Consumable:
             case DictionaryCategory.QuestItem:
-                return m_SaveData.DiscoveredItemIds != null && m_SaveData.DiscoveredItemIds.Contains(id);
+                return m_SaveData.DiscoveredItemIds != null
+                    && m_SaveData.DiscoveredItemIds.Contains(id);
 
             default:
                 return false;
@@ -223,8 +228,10 @@ public class DictionaryManager
     /// </summary>
     public bool Discover(DictionaryCategory category, int id)
     {
-        if (m_SaveData == null) return false;
-        if (IsUnlocked(category, id)) return false; // 已解锁
+        if (m_SaveData == null)
+            return false;
+        if (IsUnlocked(category, id))
+            return false; // 已解锁
 
         switch (category)
         {
@@ -350,7 +357,8 @@ public class DictionaryManager
     {
         var table = GF.DataTable.GetDataTable<SummonChessTable>();
         var row = table?.GetDataRow(id);
-        if (row == null) return;
+        if (row == null)
+            return;
 
         entry.Name = row.Name;
         entry.Description = row.Description;
@@ -363,7 +371,8 @@ public class DictionaryManager
     {
         var table = GF.DataTable.GetDataTable<CardTable>();
         var row = table?.GetDataRow(id);
-        if (row == null) return;
+        if (row == null)
+            return;
 
         entry.Name = row.Name;
         entry.Description = row.Desc;
@@ -376,7 +385,8 @@ public class DictionaryManager
     {
         var table = GF.DataTable.GetDataTable<EnemyEntityTable>();
         var row = table?.GetDataRow(id);
-        if (row == null) return;
+        if (row == null)
+            return;
 
         entry.Name = row.Name;
         entry.Description = row.Description;
@@ -389,7 +399,8 @@ public class DictionaryManager
     {
         var table = GF.DataTable.GetDataTable<ItemTable>();
         var row = table?.GetDataRow(id);
-        if (row == null) return;
+        if (row == null)
+            return;
 
         entry.Name = row.Name;
         entry.Description = row.Description;

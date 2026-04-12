@@ -305,9 +305,44 @@ public class ItemManager : SingletonBase<ItemManager>
         if (item != null)
         {
             DebugEx.Success("ItemManager", $"物品创建成功: {itemData.Name}");
+
+            // 自动解锁图鉴
+            UnlockDictionaryEntry(itemId, itemData.Type);
         }
 
         return item;
+    }
+
+    /// <summary>
+    /// 解锁图鉴条目
+    /// </summary>
+    private void UnlockDictionaryEntry(int itemId, ItemType itemType)
+    {
+        DictionaryCategory category;
+
+        switch (itemType)
+        {
+            case ItemType.Equipment:
+                category = DictionaryCategory.Equipment;
+                break;
+            case ItemType.Treasure:
+                category = DictionaryCategory.Treasure;
+                break;
+            case ItemType.Consumable:
+                category = DictionaryCategory.Consumable;
+                break;
+            case ItemType.Quest:
+                category = DictionaryCategory.QuestItem;
+                break;
+            default:
+                return; // 不支持的类型
+        }
+
+        bool isNew = DictionaryManager.Instance.Discover(category, itemId);
+        if (isNew)
+        {
+            DebugEx.Success("ItemManager", $"图鉴解锁: {itemType} ID:{itemId}");
+        }
     }
 
     #endregion

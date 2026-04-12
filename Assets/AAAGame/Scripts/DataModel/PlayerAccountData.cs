@@ -78,12 +78,6 @@ public class PlayerSaveData
     /// </summary>
     public List<int> PlayerSkillIds;
 
-    // ========== 召唤棋子系统 ==========
-    /// <summary>
-    /// 已解锁的召唤棋子（棋子）ID列表
-    /// </summary>
-    public List<int> UnlockedChessIds;
-
     // ========== 资源 ==========
     /// <summary>
     /// 金币
@@ -191,7 +185,6 @@ public class PlayerSaveData
         UnlockedTechIds = new List<int>();
         CurrentDeckIndex = new List<int>();
         CompletedQuestIds = new List<int>();
-        UnlockedChessIds = new List<int>();
         DiscoveredItemIds = new List<int>();
         DiscoveredEnemyIds = new List<int>();
     }
@@ -255,7 +248,9 @@ public class PlayerSaveData
     /// </summary>
     public void SetInventoryItems(List<InventoryItemSaveData> items)
     {
-        InventoryItems = JsonUtility.ToJson(new ListWrapper<InventoryItemSaveData> { Items = items });
+        InventoryItems = JsonUtility.ToJson(
+            new ListWrapper<InventoryItemSaveData> { Items = items }
+        );
     }
 
     /// <summary>
@@ -412,22 +407,22 @@ public class InventoryItemSaveData
     /// 物品ID
     /// </summary>
     public int ItemId;
-    
+
     /// <summary>
     /// 物品数量
     /// </summary>
     public int Count;
-    
+
     /// <summary>
     /// 获得时间（Unix时间戳）
     /// </summary>
     public long ObtainTime;
-    
+
     /// <summary>
     /// 物品唯一ID（用于区分同ID的不同实例，如宝物的不同词条）
     /// </summary>
     public int UniqueId;
-    
+
     /// <summary>
     /// 额外数据（JSON格式，用于存储宝物词条等特殊数据）
     /// 例如：宝物的随机词条、装备的强化等级等

@@ -57,18 +57,18 @@
 	1806		1	Skill/6.png	嫦娥普攻-嫦娥技能图标
 	1807		1	Skill/7.png	朔月飞轮-嫦娥技能图标
 	1808		1	Skill/8.png	月华天倾-嫦娥技能图标
-	1901		1	Items/Consumable/Wallet.png	钱包图标
-	1902		1	Items/Consumable/HPPotion.png	生命药水图标
-	1903		1	Items/Consumable/MPPotion.png	魔法药水图标
-	1904		1	Items/Consumable/ExpGem.png	经验宝石图标
-	1905		1	Items/Quest/MysteryKey.png	神秘钥匙图标
-	1906		1	Items/Quest/AncientScroll.png	古老卷轴图标
-	1907		1	Items/Treasure/Magatama.png	八尺琼勾玉图标
-	1908		1	Items/Treasure/Kusanagi.png	天丛云剑图标
-	1909		1	Items/Treasure/Yata.png	八咫镜图标
-	1910		1	Items/Equipment/Excalibur.png	石中剑图标
-	1911		1	Items/Equipment/DragonArmor.png	龙鳞铠甲图标
-	1912		1	Items/Equipment/ElvenRing.png	精灵之戒图标
+	1901		1	Items/1.png	钱包图标
+	1902		1	Items/2.png	生命药水图标
+	1903		1	Items/3.png	魔法药水图标
+	1904		1	Items/4.png	经验宝石图标
+	1905		1	Items/5.png	神秘钥匙图标
+	1906		1	Items/6.png	古老卷轴图标
+	1907		1	Items/7.png	八尺琼勾玉图标
+	1908		1	Items/8.png	天丛云剑图标
+	1909		1	Items/9.png	八咫镜图标
+	1910		1	Items/10.png	石中剑图标
+	1911		1	Items/11.png	龙鳞铠甲图标
+	1912		1	Items/12.png	精灵之戒图标
 	2001		2	UI/CloudInfo/PlayerInfo	角色信息预制体
 	2002		2	UI/CloudInfo/ItemsInfo	仓库信息预制体
 	2003		2	UI/CloudInfo/TimeInfo	存档时间预制体
