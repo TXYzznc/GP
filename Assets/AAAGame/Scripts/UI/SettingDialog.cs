@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 public partial class SettingDialog : UIFormBase
 {
@@ -12,6 +13,7 @@ public partial class SettingDialog : UIFormBase
     float m_LastClickTime;
     readonly float clickInterval = 0.4f;
     float m_ToggleHandleX;
+
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
@@ -25,13 +27,27 @@ public partial class SettingDialog : UIFormBase
         varMusicSlider.onValueChanged.AddListener(OnMusicSliderChanged);
         varSoundFxSlider.onValueChanged.AddListener(OnSoundFxSliderChanged);
     }
+
     public override void InitLocalization()
     {
         base.InitLocalization();
-        varVersionTxt.text = Utility.Text.Format("{0}v{1}", AppSettings.Instance.DebugMode ? "Debug " : string.Empty, GF.Base.EditorResourceMode ? Application.version : Utility.Text.Format("{0}({1})", Application.version, GF.Resource.InternalResourceVersion));
+        varVersionTxt.text = Utility.Text.Format(
+            "{0}v{1}",
+            AppSettings.Instance.DebugMode ? "Debug " : string.Empty,
+            GF.Base.EditorResourceMode
+                ? Application.version
+                : Utility.Text.Format(
+                    "{0}({1})",
+                    Application.version,
+                    GF.Resource.InternalResourceVersion
+                )
+        );
         var handleText = varToggleVibrate.GetComponentInChildren<TextMeshProUGUI>();
-        handleText.text = varToggleVibrate.isOn ? GF.Localization.GetString("ON") : GF.Localization.GetString("OFF");
+        handleText.text = varToggleVibrate.isOn
+            ? GF.Localization.GetString("ON")
+            : GF.Localization.GetString("OFF");
     }
+
     private void OnSoundFxSliderChanged(float arg0)
     {
         GF.Setting.SetMediaVolume(Const.SoundGroup.Sound, arg0);
@@ -59,10 +75,15 @@ public partial class SettingDialog : UIFormBase
 
         base.OnClose(isShutdown, userData);
     }
+
     private void InitSettings()
     {
-        varMusicSlider.value = GF.Setting.GetMediaMute(Const.SoundGroup.Music) ? 0 : GF.Setting.GetMediaVolume(Const.SoundGroup.Music);
-        varSoundFxSlider.value = GF.Setting.GetMediaMute(Const.SoundGroup.Sound) ? 0 : GF.Setting.GetMediaVolume(Const.SoundGroup.Sound);
+        varMusicSlider.value = GF.Setting.GetMediaMute(Const.SoundGroup.Music)
+            ? 0
+            : GF.Setting.GetMediaVolume(Const.SoundGroup.Music);
+        varSoundFxSlider.value = GF.Setting.GetMediaMute(Const.SoundGroup.Sound)
+            ? 0
+            : GF.Setting.GetMediaVolume(Const.SoundGroup.Sound);
 
         varToggleVibrate.SetIsOnWithoutNotify(!GF.Setting.GetMediaMute(Const.SoundGroup.Vibrate));
         OnToggleChanged(varToggleVibrate);
@@ -73,10 +94,13 @@ public partial class SettingDialog : UIFormBase
     {
         var handleText = varVibrateHandle.GetComponentInChildren<TextMeshProUGUI>();
         float targetX = tg.isOn ? m_ToggleHandleX : -m_ToggleHandleX;
-        float duration = (Mathf.Abs(targetX - varVibrateHandle.anchoredPosition.x) / m_ToggleHandleX) * 0.2f;
+        float duration =
+            (Mathf.Abs(targetX - varVibrateHandle.anchoredPosition.x) / m_ToggleHandleX) * 0.2f;
         varVibrateHandle.DOAnchorPosX(targetX, duration).onComplete = () =>
         {
-            handleText.text = tg.isOn ? GF.Localization.GetString("ON") : GF.Localization.GetString("OFF");
+            handleText.text = tg.isOn
+                ? GF.Localization.GetString("ON")
+                : GF.Localization.GetString("OFF");
         };
 
         GF.Setting.SetMediaMute(Const.SoundGroup.Vibrate, !varToggleVibrate.isOn);
@@ -90,6 +114,7 @@ public partial class SettingDialog : UIFormBase
         varIconFlag.SetSprite(langRow.LanguageIcon);
         varLanguageName.text = langRow.LanguageDisplay;
     }
+
     protected override void OnButtonClick(object sender, Button btSelf)
     {
         base.OnButtonClick(sender, btSelf);
@@ -98,8 +123,8 @@ public partial class SettingDialog : UIFormBase
             var uiParms = UIParams.Create();
             VarAction action = ReferencePool.Acquire<VarAction>();
             action.Value = OnLanguageChanged;
-            uiParms.Set<VarAction>(LanguagesDialog.P_LangChangedCb, action);
-            GF.UI.OpenUIForm(UIViews.LanguagesDialog, uiParms);
+            //uiParms.Set<VarAction>(LanguagesDialog.P_LangChangedCb, action);
+            //GF.UI.OpenUIForm(UIViews.LanguagesDialog, uiParms);
         }
         else if (btSelf == varBtnHelp)
         {
@@ -113,17 +138,15 @@ public partial class SettingDialog : UIFormBase
         {
             GF.UI.ShowToast(GF.Localization.GetString("Nothing"));
         }
-        else if (btSelf == varBtnRating)
-        {
-            GF.UI.OpenUIForm(UIViews.RatingDialog);
-        }
     }
+
     void OnLanguageChanged()
     {
         RefreshLanguage();
-        GF.UI.CloseUIForms(UIViews.LanguagesDialog);
+        //GF.UI.CloseUIForms(UIViews.LanguagesDialog);
         ReloadLanguage();
     }
+
     private void ReloadLanguage()
     {
         GF.Localization.RemoveAllRawStrings();
@@ -134,6 +157,7 @@ public partial class SettingDialog : UIFormBase
     {
         GF.UI.UpdateLocalizationTexts();
     }
+
     public void OnClickVersionText()
     {
         if (Time.time - m_LastClickTime <= clickInterval)
@@ -161,5 +185,4 @@ public partial class SettingDialog : UIFormBase
         //     gameProcedure.BackHome();
         // }
     }
-
 }

@@ -2158,7 +2158,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 10
   m_Viewport: {fileID: 216586246862732963}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 0}
@@ -2181,7 +2181,7 @@ GameObject:
   - component: {fileID: 1552069016772961750}
   - component: {fileID: 618602331195374195}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2437,7 +2437,7 @@ GameObject:
   - component: {fileID: 126250683744943451}
   - component: {fileID: 4774217631769261362}
   m_Layer: 0
-  m_Name: Text_CatCount_0
+  m_Name: Text_CatCount_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2705,7 +2705,7 @@ GameObject:
   - component: {fileID: 4478863656771152865}
   - component: {fileID: 2512264658050187708}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3059,7 +3059,7 @@ GameObject:
   - component: {fileID: 1072603902519338588}
   - component: {fileID: 7886383752970210830}
   m_Layer: 0
-  m_Name: Text_CatCount_0
+  m_Name: Text_CatCount_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3343,7 +3343,7 @@ GameObject:
   - component: {fileID: 8526635718628726051}
   - component: {fileID: 4269605807696669985}
   m_Layer: 0
-  m_Name: Text_CatCount_0
+  m_Name: Text_CatCount_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3525,7 +3525,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5471698, g: 0.46831837, b: 0.28132787, a: 1}
+  m_Color: {r: 0.23137255, g: 0.23137255, b: 0.43529412, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3823,7 +3823,7 @@ GameObject:
   - component: {fileID: 3270846735576329339}
   - component: {fileID: 5835738808298294800}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4561,6 +4561,28 @@ MonoBehaviour:
     - {fileID: 644473489579797913}
     VarType: UnityEngine.UI.Button
     VarPrefix: 0
+  - VarName: varText0Arr
+    Targets:
+    - {fileID: 4053399610018977743}
+    - {fileID: 5793775563431862329}
+    - {fileID: 6692841774279949906}
+    - {fileID: 7208169150707505645}
+    - {fileID: 7295224176011424485}
+    - {fileID: 3664150862879320466}
+    - {fileID: 7692623651030438826}
+    VarType: TMPro.TextMeshProUGUI
+    VarPrefix: 0
+  - VarName: varText_CatCount_0Arr
+    Targets:
+    - {fileID: 2484134167603712528}
+    - {fileID: 6949309680883955220}
+    - {fileID: 8049274462201451169}
+    - {fileID: 8141568144495829838}
+    - {fileID: 5060152982508696743}
+    - {fileID: 3862809291871829285}
+    - {fileID: 4838090656098417267}
+    VarType: TMPro.TextMeshProUGUI
+    VarPrefix: 0
   m_UIAnimationType: 0
   m_OpenAnimation: {fileID: 0}
   m_CloseAnimation: {fileID: 0}
@@ -4594,6 +4616,22 @@ MonoBehaviour:
   varAttr3: {fileID: 7397077899107141532}
   varAttr4: {fileID: 8118974442145651386}
   varBtnClose: {fileID: 7363811378257575438}
+  varText0Arr:
+  - {fileID: 2512264658050187708}
+  - {fileID: 5835738808298294800}
+  - {fileID: 3214527003749268829}
+  - {fileID: 9088540849953954531}
+  - {fileID: 1159278760356838340}
+  - {fileID: 618602331195374195}
+  - {fileID: 1036117622996815910}
+  varText_CatCount_0Arr:
+  - {fileID: 2329776520999727861}
+  - {fileID: 8285597315870298305}
+  - {fileID: 2700925303596901042}
+  - {fileID: 3146565310692925394}
+  - {fileID: 4269605807696669985}
+  - {fileID: 4774217631769261362}
+  - {fileID: 7886383752970210830}
 --- !u!1 &6692841774279949906
 GameObject:
   m_ObjectHideFlags: 0
@@ -4606,7 +4644,7 @@ GameObject:
   - component: {fileID: 897909384485488481}
   - component: {fileID: 3214527003749268829}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5025,7 +5063,7 @@ GameObject:
   - component: {fileID: 7627246333756461784}
   - component: {fileID: 8285597315870298305}
   m_Layer: 0
-  m_Name: Text_CatCount_0
+  m_Name: Text_CatCount_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5159,7 +5197,7 @@ GameObject:
   - component: {fileID: 8601859112749828286}
   - component: {fileID: 9088540849953954531}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5428,7 +5466,7 @@ GameObject:
   - component: {fileID: 5030009887763737233}
   - component: {fileID: 1159278760356838340}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5890,7 +5928,7 @@ GameObject:
   - component: {fileID: 6418011222195764984}
   - component: {fileID: 1036117622996815910}
   m_Layer: 0
-  m_Name: Text
+  m_Name: Text6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6369,7 +6407,7 @@ GameObject:
   - component: {fileID: 3362630189795297337}
   - component: {fileID: 2700925303596901042}
   m_Layer: 0
-  m_Name: Text_CatCount_0
+  m_Name: Text_CatCount_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6605,7 +6643,7 @@ GameObject:
   - component: {fileID: 8496638815818700572}
   - component: {fileID: 3146565310692925394}
   m_Layer: 0
-  m_Name: Text_CatCount_0
+  m_Name: Text_CatCount_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -47,6 +47,7 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
     // 快捷栏数字键 1-5（index 0 = Alpha1 ... index 4 = Alpha5）
     private readonly bool[] m_HotbarKeyDown = new bool[5];
+
     public bool GetHotbarKeyDown(int slot) => slot >= 1 && slot <= 5 && m_HotbarKeyDown[slot - 1];
 
     // 鼠标灵敏度属性
@@ -76,7 +77,7 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     public bool GamePauseTestTriggered { get; private set; }
 
     private bool[] skillDown = new bool[10];
-    private bool[] summonerSkillDown = new bool[4];         // 槽位 1-3：Q/E/R 键盘
+    private bool[] summonerSkillDown = new bool[4]; // 槽位 1-3：Q/E/R 键盘
     private readonly bool[] m_SummonerSkillButtonPending = new bool[4]; // 槽位 1-3：UI 按钮触发
     private IPlayerInputSource source;
 
@@ -159,7 +160,18 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         }
 
         // 获取滚轮增量（用于调整摄像机/高度等）
-        ScrollDelta = Input.mouseScrollDelta.y;
+        // 如果鼠标在UI上，则不处理滚轮输入
+        if (
+            UnityEngine.EventSystems.EventSystem.current != null
+            && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()
+        )
+        {
+            ScrollDelta = 0f;
+        }
+        else
+        {
+            ScrollDelta = Input.mouseScrollDelta.y;
+        }
 
         // 获取冲刺输入
         SprintDown = Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
@@ -286,7 +298,8 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     /// <summary>召唤师技能按键（slot 1=Q, 2=E, 3=R），键盘或 UI 按钮均可触发，按钮触发消耗后清除</summary>
     public bool SummonerSkillDown(int slot)
     {
-        if (slot < 1 || slot > 3) return false;
+        if (slot < 1 || slot > 3)
+            return false;
         bool result = summonerSkillDown[slot] || m_SummonerSkillButtonPending[slot];
         m_SummonerSkillButtonPending[slot] = false;
         return result;

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 7
+  selectedIndex: 9
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -48,3 +48,11 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u5B57\u4F53\u8D44\u6E90\u66FF\u6362"
     description: "\u6279\u91CF\u66FF\u6362 Text \u548C TextMeshPro \u7684\u5B57\u4F53\u8D44\u6E90"
+  - typeName: SceneTextTranslatorPanel, Assembly-CSharp-Editor, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    displayName: "\u573A\u666F\u6587\u672C\u7FFB\u8BD1"
+    description: "\u6279\u91CF\u626B\u63CF->\u5206\u6279\u8BF7\u6C42->\u7EDF\u4E00\u5199\u56DE->\u4FDD\u5B58\u573A\u666F\uFF08\u5305\u542B\u672A\u6FC0\u6D3B\u5BF9\u8C61\uFF09"
+  - typeName: AccountDataEditorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u8D26\u53F7\u6570\u636E\u7BA1\u7406\u5668"
+    description: "\u5FEB\u901F\u4FEE\u6539\u6E38\u620F\u5B58\u6863\u6570\u636E\uFF0C\u652F\u6301\u6279\u91CF\u7F16\u8F91\u548C\u4FDD\u5B58"

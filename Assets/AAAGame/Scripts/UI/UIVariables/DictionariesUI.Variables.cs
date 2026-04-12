@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:DESKTOP-7JQ11GM
+//更新自:一只靓仔的电脑
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,4 +29,6 @@ public partial class DictionariesUI
 	[SerializeField] private TextMeshProUGUI varAttr3 = null;
 	[SerializeField] private TextMeshProUGUI varAttr4 = null;
 	[SerializeField] private Button varBtnClose = null;
+	[SerializeField] private TextMeshProUGUI[] varText0Arr = null;
+	[SerializeField] private TextMeshProUGUI[] varText_CatCount_0Arr = null;
 }

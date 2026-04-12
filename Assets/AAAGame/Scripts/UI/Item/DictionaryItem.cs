@@ -69,20 +69,23 @@ public partial class DictionaryItem : UIItemBase
             varSubText.gameObject.SetActive(unlocked && !string.IsNullOrEmpty(m_EntryData.SubText));
         }
 
-        // 图标
-        if (varIcon != null)
+        // 根据分类显示对应的图标
+        Image targetIcon = GetIconByCategory(m_EntryData.Category);
+        HideAllIcons();
+
+        if (targetIcon != null)
         {
+            targetIcon.gameObject.SetActive(true);
+
             if (unlocked && m_EntryData.IconId > 0)
             {
-                varIcon.gameObject.SetActive(true);
-                varIcon.color = Color.white;
-                LoadIconAsync(m_EntryData.IconId).Forget();
+                targetIcon.color = Color.white;
+                LoadIconAsync(m_EntryData.IconId, targetIcon).Forget();
             }
             else
             {
                 // 未解锁或无图标：灰暗显示
-                varIcon.gameObject.SetActive(true);
-                varIcon.color = new Color(0.15f, 0.15f, 0.2f);
+                targetIcon.color = new Color(0.15f, 0.15f, 0.2f);
             }
         }
 
@@ -107,18 +110,60 @@ public partial class DictionaryItem : UIItemBase
         }
     }
 
-    private async UniTask LoadIconAsync(int iconId)
+    /// <summary>
+    /// 根据分类获取对应的图标Image
+    /// </summary>
+    private Image GetIconByCategory(DictionaryCategory category)
     {
-        if (iconId <= 0 || varIcon == null) return;
+        switch (category)
+        {
+            case DictionaryCategory.Chess:
+                return varChess_Icon;
+            case DictionaryCategory.StrategyCard:
+                return varCard_Icon;
+            case DictionaryCategory.Equipment:
+            case DictionaryCategory.Treasure:
+            case DictionaryCategory.Consumable:
+            case DictionaryCategory.QuestItem:
+                return varItem_Icon;
+            case DictionaryCategory.Enemy:
+                return varOther_Icon;
+            default:
+                return varOther_Icon;
+        }
+    }
+
+    /// <summary>
+    /// 隐藏所有图标
+    /// </summary>
+    private void HideAllIcons()
+    {
+        if (varChess_Icon != null)
+            varChess_Icon.gameObject.SetActive(false);
+        if (varCard_Icon != null)
+            varCard_Icon.gameObject.SetActive(false);
+        if (varItem_Icon != null)
+            varItem_Icon.gameObject.SetActive(false);
+        if (varOther_Icon != null)
+            varOther_Icon.gameObject.SetActive(false);
+    }
+
+    private async UniTask LoadIconAsync(int iconId, Image targetIcon)
+    {
+        if (iconId <= 0 || targetIcon == null)
+            return;
 
         try
         {
-            await GameExtension.ResourceExtension.LoadSpriteAsync(iconId, varIcon, 1f, null);
-            varIcon.color = Color.white;
+            await GameExtension.ResourceExtension.LoadSpriteAsync(iconId, targetIcon, 1f, null);
+            targetIcon.color = Color.white;
         }
         catch (Exception e)
         {
-            DebugEx.Error("DictionaryItem", $"加载图标异常: IconId={iconId}, Error={e.Message}");
+            DebugEx.ErrorModule(
+                "DictionaryItem",
+                $"加载图标异常: IconId={iconId}, Error={e.Message}"
+            );
         }
     }
 

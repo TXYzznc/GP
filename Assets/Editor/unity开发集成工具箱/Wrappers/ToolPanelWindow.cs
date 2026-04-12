@@ -6,7 +6,8 @@ using System;
 /// <summary>
 /// 工具面板独立窗口包装器 - 让工具面板可以作为独立窗口使用
 /// </summary>
-public class ToolPanelWindow<T> : EditorWindow where T : class, IToolHubPanel, new()
+public class ToolPanelWindow<T> : EditorWindow
+    where T : class, IToolHubPanel, new()
 {
     private T panel;
     private Vector2 scrollPosition;

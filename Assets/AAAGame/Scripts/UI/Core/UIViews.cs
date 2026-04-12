@@ -5,14 +5,7 @@
 public enum UIViews : int
 {
 	StartMenuUI = 1,
-	GameUIForm = 2,
-	GameOverUIForm = 3,
-	Topbar = 4,
 	SettingDialog = 5,
-	RatingDialog = 6,
-	TermsOfServiceDialog = 7,
-	CommonDialog = 8,
-	LanguagesDialog = 9,
 	ToastTips = 10,
 	CloudArchiveUI = 11,
 	NewGameUI = 12,

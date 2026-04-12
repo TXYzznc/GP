@@ -47,7 +47,6 @@ public partial class DictionariesUI : UIFormBase
         // 绑定关闭按钮
         if (varBtnClose != null)
             varBtnClose.onClick.AddListener(OnClickClose);
-
     }
 
     protected override void OnOpen(object userData)
@@ -91,23 +90,30 @@ public partial class DictionariesUI : UIFormBase
     /// </summary>
     private void BindCategoryButtons()
     {
-        if (varCategoryBtns == null) return;
+        if (varCategoryBtns == null)
+            return;
 
         for (int i = 0; i < varCategoryBtns.Length && i < CategoryConfig.Length; i++)
         {
             int index = i; // 闭包捕获
             varCategoryBtns[i].onClick.AddListener(() => OnCategoryClicked(index));
 
-            // 设置按钮文字
-            var text = varCategoryBtns[i].GetComponentInChildren<Text>();
-            if (text != null)
-                text.text = CategoryConfig[i].Name;
+            // 使用 varText0Arr 设置分类名称
+            if (varText0Arr != null && i < varText0Arr.Length && varText0Arr[i] != null)
+            {
+                varText0Arr[i].text = CategoryConfig[i].Name;
+                DebugEx.LogModule(
+                    "DictionariesUI",
+                    $"设置分类按钮 {i} 名称: {CategoryConfig[i].Name}"
+                );
+            }
         }
     }
 
     private void OnCategoryClicked(int index)
     {
-        if (index == m_CurrentCategoryIndex) return;
+        if (index == m_CurrentCategoryIndex)
+            return;
 
         m_CurrentCategoryIndex = index;
         HideDetail();
@@ -120,7 +126,8 @@ public partial class DictionariesUI : UIFormBase
     /// </summary>
     private void RefreshCategoryTabs()
     {
-        if (varCategoryBtns == null) return;
+        if (varCategoryBtns == null)
+            return;
 
         for (int i = 0; i < varCategoryBtns.Length && i < CategoryConfig.Length; i++)
         {
@@ -129,17 +136,24 @@ public partial class DictionariesUI : UIFormBase
 
             // 高亮选中的Tab（通过颜色区分）
             var colors = btn.colors;
-            colors.normalColor = isSelected ? new Color(0.83f, 0.66f, 0.33f, 0.3f) : new Color(1f, 1f, 1f, 0.05f);
+            colors.normalColor = isSelected
+                ? new Color(0.83f, 0.66f, 0.33f, 0.3f)
+                : new Color(1f, 1f, 1f, 0.05f);
             btn.colors = colors;
 
-            // 更新进度文字（如果Tab下有进度Text）
-            var countTexts = btn.GetComponentsInChildren<Text>();
-            if (countTexts.Length >= 2) // 第二个Text用作进度
+            // 使用 varText_CatCount_0Arr 更新收集进度
+            if (
+                varText_CatCount_0Arr != null
+                && i < varText_CatCount_0Arr.Length
+                && varText_CatCount_0Arr[i] != null
+            )
             {
                 var cat = CategoryConfig[i].Category;
                 int unlocked = DictionaryManager.Instance.GetUnlockedCount(cat);
                 int total = DictionaryManager.Instance.GetTotalCount(cat);
-                countTexts[1].text = $"{unlocked}/{total}";
+                varText_CatCount_0Arr[i].text = $"{unlocked}/{total}";
+
+                DebugEx.LogModule("DictionariesUI", $"更新分类 {i} 进度: {unlocked}/{total}");
             }
         }
 
@@ -246,7 +260,8 @@ public partial class DictionariesUI : UIFormBase
     /// </summary>
     private void ShowDetail(DictionaryEntryData entryData)
     {
-        if (varPanelDetail == null) return;
+        if (varPanelDetail == null)
+            return;
 
         varPanelDetail.SetActive(true);
         m_DetailVisible = true;
@@ -254,20 +269,26 @@ public partial class DictionariesUI : UIFormBase
         if (!entryData.IsUnlocked)
         {
             // 未解锁：显示锁定信息
-            if (varDetailName != null) varDetailName.text = "???";
-            if (varDetailDesc != null) varDetailDesc.text = "尚未解锁，继续探索以发现此条目。";
-            if (varDetailQuality != null) varDetailQuality.gameObject.SetActive(false);
-            if (varDetailIcon != null) varDetailIcon.color = new Color(0.2f, 0.2f, 0.25f);
+            if (varDetailName != null)
+                varDetailName.text = "???";
+            if (varDetailDesc != null)
+                varDetailDesc.text = "尚未解锁，继续探索以发现此条目。";
+            if (varDetailQuality != null)
+                varDetailQuality.gameObject.SetActive(false);
+            if (varDetailIcon != null)
+                varDetailIcon.color = new Color(0.2f, 0.2f, 0.25f);
             if (varDetailLocked != null)
             {
                 varDetailLocked.SetActive(true);
             }
-            if (varPanelDetailAttrs != null) varPanelDetailAttrs.SetActive(false);
+            if (varPanelDetailAttrs != null)
+                varPanelDetailAttrs.SetActive(false);
             return;
         }
 
         // 已解锁：显示完整信息
-        if (varDetailLocked != null) varDetailLocked.SetActive(false);
+        if (varDetailLocked != null)
+            varDetailLocked.SetActive(false);
 
         if (varDetailName != null)
         {
@@ -300,8 +321,9 @@ public partial class DictionariesUI : UIFormBase
         // 属性面板（棋子和装备显示属性）
         if (varPanelDetailAttrs != null)
         {
-            bool showAttrs = entryData.Category == DictionaryCategory.Chess ||
-                             entryData.Category == DictionaryCategory.Equipment;
+            bool showAttrs =
+                entryData.Category == DictionaryCategory.Chess
+                || entryData.Category == DictionaryCategory.Equipment;
             varPanelDetailAttrs.SetActive(showAttrs);
 
             if (showAttrs)
@@ -318,7 +340,8 @@ public partial class DictionariesUI : UIFormBase
 
     private async UniTask LoadDetailIconAsync(int iconId)
     {
-        if (iconId <= 0 || varDetailIcon == null) return;
+        if (iconId <= 0 || varDetailIcon == null)
+            return;
 
         try
         {
@@ -340,7 +363,8 @@ public partial class DictionariesUI : UIFormBase
         {
             var table = GF.DataTable.GetDataTable<SummonChessTable>();
             var row = table?.GetDataRow(entryData.Id);
-            if (row == null) return;
+            if (row == null)
+                return;
 
             SetAttrText(varAttr1, "生命", row.MaxHp.ToString("F0"));
             SetAttrText(varAttr2, "攻击", row.AtkDamage.ToString("F0"));
@@ -352,7 +376,8 @@ public partial class DictionariesUI : UIFormBase
             // 装备属性从 EquipmentTable 或 ItemTable 获取
             var table = GF.DataTable.GetDataTable<ItemTable>();
             var row = table?.GetDataRow(entryData.Id);
-            if (row == null) return;
+            if (row == null)
+                return;
 
             SetAttrText(varAttr1, "品质", GetQualityLabel(entryData.Category, row.Quality));
             SetAttrText(varAttr2, "重量", row.Weight.ToString());
@@ -382,7 +407,7 @@ public partial class DictionariesUI : UIFormBase
                     2 => "紫",
                     3 => "金",
                     4 => "炫彩",
-                    _ => "未知"
+                    _ => "未知",
                 };
             case DictionaryCategory.StrategyCard:
                 return quality switch
@@ -391,7 +416,7 @@ public partial class DictionariesUI : UIFormBase
                     2 => "稀有",
                     3 => "史诗",
                     4 => "传说",
-                    _ => "未知"
+                    _ => "未知",
                 };
             case DictionaryCategory.Enemy:
                 return $"难度 {new string('★', quality)}";
@@ -403,12 +428,12 @@ public partial class DictionariesUI : UIFormBase
                     3 => "稀有",
                     4 => "史诗",
                     5 => "传说",
-                    _ => "未知"
+                    _ => "未知",
                 };
         }
     }
 
-    private void OnClickClose()
+    private new void OnClickClose()
     {
         CloseWithAnimation();
     }

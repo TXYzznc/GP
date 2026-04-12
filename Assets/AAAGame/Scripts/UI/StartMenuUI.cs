@@ -1,7 +1,7 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using DG.Tweening;
 
 /// <summary>
 /// 开始菜单UI
@@ -117,23 +117,29 @@ public partial class StartMenuUI : UIFormBase
         var sequence = DOTween.Sequence().SetTarget(this).SetUpdate(true);
 
         // 1. 背景淡入
-        sequence.Join(
-            m_BgCanvasGroup.DOFade(1f, BG_FADE_DURATION).SetEase(Ease.OutQuad)
-        );
+        sequence.Join(m_BgCanvasGroup.DOFade(1f, BG_FADE_DURATION).SetEase(Ease.OutQuad));
 
         // 2. 游戏名称（中文）— 从上方滑入 + 淡入
-        sequence.Insert(TITLE_CN_DELAY,
-            m_TitleCnRect.DOAnchorPos(m_TitleCnOriginalPos, TITLE_FADE_DURATION).SetEase(Ease.OutBack)
+        sequence.Insert(
+            TITLE_CN_DELAY,
+            m_TitleCnRect
+                .DOAnchorPos(m_TitleCnOriginalPos, TITLE_FADE_DURATION)
+                .SetEase(Ease.OutBack)
         );
-        sequence.Insert(TITLE_CN_DELAY,
+        sequence.Insert(
+            TITLE_CN_DELAY,
             m_TitleCnCanvasGroup.DOFade(1f, TITLE_FADE_DURATION).SetEase(Ease.OutQuad)
         );
 
         // 3. 英文名称 — 同上，略延迟
-        sequence.Insert(TITLE_EN_DELAY,
-            m_TitleEnRect.DOAnchorPos(m_TitleEnOriginalPos, TITLE_FADE_DURATION).SetEase(Ease.OutBack)
+        sequence.Insert(
+            TITLE_EN_DELAY,
+            m_TitleEnRect
+                .DOAnchorPos(m_TitleEnOriginalPos, TITLE_FADE_DURATION)
+                .SetEase(Ease.OutBack)
         );
-        sequence.Insert(TITLE_EN_DELAY,
+        sequence.Insert(
+            TITLE_EN_DELAY,
             m_TitleEnCanvasGroup.DOFade(1f, TITLE_FADE_DURATION).SetEase(Ease.OutQuad)
         );
 
@@ -143,26 +149,45 @@ public partial class StartMenuUI : UIFormBase
             float delay = BTN_GROUP_START_DELAY + i * BTN_STAGGER_INTERVAL;
             var data = m_ButtonAnimDatas[i];
 
-            sequence.Insert(delay,
-                data.rectTransform.DOAnchorPos(data.originalPos, BTN_FADE_DURATION).SetEase(Ease.OutQuad)
+            sequence.Insert(
+                delay,
+                data.rectTransform.DOAnchorPos(data.originalPos, BTN_FADE_DURATION)
+                    .SetEase(Ease.OutQuad)
             );
-            sequence.Insert(delay,
+            sequence.Insert(
+                delay,
                 data.canvasGroup.DOFade(1f, BTN_FADE_DURATION).SetEase(Ease.OutQuad)
             );
         }
 
         // 5. 云存档按钮 — 缩放弹出 + 淡入
-        sequence.Insert(CLOUD_BTN_DELAY,
+        sequence.Insert(
+            CLOUD_BTN_DELAY,
             m_CloudBtnRect.DOScale(1f, CLOUD_BTN_DURATION).SetEase(Ease.OutBack)
         );
-        sequence.Insert(CLOUD_BTN_DELAY,
+        sequence.Insert(
+            CLOUD_BTN_DELAY,
             m_CloudBtnCanvasGroup.DOFade(1f, CLOUD_BTN_DURATION).SetEase(Ease.OutQuad)
         );
 
-        // 动画完成后恢复交互
+        // 计算序列总时长
+        float totalDuration = sequence.Duration();
+        float interactiveTime = totalDuration * 0.5f; // 动画进行到 50% 时
+
+        // 在动画进行到一半时启用交互
+        sequence.InsertCallback(
+            interactiveTime,
+            () =>
+            {
+                Interactable = true;
+                DebugEx.Log("StartMenuUI", "动画进行到一半，已启用交互");
+            }
+        );
+
+        // 动画完成后的回调（可选）
         sequence.OnComplete(() =>
         {
-            Interactable = true;
+            DebugEx.Success("StartMenuUI", "入场动画完成");
         });
     }
 
@@ -216,7 +241,14 @@ public partial class StartMenuUI : UIFormBase
         m_TitleEnOriginalPos = m_TitleEnRect.anchoredPosition;
 
         // 菜单按钮组
-        Button[] buttons = { varBtnNewGame, varBtnContinue, varBtnLoadSave, varBtnSettings, varBtnQuit };
+        Button[] buttons =
+        {
+            varBtnNewGame,
+            varBtnContinue,
+            varBtnLoadSave,
+            varBtnSettings,
+            varBtnQuit,
+        };
         m_ButtonAnimDatas = new ButtonAnimData[buttons.Length];
         for (int i = 0; i < buttons.Length; i++)
         {
@@ -225,7 +257,7 @@ public partial class StartMenuUI : UIFormBase
             {
                 canvasGroup = buttons[i].gameObject.GetOrAddComponent<CanvasGroup>(),
                 rectTransform = rt,
-                originalPos = rt.anchoredPosition
+                originalPos = rt.anchoredPosition,
             };
         }
 
@@ -239,25 +271,32 @@ public partial class StartMenuUI : UIFormBase
     /// </summary>
     private void ResetAnimationState()
     {
-        if (m_BgCanvasGroup != null) m_BgCanvasGroup.alpha = 1f;
-        if (m_TitleCnCanvasGroup != null) m_TitleCnCanvasGroup.alpha = 1f;
-        if (m_TitleEnCanvasGroup != null) m_TitleEnCanvasGroup.alpha = 1f;
+        if (m_BgCanvasGroup != null)
+            m_BgCanvasGroup.alpha = 1f;
+        if (m_TitleCnCanvasGroup != null)
+            m_TitleCnCanvasGroup.alpha = 1f;
+        if (m_TitleEnCanvasGroup != null)
+            m_TitleEnCanvasGroup.alpha = 1f;
         if (m_CloudBtnCanvasGroup != null)
         {
             m_CloudBtnCanvasGroup.alpha = 1f;
             m_CloudBtnRect.localScale = Vector3.one;
         }
 
-        if (m_TitleCnRect != null) m_TitleCnRect.anchoredPosition = m_TitleCnOriginalPos;
-        if (m_TitleEnRect != null) m_TitleEnRect.anchoredPosition = m_TitleEnOriginalPos;
+        if (m_TitleCnRect != null)
+            m_TitleCnRect.anchoredPosition = m_TitleCnOriginalPos;
+        if (m_TitleEnRect != null)
+            m_TitleEnRect.anchoredPosition = m_TitleEnOriginalPos;
 
         if (m_ButtonAnimDatas != null)
         {
             for (int i = 0; i < m_ButtonAnimDatas.Length; i++)
             {
                 var data = m_ButtonAnimDatas[i];
-                if (data.canvasGroup != null) data.canvasGroup.alpha = 1f;
-                if (data.rectTransform != null) data.rectTransform.anchoredPosition = data.originalPos;
+                if (data.canvasGroup != null)
+                    data.canvasGroup.alpha = 1f;
+                if (data.rectTransform != null)
+                    data.rectTransform.anchoredPosition = data.originalPos;
             }
         }
     }
@@ -382,7 +421,10 @@ public partial class StartMenuUI : UIFormBase
             var currentSave = PlayerAccountDataManager.Instance.CurrentSaveData;
             if (currentSave != null)
             {
-                GF.UI.ShowToast($"加载存档成功: {currentSave.SaveName}", UIExtension.ToastStyle.Green);
+                GF.UI.ShowToast(
+                    $"加载存档成功: {currentSave.SaveName}",
+                    UIExtension.ToastStyle.Green
+                );
                 EnterGame();
             }
         }

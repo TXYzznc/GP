@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using GameFramework.Event;
-using System.Collections.Generic;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -13,15 +13,8 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
     private List<FunctionItem> m_FunctionItems = new List<FunctionItem>();
 
-    // 功能按钮名称
-    private readonly string[] m_FunctionNames = new string[]
-    {
-        "图鉴",
-        "商店",
-        "仓库",
-        "出战预设",
-        "挑战"
-    };
+    // 功能按钮名称（商店和挑战暂时隐藏）
+    private readonly string[] m_FunctionNames = new string[] { "图鉴", "仓库", "出战预设" };
 
     #endregion
 
@@ -29,14 +22,14 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        Log.Info("OutsiderFunctionUI: 订阅局外状态事件");
+        DebugEx.LogModule("OutsiderFunctionUI", "订阅局外状态事件");
         GF.Event.Subscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
         GF.Event.Subscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
     }
 
     protected override void UnsubscribeEvents()
     {
-        Log.Info("OutsiderFunctionUI: 取消订阅局外状态事件");
+        DebugEx.LogModule("OutsiderFunctionUI", "取消订阅局外状态事件");
         GF.Event.Unsubscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
         GF.Event.Unsubscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
     }
@@ -47,14 +40,14 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
     private void OnOutOfGameEnter(object sender, GameEventArgs e)
     {
-        Log.Info("OutsiderFunctionUI: 收到局外进入事件");
+        DebugEx.LogModule("OutsiderFunctionUI", "收到局外进入事件");
         ShowUI();
         RefreshFunctions();
     }
 
     private void OnOutOfGameLeave(object sender, GameEventArgs e)
     {
-        Log.Info("OutsiderFunctionUI: 收到局外离开事件");
+        DebugEx.LogModule("OutsiderFunctionUI", "收到局外离开事件");
         HideUI();
     }
 
@@ -76,7 +69,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
             CreateFunctionItem(m_FunctionNames[i], i);
         }
 
-        Log.Info("OutsiderFunctionUI: 功能按钮已刷新");
+        DebugEx.LogModule("OutsiderFunctionUI", "功能按钮已刷新");
     }
 
     /// <summary>
@@ -86,7 +79,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
     {
         if (varFunctionItem == null || varOutsiderFunctionPanel == null)
         {
-            Log.Warning("OutsiderFunctionUI: 功能项模板或面板未设置");
+            DebugEx.WarningModule("OutsiderFunctionUI", "功能项模板或面板未设置");
             return;
         }
 
@@ -103,7 +96,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
         }
         else
         {
-            Log.Error("OutsiderFunctionUI: 功能项上未找到 FunctionItem 组件");
+            DebugEx.ErrorModule("OutsiderFunctionUI", "功能项上未找到 FunctionItem 组件");
             Destroy(itemObj);
         }
     }
@@ -132,28 +125,18 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
     /// </summary>
     private void OnFunctionClicked(string functionName)
     {
-        Log.Info($"OutsiderFunctionUI: 点击了功能按钮 - {functionName}");
+        DebugEx.LogModule("OutsiderFunctionUI", $"点击了功能按钮 - {functionName}");
 
-        // TODO: 根据功能名称打开对应的UI
         switch (functionName)
         {
             case "图鉴":
                 GF.UI.OpenUIForm(UIViews.DictionariesUI);
                 break;
-            case "商店":
-                // 打开商店UI
-                break;
             case "仓库":
-                // 打开仓库UI
-                break;
-            case "召唤师":
-                // 打开召唤师UI
+                GF.UI.OpenUIForm(UIViews.WarehouseUI);
                 break;
             case "出战预设":
                 GF.UI.OpenUIForm(UIViews.BattlePresetUI);
-                break;
-            case "挑战":
-                // 打开挑战UI
                 break;
         }
     }

@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.Resource;
+using UnityEngine;
+using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using Cysharp.Threading.Tasks;
-using System;
 
 namespace GameExtension
 {
@@ -13,12 +13,12 @@ namespace GameExtension
     /// </summary>
     public enum ResourceType
     {
-        Sprite = 1,      // 图片 需要扩展名：.png, .jpg
-        Prefab = 2,      // 预制体
-        Effect = 3,      // 特效
-        Material = 4,    // 材质
-        Texture = 5,     // 纹理 需要扩展名：.png, .jpg, .tga
-        ScriptableObject = 6,  // ScriptableObject配置
+        Sprite = 1, // 图片 需要扩展名：.png, .jpg
+        Prefab = 2, // 预制体
+        Effect = 3, // 特效
+        Material = 4, // 材质
+        Texture = 5, // 纹理 需要扩展名：.png, .jpg, .tga
+        ScriptableObject = 6, // ScriptableObject配置
     }
 
     /// <summary>
@@ -44,7 +44,11 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载资源（回调方式）
         /// </summary>
-        public static void LoadAssetByConfigAsync<T>(int configId, Action<T> onSuccess, Action<string> onFailure = null)
+        public static void LoadAssetByConfigAsync<T>(
+            int configId,
+            Action<T> onSuccess,
+            Action<string> onFailure = null
+        )
             where T : UnityEngine.Object
         {
             // 从配置表获取资源信息
@@ -73,7 +77,9 @@ namespace GameExtension
                     (assetName, status, errorMessage, userData) =>
                     {
                         // 失败回调
-                        Log.Error($"加载资源失败: ConfigId={configId}, Path={fullPath}, Error={errorMessage}");
+                        Log.Error(
+                            $"加载资源失败: ConfigId={configId}, Path={fullPath}, Error={errorMessage}"
+                        );
                         onFailure?.Invoke(errorMessage);
                     }
                 )
@@ -83,7 +89,11 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载Sprite（回调方式）
         /// </summary>
-        public static void LoadSpriteAsync(int configId, Action<Sprite> onSuccess, Action<string> onFailure = null)
+        public static void LoadSpriteAsync(
+            int configId,
+            Action<Sprite> onSuccess,
+            Action<string> onFailure = null
+        )
         {
             LoadAssetByConfigAsync(configId, onSuccess, onFailure);
         }
@@ -95,8 +105,14 @@ namespace GameExtension
         /// <param name="targetImage">目标Image组件</param>
         /// <param name="onFailure">加载失败回调</param>
         /// <param name="alpha">不透明度（0-1，默认1为完全不透明）</param>
-        /// <param name="size">缩放大小（默认为(1,1,1)），设置targetImage.transform.localScale</param>
-        public static void LoadSpriteAsync(int configId, Image targetImage, Action<string> onFailure, float alpha = 1f, Vector3? size = null)
+        /// <param name="size">缩放大小（可选），设置targetImage.transform.localScale。如果为null，保留现有scale</param>
+        public static void LoadSpriteAsync(
+            int configId,
+            Image targetImage,
+            Action<string> onFailure,
+            float alpha = 1f,
+            Vector3? size = null
+        )
         {
             if (targetImage == null)
             {
@@ -104,7 +120,8 @@ namespace GameExtension
                 return;
             }
 
-            LoadAssetByConfigAsync<Sprite>(configId,
+            LoadAssetByConfigAsync<Sprite>(
+                configId,
                 sprite =>
                 {
                     if (sprite != null && targetImage != null)
@@ -116,10 +133,16 @@ namespace GameExtension
                         color.a = Mathf.Clamp01(alpha);
                         targetImage.color = color;
 
-                        // 设置缩放
-                        targetImage.transform.localScale = size ?? Vector3.one;
+                        // 只有明确传入 size 参数时才设置缩放，否则保留现有 scale
+                        if (size.HasValue)
+                        {
+                            targetImage.transform.localScale = size.Value;
+                        }
 
-                        DebugEx.LogModule("ResourceExtension", $"加载Sprite到Image成功: configId={configId}, alpha={alpha}, scale={targetImage.transform.localScale}");
+                        DebugEx.LogModule(
+                            "ResourceExtension",
+                            $"加载Sprite到Image成功: configId={configId}, alpha={alpha}, scale={targetImage.transform.localScale}"
+                        );
                     }
                 },
                 onFailure
@@ -129,7 +152,11 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载GameObject（回调方式）
         /// </summary>
-        public static void LoadPrefabAsync(int configId, Action<GameObject> onSuccess, Action<string> onFailure = null)
+        public static void LoadPrefabAsync(
+            int configId,
+            Action<GameObject> onSuccess,
+            Action<string> onFailure = null
+        )
         {
             LoadAssetByConfigAsync(configId, onSuccess, onFailure);
         }
@@ -141,7 +168,8 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载资源（UniTask方式）
         /// </summary>
-        public static async UniTask<T> LoadAssetByConfigAsync<T>(int configId) where T : UnityEngine.Object
+        public static async UniTask<T> LoadAssetByConfigAsync<T>(int configId)
+            where T : UnityEngine.Object
         {
             // 从配置表获取资源信息
             var config = GetResourceConfig(configId);
@@ -161,7 +189,9 @@ namespace GameExtension
             }
             catch (Exception ex)
             {
-                Log.Error($"加载资源失败: ConfigId={configId}, Path={fullPath}, Error={ex.Message}");
+                Log.Error(
+                    $"加载资源失败: ConfigId={configId}, Path={fullPath}, Error={ex.Message}"
+                );
                 return null;
             }
         }
@@ -180,8 +210,13 @@ namespace GameExtension
         /// <param name="configId">资源配置表ID</param>
         /// <param name="targetImage">目标Image组件</param>
         /// <param name="alpha">不透明度（0-1，默认1为完全不透明）</param>
-        /// <param name="size">缩放大小（默认为(1,1,1)），设置targetImage.transform.localScale</param>
-        public static async UniTask LoadSpriteAsync(int configId, Image targetImage, float alpha = 1f, Vector3? size = null)
+        /// <param name="size">缩放大小（可选），设置targetImage.transform.localScale。如果为null，保留现有scale</param>
+        public static async UniTask LoadSpriteAsync(
+            int configId,
+            Image targetImage,
+            float alpha = 1f,
+            Vector3? size = null
+        )
         {
             if (targetImage == null)
             {
@@ -199,10 +234,16 @@ namespace GameExtension
                 color.a = Mathf.Clamp01(alpha);
                 targetImage.color = color;
 
-                // 设置缩放
-                targetImage.transform.localScale = size ?? Vector3.one;
+                // 只有明确传入 size 参数时才设置缩放，否则保留现有 scale
+                if (size.HasValue)
+                {
+                    targetImage.transform.localScale = size.Value;
+                }
 
-                DebugEx.LogModule("ResourceExtension", $"加载Sprite到Image成功（UniTask）: configId={configId}, alpha={alpha}, scale={targetImage.transform.localScale}");
+                DebugEx.LogModule(
+                    "ResourceExtension",
+                    $"加载Sprite到Image成功（UniTask）: configId={configId}, alpha={alpha}, scale={targetImage.transform.localScale}"
+                );
             }
         }
 
@@ -233,7 +274,8 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载ScriptableObject（UniTask方式）
         /// </summary>
-        public static async UniTask<T> LoadScriptableObjectAsync<T>(int configId) where T : ScriptableObject
+        public static async UniTask<T> LoadScriptableObjectAsync<T>(int configId)
+            where T : ScriptableObject
         {
             return await LoadAssetByConfigAsync<T>(configId);
         }
@@ -245,7 +287,11 @@ namespace GameExtension
         /// <summary>
         /// 直接通过路径异步加载Sprite（回调方式）
         /// </summary>
-        public static void LoadSpriteByPathAsync(string relativePath, Action<Sprite> onSuccess, Action<string> onFailure = null)
+        public static void LoadSpriteByPathAsync(
+            string relativePath,
+            Action<Sprite> onSuccess,
+            Action<string> onFailure = null
+        )
         {
             string fullPath = UtilityBuiltin.AssetsPath.GetSpritesPath(relativePath);
 
@@ -269,7 +315,11 @@ namespace GameExtension
         /// <summary>
         /// 直接通过路径异步加载Texture（回调方式）
         /// </summary>
-        public static void LoadTextureByPathAsync(string relativePath, Action<Texture2D> onSuccess, Action<string> onFailure = null)
+        public static void LoadTextureByPathAsync(
+            string relativePath,
+            Action<Texture2D> onSuccess,
+            Action<string> onFailure = null
+        )
         {
             string fullPath = UtilityBuiltin.AssetsPath.GetTexturePath(relativePath);
 
@@ -297,7 +347,10 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载预制体并实例化（UniTask方式）
         /// </summary>
-        public static async UniTask<GameObject> InstantiatePrefabAsync(int configId, Transform parent = null)
+        public static async UniTask<GameObject> InstantiatePrefabAsync(
+            int configId,
+            Transform parent = null
+        )
         {
             var prefab = await LoadPrefabAsync(configId);
             if (prefab == null)
@@ -314,7 +367,12 @@ namespace GameExtension
         /// <summary>
         /// 根据配置表ID异步加载预制体并实例化（回调方式）
         /// </summary>
-        public static void InstantiatePrefabAsync(int configId, Transform parent, Action<GameObject> onSuccess, Action<string> onFailure = null)
+        public static void InstantiatePrefabAsync(
+            int configId,
+            Transform parent,
+            Action<GameObject> onSuccess,
+            Action<string> onFailure = null
+        )
         {
             LoadAssetByConfigAsync<GameObject>(
                 configId,
@@ -322,9 +380,10 @@ namespace GameExtension
                 {
                     if (prefab != null)
                     {
-                        var instance = parent != null
-                            ? UnityEngine.Object.Instantiate(prefab, parent)
-                            : UnityEngine.Object.Instantiate(prefab);
+                        var instance =
+                            parent != null
+                                ? UnityEngine.Object.Instantiate(prefab, parent)
+                                : UnityEngine.Object.Instantiate(prefab);
                         onSuccess?.Invoke(instance);
                     }
                     else
@@ -343,7 +402,8 @@ namespace GameExtension
         /// <summary>
         /// 批量加载资源（根据配置表ID数组）
         /// </summary>
-        public static async UniTask<T[]> LoadAssetsByConfigAsync<T>(int[] configIds) where T : UnityEngine.Object
+        public static async UniTask<T[]> LoadAssetsByConfigAsync<T>(int[] configIds)
+            where T : UnityEngine.Object
         {
             if (configIds == null || configIds.Length == 0)
             {
@@ -387,7 +447,9 @@ namespace GameExtension
             var dataTable = GF.DataTable.GetDataTable<ResourceConfigTable>();
             if (dataTable == null)
             {
-                Log.Error("ResourceConfigTable 数据表未加载！请确保在 PreloadProcedure 中加载了该数据表。");
+                Log.Error(
+                    "ResourceConfigTable 数据表未加载！请确保在 PreloadProcedure 中加载了该数据表。"
+                );
                 return null;
             }
 
@@ -429,7 +491,7 @@ namespace GameExtension
                 case ResourceType.Texture:
                     return UtilityBuiltin.AssetsPath.GetTexturePath(relativePath);
 
-                case ResourceType.ScriptableObject:  // 新增
+                case ResourceType.ScriptableObject: // 新增
                     return UtilityBuiltin.AssetsPath.GetScriptObjectPath(relativePath);
 
                 default:

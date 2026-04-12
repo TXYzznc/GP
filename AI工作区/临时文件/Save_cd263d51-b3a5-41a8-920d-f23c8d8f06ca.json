@@ -1,0 +1,56 @@
+﻿{
+    "SaveId": "cd263d51-b3a5-41a8-920d-f23c8d8f06ca",
+    "SaveName": "珍珠奶茶",
+    "CreateTime": 639111127455531900.0,
+    "LastPlayTime": 639115318476724500.0,
+    "GlobalLevel": 1,
+    "CurrentExp": 0,
+    "CurrentSummonerId": 1001,
+    "UnlockedSummonerInfo": "{\"Items\":[1001]}",
+    "SummonerPhases": 1001,
+    "OwnedUnitCardIds": [
+        1,
+        4
+    ],
+    "OwnedStrategyCardIds": [
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010,
+        1011,
+        1012
+    ],
+    "UnlockedTechIds": [],
+    "PlayerSkillIds": [],
+    "UnlockedChessIds": [
+        1,
+        4
+    ],
+    "Gold": 100,
+    "MagicalStone": 0,
+    "HolyWater": 2,
+    "InventoryItems": "{\"Items\":[]}",
+    "InventoryCapacity": 100,
+    "SavedDecks": "{\"Items\":[{\"DeckName\":\"预设2\",\"UnitCardIds\":[],\"StrategyCardIds\":[]},{\"DeckName\":\"预设3\",\"UnitCardIds\":[],\"StrategyCardIds\":[]},{\"DeckName\":\"预设4\",\"UnitCardIds\":[],\"StrategyCardIds\":[]},{\"DeckName\":\"预设5\",\"UnitCardIds\":[],\"StrategyCardIds\":[]}]}",
+    "CurrentDeckIndex": [
+        0
+    ],
+    "CompletedQuestIds": [],
+    "HasCompletedTutorial": true,
+    "CurrentSceneId": 1,
+    "DiscoveredItemIds": [],
+    "DiscoveredEnemyIds": [],
+    "Settings": "{\"MusicVolume\":0.800000011920929,\"SoundVolume\":1.0,\"VibrateEnabled\":true,\"LanguageId\":1,\"GraphicsQuality\":2}",
+    "Statistics": "{\"TotalPlayTime\":0,\"TotalBattles\":0,\"TotalVictories\":0,\"TotalDefeats\":0,\"TotalBossKills\":0,\"TotalPurifications\":0}",
+    "PlayerPos": {
+        "x": 0.0,
+        "y": 1.359999656677246,
+        "z": -7.0
+    }
+}

@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:DESKTOP-7JQ11GM
+//更新自:一只靓仔的电脑
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,12 +17,14 @@ public partial class BattlePresetUI
 	[SerializeField] private TMP_InputField varPresetNameInput = null;
 	[SerializeField] private GameObject varPresetSlotItem = null;
 	[SerializeField] private GameObject varPresetSlotContainer = null;
-	[SerializeField] private GameObject varChessItemTemplate = null;
 	[SerializeField] private GameObject varSelectedChessContainer = null;
 	[SerializeField] private GameObject varChessPoolContainer = null;
 	[SerializeField] private TextMeshProUGUI varChessCountText = null;
-	[SerializeField] private GameObject varCardItemTemplate = null;
 	[SerializeField] private GameObject varSelectedCardContainer = null;
 	[SerializeField] private GameObject varCardPoolContainer = null;
 	[SerializeField] private TextMeshProUGUI varCardCountText = null;
+	[SerializeField] private GameObject varCardItemTemplate = null;
+	[SerializeField] private GameObject varChessItemTemplate = null;
+	[SerializeField] private TextMeshProUGUI varChessCountText2 = null;
+	[SerializeField] private TextMeshProUGUI varCardCountText2 = null;
 }

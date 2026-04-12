@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>
 /// 棋子解锁管理器 - 管理玩家已解锁的棋子列表
+/// 注意：棋子数据直接存储在 PlayerSaveData.OwnedUnitCardIds 中
 /// </summary>
 public class ChessUnlockManager
 {
@@ -22,16 +22,29 @@ public class ChessUnlockManager
         }
     }
 
-    private ChessUnlockManager()
-    {
-        m_UnlockedChess = new HashSet<int>();
-    }
+    private ChessUnlockManager() { }
 
     #endregion
-    
+
     #region 私有字段
 
-    private HashSet<int> m_UnlockedChess = new HashSet<int>();
+    /// <summary>
+    /// 当前存档数据引用
+    /// </summary>
+    private PlayerSaveData m_CurrentSaveData;
+
+    #endregion
+
+    #region 初始化
+
+    /// <summary>
+    /// 初始化管理器（在加载存档时调用）
+    /// </summary>
+    public void Initialize(PlayerSaveData saveData)
+    {
+        m_CurrentSaveData = saveData;
+        DebugEx.LogModule("ChessUnlockManager", "初始化完成");
+    }
 
     #endregion
 
@@ -44,16 +57,22 @@ public class ChessUnlockManager
     /// <returns>true=新解锁，false=已解锁</returns>
     public bool UnlockChess(int chessId)
     {
-        if (m_UnlockedChess.Contains(chessId))
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
         {
-            DebugEx.LogModule("ChessUnlockManager", $"Chess already unlocked: chessId={chessId}");
-            return false;  // 已解锁
+            DebugEx.ErrorModule("ChessUnlockManager", "SaveData 未初始化");
+            return false;
         }
 
-        m_UnlockedChess.Add(chessId);
+        if (m_CurrentSaveData.OwnedUnitCardIds.Contains(chessId))
+        {
+            DebugEx.LogModule("ChessUnlockManager", $"棋子已解锁: chessId={chessId}");
+            return false;
+        }
+
+        m_CurrentSaveData.OwnedUnitCardIds.Add(chessId);
         OnChessUnlocked?.Invoke(chessId);
 
-        DebugEx.LogModule("ChessUnlockManager", $"Chess unlocked: chessId={chessId}");
+        DebugEx.LogModule("ChessUnlockManager", $"棋子已解锁: chessId={chessId}");
         return true;
     }
 
@@ -62,7 +81,10 @@ public class ChessUnlockManager
     /// </summary>
     public bool IsChessUnlocked(int chessId)
     {
-        return m_UnlockedChess.Contains(chessId);
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
+            return false;
+
+        return m_CurrentSaveData.OwnedUnitCardIds.Contains(chessId);
     }
 
     /// <summary>
@@ -70,7 +92,10 @@ public class ChessUnlockManager
     /// </summary>
     public IReadOnlyCollection<int> GetUnlockedChess()
     {
-        return m_UnlockedChess;
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
+            return new List<int>();
+
+        return m_CurrentSaveData.OwnedUnitCardIds.AsReadOnly();
     }
 
     /// <summary>
@@ -78,7 +103,10 @@ public class ChessUnlockManager
     /// </summary>
     public int GetUnlockedCount()
     {
-        return m_UnlockedChess.Count;
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
+            return 0;
+
+        return m_CurrentSaveData.OwnedUnitCardIds.Count;
     }
 
     /// <summary>
@@ -86,8 +114,11 @@ public class ChessUnlockManager
     /// </summary>
     public int GetUnlockedCountByQuality(int quality)
     {
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
+            return 0;
+
         int count = 0;
-        foreach (var chessId in m_UnlockedChess)
+        foreach (var chessId in m_CurrentSaveData.OwnedUnitCardIds)
         {
             if (ChessDataManager.Instance.TryGetConfig(chessId, out var config))
             {
@@ -105,8 +136,11 @@ public class ChessUnlockManager
     /// </summary>
     public int GetUnlockedCountByStarLevel(int starLevel)
     {
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
+            return 0;
+
         int count = 0;
-        foreach (var chessId in m_UnlockedChess)
+        foreach (var chessId in m_CurrentSaveData.OwnedUnitCardIds)
         {
             if (ChessDataManager.Instance.TryGetConfig(chessId, out var config))
             {
@@ -121,49 +155,18 @@ public class ChessUnlockManager
 
     #endregion
 
-    #region 存档序列化
-
-    /// <summary>
-    /// 序列化到存档数据
-    /// </summary>
-    public List<int> SerializeToSaveData()
-    {
-        return new List<int>(m_UnlockedChess);
-    }
-
-    /// <summary>
-    /// 从存档数据反序列化
-    /// </summary>
-    public void DeserializeFromSaveData(List<int> unlockedChessIds)
-    {
-        m_UnlockedChess.Clear();
-
-        if (unlockedChessIds != null)
-        {
-            foreach (var id in unlockedChessIds)
-            {
-                m_UnlockedChess.Add(id);
-            }
-
-            DebugEx.LogModule("ChessUnlockManager", $"DeserializeFromSaveData: loaded {m_UnlockedChess.Count} unlocked chess");
-        }
-        else
-        {
-            DebugEx.LogModule("ChessUnlockManager", "DeserializeFromSaveData: no data to load");
-        }
-    }
-
-    #endregion
-
-    #region 新存档初始化
+    #region 存档操作
 
     /// <summary>
     /// 清空（战斗结束或新存档）
     /// </summary>
     public void Clear()
     {
-        m_UnlockedChess.Clear();
-        DebugEx.LogModule("ChessUnlockManager", "Clear: unlocked chess list cleared");
+        if (m_CurrentSaveData != null && m_CurrentSaveData.OwnedUnitCardIds != null)
+        {
+            m_CurrentSaveData.OwnedUnitCardIds.Clear();
+        }
+        DebugEx.LogModule("ChessUnlockManager", "已清空棋子列表");
     }
 
     /// <summary>
@@ -172,6 +175,12 @@ public class ChessUnlockManager
     /// <param name="initialChessIds">初始解锁的棋子ID列表</param>
     public void InitializeNewSave(List<int> initialChessIds)
     {
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
+        {
+            DebugEx.ErrorModule("ChessUnlockManager", "SaveData 未初始化");
+            return;
+        }
+
         Clear();
 
         if (initialChessIds != null)
@@ -181,7 +190,10 @@ public class ChessUnlockManager
                 UnlockChess(chessId);
             }
 
-            DebugEx.LogModule("ChessUnlockManager", $"InitializeNewSave: unlocked {initialChessIds.Count} initial chess");
+            DebugEx.LogModule(
+                "ChessUnlockManager",
+                $"新存档初始化: 解锁 {initialChessIds.Count} 个棋子"
+            );
         }
     }
 
@@ -203,7 +215,8 @@ public class ChessUnlockManager
     /// </summary>
     public string GetDebugInfo()
     {
-        return $"[ChessUnlockManager] UnlockedCount={m_UnlockedChess.Count}";
+        int count = m_CurrentSaveData?.OwnedUnitCardIds?.Count ?? 0;
+        return $"[ChessUnlockManager] UnlockedCount={count}";
     }
 
     /// <summary>
@@ -211,16 +224,28 @@ public class ChessUnlockManager
     /// </summary>
     public void PrintUnlockedChess()
     {
-        DebugEx.LogModule("ChessUnlockManager", $"Unlocked Chess ({m_UnlockedChess.Count}):");
-        foreach (var chessId in m_UnlockedChess)
+        if (m_CurrentSaveData?.OwnedUnitCardIds == null)
+        {
+            DebugEx.LogModule("ChessUnlockManager", "未初始化");
+            return;
+        }
+
+        DebugEx.LogModule(
+            "ChessUnlockManager",
+            $"已解锁棋子 ({m_CurrentSaveData.OwnedUnitCardIds.Count}):"
+        );
+        foreach (var chessId in m_CurrentSaveData.OwnedUnitCardIds)
         {
             if (ChessDataManager.Instance.TryGetConfig(chessId, out var config))
             {
-                DebugEx.LogModule("ChessUnlockManager", $"  - ID={chessId}, Name={config.Name}, Quality={config.Quality}, StarLevel={config.StarLevel}");
+                DebugEx.LogModule(
+                    "ChessUnlockManager",
+                    $"  - ID={chessId}, Name={config.Name}, Quality={config.Quality}, StarLevel={config.StarLevel}"
+                );
             }
             else
             {
-                DebugEx.LogModule("ChessUnlockManager", $"  - ID={chessId} (config not found)");
+                DebugEx.LogModule("ChessUnlockManager", $"  - ID={chessId} (配置未找到)");
             }
         }
     }
