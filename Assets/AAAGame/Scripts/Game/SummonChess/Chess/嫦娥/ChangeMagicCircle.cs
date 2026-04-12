@@ -62,6 +62,16 @@ public class ChangeMagicCircle : MonoBehaviour
         // 设置法阵位置
         transform.position = targetPosition;
 
+        // ⭐ 在法阵位置播放特效（修复：异步加载，但立即触发）
+        if (m_Config.EffectId > 0)
+        {
+            CombatVFXManager.PlayEffect(m_Config.EffectId, targetPosition);
+            DebugEx.LogModule(
+                "ChangeMagicCircle",
+                $"法阵特效播放: ID={m_Config.EffectId}, 位置={targetPosition}"
+            );
+        }
+
         m_IsInitialized = true;
 
         DebugEx.LogModule(

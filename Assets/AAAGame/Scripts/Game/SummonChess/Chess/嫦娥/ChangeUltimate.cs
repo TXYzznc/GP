@@ -178,13 +178,7 @@ public class ChangeUltimate : ChessSkillBase
         circleInstance = new GameObject($"MagicCircle_{m_Config.Id}");
         circleInstance.transform.position = position;
 
-        // 播放法阵特效
-        if (m_Config.EffectId > 0)
-        {
-            CombatVFXManager.PlayEffect(m_Config.EffectId, position);
-        }
-
-        // 添加法阵组件并初始化
+        // 添加法阵组件并初始化（特效播放在 Initialize 中进行）
         var magicCircle = circleInstance.AddComponent<ChangeMagicCircle>();
         magicCircle.Initialize(m_Config, caster, position);
 
