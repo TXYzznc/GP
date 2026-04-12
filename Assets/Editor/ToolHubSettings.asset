@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 9
+  selectedIndex: 5
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -23,27 +23,10 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u6CD5\u7EBF\u5E73\u6ED1\u5DE5\u5177"
     description: "\u6279\u91CF\u5904\u7406\u6A21\u578B\u7684\u5E73\u6ED1\u6CD5\u7EBF\u5E76\u70D8\u7119\u5230\u5207\u7EBF\u7A7A\u95F4"
-  - typeName: ObjectSpawnerPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-    displayName: "\u5BF9\u8C61\u751F\u6210\u5668\uFF08\u6027\u80FD\u6D4B\u8BD5\uFF09"
-    description: "\u5FEB\u901F\u6279\u91CF\u751F\u6210\u6D4B\u8BD5\u5BF9\u8C61\u5230\u573A\u666F\u4E2D"
-  - typeName: PrefabCityGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    displayName: "\u57CE\u5E02\u751F\u6210\u5668"
-    description: "\u5FEB\u901F\u751F\u6210\u57CE\u5E02\u8857\u9053\u3001\u5EFA\u7B51\u548C\u4EA4\u901A\u7CFB\u7EDF"
-  - typeName: PlayerSkillGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    displayName: "\u73A9\u5BB6\u6280\u80FD\u811A\u672C\u751F\u6210\u5668"
-    description: "\u4E00\u952E\u751F\u6210\u6280\u80FD\u903B\u8F91\u811A\u672C\u4E0E\u5BF9\u5E94\u7684
-      ScriptableObject \u6570\u636E\u914D\u7F6E\u7C7B"
   - typeName: PWBControlPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     displayName: PWBControl
     description: "PWB\u96C6\u6210\u63A7\u5236\u4E2D\u5FC3\uFF0C\u5FEB\u901F\u5207\u6362\u7B14\u5237\u5DE5\u5177\u3002"
-  - typeName: FindMissingScriptPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-    displayName: "\u7F3A\u5931\u811A\u672C\u626B\u63CF"
-    description: "\u626B\u63CF\u9884\u5236\u4F53\u4E2D\u7684\u7F3A\u5931\u811A\u672CGUID\u5F15\u7528"
   - typeName: FontReplacerPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     displayName: "\u5B57\u4F53\u8D44\u6E90\u66FF\u6362"
@@ -56,3 +39,7 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u8D26\u53F7\u6570\u636E\u7BA1\u7406\u5668"
     description: "\u5FEB\u901F\u4FEE\u6539\u6E38\u620F\u5B58\u6863\u6570\u636E\uFF0C\u652F\u6301\u6279\u91CF\u7F16\u8F91\u548C\u4FDD\u5B58"
+  - typeName: ChessSkillTestPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u68CB\u5B50\u6D4B\u8BD5\u5668"
+    description: "\u6D4B\u8BD5\u68CB\u5B50\u7684\u6280\u80FD\u6548\u679C\u3001\u52A8\u753B\u548C\u7279\u6548\uFF0C\u652F\u6301\u8FD0\u884C\u65F6\u53C2\u6570\u4FEE\u6539"
