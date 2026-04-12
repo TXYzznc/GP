@@ -37,15 +37,15 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
         m_SelfRect = transform as RectTransform;
         if (m_SelfRect == null)
         {
-            DebugEx.Error("UIAdaptiveScaleBySize", "组件必须挂载在 RectTransform 上");
+            //DebugEx.Error("UIAdaptiveScaleBySize", "组件必须挂载在 RectTransform 上");
             enabled = false;
             return;
         }
 
-        DebugEx.Log(
-            "UIAdaptiveScaleBySize",
-            $"[Awake] 初始化 - 对象:{gameObject.name}, 目标数量:{m_ScaleTargets.Count}"
-        );
+        // DebugEx.Log(
+        //     "UIAdaptiveScaleBySize",
+        //     $"[Awake] 初始化 - 对象:{gameObject.name}, 目标数量:{m_ScaleTargets.Count}"
+        //);
 
         // 只在 Awake 时捕获初始状态（对象池复用时不会重新捕获）
         if (m_InitialStates.Count == 0)
@@ -55,7 +55,7 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
         }
 
         m_LastSize = m_SelfRect.rect.size;
-        DebugEx.Log("UIAdaptiveScaleBySize", $"[Awake] 初始尺寸:{m_LastSize}");
+        //DebugEx.Log("UIAdaptiveScaleBySize", $"[Awake] 初始尺寸:{m_LastSize}");
 
         // 立即应用缩放
         ApplyScale();
@@ -69,7 +69,7 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
         if (m_SelfRect == null)
             return;
 
-        DebugEx.Log("UIAdaptiveScaleBySize", $"[OnEnable] 对象激活 - 对象:{gameObject.name}");
+        //.Log("UIAdaptiveScaleBySize", $"[OnEnable] 对象激活 - 对象:{gameObject.name}");
 
         // 应用缩放
         ApplyScale();
@@ -93,10 +93,10 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
         // 使用距离判断避免浮点误差
         if (Vector2.Distance(currentSize, m_LastSize) > 0.01f)
         {
-            DebugEx.Log(
-                "UIAdaptiveScaleBySize",
-                $"[Update] 尺寸变化 - 对象:{gameObject.name}, {m_LastSize} → {currentSize}"
-            );
+            // DebugEx.Log(
+            //     "UIAdaptiveScaleBySize",
+            //     $"[Update] 尺寸变化 - 对象:{gameObject.name}, {m_LastSize} → {currentSize}"
+            // );
             m_LastSize = currentSize;
             ApplyScale();
         }
@@ -189,10 +189,10 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
     {
         m_InitialStates.Clear();
 
-        DebugEx.Log(
-            "UIAdaptiveScaleBySize",
-            $"[CaptureInitialStates] 开始捕获 - 对象:{gameObject.name}, 目标数量:{m_ScaleTargets.Count}"
-        );
+        // DebugEx.Log(
+        //     "UIAdaptiveScaleBySize",
+        //     $"[CaptureInitialStates] 开始捕获 - 对象:{gameObject.name}, 目标数量:{m_ScaleTargets.Count}"
+        // );
 
         foreach (var target in m_ScaleTargets)
         {
@@ -204,17 +204,17 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
                     LocalScale = target.localScale,
                 };
 
-                DebugEx.Log(
-                    "UIAdaptiveScaleBySize",
-                    $"[CaptureInitialStates] 目标:{target.name}, "
-                        + $"初始位置:{target.anchoredPosition}, "
-                        + $"初始缩放:{target.localScale}, "
-                        + $"锚点:({target.anchorMin}, {target.anchorMax})"
-                );
+                // DebugEx.Log(
+                //     "UIAdaptiveScaleBySize",
+                //     $"[CaptureInitialStates] 目标:{target.name}, "
+                //         + $"初始位置:{target.anchoredPosition}, "
+                //         + $"初始缩放:{target.localScale}, "
+                //         + $"锚点:({target.anchorMin}, {target.anchorMax})"
+                // );
             }
             else
             {
-                DebugEx.Warning("UIAdaptiveScaleBySize", $"[CaptureInitialStates] 发现空目标!");
+                //DebugEx.Warning("UIAdaptiveScaleBySize", $"[CaptureInitialStates] 发现空目标!");
             }
         }
     }
@@ -226,10 +226,10 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
     {
         m_TargetCanvasGroups.Clear();
 
-        DebugEx.Log(
-            "UIAdaptiveScaleBySize",
-            $"[SetupCanvasGroups] 开始设置 - 对象:{gameObject.name}, 目标数量:{m_ScaleTargets.Count}"
-        );
+        // DebugEx.Log(
+        //     "UIAdaptiveScaleBySize",
+        //     $"[SetupCanvasGroups] 开始设置 - 对象:{gameObject.name}, 目标数量:{m_ScaleTargets.Count}"
+        // );
 
         foreach (var target in m_ScaleTargets)
         {
@@ -245,10 +245,10 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
                 canvasGroup.alpha = 0f;
                 m_TargetCanvasGroups[target] = canvasGroup;
 
-                DebugEx.Log(
-                    "UIAdaptiveScaleBySize",
-                    $"[SetupCanvasGroups] 目标:{target.name}, 已设置 CanvasGroup alpha=0"
-                );
+                // DebugEx.Log(
+                //     "UIAdaptiveScaleBySize",
+                //     $"[SetupCanvasGroups] 目标:{target.name}, 已设置 CanvasGroup alpha=0"
+                // );
             }
         }
     }
@@ -258,10 +258,10 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
     /// </summary>
     private IEnumerator FadeInTargets()
     {
-        DebugEx.Log(
-            "UIAdaptiveScaleBySize",
-            $"[FadeInTargets] 开始淡入 - 对象:{gameObject.name}, 目标数量:{m_TargetCanvasGroups.Count}"
-        );
+        // DebugEx.Log(
+        //     "UIAdaptiveScaleBySize",
+        //     $"[FadeInTargets] 开始淡入 - 对象:{gameObject.name}, 目标数量:{m_TargetCanvasGroups.Count}"
+        // );
 
         float duration = 0.2f;
         float elapsed = 0f;
@@ -291,7 +291,7 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
             }
         }
 
-        DebugEx.Log("UIAdaptiveScaleBySize", $"[FadeInTargets] 淡入完成 - 对象:{gameObject.name}");
+        //DebugEx.Log("UIAdaptiveScaleBySize", $"[FadeInTargets] 淡入完成 - 对象:{gameObject.name}");
     }
 
     /// <summary>
@@ -299,10 +299,10 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
     /// </summary>
     private void ResetTargetsAlpha()
     {
-        DebugEx.Log(
-            "UIAdaptiveScaleBySize",
-            $"[ResetTargetsAlpha] 重置透明度 - 对象:{gameObject.name}, 目标数量:{m_TargetCanvasGroups.Count}"
-        );
+        // DebugEx.Log(
+        //     "UIAdaptiveScaleBySize",
+        //     $"[ResetTargetsAlpha] 重置透明度 - 对象:{gameObject.name}, 目标数量:{m_TargetCanvasGroups.Count}"
+        // );
 
         foreach (var kvp in m_TargetCanvasGroups)
         {
@@ -338,7 +338,7 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
 
         if (m_ReferenceSize.x <= 0f || m_ReferenceSize.y <= 0f)
         {
-            DebugEx.Warning("UIAdaptiveScaleBySize", $"无效的参考尺寸: {m_ReferenceSize}");
+            //DebugEx.Warning("UIAdaptiveScaleBySize", $"无效的参考尺寸: {m_ReferenceSize}");
             return;
         }
 
@@ -366,12 +366,12 @@ public class UIAdaptiveScaleBySize : MonoBehaviour
 
         // sizeDelta 保持不变（通过 localScale 已经实现了尺寸缩放）
 
-        DebugEx.Log(
-            "UIAdaptiveScaleBySize",
-            $"应用缩放 - 源:{gameObject.name}({sourceSize}), 目标:{target.name}, "
-                + $"参考:{m_ReferenceSize}, 缩放:{scale:F3}, "
-                + $"位置:{initialState.AnchoredPosition} → {target.anchoredPosition}"
-        );
+        // DebugEx.Log(
+        //     "UIAdaptiveScaleBySize",
+        //     $"应用缩放 - 源:{gameObject.name}({sourceSize}), 目标:{target.name}, "
+        //         + $"参考:{m_ReferenceSize}, 缩放:{scale:F3}, "
+        //         + $"位置:{initialState.AnchoredPosition} → {target.anchoredPosition}"
+        // );
     }
 
     #endregion

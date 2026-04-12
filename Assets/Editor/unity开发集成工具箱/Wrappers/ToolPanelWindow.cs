@@ -224,4 +224,18 @@ public class PWBControlWindow : ToolPanelWindow<PWBControlPanel>
     }
 }
 
+/// <summary>
+/// 棋子技能测试器独立窗口
+/// </summary>
+public class ChessSkillTestWindow : ToolPanelWindow<ChessSkillTestPanel>
+{
+    [MenuItem("工具/测试工具/棋子技能测试器")]
+    public static void ShowWindow()
+    {
+        var window = GetWindow<ChessSkillTestWindow>("棋子技能测试器");
+        window.minSize = new Vector2(500, 700);
+        window.Show();
+    }
+}
+
 #endif
