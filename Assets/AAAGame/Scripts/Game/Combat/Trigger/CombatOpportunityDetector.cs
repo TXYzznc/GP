@@ -98,13 +98,49 @@ public class CombatOpportunityDetector : MonoBehaviour
         GF.Event.Subscribe(ExplorationLeaveEventArgs.EventId, OnExplorationLeave);
 
         m_IsInitialized = true;
-        DebugEx.LogModule("CombatOpportunityDetector", "检测器初始化完成");
+
+        // ===== 诊断日志 =====
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"<color=cyan>[诊断] 初始化完成 | " +
+            $"EnemyLayerMask={(int)m_EnemyLayerMask} (value={m_EnemyLayerMask.value}) | " +
+            $"SneakDist={m_SneakAttackDistance} | EncounterDist={m_EncounterDistance} | " +
+            $"BehindAngle={m_BehindAngleThreshold} | FacingAngle={m_PlayerFacingAngleThreshold} | " +
+            $"PlayerPos={m_PlayerTransform.position} | " +
+            $"GameObject={gameObject.name} Layer={LayerMask.LayerToName(gameObject.layer)}</color>");
+
+        if (m_EnemyLayerMask.value == 0)
+        {
+            DebugEx.ErrorModule("CombatOpportunityDetector",
+                "<color=red>[诊断] ⚠️ EnemyLayerMask 为 0！OverlapSphere 不会检测到任何敌人！" +
+                "这是动态 AddComponent 导致 SerializeField 未赋值的问题。</color>");
+        }
     }
+
+    /// <summary>诊断日志计时器，每5秒输出一次状态</summary>
+    private float m_DiagnosticLogTimer;
 
     private void Update()
     {
         // 检查是否已初始化
         if (!m_IsInitialized) return;
+
+        // ===== 定期诊断日志（每5秒） =====
+        m_DiagnosticLogTimer += Time.deltaTime;
+        if (m_DiagnosticLogTimer >= 5f)
+        {
+            m_DiagnosticLogTimer = 0f;
+            var inputMgr = PlayerInputManager.Instance;
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=yellow>[诊断-周期] " +
+                $"Initialized={m_IsInitialized} | InExploration={m_IsInExploration} | " +
+                $"CurrentTarget={m_CurrentTarget?.Config?.Name ?? "null"} | " +
+                $"TriggerType={m_CurrentTriggerType} | " +
+                $"EnemyLayerMask={m_EnemyLayerMask.value} | " +
+                $"InputMgr={inputMgr != null} | " +
+                $"SpaceKeyDown={inputMgr?.SpaceKeyDown} | " +
+                $"GamePauseTestTriggered={inputMgr?.GamePauseTestTriggered} | " +
+                $"enableInput={inputMgr?.enableInput}</color>");
+        }
 
         // 仅在探索状态时进行检测
         if (!m_IsInExploration) return;
@@ -119,9 +155,25 @@ public class CombatOpportunityDetector : MonoBehaviour
 
         // 检测空格键触发战斗
         var inputManager = PlayerInputManager.Instance;
-        if (inputManager != null && inputManager.SpaceKeyDown && m_CurrentTarget != null)
+        if (inputManager != null)
         {
-            TriggerCombat();
+            // 诊断：空格键状态
+            if (inputManager.GamePauseTestTriggered)
+            {
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    $"<color=lime>[诊断-输入] 检测到空格按下(GamePauseTestTriggered=true) | " +
+                    $"SpaceKeyDown={inputManager.SpaceKeyDown} | " +
+                    $"HasTarget={m_CurrentTarget != null} | " +
+                    $"Target={m_CurrentTarget?.Config?.Name ?? "null"}</color>");
+            }
+
+            // 用 SpaceKeyDown 检测（原逻辑）
+            if (inputManager.SpaceKeyDown && m_CurrentTarget != null)
+            {
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    "<color=green>[诊断] SpaceKeyDown=true 且有目标，触发战斗</color>");
+                TriggerCombat();
+            }
         }
     }
 
@@ -164,6 +216,8 @@ public class CombatOpportunityDetector : MonoBehaviour
     private void OnExplorationEnter(object sender, GameEventArgs e)
     {
         m_IsInExploration = true;
+        DebugEx.LogModule("CombatOpportunityDetector",
+            "<color=cyan>[诊断] 收到 ExplorationEnter 事件，m_IsInExploration=true</color>");
     }
 
     /// <summary>
@@ -173,6 +227,8 @@ public class CombatOpportunityDetector : MonoBehaviour
     {
         m_IsInExploration = false;
         ClearOpportunity();
+        DebugEx.LogModule("CombatOpportunityDetector",
+            "<color=cyan>[诊断] 收到 ExplorationLeave 事件，m_IsInExploration=false</color>");
     }
 
     /// <summary>
@@ -231,10 +287,41 @@ public class CombatOpportunityDetector : MonoBehaviour
             m_EnemyLayerMask
         );
 
+        // 诊断：物理检测结果
+        if (m_DiagnosticLogTimer < 0.2f) // 每个周期只输出一次
+        {
+            // 额外用无LayerMask检测做对比
+            int hitCountNoMask = Physics.OverlapSphereNonAlloc(
+                m_PlayerTransform.position,
+                m_SneakAttackDistance,
+                new Collider[20]);
+
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=yellow>[诊断-偷袭检测] " +
+                $"OverlapSphere: 位置={m_PlayerTransform.position}, 半径={m_SneakAttackDistance}, " +
+                $"LayerMask={m_EnemyLayerMask.value} → 命中={hitCount} | " +
+                $"无LayerMask命中={hitCountNoMask}</color>");
+        }
+
         for (int i = 0; i < hitCount; i++)
         {
             EnemyEntity enemy = m_OverlapResults[i].GetComponent<EnemyEntity>();
-            if (enemy == null) continue;
+            if (enemy == null)
+            {
+                // 诊断：碰撞体不是敌人
+                if (m_DiagnosticLogTimer < 0.2f)
+                {
+                    DebugEx.LogModule("CombatOpportunityDetector",
+                        $"<color=gray>[诊断-偷袭] 碰撞体 {m_OverlapResults[i].name} 不是EnemyEntity</color>");
+                }
+                continue;
+            }
+
+            // 诊断：检查每个敌人的偷袭条件
+            if (m_DiagnosticLogTimer < 0.2f)
+            {
+                DiagnoseSneakAttackConditions(enemy);
+            }
 
             // 检查敌人是否满足条件
             if (IsSneakAttackTarget(enemy))
