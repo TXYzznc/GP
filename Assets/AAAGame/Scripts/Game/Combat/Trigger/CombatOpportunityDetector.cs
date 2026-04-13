@@ -138,8 +138,7 @@ public class CombatOpportunityDetector : MonoBehaviour
                 $"EnemyLayerMask={m_EnemyLayerMask.value} | " +
                 $"InputMgr={inputMgr != null} | " +
                 $"SpaceKeyDown={inputMgr?.SpaceKeyDown} | " +
-                $"GamePauseTestTriggered={inputMgr?.GamePauseTestTriggered} | " +
-                $"enableInput={inputMgr?.enableInput}</color>");
+                $"GamePauseTestTriggered={inputMgr?.GamePauseTestTriggered}</color>");
         }
 
         // 仅在探索状态时进行检测
@@ -353,6 +352,14 @@ public class CombatOpportunityDetector : MonoBehaviour
             m_EnemyLayerMask
         );
 
+        // 诊断：遭遇战物理检测
+        if (m_DiagnosticLogTimer < 0.2f)
+        {
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=yellow>[诊断-遭遇检测] " +
+                $"OverlapSphere: 半径={m_EncounterDistance}, LayerMask={m_EnemyLayerMask.value} → 命中={hitCount}</color>");
+        }
+
         for (int i = 0; i < hitCount; i++)
         {
             EnemyEntity enemy = m_OverlapResults[i].GetComponent<EnemyEntity>();
@@ -451,6 +458,45 @@ public class CombatOpportunityDetector : MonoBehaviour
         if (gameplayUI == null) return;
 
         gameplayUI.HideCombatInteract();
+    }
+
+    /// <summary>
+    /// 诊断：输出偷袭条件判断细节
+    /// </summary>
+    private void DiagnoseSneakAttackConditions(EnemyEntity enemy)
+    {
+        if (enemy == null) return;
+
+        string enemyName = enemy.Config?.Name ?? enemy.gameObject.name;
+        bool hasVision = enemy.VisionDetector != null;
+        float alertLevel = hasVision ? enemy.VisionDetector.AlertLevel : -1f;
+        float distance = Vector3.Distance(m_PlayerTransform.position, enemy.transform.position);
+
+        Vector3 toPlayer = m_PlayerTransform.position - enemy.transform.position;
+        toPlayer.y = 0;
+        float behindAngle = toPlayer.sqrMagnitude > 0.01f
+            ? Vector3.Angle(-toPlayer.normalized, enemy.transform.forward)
+            : -1f;
+
+        Vector3 toEnemy = enemy.transform.position - m_PlayerTransform.position;
+        toEnemy.y = 0;
+        float facingAngle = toEnemy.sqrMagnitude > 0.01f
+            ? Vector3.Angle(m_PlayerTransform.forward, toEnemy.normalized)
+            : -1f;
+
+        bool alertOk = hasVision && alertLevel < 0.3f;
+        bool behindOk = behindAngle <= m_BehindAngleThreshold;
+        bool facingOk = facingAngle <= m_PlayerFacingAngleThreshold;
+
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"<color=magenta>[诊断-偷袭条件] {enemyName}: " +
+            $"距离={distance:F1}m | " +
+            $"VisionDetector={hasVision} | " +
+            $"AlertLevel={alertLevel:F2}(需<0.3 {(alertOk ? "✓" : "✗")}) | " +
+            $"身后角度={behindAngle:F1}°(需<{m_BehindAngleThreshold}° {(behindOk ? "✓" : "✗")}) | " +
+            $"面向角度={facingAngle:F1}°(需<{m_PlayerFacingAngleThreshold}° {(facingOk ? "✓" : "✗")}) | " +
+            $"敌人Layer={LayerMask.LayerToName(enemy.gameObject.layer)}({enemy.gameObject.layer})" +
+            $"</color>");
     }
 
     #endregion

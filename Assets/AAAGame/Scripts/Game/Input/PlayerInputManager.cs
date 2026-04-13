@@ -103,6 +103,9 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
             //Time.timeScale = Time.timeScale == 0f ? 1f : 0f;  // 切换暂停状态
         }
 
+        // 空格键也写入 SpaceKeyDown（供 CombatOpportunityDetector 使用）
+        SpaceKeyDown = Input.GetKeyDown(KeyCode.Space);
+
         // Tab 键：背包开关
         InventoryToggleTriggered = Input.GetKeyDown(KeyCode.Tab);
 
@@ -180,8 +183,7 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         LeftMouseButtonDown = Input.GetMouseButtonDown(0); // 0 = 左键
         RightMouseButtonDown = Input.GetMouseButtonDown(1); // 1 = 右键
 
-        // 空格键输入（⭐ 已被测试暂停功能占用，见上方）
-        // SpaceKeyDown 已在 GamePauseTestTriggered 中处理
+        // 空格键输入（已在上方 GamePauseTestTriggered 附近同步赋值）
 
         // 技能输入
         for (int slot = 1; slot <= 3; slot++)

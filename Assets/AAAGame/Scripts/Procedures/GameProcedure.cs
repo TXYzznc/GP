@@ -269,11 +269,25 @@ public class GameProcedure : ProcedureBase
         {
             detector = playerCharacter.AddComponent<CombatOpportunityDetector>();
             Log.Info("GameProcedure: 动态添加 CombatOpportunityDetector 到玩家角色");
+            DebugEx.WarningModule("GameProcedure",
+                "<color=red>[诊断] ⚠️ CombatOpportunityDetector 是动态 AddComponent 的！" +
+                "SerializeField（如 EnemyLayerMask）不会有值！需要手动设置或在预制体上预先挂载。</color>");
+        }
+        else
+        {
+            DebugEx.LogModule("GameProcedure",
+                "<color=cyan>[诊断] CombatOpportunityDetector 已在预制体上存在</color>");
         }
 
         // 初始化检测器
         detector.Initialize();
         Log.Info("GameProcedure: 玩家角色的CombatOpportunityDetector已初始化");
+
+        // 诊断：输出玩家角色信息
+        DebugEx.LogModule("GameProcedure",
+            $"<color=cyan>[诊断] 玩家角色: {playerCharacter.name}, " +
+            $"Layer={LayerMask.LayerToName(playerCharacter.layer)}({playerCharacter.layer}), " +
+            $"Position={playerCharacter.transform.position}</color>");
     }
 
     /// <summary>
