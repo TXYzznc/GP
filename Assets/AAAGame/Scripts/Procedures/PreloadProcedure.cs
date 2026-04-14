@@ -68,6 +68,21 @@ public class PreloadProcedure : ProcedureBase
         {
             preloadAllCompleted = true;
             InitGameFrameworkSettings();
+
+            // ======= 战斗测试模式：跳转到测试场景而非正常游戏 =======
+            if (CombatTestBootstrapper.IsCombatTestMode)
+            {
+                GF.Log("预加载完成, 进入战斗测试模式.");
+                string testScene = CombatTestBootstrapper.TestSceneName;
+                if (!string.IsNullOrEmpty(testScene))
+                {
+                    procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, testScene);
+                }
+                CombatTestBootstrapper.NotifyReady();
+                ChangeState<ChangeSceneProcedure>(procedureOwner);
+                return;
+            }
+
             GF.Log("预加载完成, 启动游戏流程.");
             procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, "StartGame");
             ChangeState<ChangeSceneProcedure>(procedureOwner);

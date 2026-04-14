@@ -581,7 +581,7 @@ public class ChessSkillTestPanel : IToolHubPanel
         }
         catch (Exception ex)
         {
-            Debug.LogError($"ChessSkillTestPanel: 加载技能配置失败 - {ex.Message}");
+            Debug.LogError($"ChessSkillTestPanel: 加载技能配置失败 - {ex.Message}\n{ex.StackTrace}");
         }
     }
 

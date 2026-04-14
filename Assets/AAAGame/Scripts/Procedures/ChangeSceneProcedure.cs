@@ -70,6 +70,11 @@ public class ChangeSceneProcedure : ProcedureBase
             Log.Info("ChangeSceneProcedure: 切换到 StartGameProcedure（主菜单）");
             ChangeState<StartGameProcedure>(procedureOwner);
         }
+        else if (CombatTestBootstrapper.IsCombatTestMode)
+        {
+            // 战斗测试模式：不切换 Procedure，停留在当前流程让面板操作
+            Log.Info("ChangeSceneProcedure: 战斗测试模式，停留在测试场景");
+        }
         else
         {
             // 游戏场景 → GameProcedure

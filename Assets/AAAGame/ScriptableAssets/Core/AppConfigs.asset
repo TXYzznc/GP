@@ -45,8 +45,7 @@ MonoBehaviour:
   - Core/SoundGroupTable
   - Core/UIGroupTable
   - Core/UITable
-  mConfigs:
-  - GameConfig
+  mConfigs: []
   mLanguages:
   - ChineseSimplified
   - ChineseTraditional

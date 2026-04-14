@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using GameFramework.Event;
+using DG.Tweening;
 
 /// <summary>
 /// 战斗机会检测器
@@ -37,6 +38,13 @@ public class CombatOpportunityDetector : MonoBehaviour
 
     #endregion
 
+    #region 敌人选择配置
+
+    /// <summary>敌人选择角度阈值（度）- 超过此角度的敌人不参与选择</summary>
+    private const float ENEMY_SELECTION_ANGLE_THRESHOLD = 45f;
+
+    #endregion
+
     #region 私有字段
 
     /// <summary>当前目标敌人</summary>
@@ -65,6 +73,18 @@ public class CombatOpportunityDetector : MonoBehaviour
 
     /// <summary>目标保持宽限期（秒）— 条件不满足后仍保持目标的时间</summary>
     private const float TARGET_GRACE_PERIOD = 1.0f;
+
+    /// <summary>描边闪烁周期（秒）</summary>
+    private const float OUTLINE_FLASH_DURATION = 0.5f;
+
+    /// <summary>描边闪烁颜色 - 红色</summary>
+    private static readonly Color OUTLINE_FLASH_COLOR = Color.red;
+
+    /// <summary>描边宽度</summary>
+    private const float OUTLINE_SIZE = 1f;
+
+    /// <summary>当前目标的 Tween 动画（用于描边闪烁）</summary>
+    private Tween m_CurrentOutlineTween;
 
     #endregion
 
@@ -207,6 +227,75 @@ public class CombatOpportunityDetector : MonoBehaviour
     #region 私有方法
 
     /// <summary>
+    /// 敌人评分信息
+    /// </summary>
+    private class EnemyScore
+    {
+        public EnemyEntity Enemy { get; set; }
+        public float Score { get; set; }
+        public float Distance { get; set; }
+        public float Angle { get; set; }
+    }
+
+    /// <summary>
+    /// 计算敌人的目标选择评分
+    /// 基于距离（50%）和角度（50%）的加权评分
+    /// </summary>
+    private EnemyScore CalculateEnemySelectionScore(EnemyEntity enemy, float detectionDistance)
+    {
+        if (enemy == null) return null;
+
+        // 计算距离
+        float distance = Vector3.Distance(m_PlayerTransform.position, enemy.transform.position);
+
+        // 计算角度（玩家朝向与敌人方向的夹角）
+        Vector3 toEnemy = (enemy.transform.position - m_PlayerTransform.position).normalized;
+        toEnemy.y = 0;  // 忽略垂直分量
+        float angle = Vector3.Angle(m_PlayerTransform.forward, toEnemy);
+
+        // 角度大于45°时不参与选择
+        if (angle > ENEMY_SELECTION_ANGLE_THRESHOLD)
+            return null;
+
+        // 距离评分（0~1）：距离越近分数越高
+        float distanceScore = Mathf.Clamp01(1f - (distance / detectionDistance));
+
+        // 角度评分（0~1）：角度越小分数越高
+        float angleScore = Mathf.Clamp01(1f - (angle / ENEMY_SELECTION_ANGLE_THRESHOLD));
+
+        // 综合评分 = 距离50% + 角度50%
+        float finalScore = (distanceScore * 0.5f) + (angleScore * 0.5f);
+
+        return new EnemyScore
+        {
+            Enemy = enemy,
+            Score = finalScore,
+            Distance = distance,
+            Angle = angle
+        };
+    }
+
+    /// <summary>
+    /// 从候选敌人中选择评分最高的目标
+    /// </summary>
+    private EnemyEntity SelectBestEnemy(System.Collections.Generic.List<EnemyEntity> candidates, float detectionDistance)
+    {
+        EnemyScore bestScore = null;
+
+        foreach (var enemy in candidates)
+        {
+            var score = CalculateEnemySelectionScore(enemy, detectionDistance);
+
+            if (score != null && (bestScore == null || score.Score > bestScore.Score))
+            {
+                bestScore = score;
+            }
+        }
+
+        return bestScore?.Enemy;
+    }
+
+    /// <summary>
     /// 事件处理：进入探索
     /// </summary>
     private void OnExplorationEnter(object sender, GameEventArgs e)
@@ -244,6 +333,7 @@ public class CombatOpportunityDetector : MonoBehaviour
                 DebugEx.LogModule("CombatOpportunityDetector",
                     $"<color=lime>[诊断-检测] 检测到新的偷袭目标: {sneakTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 ShowOpportunityUI(CombatTriggerType.SneakAttack);
+                ShowTargetOutline(sneakTarget);
             }
             return;
         }
@@ -259,6 +349,7 @@ public class CombatOpportunityDetector : MonoBehaviour
                 DebugEx.LogModule("CombatOpportunityDetector",
                     $"<color=lime>[诊断-检测] 检测到新的遭遇战目标: {encounterTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 ShowOpportunityUI(CombatTriggerType.Encounter);
+                ShowTargetOutline(encounterTarget);
             }
             return;
         }
@@ -284,6 +375,7 @@ public class CombatOpportunityDetector : MonoBehaviour
     /// - 玩家在敌人背后
     /// - 敌人未警觉（AlertLevel < 0.3）
     /// - 玩家面向敌人
+    /// 选择算法：基于距离和角度的加权评分，选择最佳目标
     /// </summary>
     private bool CheckSneakAttackOpportunity(out EnemyEntity target)
     {
@@ -312,6 +404,8 @@ public class CombatOpportunityDetector : MonoBehaviour
                 $"无LayerMask命中={hitCountNoMask}</color>");
         }
 
+        System.Collections.Generic.List<EnemyEntity> validTargets = new System.Collections.Generic.List<EnemyEntity>();
+
         for (int i = 0; i < hitCount; i++)
         {
             EnemyEntity enemy = m_OverlapResults[i].GetComponent<EnemyEntity>();
@@ -336,9 +430,17 @@ public class CombatOpportunityDetector : MonoBehaviour
             bool isSneakTarget = IsSneakAttackTarget(enemy);
             if (isSneakTarget)
             {
+                validTargets.Add(enemy);
+            }
+        }
+
+        if (validTargets.Count > 0)
+        {
+            target = SelectBestEnemy(validTargets, m_SneakAttackDistance);
+            if (target != null)
+            {
                 DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=lime>[诊断-偷袭检测] 检测到偷袭目标: {enemy.Config?.Name}, 调用 ShowOpportunityUI</color>");
-                target = enemy;
+                    $"<color=lime>[诊断-偷袭检测] 检测到偷袭目标: {target.Config?.Name}（评分最高）</color>");
                 return true;
             }
         }
@@ -353,6 +455,7 @@ public class CombatOpportunityDetector : MonoBehaviour
     /// - 敌人未警觉（AlertLevel < 0.5）
     /// - 不满足偷袭条件（不在背后）
     /// - 玩家面向敌人
+    /// 选择算法：基于距离和角度的加权评分，选择最佳目标
     /// </summary>
     private bool CheckEncounterOpportunity(out EnemyEntity target)
     {
@@ -373,6 +476,8 @@ public class CombatOpportunityDetector : MonoBehaviour
                 $"OverlapSphere: 半径={m_EncounterDistance}, LayerMask={m_EnemyLayerMask.value} → 命中={hitCount}</color>");
         }
 
+        System.Collections.Generic.List<EnemyEntity> validTargets = new System.Collections.Generic.List<EnemyEntity>();
+
         for (int i = 0; i < hitCount; i++)
         {
             EnemyEntity enemy = m_OverlapResults[i].GetComponent<EnemyEntity>();
@@ -381,7 +486,17 @@ public class CombatOpportunityDetector : MonoBehaviour
             // 检查敌人是否满足条件
             if (IsEncounterTarget(enemy))
             {
-                target = enemy;
+                validTargets.Add(enemy);
+            }
+        }
+
+        if (validTargets.Count > 0)
+        {
+            target = SelectBestEnemy(validTargets, m_EncounterDistance);
+            if (target != null)
+            {
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    $"<color=lime>[诊断-遭遇检测] 检测到遭遇战目标: {target.Config?.Name}（评分最高）</color>");
                 return true;
             }
         }
@@ -500,6 +615,8 @@ public class CombatOpportunityDetector : MonoBehaviour
     /// </summary>
     private void ClearOpportunity()
     {
+        HideTargetOutline();
+
         m_CurrentTarget = null;
         m_CurrentTriggerType = CombatTriggerType.Normal;
 
@@ -521,7 +638,7 @@ public class CombatOpportunityDetector : MonoBehaviour
         }
 
         DebugEx.LogModule("CombatOpportunityDetector",
-            "<color=cyan>[诊断] 清空战斗机会，隐藏UI</color>");
+            "<color=cyan>[诊断] 清空战斗机会，隐藏UI和描边</color>");
 
         gameplayUI.HideCombatInteract();
     }
@@ -563,6 +680,62 @@ public class CombatOpportunityDetector : MonoBehaviour
             $"面向角度={facingAngle:F1}°(需<{m_PlayerFacingAngleThreshold}° {(facingOk ? "✓" : "✗")}) | " +
             $"敌人Layer={LayerMask.LayerToName(enemy.gameObject.layer)}({enemy.gameObject.layer})" +
             $"</color>");
+    }
+
+    /// <summary>
+    /// 显示目标敌人的描边，并播放闪烁动画
+    /// </summary>
+    private void ShowTargetOutline(EnemyEntity target)
+    {
+        if (target == null) return;
+
+        // 隐藏前一个目标的描边
+        HideTargetOutline();
+
+        var outlineController = target.GetComponent<OutlineController>();
+        if (outlineController == null)
+        {
+            DebugEx.WarningModule("CombatOpportunityDetector",
+                $"目标敌人 {target.Config?.Name} 没有 OutlineController 组件");
+            return;
+        }
+
+        // 显示初始描边
+        outlineController.ShowOutline(OUTLINE_FLASH_COLOR, OUTLINE_SIZE);
+
+        // 创建闪烁动画：反复显示和隐藏描边
+        m_CurrentOutlineTween?.Kill();
+        m_CurrentOutlineTween = DOTween.Sequence()
+            .AppendCallback(() => outlineController.ShowOutline(OUTLINE_FLASH_COLOR, OUTLINE_SIZE))
+            .AppendInterval(OUTLINE_FLASH_DURATION * 0.5f)
+            .AppendCallback(() => outlineController.HideOutline())
+            .AppendInterval(OUTLINE_FLASH_DURATION * 0.5f)
+            .SetLoops(-1, LoopType.Restart)
+            .SetLink(target.gameObject);
+
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"显示目标描边: {target.Config?.Name}，开启闪烁效果");
+    }
+
+    /// <summary>
+    /// 隐藏当前目标的描边
+    /// </summary>
+    private void HideTargetOutline()
+    {
+        if (m_CurrentTarget == null) return;
+
+        var outlineController = m_CurrentTarget.GetComponent<OutlineController>();
+        if (outlineController != null)
+        {
+            outlineController.HideOutline();
+        }
+
+        // 停止闪烁动画
+        m_CurrentOutlineTween?.Kill();
+        m_CurrentOutlineTween = null;
+
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"隐藏目标描边: {m_CurrentTarget.Config?.Name}");
     }
 
     #endregion

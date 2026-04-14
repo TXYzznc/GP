@@ -260,6 +260,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\AI\EnemyInfoCache.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardEffectExecutor.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\TypeIdPair.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Test\CombatTestBootstrapper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PosTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\NewGameUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\Game\EntityPositionHelper.cs" />

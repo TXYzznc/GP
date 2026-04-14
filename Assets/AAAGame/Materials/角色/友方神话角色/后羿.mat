@@ -25,6 +25,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - USE_SMOOTH_NORMAL
   - _DISSOLVE_MODE_SINGLE
   m_InvalidKeywords:
   - _METALLICSPECGLOSSMAP
@@ -141,13 +142,13 @@ Material:
     - _OutlineWidth: 0.003
     - _OutlineWidthMax: 0.03
     - _OutlineWidthMin: 0.005
-    - _OutlineZOffset: -0.001
+    - _OutlineZOffset: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _Radius: 3
     - _RainbowIntensity: 2
     - _RampSmooth: 0
-    - _RampThreshold: 0.5
+    - _RampThreshold: 0.6
     - _ReceiveShadows: 1
     - _Sharpness: 0.5
     - _Smoothness: 0.5
@@ -157,10 +158,10 @@ Material:
     - _SrcBlendAlpha: 1
     - _StealthAlpha: 1
     - _Surface: 0
-    - _ToonSteps: 4
+    - _ToonSteps: 6
     - _UseDistanceOutline: 0
     - _UseLocalDepthOutline: 0
-    - _UseSmoothNormal: 0
+    - _UseSmoothNormal: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
