@@ -298,8 +298,52 @@ public class CombatPreparationState : FsmState<InGameState>
 
         DebugEx.LogModule("CombatPreparationState", $"CombatPreparationUI已初始化，耗时{waitTime:F2}秒");
 
-        // 在下一帧检查是否敌方先手，如果是则显示敌方先手Buff通知
-        // （确保UI已经初始化完成）
+        // 检查并显示先手效果
+        await ShowInitiativeEffectIfNeededAsync();
+    }
+
+    /// <summary>
+    /// 检查并显示先手效果（偷袭Debuff三选一 / 玩家先手Buff三选一 / 敌方先手通知）
+    /// 优先级：偷袭 > 玩家先手 > 敌方先手
+    /// </summary>
+    private async UniTask ShowInitiativeEffectIfNeededAsync()
+    {
+        // 等待一帧，确保UI已经初始化完成
+        await UniTask.Yield();
+
+        // 获取UI引用（后面复用）
+        var uiForm = GF.UI.GetUIForm(m_CombatPreparationUIFormId);
+        var preparationUI = uiForm?.Logic as CombatPreparationUI;
+
+        // 优先级1：检查偷袭Debuff三选一
+        var sneakDebuffPool = CombatTriggerEvents.LastSneakDebuffPool;
+        if (sneakDebuffPool != null && sneakDebuffPool.Count > 0)
+        {
+            DebugEx.LogModule("CombatPreparationState", $"检测到偷袭，候选Debuff数={sneakDebuffPool.Count}");
+
+            if (preparationUI != null)
+            {
+                preparationUI.ShowSneakDebuffSelection(sneakDebuffPool);
+                DebugEx.LogModule("CombatPreparationState", "已显示偷袭Debuff三选一面板");
+            }
+            return;
+        }
+
+        // 优先级2：检查玩家先手（遭遇战三选一）
+        var playerBuffPool = CombatTriggerEvents.LastPlayerInitiativeBuffPool;
+        if (playerBuffPool != null && playerBuffPool.Count > 0)
+        {
+            DebugEx.LogModule("CombatPreparationState", $"检测到玩家先手，候选Buff数={playerBuffPool.Count}");
+
+            if (preparationUI != null)
+            {
+                preparationUI.ShowInitiativeBuffSelection(playerBuffPool);
+                DebugEx.LogModule("CombatPreparationState", "已显示玩家先手Buff三选一面板");
+            }
+            return;
+        }
+
+        // 优先级3：检查敌方先手通知
         await ShowEnemyInitiativeBuffIfNeededAsync();
     }
 

@@ -132,11 +132,27 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     /// </summary>
     public void ShowCombatInteract(CombatTriggerType triggerType)
     {
+        DebugEx.LogModule("GamePlayInfoUI",
+            $"<color=cyan>[诊断] ShowCombatInteract 被调用 | triggerType={triggerType}</color>");
+
+        DebugEx.LogModule("GamePlayInfoUI",
+            $"<color=cyan>[诊断] 组件状态: " +
+            $"varCombatInteractUI={varCombatInteractUI != null} (name={(varCombatInteractUI != null ? varCombatInteractUI.name : "null")}) | " +
+            $"varInteractIcon={varInteractIcon != null} | " +
+            $"varInteractText={varInteractText != null}</color>");
+
         if (varCombatInteractUI == null || varInteractIcon == null || varInteractText == null)
         {
-            DebugEx.WarningModule("GamePlayInfoUI", "战斗交互UI组件未设置");
+            DebugEx.ErrorModule("GamePlayInfoUI",
+                $"<color=red>[诊断] ❌ 战斗交互UI组件未设置！" +
+                $"varCombatInteractUI={varCombatInteractUI} | " +
+                $"varInteractIcon={varInteractIcon} | " +
+                $"varInteractText={varInteractText}</color>");
             return;
         }
+
+        DebugEx.LogModule("GamePlayInfoUI",
+            $"<color=cyan>[诊断] ✓ 所有组件都存在，激活 varCombatInteractUI</color>");
 
         varCombatInteractUI.gameObject.SetActive(true);
 
@@ -145,15 +161,17 @@ public partial class GamePlayInfoUI : StateAwareUIForm
             case CombatTriggerType.SneakAttack:
                 // 设置偷袭图标和文本
                 // varInteractIcon.sprite = LoadSprite("Icon_SneakAttack");
-                varInteractText.text = "按下空格进行偷袭";
-                DebugEx.LogModule("GamePlayInfoUI", "显示偷袭交互UI");
+                varInteractText.text = "按下【Space】进行偷袭";
+                DebugEx.LogModule("GamePlayInfoUI",
+                    $"<color=yellow>[诊断] ✓ 显示偷袭交互UI | 文本=\"{varInteractText.text}\"</color>");
                 break;
 
             case CombatTriggerType.Encounter:
                 // 设置遭遇战图标和文本
                 // varInteractIcon.sprite = LoadSprite("Icon_Encounter");
-                varInteractText.text = "按下空格进行战斗";
-                DebugEx.LogModule("GamePlayInfoUI", "显示遭遇战交互UI");
+                varInteractText.text = "按下【Space】进入战斗";
+                DebugEx.LogModule("GamePlayInfoUI",
+                    $"<color=yellow>[诊断] ✓ 显示遭遇战交互UI | 文本=\"{varInteractText.text}\"</color>");
                 break;
 
             default:
@@ -173,7 +191,13 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         if (varCombatInteractUI != null)
         {
             varCombatInteractUI.gameObject.SetActive(false);
-            DebugEx.LogModule("GamePlayInfoUI", "隐藏战斗交互UI");
+            DebugEx.LogModule("GamePlayInfoUI",
+                "<color=cyan>[诊断] 隐藏战斗交互UI</color>");
+        }
+        else
+        {
+            DebugEx.WarningModule("GamePlayInfoUI",
+                "<color=yellow>[诊断] varCombatInteractUI 为 null，无法隐藏</color>");
         }
     }
 

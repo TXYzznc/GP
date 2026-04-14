@@ -47,6 +47,12 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>敌方先手Buff通知的取消令牌</summary>
     private System.Threading.CancellationTokenSource m_NotificationCts;
 
+    /// <summary>Buff选择自动确认的取消令牌</summary>
+    private System.Threading.CancellationTokenSource m_BuffSelectionCts;
+
+    /// <summary>已生成的 BuffChooseItem 列表</summary>
+    private List<GameObject> m_BuffChooseItems = new List<GameObject>();
+
     /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
     private ChessEntity m_CurrentDetailChess;
 
@@ -205,6 +211,15 @@ public partial class CombatPreparationUI : UIFormBase
 
         // 清理生成的UI项
         ClearSpawnedItems();
+
+        // 清理Buff选择相关
+        ClearBuffChooseItems();
+        m_BuffSelectionCts?.Cancel();
+        m_BuffSelectionCts?.Dispose();
+        m_BuffSelectionCts = null;
+        m_NotificationCts?.Cancel();
+        m_NotificationCts?.Dispose();
+        m_NotificationCts = null;
 
         base.OnClose(isShutdown, userData);
         Log.Info("CombatPreparationUI: 已关闭");
@@ -733,7 +748,7 @@ public partial class CombatPreparationUI : UIFormBase
     }
 
     /// <summary>
-    /// 显示先手Buff三选一
+    /// 显示先手Buff三选一（5秒后自动选择第一个）
     /// </summary>
     public void ShowInitiativeBuffSelection(List<int> buffIds)
     {
@@ -741,6 +756,12 @@ public partial class CombatPreparationUI : UIFormBase
         m_BuffSelectionMode = BuffSelectionMode.InitiativeBuff;
         ShowBuffSelectionPanel();
         SetupBuffSelectionOptions("选择一个先手Buff");
+
+        // 启动5秒自动选择计时
+        m_BuffSelectionCts?.Cancel();
+        m_BuffSelectionCts?.Dispose();
+        m_BuffSelectionCts = new System.Threading.CancellationTokenSource();
+        AutoSelectBuffAfterTimeoutAsync(5f, m_BuffSelectionCts.Token).Forget();
     }
 
     /// <summary>
@@ -805,10 +826,19 @@ public partial class CombatPreparationUI : UIFormBase
             return;
         }
 
-        // TODO: 清空之前的选项并生成新选项
-        // 使用 varBuffChooseItem 模板创建最多3个选项
+        // 清空之前的选项
+        ClearBuffChooseItems();
 
-        int count = m_AvailableBuffIds.Count > 3 ? 3 : m_AvailableBuffIds.Count;
+        if (varBuffChooseItem == null || varPanel == null)
+        {
+            DebugEx.ErrorModule("CombatPreparationUI", "varBuffChooseItem 或 varPanel 为空");
+            return;
+        }
+
+        // 隐藏模板
+        varBuffChooseItem.SetActive(false);
+
+        int count = Mathf.Min(m_AvailableBuffIds.Count, 3);
         for (int i = 0; i < count; i++)
         {
             int effectId = m_AvailableBuffIds[i];
@@ -820,11 +850,59 @@ public partial class CombatPreparationUI : UIFormBase
                 continue;
             }
 
-            // TODO: 创建效果选择项并绑定点击事件
-            // 点击时调用 OnBuffItemSelected(effectId)
+            // 实例化选项
+            GameObject itemGo = Object.Instantiate(varBuffChooseItem, varPanel.transform);
+            itemGo.SetActive(true);
+
+            var chooseItem = itemGo.GetComponent<BuffChooseItem>();
+            if (chooseItem != null)
+            {
+                chooseItem.SetEffectData(effectId, effect);
+            }
+
+            m_BuffChooseItems.Add(itemGo);
         }
 
-        Log.Info($"CombatPreparationUI: {title} - {count}个选项");
+        Log.Info($"CombatPreparationUI: {title} - 已生成 {m_BuffChooseItems.Count} 个选项");
+    }
+
+    /// <summary>
+    /// 清空已生成的 BuffChooseItem
+    /// </summary>
+    private void ClearBuffChooseItems()
+    {
+        foreach (var item in m_BuffChooseItems)
+        {
+            if (item != null)
+            {
+                Object.Destroy(item);
+            }
+        }
+        m_BuffChooseItems.Clear();
+    }
+
+    /// <summary>
+    /// 超时自动选择第一个Buff
+    /// </summary>
+    private async UniTaskVoid AutoSelectBuffAfterTimeoutAsync(float timeout, System.Threading.CancellationToken ct)
+    {
+        try
+        {
+            int totalMs = (int)(timeout * 1000);
+            await UniTask.Delay(totalMs, cancellationToken: ct);
+
+            // 超时未选择，自动选择第一个
+            if (m_AvailableBuffIds != null && m_AvailableBuffIds.Count > 0 && m_BuffSelectionMode != BuffSelectionMode.None)
+            {
+                int firstBuffId = m_AvailableBuffIds[0];
+                DebugEx.LogModule("CombatPreparationUI", $"选择超时，自动选择第一个Buff: {firstBuffId}");
+                OnBuffItemSelected(firstBuffId);
+            }
+        }
+        catch (System.OperationCanceledException)
+        {
+            // 玩家已手动选择，正常取消
+        }
     }
 
     /// <summary>
@@ -835,49 +913,41 @@ public partial class CombatPreparationUI : UIFormBase
         m_SelectedBuffId = buffId;
         Log.Info($"CombatPreparationUI: 选中Buff {buffId}，模式={m_BuffSelectionMode}");
 
+        // 取消自动选择计时
+        m_BuffSelectionCts?.Cancel();
+        m_BuffSelectionCts?.Dispose();
+        m_BuffSelectionCts = null;
+
         // 应用Buff
         ApplySelectedBuff();
 
-        // 隐藏选择面板
+        // 清理选项并隐藏选择面板
+        ClearBuffChooseItems();
         HideBuffSelectionPanel();
         m_BuffSelectionMode = BuffSelectionMode.None;
     }
 
     /// <summary>
-    /// 应用选中的效果
+    /// 应用选中的效果（延迟应用：存储到Context，战斗开始后由CombatState统一应用）
+    /// 原因：准备阶段敌方棋子尚未生成，无法直接应用Buff
     /// </summary>
     private void ApplySelectedBuff()
     {
         if (m_SelectedBuffId <= 0)
             return;
 
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-            return;
-
-        var effect = specialEffectTable.GetDataRow(m_SelectedBuffId);
-        if (effect == null)
-            return;
-
-        // 根据模式应用效果中的Buff
-        if (m_BuffSelectionMode == BuffSelectionMode.SneakDebuff)
+        // 将选中的效果ID存储到战斗上下文，等战斗开始后棋子就绪时再应用
+        var context = CombatTriggerManager.Instance?.CurrentContext;
+        if (context != null)
         {
-            // 偷袭效果应用到敌人（全体）
-            var context = CombatTriggerManager.Instance.CurrentContext;
-            if (context != null && context.TriggerEnemy != null)
-            {
-                // 从效果中解析并应用所有Buff到敌人方（全体）
-                ApplyBuffsFromSpecialEffect(effect, context.TriggerEnemy);
-                Log.Info(
-                    $"CombatPreparationUI: 应用偷袭效果 {m_SelectedBuffId}({effect.Name}) 到敌人"
-                );
-            }
+            context.SelectedEffectId = m_SelectedBuffId;
+            DebugEx.LogModule("CombatPreparationUI",
+                $"已存储选中效果到战斗上下文: EffectId={m_SelectedBuffId}, 模式={m_BuffSelectionMode}, 将在棋子就绪后应用");
         }
-        else if (m_BuffSelectionMode == BuffSelectionMode.InitiativeBuff)
+        else
         {
-            // 先手效果应用到玩家
-            // TODO: 获取玩家实体，应用效果中的所有Buff到玩家方（全体）
-            Log.Info($"CombatPreparationUI: 应用先手效果 {m_SelectedBuffId}({effect.Name}) 到玩家");
+            DebugEx.WarningModule("CombatPreparationUI",
+                $"战斗上下文为空，无法存储选中效果: EffectId={m_SelectedBuffId}");
         }
     }
 

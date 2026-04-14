@@ -95,21 +95,23 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                 break;
 
             case CombatTriggerType.Encounter:
-                m_CurrentContext.InitiativeBuffId = GetRandomInitiativeBuff();
-                ApplyInitiativeEffectToPlayer(m_CurrentContext.InitiativeBuffId);
+                // 遭遇战 = 玩家先手，获取候选Buff池，由UI让玩家三选一
+                m_CurrentContext.AvailableBuffIds = GetPlayerInitiativeBuffPool();
+                CombatTriggerEvents.FirePlayerInitiativeTriggered(m_CurrentContext.AvailableBuffIds);
                 DebugEx.LogModule(
                     "CombatTriggerManager",
-                    $"遭遇战触发: {enemy.Config.Name}, 先手效果={m_CurrentContext.InitiativeBuffId}"
+                    $"遭遇战触发: {enemy.Config.Name}, 候选先手效果数={m_CurrentContext.AvailableBuffIds.Count}"
                 );
                 break;
 
             case CombatTriggerType.EnemyInitiated:
                 m_CurrentContext.InitiativeBuffId = GetRandomInitiativeBuff();
-                ApplyInitiativeEffectToEnemy(m_CurrentContext.InitiativeBuffId, enemy);
+                // 延迟应用：存储到SelectedEffectId，由CombatState在棋子就绪后统一应用
+                m_CurrentContext.SelectedEffectId = m_CurrentContext.InitiativeBuffId;
                 CombatTriggerEvents.FireEnemyInitiativeTriggered(m_CurrentContext.InitiativeBuffId);
                 DebugEx.LogModule(
                     "CombatTriggerManager",
-                    $"敌方先手触发: {enemy.Config.Name}, 敌人先手效果={m_CurrentContext.InitiativeBuffId}"
+                    $"敌方先手触发: {enemy.Config.Name}, 敌人先手效果={m_CurrentContext.InitiativeBuffId} (延迟到棋子就绪后应用)"
                 );
                 break;
 
@@ -137,8 +139,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             $"<color=#FFD700>============================</color>"
         );
 
-        // 调用EnemyEntityManager触发战斗
-        EnemyEntityManager.Instance.TriggerCombat(enemy);
+        // 注意：不在此处调用 EnemyEntityManager，由调用方负责进入战斗状态
+        // 避免 CombatTriggerManager ↔ EnemyEntityManager 循环调用
     }
 
     /// <summary>
@@ -219,7 +221,7 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     /// 应用先手效果到玩家方（全体应用）
     /// 从SpecialEffectTable中获取效果配置，并应用其包含的所有Buff
     /// </summary>
-    private void ApplyInitiativeEffectToPlayer(int effectId)
+    public void ApplyInitiativeEffectToPlayer(int effectId)
     {
         if (effectId <= 0)
         {
@@ -359,6 +361,50 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 获取玩家先手效果池（遭遇战三选一）
+    /// 从SpecialEffectTable中筛选EffectCategory=1（玩家先手）的效果
+    /// </summary>
+    private List<int> GetPlayerInitiativeBuffPool()
+    {
+        List<int> effectIds = new List<int>();
+
+        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
+        if (specialEffectTable == null)
+        {
+            DebugEx.WarningModule("CombatTriggerManager", "SpecialEffectTable未加载");
+            return effectIds;
+        }
+
+        var allEffects = specialEffectTable.GetAllDataRows();
+        foreach (var effect in allEffects)
+        {
+            if (effect.EffectCategory == 1)
+            {
+                effectIds.Add(effect.Id);
+            }
+        }
+
+        // 随机打乱顺序（Fisher-Yates洗牌）
+        if (effectIds.Count > 0)
+        {
+            for (int i = effectIds.Count - 1; i > 0; i--)
+            {
+                int randomIndex = Random.Range(0, i + 1);
+                int temp = effectIds[i];
+                effectIds[i] = effectIds[randomIndex];
+                effectIds[randomIndex] = temp;
+            }
+        }
+
+        DebugEx.LogModule(
+            "CombatTriggerManager",
+            $"获取玩家先手效果池: {effectIds.Count}个 - [{string.Join(", ", effectIds)}]"
+        );
+
+        return effectIds;
     }
 
     /// <summary>

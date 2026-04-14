@@ -279,13 +279,38 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     }
 
     /// <summary>
-    /// 触发战斗
+    /// 触发战斗（敌方追击触发，敌方先手）
     /// </summary>
     public void TriggerCombat(EnemyEntity entity)
     {
         if (entity == null)
         {
             DebugEx.ErrorModule("EnemyEntityManager", "触发战斗失败：敌人实体为空");
+            return;
+        }
+
+        if (m_IsInCombat)
+        {
+            DebugEx.WarningModule("EnemyEntityManager", "已经在战斗中，忽略触发请求");
+            return;
+        }
+
+        // 调用CombatTriggerManager处理战斗触发（敌方追击触发为敌方先手）
+        CombatTriggerManager.Instance.TriggerCombat(entity, CombatTriggerType.EnemyInitiated);
+
+        // 进入战斗状态（纯状态设置，不再调用CombatTriggerManager）
+        EnterCombatState(entity);
+    }
+
+    /// <summary>
+    /// 进入战斗状态（纯状态设置）
+    /// 由 CombatTriggerManager 或 TriggerCombat 调用，不会回调 CombatTriggerManager
+    /// </summary>
+    public void EnterCombatState(EnemyEntity entity)
+    {
+        if (entity == null)
+        {
+            DebugEx.ErrorModule("EnemyEntityManager", "进入战斗状态失败：敌人实体为空");
             return;
         }
 
@@ -316,9 +341,6 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
             $"触发单敌人战斗: {m_CurrentCombatData.EnemyDataList[0].EnemyName}, BattleConfigId={m_CurrentCombatData.EnemyDataList[0].BattleConfigId}"
         );
 
-        // 调用CombatTriggerManager处理战斗触发（敌方追击触发为敌方先手）
-        CombatTriggerManager.Instance.TriggerCombat(entity, CombatTriggerType.EnemyInitiated);
-
         // 通知所有追击状态的敌人：玩家进入战斗
         NotifyPlayerEnteredCombat();
 
@@ -331,18 +353,16 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     /// </summary>
     public void TriggerCombatFromOpportunity(EnemyEntity entity, CombatTriggerType triggerType)
     {
-        // 对于敌人追击触发的战斗，标记为敌方先手
-        if (
-            triggerType == CombatTriggerType.Normal
-            || triggerType == CombatTriggerType.EnemyInitiated
-        )
+        if (triggerType == CombatTriggerType.EnemyInitiated || triggerType == CombatTriggerType.Normal)
         {
+            // 敌方先手：由 TriggerCombat 处理（内部会调用 CombatTriggerManager）
             TriggerCombat(entity);
         }
         else
         {
-            // 偷袭和遭遇战由CombatTriggerManager处理，已经调用了TriggerCombat
-            TriggerCombat(entity);
+            // 偷袭/遭遇战：CombatTriggerManager 已在调用方处理好效果
+            // 这里只需进入战斗状态
+            EnterCombatState(entity);
         }
     }
 

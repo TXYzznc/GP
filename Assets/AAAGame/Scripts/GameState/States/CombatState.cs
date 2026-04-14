@@ -361,6 +361,98 @@ public class CombatState : FsmState<InGameState>
     #region 战斗逻辑
 
     /// <summary>
+    /// 应用待定的战斗效果（偷袭Debuff/先手Buff/敌方先手Buff）
+    /// 在所有棋子（玩家+敌人）生成就绪后调用
+    /// </summary>
+    private void ApplyPendingCombatEffects()
+    {
+        var context = CombatTriggerManager.Instance?.CurrentContext;
+        if (context == null || context.SelectedEffectId <= 0)
+        {
+            DebugEx.LogModule("CombatState", "无待应用的战斗效果");
+            return;
+        }
+
+        int effectId = context.SelectedEffectId;
+        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
+        if (specialEffectTable == null)
+        {
+            DebugEx.WarningModule("CombatState", "SpecialEffectTable未加载，无法应用待定效果");
+            return;
+        }
+
+        var effect = specialEffectTable.GetDataRow(effectId);
+        if (effect == null)
+        {
+            DebugEx.WarningModule("CombatState", $"未找到效果配置: EffectId={effectId}");
+            return;
+        }
+
+        var allChess = SummonChessManager.Instance?.GetAllChess();
+        if (allChess == null || allChess.Count == 0)
+        {
+            DebugEx.WarningModule("CombatState", "没有棋子可应用效果");
+            return;
+        }
+
+        switch (context.TriggerType)
+        {
+            case CombatTriggerType.SneakAttack:
+                // 偷袭：BuffIds 应用到敌人（全体），SelfBuffIds 应用到玩家（全体）
+                ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 1); // 敌方
+                ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 0); // 我方
+                DebugEx.LogModule("CombatState",
+                    $"已应用偷袭效果: {effect.Name} (EffectId={effectId})");
+                break;
+
+            case CombatTriggerType.Encounter:
+                // 玩家先手：BuffIds + SelfBuffIds 都应用到玩家（全体）
+                ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 0);
+                ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 0);
+                DebugEx.LogModule("CombatState",
+                    $"已应用玩家先手效果: {effect.Name} (EffectId={effectId})");
+                break;
+
+            case CombatTriggerType.EnemyInitiated:
+                // 敌方先手：BuffIds + SelfBuffIds 都应用到敌人（全体）
+                ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 1);
+                ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 1);
+                DebugEx.LogModule("CombatState",
+                    $"已应用敌方先手效果: {effect.Name} (EffectId={effectId})");
+                break;
+
+            default:
+                DebugEx.LogModule("CombatState", "普通战斗，无待应用效果");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 将Buff列表应用到指定阵营的所有棋子
+    /// </summary>
+    private void ApplyBuffsToChessByCamp(int[] buffIds, System.Collections.Generic.IReadOnlyList<ChessEntity> allChess, int targetCamp)
+    {
+        if (buffIds == null || buffIds.Length == 0)
+            return;
+
+        foreach (int buffId in buffIds)
+        {
+            if (buffId <= 0) continue;
+
+            for (int i = 0; i < allChess.Count; i++)
+            {
+                var chess = allChess[i];
+                if (chess != null && chess.Camp == targetCamp)
+                {
+                    BuffApplyHelper.ApplyBuff(buffId, chess.gameObject, false, null);
+                    DebugEx.LogModule("CombatState",
+                        $"  应用Buff {buffId} 到 {chess.Config?.Name ?? chess.name} (Camp={targetCamp})");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 开始战斗
     /// </summary>
     private void StartCombat()
@@ -542,9 +634,12 @@ public class CombatState : FsmState<InGameState>
         DebugEx.LogModule("CombatState", "开始生成敌人...");
         await EnemySpawnManager.Instance.SpawnWaveAsync();
         DebugEx.LogModule("CombatState", "敌人生成完成");
-        
+
         // 敌人生成完成后，启用所有棋子的战斗AI
         EnableAllChessCombatAI();
+
+        // 敌人生成完成后，应用待定的战斗效果（偷袭Debuff/先手Buff）
+        ApplyPendingCombatEffects();
     }
 
     private async void SpawnEnemies()

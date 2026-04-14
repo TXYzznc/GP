@@ -60,6 +60,12 @@ public class CombatOpportunityDetector : MonoBehaviour
     /// <summary>是否已初始化</summary>
     private bool m_IsInitialized;
 
+    /// <summary>目标丢失时的宽限期计时器（秒）</summary>
+    private float m_TargetGraceTimer;
+
+    /// <summary>目标保持宽限期（秒）— 条件不满足后仍保持目标的时间</summary>
+    private const float TARGET_GRACE_PERIOD = 1.0f;
+
     #endregion
 
     #region 属性
@@ -144,36 +150,24 @@ public class CombatOpportunityDetector : MonoBehaviour
         // 仅在探索状态时进行检测
         if (!m_IsInExploration) return;
 
-        // 降低检测频率
+        // ⭐ 空格键检测必须每帧执行（GetKeyDown 只在按下那一帧为true）
+        // 放在频率限制之前，避免被 0.1s 检测间隔吞掉按键
+        var inputManager = PlayerInputManager.Instance;
+        if (inputManager != null && inputManager.SpaceKeyDown && m_CurrentTarget != null)
+        {
+            DebugEx.LogModule("CombatOpportunityDetector",
+                "<color=green>[诊断] SpaceKeyDown=true 且有目标，触发战斗</color>");
+            TriggerCombat();
+            return; // 触发后不再做检测
+        }
+
+        // 降低物理检测频率（不影响按键响应）
         if (Time.time - m_LastDetectionTime < m_DetectionUpdateInterval)
             return;
 
         m_LastDetectionTime = Time.time;
 
         DetectCombatOpportunities();
-
-        // 检测空格键触发战斗
-        var inputManager = PlayerInputManager.Instance;
-        if (inputManager != null)
-        {
-            // 诊断：空格键状态
-            if (inputManager.GamePauseTestTriggered)
-            {
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=lime>[诊断-输入] 检测到空格按下(GamePauseTestTriggered=true) | " +
-                    $"SpaceKeyDown={inputManager.SpaceKeyDown} | " +
-                    $"HasTarget={m_CurrentTarget != null} | " +
-                    $"Target={m_CurrentTarget?.Config?.Name ?? "null"}</color>");
-            }
-
-            // 用 SpaceKeyDown 检测（原逻辑）
-            if (inputManager.SpaceKeyDown && m_CurrentTarget != null)
-            {
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    "<color=green>[诊断] SpaceKeyDown=true 且有目标，触发战斗</color>");
-                TriggerCombat();
-            }
-        }
     }
 
     private void OnDestroy()
@@ -199,8 +193,11 @@ public class CombatOpportunityDetector : MonoBehaviour
             return;
         }
 
-        // 通过CombatTriggerManager触发战斗
+        // 1. 通过CombatTriggerManager处理战斗效果（偷袭Debuff/先手Buff等）
         CombatTriggerManager.Instance.TriggerCombat(m_CurrentTarget, m_CurrentTriggerType);
+
+        // 2. 通过EnemyEntityManager进入战斗状态（纯状态设置，不会再调用CombatTriggerManager）
+        EnemyEntityManager.Instance.EnterCombatState(m_CurrentTarget);
 
         DebugEx.LogModule("CombatOpportunityDetector", $"触发战斗: {m_CurrentTarget.Config.Name}, 类型={m_CurrentTriggerType}");
     }
@@ -239,10 +236,13 @@ public class CombatOpportunityDetector : MonoBehaviour
         // 优先级1：检测偷袭机会
         if (CheckSneakAttackOpportunity(out EnemyEntity sneakTarget))
         {
+            m_TargetGraceTimer = 0f; // 有目标时重置宽限计时
             if (m_CurrentTarget != sneakTarget)
             {
                 m_CurrentTarget = sneakTarget;
                 m_CurrentTriggerType = CombatTriggerType.SneakAttack;
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    $"<color=lime>[诊断-检测] 检测到新的偷袭目标: {sneakTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 ShowOpportunityUI(CombatTriggerType.SneakAttack);
             }
             return;
@@ -251,19 +251,29 @@ public class CombatOpportunityDetector : MonoBehaviour
         // 优先级2：检测遭遇战机会
         if (CheckEncounterOpportunity(out EnemyEntity encounterTarget))
         {
+            m_TargetGraceTimer = 0f; // 有目标时重置宽限计时
             if (m_CurrentTarget != encounterTarget)
             {
                 m_CurrentTarget = encounterTarget;
                 m_CurrentTriggerType = CombatTriggerType.Encounter;
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    $"<color=lime>[诊断-检测] 检测到新的遭遇战目标: {encounterTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 ShowOpportunityUI(CombatTriggerType.Encounter);
             }
             return;
         }
 
-        // 无机会：清空
+        // 无机会：使用宽限期，防止条件波动导致目标频繁丢失
         if (m_CurrentTarget != null)
         {
-            ClearOpportunity();
+            m_TargetGraceTimer += m_DetectionUpdateInterval;
+            if (m_TargetGraceTimer >= TARGET_GRACE_PERIOD)
+            {
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    $"<color=yellow>[诊断-检测] 目标丢失(宽限期到期): {m_CurrentTarget.Config?.Name} 不再满足条件</color>");
+                ClearOpportunity();
+                m_TargetGraceTimer = 0f;
+            }
         }
     }
 
@@ -323,8 +333,11 @@ public class CombatOpportunityDetector : MonoBehaviour
             }
 
             // 检查敌人是否满足条件
-            if (IsSneakAttackTarget(enemy))
+            bool isSneakTarget = IsSneakAttackTarget(enemy);
+            if (isSneakTarget)
             {
+                DebugEx.LogModule("CombatOpportunityDetector",
+                    $"<color=lime>[诊断-偷袭检测] 检测到偷袭目标: {enemy.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 target = enemy;
                 return true;
             }
@@ -382,24 +395,43 @@ public class CombatOpportunityDetector : MonoBehaviour
     private bool IsSneakAttackTarget(EnemyEntity enemy)
     {
         if (enemy == null || enemy.VisionDetector == null)
+        {
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=gray>[诊断-IsSneakAttackTarget] enemy={enemy?.name ?? "null"}, VisionDetector={enemy?.VisionDetector != null} → false</color>");
             return false;
+        }
 
         // 条件1：敌人未警觉（AlertLevel < 0.3）
         if (enemy.VisionDetector.AlertLevel >= 0.3f)
+        {
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: AlertLevel={enemy.VisionDetector.AlertLevel} >= 0.3 → false</color>");
             return false;
+        }
 
         // 条件2：玩家在敌人背后（Vector3.Angle(敌人forward, 玩家方向) < 60度）
         Vector3 toPlayer = m_PlayerTransform.position - enemy.transform.position;
         toPlayer.y = 0;
         float angleToPlayer = Vector3.Angle(-toPlayer.normalized, enemy.transform.forward);
         if (angleToPlayer > m_BehindAngleThreshold)
+        {
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: 身后角度={angleToPlayer:F1}° > {m_BehindAngleThreshold}° → false</color>");
             return false;
+        }
 
         // 条件3：玩家面向敌人（玩家forward与向敌人方向夹角 < 45度）
-        float angleFromPlayer = Vector3.Angle(m_PlayerTransform.forward, toPlayer.normalized);
+        // 注意：toPlayer 是从敌人到玩家的方向，取反得到从玩家到敌人的方向
+        float angleFromPlayer = Vector3.Angle(m_PlayerTransform.forward, -toPlayer.normalized);
         if (angleFromPlayer > m_PlayerFacingAngleThreshold)
+        {
+            DebugEx.LogModule("CombatOpportunityDetector",
+                $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: 面向角度={angleFromPlayer:F1}° > {m_PlayerFacingAngleThreshold}° → false</color>");
             return false;
+        }
 
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"<color=green>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: ✓ 所有条件都满足 → true</color>");
         return true;
     }
 
@@ -434,11 +466,31 @@ public class CombatOpportunityDetector : MonoBehaviour
     /// </summary>
     private void ShowOpportunityUI(CombatTriggerType triggerType)
     {
-        var uiForm = GF.UI.GetUIForm((int)UIViews.GamePlayInfoUI);
-        if (uiForm == null) return;
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"<color=cyan>[诊断-ShowOpportunityUI] 开始 | triggerType={triggerType}</color>");
+
+        string uiAssetName = GF.UI.GetUIFormAssetName(UIViews.GamePlayInfoUI);
+        var uiForm = GF.UI.GetUIForm(uiAssetName);
+        if (uiForm == null)
+        {
+            DebugEx.ErrorModule("CombatOpportunityDetector",
+                $"<color=red>[诊断-ShowOpportunityUI] ❌ GamePlayInfoUI 未打开！assetName={uiAssetName}</color>");
+            return;
+        }
+
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"<color=cyan>[诊断-ShowOpportunityUI] UIForm 找到</color>");
 
         var gameplayUI = uiForm.Logic as GamePlayInfoUI;
-        if (gameplayUI == null) return;
+        if (gameplayUI == null)
+        {
+            DebugEx.ErrorModule("CombatOpportunityDetector",
+                $"<color=red>[诊断-ShowOpportunityUI] ❌ UIForm.Logic 不是 GamePlayInfoUI 类型，实际类型={uiForm.Logic?.GetType().Name}</color>");
+            return;
+        }
+
+        DebugEx.LogModule("CombatOpportunityDetector",
+            $"<color=cyan>[诊断-ShowOpportunityUI] ✓ GamePlayInfoUI 获取成功，调用 ShowCombatInteract({triggerType})</color>");
 
         gameplayUI.ShowCombatInteract(triggerType);
     }
@@ -451,11 +503,25 @@ public class CombatOpportunityDetector : MonoBehaviour
         m_CurrentTarget = null;
         m_CurrentTriggerType = CombatTriggerType.Normal;
 
-        var uiForm = GF.UI.GetUIForm((int)UIViews.GamePlayInfoUI);
-        if (uiForm == null) return;
+        string uiAssetName = GF.UI.GetUIFormAssetName(UIViews.GamePlayInfoUI);
+        var uiForm = GF.UI.GetUIForm(uiAssetName);
+        if (uiForm == null)
+        {
+            DebugEx.WarningModule("CombatOpportunityDetector",
+                "<color=yellow>[诊断] ClearOpportunity: GamePlayInfoUI 未打开</color>");
+            return;
+        }
 
         var gameplayUI = uiForm.Logic as GamePlayInfoUI;
-        if (gameplayUI == null) return;
+        if (gameplayUI == null)
+        {
+            DebugEx.WarningModule("CombatOpportunityDetector",
+                "<color=yellow>[诊断] ClearOpportunity: UIForm.Logic 不是 GamePlayInfoUI</color>");
+            return;
+        }
+
+        DebugEx.LogModule("CombatOpportunityDetector",
+            "<color=cyan>[诊断] 清空战斗机会，隐藏UI</color>");
 
         gameplayUI.HideCombatInteract();
     }
@@ -472,16 +538,16 @@ public class CombatOpportunityDetector : MonoBehaviour
         float alertLevel = hasVision ? enemy.VisionDetector.AlertLevel : -1f;
         float distance = Vector3.Distance(m_PlayerTransform.position, enemy.transform.position);
 
+        // 身后角度检查（与 IsSneakAttackTarget 一致）
         Vector3 toPlayer = m_PlayerTransform.position - enemy.transform.position;
         toPlayer.y = 0;
         float behindAngle = toPlayer.sqrMagnitude > 0.01f
             ? Vector3.Angle(-toPlayer.normalized, enemy.transform.forward)
             : -1f;
 
-        Vector3 toEnemy = enemy.transform.position - m_PlayerTransform.position;
-        toEnemy.y = 0;
-        float facingAngle = toEnemy.sqrMagnitude > 0.01f
-            ? Vector3.Angle(m_PlayerTransform.forward, toEnemy.normalized)
+        // 玩家面向角度检查（与 IsSneakAttackTarget 一致，取反得到从玩家到敌人方向）
+        float facingAngle = toPlayer.sqrMagnitude > 0.01f
+            ? Vector3.Angle(m_PlayerTransform.forward, -toPlayer.normalized)
             : -1f;
 
         bool alertOk = hasVision && alertLevel < 0.3f;

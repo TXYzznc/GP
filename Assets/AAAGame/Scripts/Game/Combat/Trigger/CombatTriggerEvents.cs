@@ -20,6 +20,9 @@ public static class CombatTriggerEvents
     /// <summary>玩家偷袭触发 — 参数为可选 Debuff 效果 ID 列表</summary>
     public static event Action<List<int>> OnSneakAttackTriggered;
 
+    /// <summary>玩家先手触发（遭遇战） — 参数为可选 Buff 效果 ID 列表</summary>
+    public static event Action<List<int>> OnPlayerInitiativeTriggered;
+
     /// <summary>战斗上下文清除（战斗结束 / 脱战后调用）</summary>
     public static event Action OnCombatContextCleared;
 
@@ -32,6 +35,9 @@ public static class CombatTriggerEvents
 
     /// <summary>最近一次偷袭可选 Debuff 池</summary>
     public static List<int> LastSneakDebuffPool { get; private set; }
+
+    /// <summary>最近一次玩家先手可选 Buff 池</summary>
+    public static List<int> LastPlayerInitiativeBuffPool { get; private set; }
 
     #endregion
 
@@ -56,12 +62,22 @@ public static class CombatTriggerEvents
     }
 
     /// <summary>
+    /// 触发玩家先手事件（遭遇战三选一）
+    /// </summary>
+    public static void FirePlayerInitiativeTriggered(List<int> buffPool)
+    {
+        LastPlayerInitiativeBuffPool = buffPool;
+        OnPlayerInitiativeTriggered?.Invoke(buffPool);
+    }
+
+    /// <summary>
     /// 触发战斗上下文清除事件
     /// </summary>
     public static void FireCombatContextCleared()
     {
         LastEnemyInitiativeEffectId = 0;
         LastSneakDebuffPool = null;
+        LastPlayerInitiativeBuffPool = null;
         OnCombatContextCleared?.Invoke();
     }
 
