@@ -61,3 +61,4 @@ temp_*.txt
 temp_*.py
 unpack_*.py
 temp_*/
+.Tools/COG-txt2xlsx/dist/TXT转XLSX转换工具.exe
