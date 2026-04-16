@@ -174,6 +174,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerInteraction.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\InventorySlot.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\DictionaryItem.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\TreasureBoxUIData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\LocalizationExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardRangePreview.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventorySlotContainerImpl.cs" />
@@ -285,6 +286,7 @@
     <Compile Include="Assets\AAAGame\Scripts\EventArgs\GameplayEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestUIManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\SoundExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Components\TreasureBoxSlotContainerImpl.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffPresetManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\SimpleChessMovement.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessAnimationEventReceiver.cs" />
@@ -353,6 +355,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\SkillStrategy\DefaultSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\InventoryItemUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\BuffTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\TreasureBoxUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PlayerAccountTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\SpecialEffectData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiPassive.cs" />
@@ -404,6 +407,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\AwardItemUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\BillboardEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatEnterEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\TreasureBoxUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampRelation.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\InventoryUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatTickDriver.cs" />

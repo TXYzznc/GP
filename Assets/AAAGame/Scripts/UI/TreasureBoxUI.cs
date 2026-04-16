@@ -49,15 +49,16 @@ public partial class TreasureBoxUI : UIFormBase
 
         BuildSlots(data.Items.Count);
         RefreshSlots();
-        LockPlayerMovement(true);
+        SetPlayerInputEnabled(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
     {
         base.OnClose(isShutdown, userData);
 
-        ClearSlots();
-        LockPlayerMovement(false);
+        // 只清空格子显示数据，不销毁 GameObject（下次 OnOpen 复用）
+        ResetSlots();
+        SetPlayerInputEnabled(true);
     }
 
     protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
@@ -116,16 +117,6 @@ public partial class TreasureBoxUI : UIFormBase
             m_Slots[i].gameObject.SetActive(i < count);
 
         DebugEx.Log("TreasureBoxUI", $"格子构建完成: 共 {m_Slots.Count} 个，显示 {count} 个");
-    }
-
-    private void ClearSlots()
-    {
-        foreach (var slot in m_Slots)
-        {
-            if (slot != null)
-                Destroy(slot.gameObject);
-        }
-        m_Slots.Clear();
     }
 
     #endregion
@@ -216,11 +207,37 @@ public partial class TreasureBoxUI : UIFormBase
 
     #endregion
 
-    #region 玩家锁定
+    #region 玩家输入锁定
 
-    private void LockPlayerMovement(bool locked)
+    /// <summary>
+    /// 设置玩家输入启用/禁用（WASD移动 + F交互）
+    /// </summary>
+    private void SetPlayerInputEnabled(bool enabled)
     {
-        DebugEx.Log("TreasureBoxUI", $"玩家移动已{(locked ? "锁定" : "解锁")}");
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.SetEnable(enabled);
+
+        DebugEx.Log("TreasureBoxUI", $"玩家输入已{(enabled ? "启用" : "禁用")}");
+    }
+
+    #endregion
+
+    #region 格子管理
+
+    /// <summary>
+    /// 重置所有格子显示（不销毁 GameObject，下次 OnOpen 复用）
+    /// </summary>
+    private void ResetSlots()
+    {
+        foreach (var slot in m_Slots)
+        {
+            if (slot != null)
+            {
+                slot.SetData(null);
+                slot.gameObject.SetActive(false);
+            }
+        }
     }
 
     #endregion
