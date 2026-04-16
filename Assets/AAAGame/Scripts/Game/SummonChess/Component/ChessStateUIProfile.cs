@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-public class HouyiStateUIProfile : MonoBehaviour, IChessStateUIProfile
+public class ChessStateUIProfile : MonoBehaviour, IChessStateUIProfile
 {
     [SerializeField] private bool m_ShowHp = true;
     [SerializeField] private bool m_ShowMp = true;
-    [SerializeField] private bool m_ShowOther = false;
+    [SerializeField] private bool m_ShowOther = true;  // 灵活配置，Prefab中设置
     [SerializeField] private Vector3 m_FollowOffset = Vector3.zero;
 
     public void Apply(SummonChessStateUI ui, ChessEntity owner)

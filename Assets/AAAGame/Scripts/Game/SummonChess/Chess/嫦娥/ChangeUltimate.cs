@@ -1,9 +1,11 @@
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using GameExtension;
 
 /// <summary>
 /// 嫦娥大招：月华天倾 (ID=24)
-/// 召唤月华之力，持续5秒对范围内敌人造成多段魔法伤害
-/// 引导期间嫦娥处于 Channeling 状态
+/// 召唤月华之力，在目标位置生成法阵，法阵持续5秒释放子弹造成多段魔法伤害
+/// 所有伤害逻辑由 ChangeMagicCircle 组件处理
 /// </summary>
 public class ChangeUltimate : ChessSkillBase
 {
@@ -12,288 +14,191 @@ public class ChangeUltimate : ChessSkillBase
     public override int SkillType => 4; // 大招
     #endregion
 
-    #region 私有字段
-
-    /// <summary>是否正在引导</summary>
-    private bool m_IsChanneling;
-
-    /// <summary>引导剩余时间</summary>
-    private float m_ChannelRemain;
-
-    /// <summary>下次命中计时器</summary>
-    private float m_HitTimer;
-
-    /// <summary>命中间隔（引导时间 / 命中次数）</summary>
-    private float m_HitInterval;
-
-    /// <summary>单次命中伤害</summary>
-    private double m_HitDamage;
-
-    /// <summary>施法者引用</summary>
-    private ChessEntity m_Caster;
-
-    #endregion
-
     #region 公共方法
 
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
-        m_IsChanneling = false;
         DebugEx.LogModule("ChangeUltimate", "月华天倾初始化完成");
-    }
-
-    public override void Tick(float dt)
-    {
-        base.Tick(dt);
-
-        // 引导中，持续命中
-        if (m_IsChanneling)
-        {
-            m_ChannelRemain -= dt;
-            m_HitTimer += dt;
-
-            // 达到间隔，执行一次命中
-            if (m_HitTimer >= m_HitInterval)
-            {
-                m_HitTimer -= m_HitInterval;
-                PerformHit();
-            }
-
-            // 引导结束
-            if (m_ChannelRemain <= 0)
-            {
-                EndChanneling();
-            }
-        }
-    }
-
-    public override bool CanCast()
-    {
-        if (m_IsChanneling)
-            return false; // 引导中不可重复释放
-        return base.CanCast();
     }
 
     public override bool TryCast()
     {
+        DebugEx.LogModule("ChangeUltimate", "→ 尝试释放大招「月华天倾」");
+
         if (!base.TryCast())
+        {
+            DebugEx.WarningModule("ChangeUltimate", "  ✗ 大招释放条件不满足（MP不足或冷却中）");
             return false;
+        }
 
         DebugEx.LogModule(
             "ChangeUltimate",
-            $"月华天倾释放! 消耗MP={m_Config.MpCost}, 冷却={m_Config.Cooldown}秒"
+            $"✓ 大招释放成功: 消耗MP={m_Config.MpCost}, 冷却时间={m_Config.Cooldown}秒"
         );
 
         return true;
     }
 
     /// <summary>
-    /// 执行技能完整流程
+    /// 执行技能完整流程：异步加载法阵预制体并初始化
     /// </summary>
     public override void ExecuteSkill(ChessEntity caster)
     {
+        DebugEx.LogModule("ChangeUltimate", "→ ExecuteSkill: 开始执行大招");
+
         if (caster == null)
         {
-            DebugEx.ErrorModule("ChangeUltimate", "ExecuteSkill: caster 为 null");
+            DebugEx.ErrorModule("ChangeUltimate", "  ✗ 施法者为 null，无法执行技能");
             return;
         }
 
-        // 获取目标位置
-        Vector3 targetPosition = GetTargetPosition(caster);
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ 施法者: {caster.Config?.Name}");
 
         // 播放技能释放特效（施法者位置）
+        DebugEx.LogModule("ChangeUltimate", "  ├─ 播放技能释放特效...");
         PlaySkillEffect(caster);
+        DebugEx.LogModule("ChangeUltimate", "  ├─ ✓ 特效播放完成");
 
-        // 在目标位置创建法阵
-        CreateMagicCircle(targetPosition, caster);
-
-        DebugEx.LogModule(
-            "ChangeUltimate",
-            $"月华天倾执行完成: 目标位置={targetPosition}, 范围={m_Config.AreaRadius}"
-        );
-    }
-
-    /// <summary>
-    /// 获取目标位置
-    /// </summary>
-    private Vector3 GetTargetPosition(ChessEntity caster)
-    {
-        // 从 AI 系统获取当前攻击目标
-        var aiController = caster.GetComponent<ChessCombatController>();
-        if (aiController != null)
-        {
-            // 通过 AI 基类获取当前目标
-            var aiBase = caster.GetComponent<ChessAIBase>();
-            if (
-                aiBase != null
-                && aiBase
-                    .GetType()
-                    .GetField(
-                        "m_CurrentTarget",
-                        System.Reflection.BindingFlags.NonPublic
-                            | System.Reflection.BindingFlags.Instance
-                    ) != null
-            )
-            {
-                var currentTarget =
-                    aiBase
-                        .GetType()
-                        .GetField(
-                            "m_CurrentTarget",
-                            System.Reflection.BindingFlags.NonPublic
-                                | System.Reflection.BindingFlags.Instance
-                        )
-                        .GetValue(aiBase) as ChessEntity;
-
-                if (currentTarget != null)
-                {
-                    return currentTarget.transform.position;
-                }
-            }
-        }
-
-        // 否则使用施法者前方的位置
-        return caster.transform.position + caster.transform.forward * (float)m_Config.CastRange;
-    }
-
-    /// <summary>
-    /// 创建法阵
-    /// </summary>
-    private void CreateMagicCircle(Vector3 position, ChessEntity caster)
-    {
-        // 直接使用同步方式创建法阵
-        CreateMagicCircleSync(position, caster);
-    }
-
-    /// <summary>
-    /// 同步创建法阵
-    /// </summary>
-    private void CreateMagicCircleSync(Vector3 position, ChessEntity caster)
-    {
-        // 使用 CombatVFXManager 的公共方法播放特效
-        GameObject circleInstance = null;
-
-        // 创建一个空的 GameObject 作为法阵载体
-        circleInstance = new GameObject($"MagicCircle_{m_Config.Id}");
-        circleInstance.transform.position = position;
-
-        // 添加法阵组件并初始化（特效播放在 Initialize 中进行）
-        var magicCircle = circleInstance.AddComponent<ChangeMagicCircle>();
-        magicCircle.Initialize(m_Config, caster, position);
-
-        DebugEx.LogModule("ChangeUltimate", $"法阵创建成功: 位置={position}");
+        // 异步创建法阵
+        DebugEx.LogModule("ChangeUltimate", "  └─ 启动异步创建法阵流程...");
+        CreateMagicCircleAsync(caster).Forget();
     }
 
     #endregion
 
-    #region 引导逻辑
+    #region 私有方法
 
     /// <summary>
-    /// 开始引导
+    /// 异步创建法阵
     /// </summary>
-    private void StartChanneling()
+    private async UniTaskVoid CreateMagicCircleAsync(ChessEntity caster)
     {
-        m_IsChanneling = true;
-        m_ChannelRemain = (float)m_Config.Duration;
-        m_HitTimer = 0f;
+        DebugEx.LogModule("ChangeUltimate", "→ 开始异步创建法阵...");
 
-        // 计算命中间隔和单次伤害
-        m_HitInterval = m_Config.HitCount > 0 ? (float)m_Config.Duration / m_Config.HitCount : 1f;
-
-        var selfAttr = m_Ctx.Attribute;
-        double scalingStat = selfAttr.SpellPower > 0 ? selfAttr.SpellPower : selfAttr.AtkDamage;
-        m_HitDamage = scalingStat * m_Config.DamageCoeff + m_Config.BaseDamage;
-
-        // 切换到引导状态
-        if (m_Ctx?.Entity != null)
+        // 获取目标敌人
+        ChessEntity targetEnemy = FindNearestEnemy(caster);
+        if (targetEnemy == null)
         {
-            m_Ctx.Entity.ChangeState(ChessState.Channeling);
+            DebugEx.WarningModule("ChangeUltimate", "  ├─ ✗ 未找到目标敌人");
+            return;
         }
+
+        Vector3 targetPosition = targetEnemy.transform.position;
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ 目标敌人: {targetEnemy.Config?.Name}, 位置: {targetPosition}");
+
+        // 从 CustomData 读取法阵预制体配置
+        var customData = ParseCustomData(m_Config.CustomData);
+        if (customData == null || customData.MagicCircleId <= 0)
+        {
+            DebugEx.ErrorModule("ChangeUltimate", "  ├─ ✗ CustomData 中未找到有效的 MagicCircleId");
+            return;
+        }
+
+        int magicCirclePrefabId = customData.MagicCircleId;
+        float projectileSpawnHeight = customData.SpawnHeight;
+
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ CustomData 解析成功: PrefabId={magicCirclePrefabId}, ProjectileSpawnHeight={projectileSpawnHeight}");
+
+        // 异步加载法阵预制体
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ 正在加载法阵预制体 (ID={magicCirclePrefabId})...");
+        GameObject prefab = await ResourceExtension.LoadPrefabAsync(magicCirclePrefabId);
+        if (prefab == null)
+        {
+            DebugEx.ErrorModule("ChangeUltimate", $"  ├─ ✗ 法阵预制体加载失败 (ID={magicCirclePrefabId})");
+            return;
+        }
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ ✓ 法阵预制体加载成功");
+
+        // 根据 SpawnHeight 计算法阵生成位置
+        // SpawnHeight=0: 法阵底部对齐目标底部
+        // SpawnHeight=1: 法阵底部对齐目标顶部
+        Vector3 targetBottom = EntityPositionHelper.GetBottomPosition(targetEnemy);
+        Vector3 targetTop = EntityPositionHelper.GetTopPosition(targetEnemy);
+        Vector3 spawnPosition = Vector3.Lerp(targetBottom, targetTop, projectileSpawnHeight);
 
         DebugEx.LogModule(
             "ChangeUltimate",
-            $"月华天倾开始引导! 持续{m_Config.Duration}s, {m_Config.HitCount}次命中, "
-                + $"间隔{m_HitInterval:F2}s, 单次伤害={m_HitDamage:F1}"
+            $"  ├─ 法阵生成位置计算:\n" +
+            $"     ├─ 目标底部: {targetBottom}\n" +
+            $"     ├─ 目标顶部: {targetTop}\n" +
+            $"     ├─ SpawnHeight: {projectileSpawnHeight}\n" +
+            $"     └─ 最终位置: {spawnPosition}"
+        );
+
+        // 实例化法阵
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ 实例化法阵预制体...");
+        var circleInstance = Object.Instantiate(prefab, spawnPosition, Quaternion.identity);
+        circleInstance.name = $"MagicCircle_{m_Config.Id}";
+        DebugEx.LogModule("ChangeUltimate", $"  ├─ ✓ 法阵实例化成功，位置={spawnPosition}");
+
+        // 获取并初始化 ChangeMagicCircle 组件
+        var magicCircle = circleInstance.GetComponent<ChangeMagicCircle>();
+        if (magicCircle == null)
+        {
+            DebugEx.ErrorModule("ChangeUltimate", "  ├─ ✗ 法阵预制体上未找到 ChangeMagicCircle 组件");
+            Object.Destroy(circleInstance);
+            return;
+        }
+
+        DebugEx.LogModule("ChangeUltimate", "  ├─ 初始化 ChangeMagicCircle 组件...");
+        magicCircle.Initialize(m_Config, caster, spawnPosition);
+        DebugEx.LogModule("ChangeUltimate", "  └─ ✓ 组件初始化成功");
+
+        DebugEx.LogModule(
+            "ChangeUltimate",
+            $"✓ 法阵创建完成: " +
+            $"技能={m_Config.Name}(ID={m_Config.Id}), " +
+            $"预制体ID={magicCirclePrefabId}, " +
+            $"生成位置={spawnPosition}, " +
+            $"持续时间={m_Config.Duration}s, " +
+            $"子弹数={m_Config.HitCount}发, " +
+            $"AOE半径={m_Config.AreaRadius}米"
         );
     }
 
     /// <summary>
-    /// 执行一次命中
+    /// 从 CustomData JSON 解析配置
     /// </summary>
-    private void PerformHit()
+    private CustomDataWrapper ParseCustomData(string customData)
     {
-        if (m_Caster == null)
+        if (string.IsNullOrEmpty(customData))
         {
-            DebugEx.WarningModule("ChangeUltimate", "施法者为空，跳过本次命中");
-            return;
+            DebugEx.WarningModule("ChangeUltimate", "CustomData 为空");
+            return null;
         }
 
-        // 计算本次伤害（可能暴击）
-        double damage = m_HitDamage;
-        bool isCritical = UnityEngine.Random.value < m_Ctx.Attribute.CritRate;
-        if (isCritical)
+        try
         {
-            damage *= m_Ctx.Attribute.CritDamage;
+            var data = JsonUtility.FromJson<CustomDataWrapper>(customData);
+            return data;
         }
-
-        // 构建命中检测上下文
-        HitContext context = new HitContext
+        catch (System.Exception ex)
         {
-            Attacker = m_Caster,
-            AttackerPosition = m_Caster.transform.position,
-            AttackerForward = m_Caster.transform.forward,
-            AttackerCamp = m_Caster.Camp,
-            LockedTarget = null, // AOE 不需要锁定目标
-            TargetPosition = m_Caster.transform.position, // AOE 以自身为中心
-            BaseDamage = damage,
-            IsCritical = isCritical,
-            IsMagicDamage = m_Config.DamageType == 2,
-            IsTrueDamage = m_Config.DamageType == 3,
-            AOERadius = (float)m_Config.AreaRadius,
-            EnemyLayerMask = CampRelationService.GetEnemyLayerMask(m_Caster.Camp),
-            EffectId = m_Config.EffectId,
-            HitEffectId = m_Config.HitEffectId,
-            SkillConfig = m_Config,
-            OnHitCallback = OnUltimateHit,
-        };
-
-        // 使用 AOE 检测器执行命中
-        IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.AOE);
-        detector.Execute(context);
+            DebugEx.ErrorModule("ChangeUltimate", $"✗ 解析 CustomData 失败: {customData}\n原因: {ex.Message}");
+            return null;
+        }
     }
 
-    /// <summary>
-    /// 结束引导
-    /// </summary>
-    private void EndChanneling()
-    {
-        m_IsChanneling = false;
-        m_ChannelRemain = 0f;
-        m_HitTimer = 0f;
-        m_Caster = null;
+    #endregion
 
-        // 恢复待机状态
-        if (m_Ctx?.Entity != null && m_Ctx.Entity.CurrentState == ChessState.Channeling)
-        {
-            m_Ctx.Entity.ChangeState(ChessState.Idle);
-        }
-
-        DebugEx.LogModule("ChangeUltimate", "月华天倾引导结束");
-    }
+    #region 辅助类
 
     /// <summary>
-    /// 大招命中回调（每命中一个目标调用一次）
+    /// CustomData JSON 包装类
+    /// 格式: {"MagicCircleId":3006,"ProjectilePrefabId":3007,"SpawnHeight":5}
     /// </summary>
-    private void OnUltimateHit(ChessEntity target, double damage, bool isCritical)
+    [System.Serializable]
+    private class CustomDataWrapper
     {
-        if (target == null)
-            return;
+        /// <summary>法阵预制体资源ID</summary>
+        public int MagicCircleId;
 
-        DebugEx.LogModule(
-            "ChangeUltimate",
-            $"月华天倾命中: {target.Config?.Name}, 伤害={damage:F1}{(isCritical ? " (暴击)" : "")}"
-        );
+        /// <summary>子弹预制体资源ID（法阵发射的投射物）</summary>
+        public int ProjectilePrefabId;
+
+        /// <summary>法阵生成相对位置（0=底部对齐，1=顶部对齐）</summary>
+        public float SpawnHeight = 0f;
     }
 
     #endregion
