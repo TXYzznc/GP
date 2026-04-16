@@ -765,31 +765,40 @@ public partial class CombatPreparationUI : UIFormBase
     }
 
     /// <summary>
-    /// 显示Buff选择面板
+    /// 显示Buff选择面板（带淡入动效）
     /// </summary>
     private void ShowBuffSelectionPanel()
     {
         if (varBuffSelection != null)
         {
-            varBuffSelection.alpha = 1f;
             varBuffSelection.interactable = true;
             varBuffSelection.blocksRaycasts = true;
-            Log.Info("CombatPreparationUI: Buff选择面板已显示");
+
+            // 清理之前的动效，从 0 淡入到 1
+            DOTween.Kill(varBuffSelection);
+            varBuffSelection.alpha = 0f;
+            varBuffSelection.DOFade(1f, 0.3f).SetEase(Ease.OutQuad);
+
+            Log.Info("CombatPreparationUI: Buff选择面板淡入显示");
         }
     }
 
     /// <summary>
-    /// 隐藏Buff选择面板
+    /// 隐藏Buff选择面板（异步版，带淡出动效）
     /// </summary>
-    private void HideBuffSelectionPanel()
+    private async UniTask HideBuffSelectionPanelAsync()
     {
-        if (varBuffSelection != null)
-        {
-            varBuffSelection.alpha = 0f;
-            varBuffSelection.interactable = false;
-            varBuffSelection.blocksRaycasts = false;
-            Log.Info("CombatPreparationUI: Buff选择面板已隐藏");
-        }
+        if (varBuffSelection == null)
+            return;
+
+        varBuffSelection.interactable = false;
+        varBuffSelection.blocksRaycasts = false;
+
+        // 清理之前的动效，从 1 淡出到 0
+        DOTween.Kill(varBuffSelection);
+        await varBuffSelection.DOFade(0f, 0.3f).SetEase(Ease.InQuad).AsyncWaitForCompletion();
+
+        Log.Info("CombatPreparationUI: Buff选择面板淡出隐藏");
     }
 
     /// <summary>
@@ -839,6 +848,11 @@ public partial class CombatPreparationUI : UIFormBase
         varBuffChooseItem.SetActive(false);
 
         int count = Mathf.Min(m_AvailableBuffIds.Count, 3);
+
+        // ⭐ 新增：计算水平排列的位置（假设三个元素均匀分布）
+        float spacingX = 400f; // 元素间隔（根据UI尺寸调整）
+        float startX = -(spacingX * (count - 1)) / 2f; // 中心对齐
+
         for (int i = 0; i < count; i++)
         {
             int effectId = m_AvailableBuffIds[i];
@@ -854,6 +868,15 @@ public partial class CombatPreparationUI : UIFormBase
             GameObject itemGo = Object.Instantiate(varBuffChooseItem, varPanel.transform);
             itemGo.SetActive(true);
 
+            // ⭐ 新增：手动设置水平位置（因为已移除LayoutGroup）
+            if (itemGo.TryGetComponent<RectTransform>(out var itemRect))
+            {
+                itemRect.anchoredPosition = new Vector2(startX + i * spacingX, 20f);
+            }
+
+            // ⭐ 新增：选项进场动效（初始缩放为0，然后弹出）
+            itemGo.transform.localScale = Vector3.zero;
+
             var chooseItem = itemGo.GetComponent<BuffChooseItem>();
             if (chooseItem != null)
             {
@@ -861,9 +884,13 @@ public partial class CombatPreparationUI : UIFormBase
             }
 
             m_BuffChooseItems.Add(itemGo);
+
+            // ⭐ 新增：错开 80ms 执行进场动效，缩放 0 -> 1（OutBack）
+            float delay = i * 0.08f;
+            itemGo.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack).SetDelay(delay);
         }
 
-        Log.Info($"CombatPreparationUI: {title} - 已生成 {m_BuffChooseItems.Count} 个选项");
+        Log.Info($"CombatPreparationUI: {title} - 已生成 {m_BuffChooseItems.Count} 个选项，位置已设置，进场动效已启动");
     }
 
     /// <summary>
@@ -906,7 +933,7 @@ public partial class CombatPreparationUI : UIFormBase
     }
 
     /// <summary>
-    /// Buff选项被选中
+    /// Buff选项被选中（触发异步确认动效）
     /// </summary>
     public void OnBuffItemSelected(int buffId)
     {
@@ -921,10 +948,96 @@ public partial class CombatPreparationUI : UIFormBase
         // 应用Buff
         ApplySelectedBuff();
 
-        // 清理选项并隐藏选择面板
-        ClearBuffChooseItems();
-        HideBuffSelectionPanel();
+        // ⭐ 修改：触发异步动效，动效完成后才清理
+        PlayBuffSelectionConfirmAnimAsync(buffId).Forget();
         m_BuffSelectionMode = BuffSelectionMode.None;
+    }
+
+    /// <summary>
+    /// Buff选择确认动效（选中项脉冲，其他项淡出）
+    /// </summary>
+    private async UniTaskVoid PlayBuffSelectionConfirmAnimAsync(int selectedBuffId)
+    {
+        var cts = this.GetCancellationTokenOnDestroy();
+
+        try
+        {
+            // 查找选中的 BuffChooseItem GO（通过 EffectId 匹配）
+            GameObject selectedGo = null;
+            int selectedIndex = -1;
+
+            for (int i = 0; i < m_BuffChooseItems.Count; i++)
+            {
+                var chooseItem = m_BuffChooseItems[i].GetComponent<BuffChooseItem>();
+                if (chooseItem != null)
+                {
+                    // BuffChooseItem 有私有的 m_EffectId，无法直接访问
+                    // 改用遍历，找到在 m_AvailableBuffIds 中匹配的位置
+                    if (i < m_AvailableBuffIds.Count && m_AvailableBuffIds[i] == selectedBuffId)
+                    {
+                        selectedGo = m_BuffChooseItems[i];
+                        selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (selectedGo == null)
+            {
+                // 如果按索引未找到，尝试逐个比对（较费时但保险）
+                DebugEx.WarningModule("CombatPreparationUI", $"未找到选中的Buff GO: {selectedBuffId}，尝试暴力查找");
+            }
+
+            // ⭐ 1. 选中项播放脉冲动效（1 -> 1.15 -> 1）
+            if (selectedGo != null)
+            {
+                var sequence = DOTween.Sequence();
+                sequence.Append(
+                    selectedGo.transform.DOScale(new Vector3(1.15f, 1.15f, 1f), 0.15f).SetEase(Ease.OutQuad)
+                );
+                sequence.Append(
+                    selectedGo.transform.DOScale(Vector3.one, 0.15f).SetEase(Ease.InQuad)
+                );
+                await sequence.AsyncWaitForCompletion();
+            }
+
+            // ⭐ 2. 其他项淡出 + 缩小
+            for (int i = 0; i < m_BuffChooseItems.Count; i++)
+            {
+                if (i == selectedIndex)
+                    continue; // 跳过选中项
+
+                var go = m_BuffChooseItems[i];
+
+                // 添加 CanvasGroup（如果还没有）用于淡出
+                CanvasGroup cg;
+                if (!go.TryGetComponent<CanvasGroup>(out cg))
+                {
+                    cg = go.AddComponent<CanvasGroup>();
+                }
+                cg.alpha = 1f;
+
+                // 同时执行缩小和淡出
+                var sequence = DOTween.Sequence();
+                sequence.Join(go.transform.DOScale(new Vector3(0.8f, 0.8f, 1f), 0.25f).SetEase(Ease.InQuad));
+                sequence.Join(cg.DOFade(0f, 0.25f).SetEase(Ease.InQuad));
+            }
+
+            // ⭐ 3. 等待 0.3s 确保所有动效完成
+            await UniTask.Delay(300, cancellationToken: cts);
+
+            // ⭐ 4. 清理选项 GO
+            ClearBuffChooseItems();
+
+            // ⭐ 5. 面板淡出隐藏
+            await HideBuffSelectionPanelAsync();
+
+            DebugEx.LogModule("CombatPreparationUI", $"Buff选择确认动效完成: {selectedBuffId}");
+        }
+        catch (System.OperationCanceledException)
+        {
+            DebugEx.LogModule("CombatPreparationUI", "Buff选择动效被取消（UI已关闭）");
+        }
     }
 
     /// <summary>

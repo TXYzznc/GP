@@ -335,6 +335,7 @@ public partial class InventoryUI : UIFormBase
         RefreshHotbar();
         RefreshEquipSlots();
         RefreshWeightState();
+        RefreshSummonerState();
     }
 
     private void RefreshInventory()
@@ -502,6 +503,50 @@ public partial class InventoryUI : UIFormBase
         }
 
         DebugEx.Success("InventoryUI", $"装备栏刷新完成: 显示 {displayIndex} 个装备，总槽位 {m_EquipSlots.Count}");
+    }
+
+    private void RefreshSummonerState()
+    {
+        if (varSummonerStateText == null)
+            return;
+
+        var saveData = PlayerAccountDataManager.Instance?.CurrentSaveData;
+        if (saveData == null)
+        {
+            varSummonerStateText.text = string.Empty;
+            return;
+        }
+
+        // 召唤师名称 + 阶段
+        var summonerConfig = PlayerAccountDataManager.Instance.GetCurrentSummonerConfig();
+        string summonerName = summonerConfig != null ? summonerConfig.Name : "未知";
+        string phaseName = summonerConfig != null ? $"阶段{ToRoman(summonerConfig.Phase)}" : string.Empty;
+
+        // 等级 + 经验
+        int level = saveData.GlobalLevel;
+        int currentExp = saveData.CurrentExp;
+        int requiredExp = 0;
+        var playerTable = GF.DataTable.GetDataTable<PlayerDataTable>();
+        if (playerTable != null)
+        {
+            var levelRow = playerTable.GetDataRow(r => r.Level == level);
+            if (levelRow != null)
+                requiredExp = levelRow.RequiredExp;
+        }
+
+        varSummonerStateText.text = $"{summonerName} · {phaseName}\nLv.{level}  经验: {currentExp} / {requiredExp}";
+    }
+
+    private static string ToRoman(int phase)
+    {
+        return phase switch
+        {
+            1 => "I",
+            2 => "II",
+            3 => "III",
+            4 => "IV",
+            _ => phase.ToString()
+        };
     }
 
     private void RefreshWeightState()
