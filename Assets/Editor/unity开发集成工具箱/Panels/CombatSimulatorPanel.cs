@@ -29,13 +29,26 @@ public class CombatSimulatorPanel : IToolHubPanel
     private bool m_ShowAllyBuffs;
     private bool m_ShowEnemyBuffs;
 
+    /// <summary>持有工具箱 EditorWindow 引用，用于主动 Repaint</summary>
+    private EditorWindow m_OwnerWindow;
+    /// <summary>上次刷新时间</summary>
+    private double m_LastRepaintTime;
+    /// <summary>刷新间隔（秒），约 20 FPS</summary>
+    private const double k_RepaintInterval = 0.05;
+
     #endregion
 
     #region IToolHubPanel
 
-    public void OnEnable() { }
+    public void OnEnable()
+    {
+        EditorApplication.update += OnEditorUpdate;
+    }
 
-    public void OnDisable() { }
+    public void OnDisable()
+    {
+        EditorApplication.update -= OnEditorUpdate;
+    }
 
     public void OnDestroy()
     {
@@ -54,6 +67,10 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     public void OnGUI()
     {
+        // 首次 OnGUI 时捕获宿主窗口引用
+        if (m_OwnerWindow == null)
+            m_OwnerWindow = EditorWindow.focusedWindow;
+
         m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
 
         DrawEnvironmentStatus();
@@ -311,11 +328,7 @@ public class CombatSimulatorPanel : IToolHubPanel
             DrawEntityStatus("敌方", m_EnemyChess, ref m_ShowEnemyBuffs);
         }
 
-        // 自动刷新
-        if (Application.isPlaying && EditorWindow.focusedWindow != null)
-        {
-            EditorUtility.SetDirty(EditorWindow.focusedWindow);
-        }
+        // 刷新由 OnEditorUpdate 驱动，此处无需操作
     }
 
     private void DrawEntityStatus(string label, ChessEntity entity, ref bool showBuffs)
@@ -520,6 +533,20 @@ public class CombatSimulatorPanel : IToolHubPanel
     }
 
     #endregion
+
+    private void OnEditorUpdate()
+    {
+        if (!Application.isPlaying) return;
+        if (m_AllyChess == null && m_EnemyChess == null) return;
+        if (m_OwnerWindow == null) return;
+
+        double now = EditorApplication.timeSinceStartup;
+        if (now - m_LastRepaintTime >= k_RepaintInterval)
+        {
+            m_LastRepaintTime = now;
+            m_OwnerWindow.Repaint();
+        }
+    }
 
     #region 辅助方法
 
