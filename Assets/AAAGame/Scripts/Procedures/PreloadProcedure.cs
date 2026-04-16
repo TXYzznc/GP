@@ -74,10 +74,18 @@ public class PreloadProcedure : ProcedureBase
             {
                 GF.Log("预加载完成, 进入战斗测试模式.");
                 string testScene = CombatTestBootstrapper.TestSceneName;
-                if (!string.IsNullOrEmpty(testScene))
+                DebugEx.LogModule("PreloadProcedure", $"TestSceneName: {testScene}");
+
+                // ⭐ 如果 testScene 为空，使用 "Test" 作为默认值
+                if (string.IsNullOrEmpty(testScene))
                 {
-                    procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, testScene);
+                    testScene = "Test";
+                    DebugEx.WarningModule("PreloadProcedure", "TestSceneName 为空，使用默认值 'Test'");
                 }
+
+                procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, testScene);
+                DebugEx.LogModule("PreloadProcedure", $"设置场景名: {testScene}");
+
                 CombatTestBootstrapper.NotifyReady();
                 ChangeState<ChangeSceneProcedure>(procedureOwner);
                 return;

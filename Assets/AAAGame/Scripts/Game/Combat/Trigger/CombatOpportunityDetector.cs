@@ -156,15 +156,15 @@ public class CombatOpportunityDetector : MonoBehaviour
         {
             m_DiagnosticLogTimer = 0f;
             var inputMgr = PlayerInputManager.Instance;
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=yellow>[诊断-周期] " +
-                $"Initialized={m_IsInitialized} | InExploration={m_IsInExploration} | " +
-                $"CurrentTarget={m_CurrentTarget?.Config?.Name ?? "null"} | " +
-                $"TriggerType={m_CurrentTriggerType} | " +
-                $"EnemyLayerMask={m_EnemyLayerMask.value} | " +
-                $"InputMgr={inputMgr != null} | " +
-                $"SpaceKeyDown={inputMgr?.SpaceKeyDown} | " +
-                $"GamePauseTestTriggered={inputMgr?.GamePauseTestTriggered}</color>");
+            // DebugEx.LogModule("CombatOpportunityDetector",
+            //     $"<color=yellow>[诊断-周期] " +
+            //     $"Initialized={m_IsInitialized} | InExploration={m_IsInExploration} | " +
+            //     $"CurrentTarget={m_CurrentTarget?.Config?.Name ?? "null"} | " +
+            //     $"TriggerType={m_CurrentTriggerType} | " +
+            //     $"EnemyLayerMask={m_EnemyLayerMask.value} | " +
+            //     $"InputMgr={inputMgr != null} | " +
+            //     $"SpaceKeyDown={inputMgr?.SpaceKeyDown} | " +
+            //     $"GamePauseTestTriggered={inputMgr?.GamePauseTestTriggered}</color>");
         }
 
         // 仅在探索状态时进行检测
@@ -397,11 +397,11 @@ public class CombatOpportunityDetector : MonoBehaviour
                 m_SneakAttackDistance,
                 new Collider[20]);
 
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=yellow>[诊断-偷袭检测] " +
-                $"OverlapSphere: 位置={m_PlayerTransform.position}, 半径={m_SneakAttackDistance}, " +
-                $"LayerMask={m_EnemyLayerMask.value} → 命中={hitCount} | " +
-                $"无LayerMask命中={hitCountNoMask}</color>");
+            // DebugEx.LogModule("CombatOpportunityDetector",
+            //     $"<color=yellow>[诊断-偷袭检测] " +
+            //     $"OverlapSphere: 位置={m_PlayerTransform.position}, 半径={m_SneakAttackDistance}, " +
+            //     $"LayerMask={m_EnemyLayerMask.value} → 命中={hitCount} | " +
+            //     $"无LayerMask命中={hitCountNoMask}</color>");
         }
 
         System.Collections.Generic.List<EnemyEntity> validTargets = new System.Collections.Generic.List<EnemyEntity>();
@@ -471,9 +471,9 @@ public class CombatOpportunityDetector : MonoBehaviour
         // 诊断：遭遇战物理检测
         if (m_DiagnosticLogTimer < 0.2f)
         {
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=yellow>[诊断-遭遇检测] " +
-                $"OverlapSphere: 半径={m_EncounterDistance}, LayerMask={m_EnemyLayerMask.value} → 命中={hitCount}</color>");
+            // DebugEx.LogModule("CombatOpportunityDetector",
+            //     $"<color=yellow>[诊断-遭遇检测] " +
+            //     $"OverlapSphere: 半径={m_EncounterDistance}, LayerMask={m_EnemyLayerMask.value} → 命中={hitCount}</color>");
         }
 
         System.Collections.Generic.List<EnemyEntity> validTargets = new System.Collections.Generic.List<EnemyEntity>();

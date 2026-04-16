@@ -52,6 +52,8 @@ public class ChangeSceneProcedure : ProcedureBase
         SetSceneInfoByName(nextScene);
 
         GFBuiltin.BuiltinView.SetLoadingProgress(0f);
+
+        // 加载场景（包括战斗测试模式，需要加载 Test 场景）
         GF.Scene.LoadScene(UtilityBuiltin.AssetsPath.GetScenePath(nextScene), this);
     }
 

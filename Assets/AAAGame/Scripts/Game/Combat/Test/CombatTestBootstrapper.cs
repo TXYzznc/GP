@@ -31,9 +31,12 @@ public class CombatTestBootstrapper : MonoBehaviour
         // 标记为战斗测试模式
         IsCombatTestMode = true;
         IsReady = false;
-        TestSceneName = gameObject.scene.name;
 
-        // 不被切场景销毁
+        // ⭐ 硬编码测试场景名（CombatTestBootstrapper 必须放在 Test 场景中）
+        TestSceneName = "Test";
+        DebugEx.LogModule("CombatTest", $"[Awake] 测试场景名: {TestSceneName}");
+
+        // ⭐ 不被切场景销毁
         DontDestroyOnLoad(gameObject);
 
         DebugEx.LogModule("CombatTest", $"战斗测试模式已激活，测试场景: {TestSceneName}");
@@ -41,11 +44,15 @@ public class CombatTestBootstrapper : MonoBehaviour
 
     private void Start()
     {
+        // ⭐ 保存测试场景名，防止被 GF 初始化覆盖
+        string savedTestScene = TestSceneName;
+        DebugEx.LogModule("CombatTest", $"保存测试场景名: {savedTestScene}");
+
         // 加载 Launch 场景来初始化 GF 框架
-        LoadLaunchSceneAsync().Forget();
+        LoadLaunchSceneAsync(savedTestScene).Forget();
     }
 
-    private async UniTaskVoid LoadLaunchSceneAsync()
+    private async UniTaskVoid LoadLaunchSceneAsync(string testSceneName)
     {
         DebugEx.LogModule("CombatTest", "正在加载 Launch 场景以初始化 GF 框架...");
 
@@ -55,6 +62,10 @@ public class CombatTestBootstrapper : MonoBehaviour
         // 等待 GF 框架初始化（GFBuiltin.Instance 在 Awake 中设置）
         await UniTask.WaitUntil(() => GFBuiltin.Instance != null);
         DebugEx.LogModule("CombatTest", "GF 框架已初始化");
+
+        // ⭐ 恢复测试场景名，确保 PreloadProcedure 能正确识别
+        TestSceneName = testSceneName;
+        DebugEx.LogModule("CombatTest", $"恢复测试场景名: {TestSceneName}");
 
         // 等待 DataTable 和棋子系统就绪
         // PreloadProcedure 完成后会设置 IsReady（通过修改后的 PreloadProcedure）
