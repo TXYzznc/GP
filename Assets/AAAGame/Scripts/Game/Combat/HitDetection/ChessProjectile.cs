@@ -148,9 +148,21 @@ public class ChessProjectile : MonoBehaviour
         m_LifetimeTimer = 0f;
         m_IsInitialized = true;
 
+        // 打印自身碰撞体信息，方便排查碰撞问题
+        var selfColliders = GetComponentsInChildren<Collider>(true);
+        string colliderInfo = selfColliders.Length == 0
+            ? "⚠ 无 Collider！"
+            : string.Join(" | ", System.Array.ConvertAll(selfColliders, c => $"{c.GetType().Name}(isTrigger={c.isTrigger},enabled={c.enabled})"));
+        bool hasRigidbody = GetComponent<Rigidbody>() != null;
+
         DebugEx.LogModule("ChessProjectile",
-            $"初始化完成（追踪模式）- ownerCamp={m_OwnerCamp}, target={target?.Config?.Name}(Camp={target?.Camp}), " +
-            $"目标位置: {m_TargetPosition}, 发射方向: {launchDirection}, 速度: {m_Speed}, 穿透: {m_IsPiercing}, 最大穿透数: {m_MaxPenetrationCount}");
+            $"初始化完成（追踪模式）\n" +
+            $"  ├─ ownerCamp={m_OwnerCamp}, target={target?.Config?.Name}(Camp={target?.Camp})\n" +
+            $"  ├─ 目标位置: {m_TargetPosition}, 发射方向: {launchDirection}, 速度: {m_Speed}\n" +
+            $"  ├─ 穿透: {m_IsPiercing}, 最大穿透数: {m_MaxPenetrationCount}\n" +
+            $"  ├─ Colliders: {colliderInfo}\n" +
+            $"  ├─ Rigidbody: {(hasRigidbody ? "✓" : "✗ 无 Rigidbody（Trigger 碰撞需要至少一方有 Rigidbody）")}\n" +
+            $"  └─ Layer: {LayerMask.LayerToName(gameObject.layer)}({gameObject.layer})");
     }
 
     /// <summary>
@@ -272,7 +284,14 @@ public class ChessProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!m_IsInitialized) return;
+        DebugEx.LogModule("ChessProjectile",
+            $"[碰撞检测] OnTriggerEnter 触发 → other={other.name}, tag={other.tag}, layer={LayerMask.LayerToName(other.gameObject.layer)}, isTrigger={other.isTrigger}");
+
+        if (!m_IsInitialized)
+        {
+            DebugEx.WarningModule("ChessProjectile", "  └─ 忽略：投射物未初始化");
+            return;
+        }
 
         // 获取棋子实体
         ChessEntity target = other.GetComponent<ChessEntity>();
@@ -281,7 +300,15 @@ public class ChessProjectile : MonoBehaviour
             target = other.GetComponentInParent<ChessEntity>();
         }
 
-        if (target == null) return;
+        if (target == null)
+        {
+            DebugEx.LogModule("ChessProjectile",
+                $"  └─ 碰撞对象非棋子实体，忽略: {other.name} (parent={other.transform.parent?.name})");
+            return;
+        }
+
+        DebugEx.LogModule("ChessProjectile",
+            $"  └─ 找到棋子目标: {target.Config?.Name}, camp={target.Camp}, ownerCamp={m_OwnerCamp}, state={target.CurrentState}");
 
         TryHitTarget(target);
     }

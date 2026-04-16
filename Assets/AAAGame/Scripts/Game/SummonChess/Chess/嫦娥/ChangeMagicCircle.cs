@@ -277,6 +277,21 @@ public class ChangeMagicCircle : MonoBehaviour
         GameObject bulletObj = Object.Instantiate(bulletPrefab, startPos, Quaternion.identity);
         bulletObj.name = $"Bullet_{m_ProjectilesFired + 1}";
 
+        // --- 诊断：检查实例化后子弹的碰撞体和物理层 ---
+        var bulletColliders = bulletObj.GetComponentsInChildren<Collider>(true);
+        var bulletRigidbody = bulletObj.GetComponent<Rigidbody>();
+        string bulletColliderInfo = bulletColliders.Length == 0
+            ? "⚠ 无 Collider！碰撞检测将失效"
+            : string.Join(", ", System.Array.ConvertAll(bulletColliders, c =>
+                $"{c.gameObject.name}.{c.GetType().Name}(trigger={c.isTrigger},enabled={c.enabled})"));
+        DebugEx.LogModule("ChangeMagicCircle",
+            $"  ├─ [子弹诊断] 实例化完成:\n" +
+            $"     ├─ 位置: {bulletObj.transform.position}\n" +
+            $"     ├─ Layer: {LayerMask.LayerToName(bulletObj.layer)}({bulletObj.layer})\n" +
+            $"     ├─ Colliders: {bulletColliderInfo}\n" +
+            $"     ├─ Rigidbody: {(bulletRigidbody != null ? $"✓ isKinematic={bulletRigidbody.isKinematic}" : "✗ 无 Rigidbody")}\n" +
+            $"     └─ 施法者 Camp={m_Caster.Camp}");
+
         // ⭐ 动态添加 ChessProjectile 组件
         var projectile = bulletObj.AddComponent<ChessProjectile>();
         if (projectile == null)
@@ -288,6 +303,9 @@ public class ChangeMagicCircle : MonoBehaviour
 
         // 初始化子弹（竖直向下模式）
         Vector3 projectileDirection = m_SpawnPlane != null ? Vector3.down : (targetPos - startPos).normalized;
+        DebugEx.LogModule("ChangeMagicCircle",
+            $"  ├─ [子弹初始化] camp={m_Caster.Camp}, dir={projectileDirection}, speed={m_Config.ProjectileSpeed}, damage={damage:F1}{(isCritical ? " 暴击" : "")}");
+
         projectile.Initialize(
             m_Caster.Camp,
             null,  // 无锁定目标
@@ -302,21 +320,36 @@ public class ChangeMagicCircle : MonoBehaviour
     }
 
     /// <summary>
-    /// 子弹命中回调（由框架 ApplyDamage 调用）
-    /// 伤害、Buff、特效都已由框架处理，此方法只用于日志记录
+    /// 子弹命中回调：应用伤害、特效、Buff
     /// </summary>
     private void OnProjectileHit(ChessEntity target, double damage, bool isCritical)
     {
-        if (target == null)
+        if (target == null || target.CurrentState == ChessState.Dead)
             return;
+
+        var attr = target.Attribute;
+        double hpBefore = attr != null ? attr.CurrentHp : 0;
+
+        // 1. 受击特效
+        if (m_Config.HitEffectId > 0)
+        {
+            CombatVFXManager.PlayEffect(m_Config.HitEffectId, target.transform.position);
+        }
+
+        // 2. 造成伤害
+        bool isMagic = m_Config.DamageType == 2;
+        bool isTrue = m_Config.DamageType == 3;
+        attr.TakeDamage(damage, isMagic, isTrue, isCritical);
+
+        // 3. 应用命中 Buff
+        EffectExecutor.ApplyBuffsOnHit(m_Config, m_Caster, target);
 
         DebugEx.LogModule(
             "ChangeMagicCircle",
             $"→ 子弹命中:\n" +
-            $"  ├─ 目标: {target.Config?.Name}\n" +
-            $"  ├─ HP: {target.Attribute?.CurrentHp:F1}/{target.Attribute?.MaxHp:F1}\n" +
-            $"  ├─ 伤害: {damage:F1}{(isCritical ? " (暴击!)" : "")}\n" +
-            $"  └─ [框架处理] 伤害、Buff、特效已自动应用"
+            $"  ├─ 目标: {target.Config?.Name} (camp={target.Camp})\n" +
+            $"  ├─ HP: {hpBefore:F1} → {attr.CurrentHp:F1}/{attr.MaxHp:F1}\n" +
+            $"  └─ 伤害: {damage:F1}{(isCritical ? " (暴击!)" : "")}, 类型={m_Config.DamageType}"
         );
     }
 
