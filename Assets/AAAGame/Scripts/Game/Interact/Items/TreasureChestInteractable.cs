@@ -22,6 +22,18 @@ public class TreasureChestInteractable : InteractableBase
     private string openAnimTrigger = "Open";
 
     [SerializeField]
+    [Tooltip("宝箱标题")]
+    private string chestTitle = "宝箱";
+
+    [SerializeField]
+    [Tooltip("宝箱中的物品 ID 列表")]
+    private int[] m_ItemIds = System.Array.Empty<int>();
+
+    [SerializeField]
+    [Tooltip("宝箱中每个物品的数量（与 ItemIds 一一对应）")]
+    private int[] m_ItemCounts = System.Array.Empty<int>();
+
+    [SerializeField]
     [Tooltip("显示交互提示时的描边颜色")]
     private Color outlineColor = new Color(1f, 0.85f, 0f); // OutlineController.SelectionColor
 
@@ -121,15 +133,24 @@ public class TreasureChestInteractable : InteractableBase
         );
     }
 
-    /// <summary>打开宝箱界面（占位，等待 UI 实现）</summary>
+    /// <summary>打开宝箱界面</summary>
     private void OpenChestUI()
     {
-        // TODO: 宝箱界面未实现
-        // 后续需要：
-        // 1. 在 UITable 中注册宝箱界面表单
-        // 2. 运行 DataTableGenerator 生成 Variables
-        // 3. 创建 TreasureChestUIForm.cs，继承 UIFormLogic
-        // 4. 此处调用：GF.UI.OpenUIForm(UIViews.TreasureChestUI);
-        DebugEx.LogModule("TreasureChest", $"打开宝箱界面（占位）[State={m_State.ToString()}]");
+        var items = new System.Collections.Generic.List<ItemStack>();
+        var itemManager = ItemManager.Instance;
+
+        int count = Mathf.Min(m_ItemIds.Length, m_ItemCounts.Length);
+        for (int i = 0; i < count; i++)
+        {
+            var item = itemManager?.CreateItem(m_ItemIds[i]);
+            if (item != null)
+                items.Add(new ItemStack(item, m_ItemCounts[i]));
+        }
+
+        var data = new TreasureBoxUIData(items, chestTitle);
+        var uiParams = UIParams.Create();
+        uiParams.Set("TreasureBoxData", data);
+        GF.UI.OpenUIForm(UIViews.TreasureBoxUI, uiParams);
+        DebugEx.LogModule("TreasureChest", $"打开宝箱界面 [State={m_State}] 物品数={items.Count}");
     }
 }

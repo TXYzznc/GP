@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1265847164367617941}
   - component: {fileID: 5168654947746750320}
   - component: {fileID: 5415193022751391113}
-  - component: {fileID: 8362637973040176849}
   - component: {fileID: 4211976199862641794}
   m_Layer: 9
   m_Name: "\u5B9D\u7BB1"
@@ -125,29 +124,11 @@ MonoBehaviour:
   interactAnimIndex: -1
   interactionRadius: 2
   openAnimTrigger: Open
+  chestTitle: "\u5B9D\u7BB1"
+  m_ItemIds: 
+  m_ItemCounts: 
   outlineColor: {r: 1, g: 0.85, b: 0, a: 1}
   outlineSize: 1
---- !u!95 &8362637973040176849
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4111086201043816444}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: fa4e98e653825d04aa6111512b8b1247, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &4211976199862641794
 MonoBehaviour:
   m_ObjectHideFlags: 0

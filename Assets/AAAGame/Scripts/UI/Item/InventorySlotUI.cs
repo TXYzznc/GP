@@ -11,6 +11,7 @@ public enum SlotContainerType
     Equip,
     FastBar,
     Chess,
+    TreasureBox,
 }
 
 /// <summary>
@@ -259,7 +260,16 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        DebugEx.Error("InventorySlotUI", "[ShowContextMenu] 无法获取 InventoryUI 或 WarehouseUI");
+        // 尝试获取 TreasureBoxUI
+        var treasureBoxUI = GetComponentInParent<TreasureBoxUI>();
+        if (treasureBoxUI != null)
+        {
+            treasureBoxUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
+            DebugEx.Success("InventorySlotUI", $"[ShowContextMenu] 显示上下文菜单（来自TreasureBoxUI）: {itemStack.Item.Name}");
+            return;
+        }
+
+        DebugEx.Error("InventorySlotUI", "[ShowContextMenu] 无法获取 InventoryUI、WarehouseUI 或 TreasureBoxUI");
     }
 
     #endregion

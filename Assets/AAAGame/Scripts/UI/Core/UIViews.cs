@@ -25,5 +25,6 @@ public enum UIViews : int
 	EscapeResultUI = 28,
 	WarehouseUI = 29,
 	DictionariesUI = 30,
-	BattlePresetUI = 31
+	BattlePresetUI = 31,
+	TreasureBoxUI = 32
 }

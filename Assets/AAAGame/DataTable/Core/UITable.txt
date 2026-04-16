@@ -27,3 +27,4 @@
 	29	仓库界面	2	WarehouseUI	False	1	True
 	30	图鉴界面	2	DictionariesUI	False	1	True
 	31	出战预设界面	2	BattlePresetUI	False	1	True
+	32	宝箱界面	2	TreasureBoxUI	False	1	True
