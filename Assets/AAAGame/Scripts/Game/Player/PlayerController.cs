@@ -613,7 +613,7 @@ public class PlayerController : MonoBehaviour
             // 注意：这里不需要记录，因为释放前的输入方向，但input此时已经是0了
             // 所以我们需要在m_WasMoving为true时保存上一次的输入
             m_DoubleClickPending = true; // 标记等待双击
-            Log.Debug($"[PlayerController] 移动键释放，等待双击检测。记录方向: {m_LastMoveInput}");
+            //Log.Debug($"[PlayerController] 移动键释放，等待双击检测。记录方向: {m_LastMoveInput}");
         }
 
         // 记录当前输入（用于下次释放时记录）
@@ -638,9 +638,9 @@ public class PlayerController : MonoBehaviour
                         Vector2.Dot(input.normalized, m_LastMoveInput.normalized) > 0.8f;
                 }
 
-                Log.Debug(
-                    $"[PlayerController] 移动键按下，当前方向: {input}, 上次方向: {m_LastMoveInput}, 时间差: {timeSinceRelease:F3}, 同方向: {isSameDirection}"
-                );
+                // Log.Debug(
+                //     $"[PlayerController] 移动键按下，当前方向: {input}, 上次方向: {m_LastMoveInput}, 时间差: {timeSinceRelease:F3}, 同方向: {isSameDirection}"
+                // );
 
                 if (timeSinceRelease < doubleClickWindow && isSameDirection)
                 {

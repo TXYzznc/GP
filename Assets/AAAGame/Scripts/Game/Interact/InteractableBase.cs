@@ -23,6 +23,9 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     public abstract bool CanInteract(GameObject player);
     public abstract void OnInteract(GameObject player);
 
+    /// <summary>当本对象成为/取消交互目标时由 InteractionDetector 调用</summary>
+    public virtual void OnSetAsTarget(bool isTarget) { }
+
     protected virtual void Awake()
     {
         EnsureTriggerCollider();

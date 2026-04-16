@@ -1,5 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using GameExtension;
+using TMPro;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -11,7 +14,7 @@ public class InteractionDetector : MonoBehaviour
 {
     [Header("检测配置")]
     [Tooltip("检测半径")]
-    [SerializeField] private float detectionRadius = 3f;
+    [SerializeField] private float detectionRadius = 2f;
 
     [Tooltip("可交互物体层")]
     [SerializeField] private LayerMask interactableLayer = -1;
@@ -21,6 +24,12 @@ public class InteractionDetector : MonoBehaviour
     [SerializeField] private float distanceWeight = 5f;
     [SerializeField] private float facingWeight = 3f;
     [SerializeField] private float facingThreshold = 0.5f;
+
+    [Header("交互提示")]
+    [Tooltip("InteractTip 预制体在 ResourceConfigTable 中的 ID")]
+    [SerializeField] private int interactTipResourceId = 2402;
+    [Tooltip("提示相对于交互点的高度偏移")]
+    [SerializeField] private float tipHeightOffset = 1.5f;
 
     [Header("组件引用")]
     [SerializeField] private PlayerInteraction playerInteraction;
@@ -34,6 +43,11 @@ public class InteractionDetector : MonoBehaviour
     private readonly List<IInteractable> m_Candidates = new List<IInteractable>();
     private SphereCollider m_DetectionCollider;
 
+    // InteractTip
+    private GameObject m_TipInstance;
+    private TextMeshProUGUI m_TipText;
+    private Camera m_MainCamera;
+
     #region 初始化
 
     private void Awake()
@@ -46,6 +60,18 @@ public class InteractionDetector : MonoBehaviour
         EnsureDetectionCollider();
     }
 
+    private void Start()
+    {
+        m_MainCamera = Camera.main;
+        LoadInteractTipAsync().Forget();
+    }
+
+    private void OnDestroy()
+    {
+        if (m_TipInstance != null)
+            Destroy(m_TipInstance);
+    }
+
     private void EnsureDetectionCollider()
     {
         // 使用独立的子对象挂 Trigger，避免和角色自身的 Collider 冲突
@@ -54,6 +80,12 @@ public class InteractionDetector : MonoBehaviour
         detectorGo.transform.localPosition = Vector3.zero;
         detectorGo.layer = gameObject.layer;
 
+        // 玩家用 CharacterController 而非 Rigidbody，必须在子对象上加 Kinematic Rigidbody
+        // 否则两个 Trigger 之间不会触发 OnTriggerEnter
+        var rb = detectorGo.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+
         m_DetectionCollider = detectorGo.AddComponent<SphereCollider>();
         m_DetectionCollider.isTrigger = true;
         m_DetectionCollider.radius = detectionRadius;
@@ -61,6 +93,28 @@ public class InteractionDetector : MonoBehaviour
         // 添加转发脚本，将触发事件转发到本组件
         var forwarder = detectorGo.AddComponent<InteractionTriggerForwarder>();
         forwarder.Init(this);
+    }
+
+    /// <summary>异步加载 InteractTip 预制体并挂到 WorldCanvas 下</summary>
+    private async UniTaskVoid LoadInteractTipAsync()
+    {
+        var worldCanvasGo = GameObject.Find("WorldCanvas");
+        if (worldCanvasGo == null)
+        {
+            DebugEx.ErrorModule("Interaction", "未找到 WorldCanvas 对象！");
+            return;
+        }
+
+        var prefab = await ResourceExtension.LoadPrefabAsync(interactTipResourceId);
+        if (prefab == null)
+        {
+            DebugEx.ErrorModule("Interaction", $"加载 InteractTip 预制体失败，ResourceId={interactTipResourceId}");
+            return;
+        }
+
+        m_TipInstance = Instantiate(prefab, worldCanvasGo.transform);
+        m_TipText = m_TipInstance.GetComponentInChildren<TextMeshProUGUI>();
+        m_TipInstance.SetActive(false);
     }
 
     #endregion
@@ -76,9 +130,23 @@ public class InteractionDetector : MonoBehaviour
         var bestTarget = EvaluateBestTarget();
         if (bestTarget != CurrentTarget)
         {
+            // 通知旧目标取消高亮
+            var oldBase = CurrentTarget as InteractableBase;
+            if (oldBase != null) oldBase.OnSetAsTarget(false);
+
             CurrentTarget = bestTarget;
             OnTargetChanged?.Invoke(CurrentTarget);
+
+            // 通知新目标高亮
+            var newBase = CurrentTarget as InteractableBase;
+            if (newBase != null) newBase.OnSetAsTarget(true);
+
+            // 更新提示 UI
+            UpdateTipVisibility();
         }
+
+        // 更新提示位置和朝向
+        UpdateTipTransform();
 
         // 处理交互输入
         HandleInteractInput();
@@ -208,45 +276,53 @@ public class InteractionDetector : MonoBehaviour
 
     private void OnDisable()
     {
-        m_Candidates.Clear();
         if (CurrentTarget != null)
         {
+            var b = CurrentTarget as InteractableBase;
+            if (b != null) b.OnSetAsTarget(false);
             CurrentTarget = null;
             OnTargetChanged?.Invoke(null);
         }
+        m_Candidates.Clear();
+
+        if (m_TipInstance != null)
+            m_TipInstance.SetActive(false);
     }
 
     #endregion
 
-    #region 提示 UI 管理
+    #region 交互提示 UI
 
-    private int m_PromptUIFormId = -1;
-
-    private void Start()
+    private void UpdateTipVisibility()
     {
-        OpenPromptUI();
-    }
+        if (m_TipInstance == null) return;
 
-    private void OnDestroy()
-    {
-        ClosePromptUI();
-    }
-
-    private void OpenPromptUI()
-    {
-        // TODO: 用户需要先在 UITable 中注册 InteractionPromptUI，运行 DataTableGenerator 后取消注释
-        // if (!GF.UI.HasUIForm(m_PromptUIFormId))
-        // {
-        //     m_PromptUIFormId = GF.UI.OpenUIForm(UIViews.InteractionPromptUI);
-        // }
-    }
-
-    private void ClosePromptUI()
-    {
-        if (GF.UI.HasUIForm(m_PromptUIFormId))
+        if (CurrentTarget != null)
         {
-            GF.UI.CloseUIForm(m_PromptUIFormId);
-            m_PromptUIFormId = -1;
+            if (m_TipText != null)
+                m_TipText.text = CurrentTarget.InteractionTip;
+            m_TipInstance.SetActive(true);
+        }
+        else
+        {
+            m_TipInstance.SetActive(false);
+        }
+    }
+
+    private void UpdateTipTransform()
+    {
+        if (m_TipInstance == null || !m_TipInstance.activeSelf) return;
+        if (CurrentTarget?.InteractionPoint == null) return;
+
+        // 跟随交互点，保持高度偏移
+        m_TipInstance.transform.position =
+            CurrentTarget.InteractionPoint.position + Vector3.up * tipHeightOffset;
+
+        // Billboard：朝向摄像机（世界空间）
+        if (m_MainCamera != null)
+        {
+            m_TipInstance.transform.rotation =
+                Quaternion.LookRotation(m_TipInstance.transform.position - m_MainCamera.transform.position);
         }
     }
 
