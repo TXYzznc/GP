@@ -65,7 +65,7 @@ public partial class SummonChessSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果命中类型：0=瞬发1=近2=投射物 3=AO4=射线
+        /// 效果命中类型：0=瞬发1=近2=投射物 3=AO4=射线,5=特殊
         /// </summary>
         public int EffectHitType
         {
@@ -236,6 +236,15 @@ public partial class SummonChessSkillTable : DataRowBase
         }
 
         /// <summary>
+        /// 自定义数据（JSON格式）
+        /// </summary>
+        public string CustomData
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 技能描述
         /// </summary>
         public string Desc
@@ -279,6 +288,7 @@ public partial class SummonChessSkillTable : DataRowBase
             EffectId = int.Parse(columnStrings[index++]);
             EffectSpawnHeight = float.Parse(columnStrings[index++]);
             HitEffectId = int.Parse(columnStrings[index++]);
+            CustomData = columnStrings[index++];
             Desc = columnStrings[index++];
 
             return true;
@@ -314,6 +324,7 @@ public partial class SummonChessSkillTable : DataRowBase
                     EffectId = binaryReader.Read7BitEncodedInt32();
                     EffectSpawnHeight = binaryReader.ReadSingle();
                     HitEffectId = binaryReader.Read7BitEncodedInt32();
+                    CustomData = binaryReader.ReadString();
                     Desc = binaryReader.ReadString();
                 }
             }

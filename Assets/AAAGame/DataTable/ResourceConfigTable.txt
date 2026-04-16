@@ -1,7 +1,7 @@
 ﻿#	ResourceConfigTable				
 #	ID		Type	Path	Name
 #	int		int	string	string
-#	资源ID	1：Assets/AAAGame/Sprites/2：Assets/AAAGame/Prefabs/3：Assets/AAAGame/Entities/4：Assets/AAAGame/Materials/5：Assets/AAAGame/Textures/6：Assets/AAAGame/Config/备注：大型资源和通用资源放这里	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）	资源路径	资源名称
+#	资源ID	1：Assets/AAAGame/Sprites/2：Assets/AAAGame/Prefabs/3：Assets/AAAGame/Prefabs/Entity/4：Assets/AAAGame/Materials/5：Assets/AAAGame/Textures/6：Assets/AAAGame/Config/	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）	资源路径	资源名称
 	1001		1	UI/StartMenuUI/开始游戏界面-背景.png	开始游戏界面背景
 	1002		1	UI/StartMenuUI/诸神对决.png	游戏名称
 	1003		1	UI/StartMenuUI/Clash Of Gods.png	游戏名称-英文
@@ -95,13 +95,15 @@
 	2309		2	角色/友方神话角色/敌人测试	棋子-敌人测试预制体
 	2399		2	角色/测试/靶子	棋子-靶子预制体
 	2401		3	DamagePopup	伤害飘字预制体
+	2402		3	InteractTip	交互提示预制体
 	2901		2	Combat/BattleArena	战斗场景预制体
 	3001		3	SummonChessEffect/HouYi_Skill1	后羿技能1特效
 	3002		3	SummonChessEffect/Projectile_HouYi_Attack	后羿普攻子弹
 	3003		3	SummonChessEffect/Projectile_HouYi_Skill2	后羿大招子弹
 	3004		3	SummonChessEffect/Projectile_ChangE_Attack	嫦娥普攻子弹
 	3005		3	SummonChessEffect/Change_Skill1	嫦娥技能一子弹
-	3006		3	SummonChessEffect/Change_Skill2	嫦娥大招特效
+	3006		3	SummonChessEffect/Change_Skill2	嫦娥大招法阵预制体
+	3007		3	SummonChessEffect/Change_Skill2_Projectile	嫦娥大招法阵生成的投射物
 	6001		6	Skills/SkillParamRegistry	技能参数注册表
 	10001		1	Buff/2001.png	先手·速度爆发图标
 	10002		1	Buff/2002.png	先手·攻击强化图标
