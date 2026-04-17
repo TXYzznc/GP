@@ -95,6 +95,7 @@ public partial class InventoryUI : UIFormBase
         m_CurrentPage = 0;
         BuildPageLabels();
         RefreshAll();
+        OutputInventoryData();
         LockPlayerMovement(true);
 
         // 打开背包时解锁鼠标
@@ -337,13 +338,37 @@ public partial class InventoryUI : UIFormBase
 
     #region 刷新
 
-    private void RefreshAll()
+    public void RefreshAll()
     {
         RefreshInventory();
         RefreshHotbar();
         RefreshEquipSlots();
         RefreshWeightState();
         RefreshSummonerState();
+    }
+
+    /// <summary>
+    /// 输出背包当前所有数据
+    /// </summary>
+    private void OutputInventoryData()
+    {
+        if (m_InventoryManager == null)
+            return;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("【背包内容】");
+        var allSlots = m_InventoryManager.GetAllSlots();
+        int totalItems = 0;
+        foreach (var slot in allSlots)
+        {
+            if (slot != null && !slot.IsEmpty && slot.ItemStack?.Item != null)
+            {
+                sb.AppendLine($"  格子{slot.SlotIndex}: {slot.ItemStack.Item.Name} x{slot.Count}");
+                totalItems += slot.Count;
+            }
+        }
+        sb.AppendLine($"物品总数: {totalItems}");
+        DebugEx.LogModule("InventoryUI", sb.ToString());
     }
 
     private void RefreshInventory()

@@ -74,6 +74,9 @@ public partial class TreasureBoxUI : UIFormBase
         RefreshSlots();
         SetPlayerInputEnabled(false);
 
+        // 输出宝箱当前数据
+        OutputTreasureBoxData();
+
         // 初始化动画状态并播放开箱动效
         PlayTreasureOpenSequenceAsync().Forget();
     }
@@ -274,6 +277,30 @@ public partial class TreasureBoxUI : UIFormBase
     /// 宝箱内容变化回调（仓库模式）
     /// </summary>
     private void OnTreasureBoxChanged() => RefreshSlots();
+
+    /// <summary>
+    /// 输出宝箱当前所有数据
+    /// </summary>
+    private void OutputTreasureBoxData()
+    {
+        if (m_Container == null)
+            return;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("【宝箱内容】");
+        int totalItems = 0;
+        for (int i = 0; i < 50; i++)
+        {
+            var slot = m_Container.GetSlot(i);
+            if (slot != null && !slot.IsEmpty && slot.ItemStack?.Item != null)
+            {
+                sb.AppendLine($"  格子{i}: {slot.ItemStack.Item.Name} x{slot.Count}");
+                totalItems += slot.Count;
+            }
+        }
+        sb.AppendLine($"物品总数: {totalItems}");
+        DebugEx.LogModule("TreasureBoxUI", sb.ToString());
+    }
 
     #endregion
 
