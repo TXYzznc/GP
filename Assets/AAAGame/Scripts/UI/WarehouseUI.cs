@@ -40,8 +40,8 @@ public partial class WarehouseUI : UIFormBase
         RefreshWarehouse();
 
         // 打开仓库时解锁鼠标
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = true;
+        if (PlayerInputManager.Instance != null)
+            PlayerInputManager.Instance.SetCursorLock(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -54,8 +54,8 @@ public partial class WarehouseUI : UIFormBase
         }
 
         // 关闭仓库时锁定鼠标
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (PlayerInputManager.Instance != null)
+            PlayerInputManager.Instance.SetCursorLock(true);
 
         base.OnClose(isShutdown, userData);
     }

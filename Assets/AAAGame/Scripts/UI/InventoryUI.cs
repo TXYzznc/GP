@@ -98,8 +98,8 @@ public partial class InventoryUI : UIFormBase
         LockPlayerMovement(true);
 
         // 打开背包时解锁鼠标
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = true;
+        if (PlayerInputManager.Instance != null)
+            PlayerInputManager.Instance.SetCursorLock(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -126,8 +126,8 @@ public partial class InventoryUI : UIFormBase
         LockPlayerMovement(false);
 
         // 关闭背包时锁定鼠标
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (PlayerInputManager.Instance != null)
+            PlayerInputManager.Instance.SetCursorLock(true);
     }
 
     private void OnFastBarChanged(int _, InventorySlot __) => RefreshAll();
