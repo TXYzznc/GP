@@ -180,8 +180,8 @@ public class SummonChessConfig
             PassiveIds = Array.Empty<int>();
         }
 
-        // 验证AI类型
-        if (AIType <= 0)
+        // 验证AI类型（0 = 无AI，如召唤师棋子占位）
+        if (AIType < 0)
         {
             errorMsg = $"Invalid AIType: {AIType} for Id: {Id}";
             return false;
