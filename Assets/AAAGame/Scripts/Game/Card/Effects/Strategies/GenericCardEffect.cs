@@ -38,12 +38,14 @@ public class GenericCardEffect : ICardEffect
             return;
         }
 
-        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0)
+        var allChessReadOnly = BattleChessManager.Instance?.GetAllChessEntities();
+        if (allChessReadOnly == null || allChessReadOnly.Count == 0)
         {
             DebugEx.WarningModule("GenericCardEffect", "棋子列表为空");
             return;
         }
+
+        var allChess = new List<ChessEntity>(allChessReadOnly);
 
         // 1. 选择目标
         var targets = m_TargetSelector.SelectTargets(allChess, m_CardData, targetPosition);

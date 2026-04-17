@@ -90,7 +90,7 @@ public class DamageWithCoefficientApplier : ICardEffectApplier
 
     public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
     {
-        float casterAtk = m_CasterChess?.Attribute?.Attack ?? 0f;
+        float casterAtk = (float)(m_CasterChess?.Attribute?.AtkDamage ?? 0d);
         float damage = cardData.TableRow.BaseDamage + cardData.TableRow.DamageCoeff * casterAtk;
         int damageType = cardData.TableRow.DamageType;
 
