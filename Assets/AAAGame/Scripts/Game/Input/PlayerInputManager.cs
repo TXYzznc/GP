@@ -81,6 +81,12 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     private readonly bool[] m_SummonerSkillButtonPending = new bool[4]; // 槽位 1-3：UI 按钮触发
     private IPlayerInputSource source;
 
+    /// <summary>
+    /// 鼠标解锁请求计数器（用于管理多个UI界面的鼠标锁定状态）
+    /// >0 时鼠标保持解锁，当从 >0 变成 <=0 时自动锁定
+    /// </summary>
+    private int m_UnlockMouseRefCount = 0;
+
     private void Awake()
     {
         base.Awake();
@@ -239,6 +245,36 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         }
 
         SetCursorLock(!IsMouseLocked);
+    }
+
+    /// <summary>
+    /// 请求解锁鼠标（用于UI界面打开时调用）
+    /// 引用计数 +1，当引用计数>1时自动解锁鼠标
+    /// </summary>
+    public void RequestMouseUnlock()
+    {
+        m_UnlockMouseRefCount++;
+
+        if (m_UnlockMouseRefCount >= 1)
+        {
+            SetCursorLock(false);
+        }
+    }
+
+    /// <summary>
+    /// 请求锁定鼠标（用于UI界面关闭时调用）
+    /// 引用计数 -1，当引用计数<=0 时自动锁定鼠标
+    /// </summary>
+    public void RequestMouseLock()
+    {
+        m_UnlockMouseRefCount--;
+
+        if (m_UnlockMouseRefCount <= 0)
+        {
+            // 降到 0 或以下，锁定鼠标
+            m_UnlockMouseRefCount = 0;  // 防止负数
+            SetCursorLock(true);
+        }
     }
 
     /// <summary>
