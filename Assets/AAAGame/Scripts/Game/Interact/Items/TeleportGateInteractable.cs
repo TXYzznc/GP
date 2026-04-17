@@ -24,8 +24,8 @@ public class TeleportGateInteractable : InteractableBase
 
     public override void OnInteract(GameObject player)
     {
-        // 打开地图UI（注意：OverworldUI 需要先添加到 UITable，分配 UI ID）
-        // GF.UI.OpenUIForm(UIViews.OverworldUI);
+        // 打开地图UI
+        GF.UI.OpenUIForm(UIViews.OverworldUI);
         Log.Warning("TeleportGateInteractable: 需要先将 OverworldUI 添加到 UITable，然后取消注释上一行");
     }
 }
