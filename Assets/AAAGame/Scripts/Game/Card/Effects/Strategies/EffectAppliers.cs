@@ -1,0 +1,103 @@
+﻿using System.Collections.Generic;
+
+/// <summary>
+/// 伤害应用器
+/// </summary>
+public class DamageApplier : ICardEffectApplier
+{
+    public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
+    {
+        float damage = cardData.TableRow.BaseDamage;
+        int damageType = cardData.TableRow.DamageType;
+
+        foreach (var target in targets)
+        {
+            if (target != null)
+                CardEffectHelper.DealDamage(target, damage, damageType);
+        }
+    }
+}
+
+/// <summary>
+/// 治疗应用器
+/// </summary>
+public class HealApplier : ICardEffectApplier
+{
+    public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
+    {
+        float healAmount = cardData.GetParam("healAmount", 150f);
+
+        foreach (var target in targets)
+        {
+            if (target != null)
+                CardEffectHelper.HealTarget(target, healAmount);
+        }
+    }
+}
+
+/// <summary>
+/// 命中时应用 Buff（HitBuffIds）
+/// </summary>
+public class BuffApplier : ICardEffectApplier
+{
+    public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
+    {
+        foreach (var target in targets)
+        {
+            if (target != null)
+            {
+                foreach (int buffId in cardData.HitBuffIds)
+                {
+                    CardEffectHelper.ApplyBuff(target, buffId);
+                }
+            }
+        }
+    }
+}
+
+/// <summary>
+/// 立即应用 Buff（InstantBuffIds）
+/// </summary>
+public class InstantBuffApplier : ICardEffectApplier
+{
+    public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
+    {
+        foreach (var target in targets)
+        {
+            if (target != null)
+            {
+                foreach (int buffId in cardData.InstantBuffIds)
+                {
+                    CardEffectHelper.ApplyBuff(target, buffId);
+                }
+            }
+        }
+    }
+}
+
+/// <summary>
+/// 带伤害系数的伤害应用器
+/// 伤害 = BaseDamage + DamageCoeff × 施法者攻击力
+/// </summary>
+public class DamageWithCoefficientApplier : ICardEffectApplier
+{
+    private ChessEntity m_CasterChess;
+
+    public DamageWithCoefficientApplier(ChessEntity casterChess = null)
+    {
+        m_CasterChess = casterChess;
+    }
+
+    public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
+    {
+        float casterAtk = m_CasterChess?.Attribute?.Attack ?? 0f;
+        float damage = cardData.TableRow.BaseDamage + cardData.TableRow.DamageCoeff * casterAtk;
+        int damageType = cardData.TableRow.DamageType;
+
+        foreach (var target in targets)
+        {
+            if (target != null)
+                CardEffectHelper.DealDamage(target, damage, damageType);
+        }
+    }
+}
