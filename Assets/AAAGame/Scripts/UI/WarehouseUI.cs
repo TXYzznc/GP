@@ -39,9 +39,10 @@ public partial class WarehouseUI : UIFormBase
         BuildSlots();
         RefreshWarehouse();
 
-        // 打开仓库时解锁鼠标
-        if (PlayerInputManager.Instance != null)
-            PlayerInputManager.Instance.SetCursorLock(false);
+        // 请求解锁鼠标（通过引用计数管理）
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.RequestMouseUnlock();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -53,9 +54,10 @@ public partial class WarehouseUI : UIFormBase
             m_WarehouseManager.OnCapacityChanged -= OnCapacityChanged;
         }
 
-        // 关闭仓库时锁定鼠标
-        if (PlayerInputManager.Instance != null)
-            PlayerInputManager.Instance.SetCursorLock(true);
+        // 请求锁定鼠标（通过引用计数管理）
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.RequestMouseLock();
 
         base.OnClose(isShutdown, userData);
     }

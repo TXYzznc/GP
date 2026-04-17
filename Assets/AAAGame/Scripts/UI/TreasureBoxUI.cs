@@ -15,6 +15,7 @@ public partial class TreasureBoxUI : UIFormBase
     private TreasureBoxSlotContainerImpl m_Container;
     private ItemContextMenu m_CachedContextMenu;
     private bool m_IsAnimating;
+    private int m_InitialSlotCount = -1;  // 首次打开时确定的格子数
 
     #endregion
 
@@ -24,6 +25,12 @@ public partial class TreasureBoxUI : UIFormBase
     private const float SLOT_ANIMATION_DELAY = 0.08f;    // 格子间隔（产生瀑布效果）
     private const float SLOT_SCALE_START = 0.5f;         // 起始缩放
     private const float SLOT_ALPHA_START = 0f;           // 起始透明度
+
+    #endregion
+
+    #region 宝箱配置
+
+    private const int SLOTS_PER_ROW = 6;  // 一行6个格子
 
     #endregion
 
@@ -45,40 +52,59 @@ public partial class TreasureBoxUI : UIFormBase
     {
         base.OnOpen(userData);
 
-        // 从参数获取宝箱容器引用
-        m_Container = Params?.Get("TreasureBoxContainer") as TreasureBoxSlotContainerImpl;
-        if (m_Container == null)
-        {
-            DebugEx.Error("TreasureBoxUI", "未传入 TreasureBoxContainer");
-            return;
-        }
+        SetPlayerInputEnabled(false);
 
-        // 订阅容器变化事件（仓库模式）
-        m_Container.OnSlotChanged += OnTreasureBoxChanged;
+        // 请求解锁鼠标（通过引用计数管理）
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.RequestMouseUnlock();
 
-        // 设置标题
+        // 设置标题（参数应该是即时的）
         var treasureBoxName = Params?.Get("TreasureBoxName") as string ?? "宝箱";
         if (varTitleText != null)
             varTitleText.text = treasureBoxName;
 
-        // 计算需要显示的格子数（宝箱中有物品的格子数）
-        int slotCount = 0;
-        for (int i = 0; i < 50; i++)
+        // 异步等待容器准备好，然后初始化
+        WaitForContainerAndInitializeAsync().Forget();
+    }
+
+    /// <summary>
+    /// 异步等待容器准备好，然后初始化UI
+    /// </summary>
+    private async UniTask WaitForContainerAndInitializeAsync()
+    {
+        // 先尝试直接获取一次
+        m_Container = Params?.Get("TreasureBoxContainer") as TreasureBoxSlotContainerImpl;
+
+        // 如果第一次失败，等待几帧再试（不要在WaitUntil中重复Get，避免引用混乱）
+        if (m_Container == null)
         {
-            var slot = m_Container.GetSlot(i);
-            if (slot != null && !slot.IsEmpty)
-                slotCount = i + 1;
+            const int maxRetries = 100;
+            int retryCount = 0;
+
+            await UniTask.WaitUntil(() =>
+            {
+                retryCount++;
+                return retryCount >= maxRetries;
+            }, cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            // 最后一次尝试获取
+            m_Container = Params?.Get("TreasureBoxContainer") as TreasureBoxSlotContainerImpl;
+
+            if (m_Container == null)
+            {
+                DebugEx.Error("TreasureBoxUI", "[WaitForContainerAndInitializeAsync] 超时：无法获取容器");
+                return;
+            }
+
+            DebugEx.Log("TreasureBoxUI", "[WaitForContainerAndInitializeAsync] 延迟获取容器成功");
+        }
+        else
+        {
+            DebugEx.Log("TreasureBoxUI", "[WaitForContainerAndInitializeAsync] 即时获取容器成功");
         }
 
-        BuildSlots(slotCount);
-        RefreshSlots();
-        SetPlayerInputEnabled(false);
-
-        // 输出宝箱当前数据
-        OutputTreasureBoxData();
-
-        // 初始化动画状态并播放开箱动效
-        PlayTreasureOpenSequenceAsync().Forget();
+        InitializeTreasureBoxUI();
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -93,7 +119,46 @@ public partial class TreasureBoxUI : UIFormBase
         ResetSlots();
         SetPlayerInputEnabled(true);
 
+        // 请求锁定鼠标（通过引用计数管理）
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.RequestMouseLock();
+
+        // 重置初始格子数，下次打开时重新计算（如果是其他宝箱）
+        m_InitialSlotCount = -1;
+
         // 容器数据持久保存在 TreasureChestInteractable 中，下次打开时继续使用
+    }
+
+    /// <summary>
+    /// 初始化宝箱UI（确保容器已准备好）
+    /// </summary>
+    private void InitializeTreasureBoxUI()
+    {
+        if (m_Container == null)
+            return;
+
+        // 订阅容器变化事件（仓库模式）
+        m_Container.OnSlotChanged += OnTreasureBoxChanged;
+
+        // 首次打开时计算格子数（必须是6的倍数），后续保持不变
+        if (m_InitialSlotCount < 0)
+        {
+            m_InitialSlotCount = CalculateSlotCount();
+            DebugEx.Log("TreasureBoxUI", $"[InitializeTreasureBoxUI] 首次打开，确定格子数={m_InitialSlotCount}");
+        }
+
+        BuildSlots(m_InitialSlotCount);
+
+        // 输出宝箱当前数据
+        OutputTreasureBoxData();
+
+        RefreshSlots();
+
+        // 初始化动画状态并播放开箱动效
+        PlayTreasureOpenSequenceAsync().Forget();
+
+        DebugEx.Log("TreasureBoxUI", "[InitializeTreasureBoxUI] 宝箱UI初始化完成");
     }
 
     protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
@@ -142,14 +207,11 @@ public partial class TreasureBoxUI : UIFormBase
 
     /// <summary>
     /// 播放开箱动效：物品逐个缩放+淡入显示
+    /// 动效播放到一半时解锁交互，允许用户尽早操作格子
     /// </summary>
     private async UniTask PlayTreasureOpenAnimationAsync()
     {
         m_IsAnimating = true;
-
-        // 动效播放中禁用按钮交互
-        if (varCloseBtn != null) varCloseBtn.interactable = false;
-        if (varTakeAllBtn != null) varTakeAllBtn.interactable = false;
 
         for (int i = 0; i < m_Slots.Count; i++)
         {
@@ -161,15 +223,15 @@ public partial class TreasureBoxUI : UIFormBase
             PlaySlotAnimationAsync(m_Slots[i]).Forget();
         }
 
-        // 等待最后一个格子动画完成
-        await UniTask.Delay((int)((m_Slots.Count - 1) * SLOT_ANIMATION_DELAY * 1000 + SLOT_ANIMATION_DURATION * 1000),
-                            cancellationToken: this.GetCancellationTokenOnDestroy());
-
+        // 所有格子动画启动完成后，立即恢复按钮交互（允许用户尽早操作）
         m_IsAnimating = false;
 
-        // 动效完成后恢复按钮交互
         if (varCloseBtn != null) varCloseBtn.interactable = true;
         if (varTakeAllBtn != null) varTakeAllBtn.interactable = true;
+
+        // 继续等待动效完全播放完成（按钮已可用，但格子还在动画中）
+        float totalAnimationTime = (m_Slots.Count - 1) * SLOT_ANIMATION_DELAY + SLOT_ANIMATION_DURATION;
+        await UniTask.Delay((int)(totalAnimationTime * 1000), cancellationToken: this.GetCancellationTokenOnDestroy());
 
         DebugEx.Log("TreasureBoxUI", "开箱动效播放完成");
     }
@@ -222,7 +284,7 @@ public partial class TreasureBoxUI : UIFormBase
             return;
         }
 
-        // 复用已有格子
+        // 创建新格子
         for (int i = m_Slots.Count; i < count; i++)
         {
             var go = Instantiate(varInventorySlotUI, varContent.transform);
@@ -244,7 +306,14 @@ public partial class TreasureBoxUI : UIFormBase
             m_Slots.Add(slotUI);
         }
 
-        // 只隐藏超出数量的格子
+        // 激活需要显示的格子（包括已存在但被禁用的格子）
+        for (int i = 0; i < count; i++)
+        {
+            if (i < m_Slots.Count && !m_Slots[i].gameObject.activeSelf)
+                m_Slots[i].gameObject.SetActive(true);
+        }
+
+        // 隐藏超出数量的格子
         for (int i = count; i < m_Slots.Count; i++)
             m_Slots[i].gameObject.SetActive(false);
 
@@ -275,8 +344,42 @@ public partial class TreasureBoxUI : UIFormBase
 
     /// <summary>
     /// 宝箱内容变化回调（仓库模式）
+    /// 格子数始终保持初始值不变，只刷新显示内容
     /// </summary>
-    private void OnTreasureBoxChanged() => RefreshSlots();
+    private void OnTreasureBoxChanged()
+    {
+        // 格子数保持不变，只刷新内容显示
+        RefreshSlots();
+        DebugEx.Log("TreasureBoxUI", $"[OnTreasureBoxChanged] 刷新格子显示");
+    }
+
+    /// <summary>
+    /// 计算宝箱应该显示的格子数（必须是6的倍数）
+    /// </summary>
+    private int CalculateSlotCount()
+    {
+        if (m_Container == null)
+            return SLOTS_PER_ROW;
+
+        // 找到最后一个有物品的格子
+        int maxSlotIndex = -1;
+        for (int i = 0; i < 50; i++)
+        {
+            var slot = m_Container.GetSlot(i);
+            if (slot != null && !slot.IsEmpty)
+                maxSlotIndex = i;
+        }
+
+        // 如果没有物品，至少显示1行（6个格子）
+        if (maxSlotIndex < 0)
+            return SLOTS_PER_ROW;
+
+        // 计算需要多少行来容纳所有物品
+        int requiredCount = maxSlotIndex + 1;
+        // 向上对齐到6的倍数
+        int rows = (requiredCount + SLOTS_PER_ROW - 1) / SLOTS_PER_ROW;
+        return rows * SLOTS_PER_ROW;
+    }
 
     /// <summary>
     /// 输出宝箱当前所有数据
