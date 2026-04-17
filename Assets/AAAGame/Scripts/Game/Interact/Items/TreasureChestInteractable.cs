@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// 宝箱类可交互对象
 /// 支持 Locked/Opened 两种状态
 /// 首次交互时播放开箱动画，后续交互跳过动画直接打开宝箱界面
+/// 根据配置表生成随机物品列表
 /// </summary>
 [RequireComponent(typeof(OutlineController))]
 public class TreasureChestInteractable : InteractableBase
@@ -18,33 +20,31 @@ public class TreasureChestInteractable : InteractableBase
 
     [Header("宝箱配置")]
     [SerializeField]
+    [Tooltip("宝箱 ID（用于从配置表读取数据）")]
+    private int m_TreasureBoxId = 1;
+
+    [SerializeField]
+    [Tooltip("宝箱等级（决定开出物品数量概率，1-100）")]
+    private int m_ChestLevel = 50;
+
+    [SerializeField]
     [Tooltip("Animator Trigger 名称，用于触发开箱动画")]
     private string openAnimTrigger = "Open";
 
     [SerializeField]
-    [Tooltip("宝箱标题")]
-    private string chestTitle = "宝箱";
-
-    [SerializeField]
-    [Tooltip("宝箱中的物品 ID 列表")]
-    private int[] m_ItemIds = System.Array.Empty<int>();
-
-    [SerializeField]
-    [Tooltip("宝箱中每个物品的数量（与 ItemIds 一一对应）")]
-    private int[] m_ItemCounts = System.Array.Empty<int>();
-
-    [SerializeField]
     [Tooltip("显示交互提示时的描边颜色")]
-    private Color outlineColor = new Color(1f, 0.85f, 0f); // OutlineController.SelectionColor
+    private Color outlineColor = new Color(1f, 0.85f, 0f);
 
     [SerializeField]
     [Tooltip("显示交互提示时的描边宽度")]
-    private float outlineSize = 1f; // OutlineController.DefaultSize
+    private float outlineSize = 1f;
 
     private ChestState m_State = ChestState.Locked;
     private Animator m_Animator;
     private OutlineController m_OutlineController;
     private bool m_IsAnimating;
+    private TreasureBoxSlotContainerImpl m_Container;  // 宝箱容器（内部存储物品列表）
+    private bool m_HasInitialized = false;
 
     public override string InteractionTip
     {
@@ -71,6 +71,10 @@ public class TreasureChestInteractable : InteractableBase
         base.Awake();
         m_Animator = GetComponent<Animator>();
         m_OutlineController = GetComponent<OutlineController>();
+
+        // 为这个宝箱创建独立的容器，用于存储物品列表
+        m_Container = gameObject.AddComponent<TreasureBoxSlotContainerImpl>();
+        DebugEx.Log("TreasureChest", $"宝箱 [{m_TreasureBoxId}] 容器已创建");
     }
 
     /// <summary>成为/取消交互目标时控制描边</summary>
@@ -133,24 +137,124 @@ public class TreasureChestInteractable : InteractableBase
         );
     }
 
-    /// <summary>打开宝箱界面</summary>
+    /// <summary>打开宝箱界面 - 首次打开时生成物品，后续直接打开 UI</summary>
     private void OpenChestUI()
     {
-        var items = new System.Collections.Generic.List<ItemStack>();
-        var itemManager = ItemManager.Instance;
-
-        int count = Mathf.Min(m_ItemIds.Length, m_ItemCounts.Length);
-        for (int i = 0; i < count; i++)
+        // 首次打开时初始化容器内的物品
+        if (!m_HasInitialized)
         {
-            var item = itemManager?.CreateItem(m_ItemIds[i]);
-            if (item != null)
-                items.Add(new ItemStack(item, m_ItemCounts[i]));
+            var initialItems = GenerateTreasureItems();
+            if (initialItems == null)
+                return;  // 生成失败
+
+            m_Container.Initialize(initialItems);
+            m_HasInitialized = true;
         }
 
-        var data = new TreasureBoxUIData(items, chestTitle);
+        // 读取宝箱配置获取名称
+        var treasureBoxTable = GF.DataTable.GetDataTable<TreasureBoxTable>();
+        if (treasureBoxTable == null)
+        {
+            DebugEx.Error("TreasureChest", "TreasureBoxTable 未加载");
+            return;
+        }
+
+        var treasureBoxRow = treasureBoxTable.GetDataRow(m_TreasureBoxId);
+        if (treasureBoxRow == null)
+        {
+            DebugEx.Error("TreasureChest", $"宝箱 ID {m_TreasureBoxId} 不存在");
+            return;
+        }
+
+        // 打开宝箱 UI（传递容器引用，UI 将直接从容器读取数据）
         var uiParams = UIParams.Create();
-        uiParams.Set("TreasureBoxData", data);
+        uiParams.Set("TreasureBoxContainer", m_Container);
+        uiParams.Set("TreasureBoxName", treasureBoxRow.Name);
         GF.UI.OpenUIForm(UIViews.TreasureBoxUI, uiParams);
-        DebugEx.LogModule("TreasureChest", $"打开宝箱界面 [State={m_State}] 物品数={items.Count}");
+
+        DebugEx.LogModule("TreasureChest",
+            $"打开宝箱 [{m_TreasureBoxId}] {treasureBoxRow.Name} 稀有度={treasureBoxRow.Rarity}");
+    }
+
+    /// <summary>生成宝箱物品列表（只在第一次调用，后续由缓存复用）</summary>
+    private List<ItemStack> GenerateTreasureItems()
+    {
+        var items = new List<ItemStack>();
+        var itemManager = ItemManager.Instance;
+
+        // 从 TreasureBoxTable 读取宝箱配置
+        var treasureBoxTable = GF.DataTable.GetDataTable<TreasureBoxTable>();
+        if (treasureBoxTable == null)
+        {
+            DebugEx.Error("TreasureChest", "TreasureBoxTable 未加载");
+            return null;
+        }
+
+        var treasureBoxRow = treasureBoxTable.GetDataRow(m_TreasureBoxId);
+        if (treasureBoxRow == null)
+        {
+            DebugEx.Error("TreasureChest", $"宝箱 ID {m_TreasureBoxId} 不存在");
+            return null;
+        }
+
+        // 从 ItemGroupTable 读取物品列表
+        var itemGroupTable = GF.DataTable.GetDataTable<ItemGroupTable>();
+        if (itemGroupTable == null)
+        {
+            DebugEx.Error("TreasureChest", "ItemGroupTable 未加载");
+            return null;
+        }
+
+        var itemGroupRow = itemGroupTable.GetDataRow(treasureBoxRow.ItemGroupId);
+        if (itemGroupRow == null)
+        {
+            DebugEx.Error("TreasureChest", $"物品组 ID {treasureBoxRow.ItemGroupId} 不存在");
+            return null;
+        }
+
+        // 获取物品 ID 数组
+        var itemIds = itemGroupRow.ItemIds;
+        if (itemIds == null || itemIds.Length == 0)
+        {
+            DebugEx.Warning("TreasureChest", $"物品组 {treasureBoxRow.ItemGroupId} 为空");
+            return items;  // 返回空列表
+        }
+
+        // 根据宝箱等级计算开出物品数量
+        int itemCount = CalculateItemCount(treasureBoxRow.ItemCountMin, treasureBoxRow.ItemCountMax, m_ChestLevel);
+
+        // 随机从物品列表中选择物品
+        for (int i = 0; i < itemCount; i++)
+        {
+            int randomIndex = Random.Range(0, itemIds.Length);
+            int itemId = itemIds[randomIndex];
+
+            var item = itemManager?.CreateItem(itemId);
+            if (item != null)
+                items.Add(new ItemStack(item, 1));
+        }
+
+        return items;
+    }
+
+    /// <summary>
+    /// 根据宝箱等级计算开出物品数量
+    /// 等级越高，开出最大值的概率越大
+    /// 等级=100时，开出最大值概率为0.9
+    /// 等级=1时，开出最大值概率为0.1
+    /// </summary>
+    private int CalculateItemCount(int minCount, int maxCount, int level)
+    {
+        // 钳制等级到 1-100
+        level = Mathf.Clamp(level, 1, 100);
+
+        // 计算开出最大值的概率（从 0.1 到 0.9）
+        float maxProbability = 0.1f + (level - 1) * 0.8f / 99f;
+
+        // 随机决定是否开出最大值
+        if (Random.value < maxProbability)
+            return maxCount;
+        else
+            return Random.Range(minCount, maxCount);
     }
 }
