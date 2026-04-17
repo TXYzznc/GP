@@ -24,6 +24,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
     {
         return otherContainerType == SlotContainerType.Inventory ||
                otherContainerType == SlotContainerType.Warehouse ||
+               otherContainerType == SlotContainerType.TreasureBox ||
                otherContainerType == SlotContainerType.FastBar;
     }
 
@@ -48,6 +49,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
         {
             InventorySlotContainerImpl inv => MoveToInventory(inv, fromSlotIndex, targetSlotIndex),
             WarehouseSlotContainerImpl wh => MoveToWarehouse(wh, itemId, count, targetSlotIndex),
+            TreasureBoxSlotContainerImpl tb => MoveToTreasureBox(tb, itemId, count),
             FastBarSlotContainerImpl fb => MoveToFastBar(fb, fromSlot, targetSlotIndex),
             _ => false
         };
@@ -78,6 +80,13 @@ public class InventorySlotContainerImpl : SlotContainerBase
         var wh = WarehouseManager.Instance;
         bool ok = wh != null && wh.StoreItemToSlot(itemId, count, targetSlotIndex, 0);
         DebugEx.Log("InventorySlotContainer", $"[背包→仓库] StoreItemToSlot {ok}");
+        return ok;
+    }
+
+    private bool MoveToTreasureBox(TreasureBoxSlotContainerImpl targetTb, int itemId, int count)
+    {
+        bool ok = targetTb != null && targetTb.ReceiveItemFromInventory(itemId, count);
+        DebugEx.Log("InventorySlotContainer", $"[背包→宝箱] ReceiveItemFromInventory {ok}");
         return ok;
     }
 

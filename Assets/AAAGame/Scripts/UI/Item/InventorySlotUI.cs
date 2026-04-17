@@ -183,8 +183,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     }
 
     /// <summary>
-    /// 处理右键点击（显示上下文菜单）
-    /// 由 InventoryClickHandler 分发调用
+    /// 处理右键点击
+    /// 宝箱格子：直接将物品移入背包（快捷键）
+    /// 其他容器：显示上下文菜单
     /// </summary>
     public void OnRightClick(Vector2 mousePosition)
     {
@@ -202,7 +203,32 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        DebugEx.Log("InventorySlotUI", $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 位置={mousePosition}");
+        DebugEx.Log("InventorySlotUI", $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}");
+
+        // 宝箱格子：右键 = 快捷转移到背包
+        if (ContainerType == SlotContainerType.TreasureBox)
+        {
+            var treasureContainer = SlotContainer as TreasureBoxSlotContainerImpl;
+            if (treasureContainer != null)
+            {
+                var slot = treasureContainer.GetSlot(SlotIndex);
+                if (slot != null && !slot.IsEmpty)
+                {
+                    bool ok = InventoryManager.Instance?.AddItem(slot.ItemId, slot.Count) ?? false;
+                    if (ok)
+                    {
+                        treasureContainer.RemoveItem(SlotIndex, slot.Count);
+                        // RemoveItem 触发 OnSlotChanged 事件，TreasureBoxUI 会自动刷新
+                        DebugEx.Log("InventorySlotUI", $"[OnRightClick] 宝箱物品快捷移入背包: {itemStack.Item.Name}");
+                    }
+                    else
+                    {
+                        DebugEx.Warning("InventorySlotUI", "[OnRightClick] 背包已满，无法移入");
+                    }
+                }
+            }
+            return;
+        }
 
         ShowContextMenu(itemStack, SlotIndex, mousePosition, GetComponent<RectTransform>());
     }
