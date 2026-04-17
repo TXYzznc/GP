@@ -18,6 +18,10 @@ public partial class OverworldUI : UIFormBase
         {
             varCloseBtn.onClick.AddListener(OnCloseButtonClicked);
         }
+
+        // 打开地图时解锁鼠标
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -28,6 +32,10 @@ public partial class OverworldUI : UIFormBase
         {
             varCloseBtn.onClick.RemoveListener(OnCloseButtonClicked);
         }
+
+        // 关闭地图时锁定鼠标
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     /// <summary>
