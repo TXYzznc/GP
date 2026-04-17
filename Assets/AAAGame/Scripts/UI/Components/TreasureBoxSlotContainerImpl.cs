@@ -1,40 +1,76 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
-/// 宝箱格子容器实现
-/// 规则：宝箱 → 背包（单向）
-/// 物品数据存储在内存中，不持久化
+/// 宝箱格子容器实现 - 每个宝箱实例有独立的物品存储
+/// 规则：宝箱 ↔ 背包（双向）
+/// 支持拖拽、右键快捷转移、全部拿走等操作
+/// 数据持久化在容器内部，直到宝箱对象被销毁
 /// </summary>
 public class TreasureBoxSlotContainerImpl : SlotContainerBase
 {
-    private readonly List<InventorySlot> m_Slots = new();
+    /// <summary>宝箱格子容量</summary>
+    private const int TREASURE_BOX_CAPACITY = 50;
+
+    /// <summary>格子更新事件（宝箱内容变化时触发，用于通知UI刷新）</summary>
+    public event Action OnSlotChanged;
+
+    /// <summary>内部物品列表（格子索引 → InventoryItem）</summary>
+    private readonly List<InventoryItem> m_TreasureItems = new();
 
     public override SlotContainerType ContainerType => SlotContainerType.TreasureBox;
 
     /// <summary>
-    /// 初始化格子数据（每次打开宝箱时调用）
+    /// 用初始物品列表初始化宝箱（只在宝箱首次打开时调用）
     /// </summary>
-    public void SetItems(List<ItemStack> items)
+    public void Initialize(List<ItemStack> initialItems)
     {
-        m_Slots.Clear();
-        for (int i = 0; i < items.Count; i++)
+        if (m_TreasureItems.Count > 0)
+            return;  // 已初始化，不重复初始化
+
+        m_TreasureItems.Clear();
+
+        if (initialItems == null || initialItems.Count == 0)
         {
-            var slot = new InventorySlot(i);
-            if (items[i] != null && !items[i].IsEmpty)
-                slot.SetItemStack(items[i]);
-            m_Slots.Add(slot);
+            DebugEx.Log("TreasureBoxContainer", "宝箱初始化为空");
+            OnSlotChanged?.Invoke();
+            return;
         }
+
+        for (int i = 0; i < initialItems.Count && i < TREASURE_BOX_CAPACITY; i++)
+        {
+            var itemStack = initialItems[i];
+            if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
+            {
+                var item = new InventoryItem(itemStack.Item.ItemId, itemStack.Count, 0, i);
+                m_TreasureItems.Add(item);
+            }
+        }
+
+        DebugEx.Log("TreasureBoxContainer", $"宝箱初始化完成，物品数={m_TreasureItems.Count}");
+        OnSlotChanged?.Invoke();
     }
 
     public override InventorySlot GetSlot(int slotIndex)
     {
-        if (slotIndex < 0 || slotIndex >= m_Slots.Count)
-            return null;
-        return m_Slots[slotIndex];
+        var slot = new InventorySlot(slotIndex);
+        var item = GetItemBySlot(slotIndex);
+
+        if (item != null && item.Count > 0)
+        {
+            var itemObj = ItemManager.Instance?.CreateItem(item.ItemId);
+            if (itemObj != null)
+            {
+                slot.SetItem(itemObj, item.Count);
+            }
+        }
+
+        return slot;
     }
 
     /// <summary>
-    /// 宝箱只允许与背包交互（物品只能放入背包）
+    /// 宝箱允许与背包交互（双向拖拽）
     /// </summary>
     public override bool CanInteractWith(SlotContainerType otherContainerType)
     {
@@ -43,42 +79,197 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
 
     protected override bool ExecuteMove(int fromSlotIndex, ISlotContainer targetContainer, int targetSlotIndex)
     {
-        var fromSlot = GetSlot(fromSlotIndex);
-        if (fromSlot == null || fromSlot.IsEmpty)
+        var fromItem = GetItemBySlot(fromSlotIndex);
+        if (fromItem == null || fromItem.Count <= 0)
             return false;
 
-        int itemId = fromSlot.ItemId;
-        int count = fromSlot.Count;
+        var itemId = fromItem.ItemId;
+        var count = fromItem.Count;
 
-        bool ok = InventoryManager.Instance?.AddItem(itemId, count) ?? false;
-        if (ok)
+        // 检查目标格子是否为空
+        var targetSlot = targetContainer.GetSlot(targetSlotIndex);
+        bool targetIsEmpty = targetSlot == null || targetSlot.IsEmpty;
+
+        string targetStatus = targetIsEmpty ? "为空" : "非空";
+        DebugEx.Log("TreasureBoxContainer",
+            $"[宝箱→{targetContainer.ContainerType}] {fromSlotIndex} → {targetSlotIndex} (目标{targetStatus})");
+
+        bool success = targetContainer switch
         {
-            fromSlot.Clear();
-            DebugEx.Log("TreasureBoxContainer", $"[宝箱→背包] 物品 {itemId} x{count} 已放入背包");
+            InventorySlotContainerImpl inv => MoveToInventory(inv, itemId, count, targetSlotIndex),
+            _ => false
+        };
+
+        // 清空源格子：目标为空 OR 目标是同种物品（堆叠）
+        if (success && (targetIsEmpty || targetSlot.ItemId == itemId))
+        {
+            RemoveItem(fromSlotIndex, count);
+        }
+
+        return success;
+    }
+
+    private bool MoveToInventory(InventorySlotContainerImpl _, int itemId, int count, int targetSlotIndex)
+    {
+        var inv = InventoryManager.Instance;
+        var targetSlot = inv?.GetSlot(targetSlotIndex);
+
+        if (targetSlot == null)
+            return false;
+
+        if (targetSlot.IsEmpty)
+        {
+            var item = ItemManager.Instance?.CreateItem(itemId);
+            if (item == null)
+                return false;
+
+            targetSlot.SetItem(item, count);
+            return true;
+        }
+        else if (targetSlot.ItemId == itemId && targetSlot.ItemStack?.Item?.MaxStackCount > 1)
+        {
+            targetSlot.AddItem(count);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 从背包拖拽物品到宝箱（背包格子调用）
+    /// </summary>
+    public bool ReceiveItemFromInventory(int itemId, int count)
+    {
+        // 查找宝箱中是否已有相同物品
+        var existingItem = GetItemById(itemId);
+        var itemData = ItemManager.Instance?.GetItemData(itemId);
+
+        if (existingItem != null && itemData != null && itemData.MaxStackCount > 1)
+        {
+            // 堆叠到现有物品
+            int addCount = Mathf.Min(count, itemData.MaxStackCount - existingItem.Count);
+            int oldCount = existingItem.Count;
+            existingItem.Count += addCount;
+
+            DebugEx.Log("TreasureBoxContainer",
+                $"物品堆叠: ID={itemId}, 数量 {oldCount} -> {existingItem.Count}");
+
+            OnSlotChanged?.Invoke();
+
+            // 如果还有剩余物品，存入新格子
+            int remainCount = count - addCount;
+            if (remainCount > 0)
+            {
+                return StoreItem(itemId, remainCount);
+            }
+
+            return true;
+        }
+
+        // 存入新物品
+        return StoreItem(itemId, count);
+    }
+
+    /// <summary>
+    /// 存入物品到宝箱
+    /// </summary>
+    private bool StoreItem(int itemId, int count)
+    {
+        if (m_TreasureItems.Count >= TREASURE_BOX_CAPACITY)
+        {
+            DebugEx.Warning("TreasureBoxContainer", "宝箱已满");
+            return false;
+        }
+
+        int slotIndex = FindAvailableSlot();
+        if (slotIndex < 0)
+            return false;
+
+        var item = new InventoryItem(itemId, count, 0, slotIndex);
+        m_TreasureItems.Add(item);
+
+        DebugEx.Log("TreasureBoxContainer", $"物品存入: ID={itemId}, 数量={count}, 格子={slotIndex}");
+        OnSlotChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// 移除物品（拖拽操作使用）
+    /// </summary>
+    public bool RemoveItem(int slotIndex, int count)
+    {
+        var item = GetItemBySlot(slotIndex);
+        if (item == null || item.Count <= 0)
+            return false;
+
+        item.Count -= count;
+        if (item.Count <= 0)
+        {
+            m_TreasureItems.Remove(item);
+            DebugEx.Log("TreasureBoxContainer", $"[RemoveItem] 物品已完全移除: 格子={slotIndex}");
         }
         else
         {
-            DebugEx.Warning("TreasureBoxContainer", $"[宝箱→背包] 背包已满，无法放入物品 {itemId}");
+            DebugEx.Log("TreasureBoxContainer", $"[RemoveItem] 物品部分移除: 格子={slotIndex}, 剩余数量={item.Count}");
         }
 
-        return ok;
+        OnSlotChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// 获取指定格子的物品
+    /// </summary>
+    private InventoryItem GetItemBySlot(int slotIndex)
+    {
+        foreach (var item in m_TreasureItems)
+        {
+            if (item.SlotIndex == slotIndex)
+                return item;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 获取指定物品ID的物品
+    /// </summary>
+    private InventoryItem GetItemById(int itemId)
+    {
+        foreach (var item in m_TreasureItems)
+        {
+            if (item.ItemId == itemId)
+                return item;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 查找可用格子索引
+    /// </summary>
+    private int FindAvailableSlot()
+    {
+        for (int i = 0; i < TREASURE_BOX_CAPACITY; i++)
+        {
+            if (GetItemBySlot(i) == null)
+                return i;
+        }
+        return -1;
     }
 
     /// <summary>
     /// 将所有物品放入背包（全部拿走按钮用）
-    /// 返回成功放入的数量
     /// </summary>
     public int TakeAll()
     {
         int successCount = 0;
-        foreach (var slot in m_Slots)
-        {
-            if (slot.IsEmpty) continue;
+        var itemsToTake = new List<InventoryItem>(m_TreasureItems);  // 复制列表，避免遍历时修改
 
-            bool ok = InventoryManager.Instance?.AddItem(slot.ItemId, slot.Count) ?? false;
+        foreach (var item in itemsToTake)
+        {
+            bool ok = InventoryManager.Instance?.AddItem(item.ItemId, item.Count) ?? false;
             if (ok)
             {
-                slot.Clear();
+                m_TreasureItems.Remove(item);
                 successCount++;
             }
             else
@@ -89,14 +280,15 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         }
 
         DebugEx.Log("TreasureBoxContainer", $"全部拿走: 成功 {successCount} 件");
+        OnSlotChanged?.Invoke();
         return successCount;
     }
 
-    /// <summary>宝箱是否已清空</summary>
+    /// <summary>
+    /// 宝箱是否已清空
+    /// </summary>
     public bool IsEmpty()
     {
-        foreach (var slot in m_Slots)
-            if (!slot.IsEmpty) return false;
-        return true;
+        return m_TreasureItems.Count == 0;
     }
 }
