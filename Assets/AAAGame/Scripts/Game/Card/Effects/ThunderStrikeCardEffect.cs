@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 雷霆一击 (ID=1010)
+/// ⚠️ [可删除] 雷霆一击 (ID=1010)
 /// 召唤闪电对单个敌人造成真实伤害
+///
+/// 该脚本已被通用框架替代（ClosestEnemySelector + DamageApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class ThunderStrikeCardEffect : ICardEffect
 {

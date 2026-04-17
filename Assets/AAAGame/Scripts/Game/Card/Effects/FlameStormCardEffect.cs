@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 烈焰风暴 (ID=1002)
+/// ⚠️ [可删除] 烈焰风暴 (ID=1002)
 /// 对敌方全体造成魔法伤害，命中时附加灼烧
+///
+/// 该脚本已被通用框架替代（AllEnemiesSelector + DamageApplier + BuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class FlameStormCardEffect : ICardEffect
 {

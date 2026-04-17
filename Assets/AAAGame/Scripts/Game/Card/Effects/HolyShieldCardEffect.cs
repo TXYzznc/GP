@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 神圣庇护 (ID=1001)
+/// ⚠️ [可删除] 神圣庇护 (ID=1001)
 /// 为所有友方单位提供护盾，吸收伤害
+///
+/// 该脚本已被通用框架替代（AllAlliesSelector + InstantBuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class HolyShieldCardEffect : ICardEffect
 {

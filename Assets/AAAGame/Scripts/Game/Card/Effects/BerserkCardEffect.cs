@@ -1,9 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// 狂暴 (ID=1008)
+/// ⚠️ [可删除] 狂暴 (ID=1008)
 /// 使自身进入狂暴状态，大幅提升攻击力但降低防御
 /// TargetType=1（自身），对释放位置最近的友方施加 Buff
+///
+/// 该脚本已被通用框架替代（ClosestAllySelector + InstantBuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class BerserkCardEffect : ICardEffect
 {

@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 冰霜新星 (ID=1007)
+/// ⚠️ [可删除] 冰霜新星 (ID=1007)
 /// 冰冻范围内所有敌人
+///
+/// 该脚本已被通用框架替代（EnemiesInRadiusSelector + BuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class FrostNovaCardEffect : ICardEffect
 {

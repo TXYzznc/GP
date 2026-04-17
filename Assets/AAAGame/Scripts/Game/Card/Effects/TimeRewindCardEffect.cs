@@ -2,7 +2,9 @@ using UnityEngine;
 
 /// <summary>
 /// 时间回溯 (ID=1003)
-/// 恢复一个友方单位的生命值
+/// 【占位实现】当前使用治疗逻辑，后续会实现真正的效果
+///
+/// 注：实际效果不是简单治疗，不能用通用框架替代
 /// </summary>
 public class TimeRewindCardEffect : ICardEffect
 {

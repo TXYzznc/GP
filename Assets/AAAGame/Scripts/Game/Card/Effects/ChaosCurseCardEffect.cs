@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 混乱诅咒 (ID=1011)
+/// ⚠️ [可删除] 混乱诅咒 (ID=1011)
 /// 使敌方全体陷入混乱，有概率攻击队友
+///
+/// 该脚本已被通用框架替代（AllEnemiesSelector + BuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class ChaosCurseCardEffect : ICardEffect
 {

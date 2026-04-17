@@ -1,9 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// 暗影突袭 (ID=1005)
+/// ⚠️ [可删除] 暗影突袭 (ID=1005)
 /// 对单个敌人造成高额物理伤害并眩晕
 /// 伤害公式：BaseDamage + DamageCoeff × 施法者攻击力
+///
+/// 该脚本已被通用框架替代（ClosestEnemySelector + DamageWithCoefficientApplier + BuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class ShadowAssaultCardEffect : ICardEffect
 {

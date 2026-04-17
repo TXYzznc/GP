@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 群体治疗 (ID=1009)
+/// ⚠️ [可删除] 群体治疗 (ID=1009)
 /// 恢复所有友方单位的生命值
+///
+/// 该脚本已被通用框架替代（AllAlliesSelector + HealApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class GroupHealCardEffect : ICardEffect
 {

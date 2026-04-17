@@ -1,8 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 战争号角 (ID=1004)
+/// ⚠️ [可删除] 战争号角 (ID=1004)
 /// 提升全体友方攻击力和移动速度
+///
+/// 该脚本已被通用框架替代（AllAlliesSelector + InstantBuffApplier）
+/// 请删除该文件，由 CardEffectExecutor 自动使用框架处理
 /// </summary>
 public class WarCryCardEffect : ICardEffect
 {
