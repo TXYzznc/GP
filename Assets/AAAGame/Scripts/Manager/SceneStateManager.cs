@@ -187,33 +187,33 @@ public class SceneStateManager : SingletonBase<SceneStateManager>
         {
             Log.Info($"SceneStateManager: 不满足场景 {sceneRow.SceneName} 的进入条件");
             Log.Info($"  条件类型: {sceneRow.GetConditionTypeEnum()}");
-            Log.Info($"  条件参数: {sceneRow.ConditionParam}");
+            string paramStr = sceneRow.ConditionParam != null ? string.Join(",", sceneRow.ConditionParam) : "";
+            Log.Info($"  条件参数: [{paramStr}]");
         }
 
         // 如果是自定义条件，需要额外检查
         if (sceneRow.GetConditionTypeEnum() == SceneConditionType.Custom)
         {
-            string customCheckName = sceneRow.ConditionParam;
-            return CheckCustomCondition(customCheckName, saveData);
+            int customCheckId = sceneRow.GetConditionParamAsInt();
+            return CheckCustomCondition(customCheckId, saveData);
         }
 
         return canEnter;
     }
 
     /// <summary>
-    /// 检查自定义条件
+    /// 检查自定义条件（通过ID匹配，可扩展为检查特定逻辑）
     /// </summary>
-    private bool CheckCustomCondition(string conditionName, PlayerSaveData saveData)
+    private bool CheckCustomCondition(int customCheckId, PlayerSaveData saveData)
     {
-        // 这里可以根据条件名称调用不同的检查函数
-        switch (conditionName)
+        // 这里可以根据 customCheckId 调用不同的检查逻辑
+        switch (customCheckId)
         {
-            case "HasCompletedMainStory":
-                // 检查是否完成主线剧情
+            case 1:  // 检查是否完成主线剧情
                 return saveData.CompletedQuestIds.Contains(9999);
 
             default:
-                Log.Warning($"SceneStateManager: 未知自定义条件 {conditionName}");
+                Log.Warning($"SceneStateManager: 未知自定义条件 ID {customCheckId}");
                 return false;
         }
     }
