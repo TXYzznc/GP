@@ -152,6 +152,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillsSO\FireBallParamSO.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\WebRequestResult.cs" />
     <Compile Include="Assets\AAAGame\Scripts\HotfixEntry.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\TargetSelectors.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\LanguagesTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\OutOfGameLeaveEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSM\ChessAIState.cs" />
@@ -210,6 +211,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\LevelTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardEffectHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiSkill1.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\EffectAppliers.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\ItemData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\CardTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PresetItems\ChessPresetItem.cs" />
@@ -263,6 +265,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\AI\EnemyInfoCache.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardEffectExecutor.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\TypeIdPair.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\SlotContainer\SlotContainer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Test\CombatTestBootstrapper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PosTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\NewGameUI.cs" />
@@ -299,6 +302,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CloudInfoItems\ItemsInfoItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\ItemBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\PlayerCharacterManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\ICardTargetSelector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\DetailInfoUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\BattleChessManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\TestInteractable.cs" />
@@ -405,6 +409,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Manager\PlayerAccountDataManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\InteractionDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillsSO\HealParamSO.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\GenericCardEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\PlayerSkillContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Common\Const.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IPlayerSkill.cs" />
@@ -437,6 +442,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CloudArchiveUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\MapItemUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestExample.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\ICardEffectApplier.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PlayerSkillSlot.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\LayerHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\ItemEnums.cs" />
@@ -462,7 +468,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\BleedBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ItemTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CombatUI.Variables.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\SlotContainer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\Interface\IChessAI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ChessWeaponCollider.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ChessProjectile.cs" />
