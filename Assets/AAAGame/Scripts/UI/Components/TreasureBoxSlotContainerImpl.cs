@@ -146,10 +146,11 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
     /// </summary>
     private void RefreshInventoryUIIfOpen()
     {
-        var inventoryUI = GF.UI.GetUIForm(UIViews.InventoryUI);
-        if (inventoryUI != null && inventoryUI is InventoryUI invUI)
+        // 通过查找场景中的InventoryUI来刷新（如果打开的话）
+        var inventoryUI = UnityEngine.Object.FindObjectOfType<InventoryUI>();
+        if (inventoryUI != null)
         {
-            invUI.RefreshAll();
+            inventoryUI.RefreshAll();
             DebugEx.Log("TreasureBoxContainer", "[MoveToInventory] 已刷新背包UI");
         }
     }
