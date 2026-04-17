@@ -23,6 +23,7 @@ MonoBehaviour:
   - EnemyEntityTable
   - EnemyTable
   - EscapeRuleTable
+  - ItemGroupTable
   - ItemTable
   - LanguageTextTable
   - LevelTable
@@ -40,6 +41,7 @@ MonoBehaviour:
   - SummonerSkillTable
   - SummonerTable
   - SynergyTable
+  - TreasureBoxTable
   - Core/EntityGroupTable
   - Core/LanguagesTable
   - Core/SoundGroupTable

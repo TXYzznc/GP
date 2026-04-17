@@ -94,6 +94,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\InGameState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\EntityExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\MapItemSceneIdHolder.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\CombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\SneakDebuffSelectionUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillFactory.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessAnimator.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\EnemyMask.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffEffectVerifier.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\TeleportGateInteractable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\SceneStateManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyCombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerEvents.cs" />
@@ -160,6 +162,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Manager\DictionaryManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\GF.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\OverworldUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CombatPreparationUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\SummonChessSkillTable.cs" />
@@ -192,6 +195,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\Interface\ISkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestTool.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelStorageBase.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\TreasureBoxTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeSkill1.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IPlayerInputSource.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventoryDragHandler.cs" />
@@ -271,7 +275,9 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PresetItems\CardPresetItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextAnimationLibrary.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventoryClickHandler.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\ItemGroupTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\Core\BuffManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\MapItemUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EscapeRuleTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\InventoryItemUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\MenuState.cs" />
@@ -429,6 +435,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ProjectileHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Framework\SingletonBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CloudArchiveUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\MapItemUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\BuffTest\BuffTestExample.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PlayerSkillSlot.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\LayerHelper.cs" />
@@ -463,6 +470,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\SoundGroupTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatPreparationReadyEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\OverworldUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\WarehouseManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyChaseState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataModel\PlayerDataModel.cs" />
