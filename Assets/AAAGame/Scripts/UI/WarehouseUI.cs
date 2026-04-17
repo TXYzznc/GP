@@ -38,6 +38,10 @@ public partial class WarehouseUI : UIFormBase
 
         BuildSlots();
         RefreshWarehouse();
+
+        // 打开仓库时解锁鼠标
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -48,6 +52,10 @@ public partial class WarehouseUI : UIFormBase
             m_WarehouseManager.OnItemRetrieved -= OnWarehouseChanged;
             m_WarehouseManager.OnCapacityChanged -= OnCapacityChanged;
         }
+
+        // 关闭仓库时锁定鼠标
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
         base.OnClose(isShutdown, userData);
     }

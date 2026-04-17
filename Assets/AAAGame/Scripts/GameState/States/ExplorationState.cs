@@ -206,13 +206,11 @@ public class ExplorationState : FsmState<InGameState>
         {
             GF.UI.CloseUIForm(m_WarehouseFormId);
             m_WarehouseFormId = -1;
-            PlayerInputManager.Instance.SetCursorLock(true);
             DebugEx.LogModule("ExplorationState", "关闭仓库");
         }
         else
         {
             m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
-            PlayerInputManager.Instance.SetCursorLock(false);
             DebugEx.LogModule("ExplorationState", "打开仓库");
         }
     }
@@ -223,13 +221,11 @@ public class ExplorationState : FsmState<InGameState>
         {
             GF.UI.CloseUIForm(m_InventoryFormId);
             m_InventoryFormId = -1;
-            PlayerInputManager.Instance.SetCursorLock(true);
             DebugEx.LogModule("ExplorationState", "关闭背包");
         }
         else
         {
             m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
-            PlayerInputManager.Instance.SetCursorLock(false);
             DebugEx.LogModule("ExplorationState", "打开背包");
         }
     }

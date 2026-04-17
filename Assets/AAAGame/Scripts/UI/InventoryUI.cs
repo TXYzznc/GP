@@ -96,6 +96,10 @@ public partial class InventoryUI : UIFormBase
         BuildPageLabels();
         RefreshAll();
         LockPlayerMovement(true);
+
+        // 打开背包时解锁鼠标
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -120,6 +124,10 @@ public partial class InventoryUI : UIFormBase
         }
 
         LockPlayerMovement(false);
+
+        // 关闭背包时锁定鼠标
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     private void OnFastBarChanged(int _, InventorySlot __) => RefreshAll();
