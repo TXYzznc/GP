@@ -31,40 +31,23 @@ public static class SceneTableExtensions
     }
     
     /// <summary>
-    /// 解析条件参数为整数（用于任务ID、等级、物品ID等）
+    /// 获取条件参数的第一个值（用于等级要求等单值条件）
     /// </summary>
     public static int GetConditionParamAsInt(this SceneTable table)
     {
-        if (table == null || string.IsNullOrEmpty(table.ConditionParam))
+        if (table?.ConditionParam == null || table.ConditionParam.Length == 0)
             return 0;
-            
-        if (int.TryParse(table.ConditionParam, out int result))
-            return result;
-            
-        return 0;
+        return table.ConditionParam[0];
     }
-    
+
     /// <summary>
-    /// 解析条件参数为整数列表（用于多个任务ID、多个物品ID等）
-    /// 格式：1,2,3,4
+    /// 获取条件参数列表（已是数组，直接转 List）
     /// </summary>
     public static List<int> GetConditionParamAsIntList(this SceneTable table)
     {
-        var result = new List<int>();
-        
-        if (table == null || string.IsNullOrEmpty(table.ConditionParam))
-            return result;
-            
-        string[] parts = table.ConditionParam.Split(',');
-        foreach (var part in parts)
-        {
-            if (int.TryParse(part.Trim(), out int value))
-            {
-                result.Add(value);
-            }
-        }
-        
-        return result;
+        if (table?.ConditionParam == null || table.ConditionParam.Length == 0)
+            return new List<int>();
+        return new List<int>(table.ConditionParam);
     }
     
     /// <summary>
