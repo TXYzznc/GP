@@ -65,12 +65,6 @@ public class ExplorationState : FsmState<InGameState>
         {
             ToggleInventory();
         }
-
-        // G 键开关仓库
-        if (PlayerInputManager.Instance != null && PlayerInputManager.Instance.WarehouseToggleTriggered)
-        {
-            ToggleWarehouse();
-        }
     }
 
     protected override void OnDestroy(IFsm<InGameState> fsm)
@@ -195,10 +189,9 @@ public class ExplorationState : FsmState<InGameState>
 
     #endregion
 
-    #region 背包 / 仓库开关
+    #region 背包开关
 
     private int m_InventoryFormId = -1;
-    private int m_WarehouseFormId = -1;
 
     private void ToggleInventory()
     {
@@ -212,21 +205,6 @@ public class ExplorationState : FsmState<InGameState>
         {
             m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
             DebugEx.LogModule("ExplorationState", "打开背包");
-        }
-    }
-
-    private void ToggleWarehouse()
-    {
-        if (GF.UI.HasUIForm(m_WarehouseFormId))
-        {
-            GF.UI.CloseUIForm(m_WarehouseFormId);
-            m_WarehouseFormId = -1;
-            DebugEx.LogModule("ExplorationState", "关闭仓库");
-        }
-        else
-        {
-            m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
-            DebugEx.LogModule("ExplorationState", "打开仓库");
         }
     }
 

@@ -76,7 +76,7 @@ public partial class SceneTable : DataRowBase
         /// <summary>
         /// 进入条件参数
         /// </summary>
-        public string ConditionParam
+        public int[] ConditionParam
         {
             get;
             private set;
@@ -117,7 +117,7 @@ public partial class SceneTable : DataRowBase
             DisplayName = columnStrings[index++];
             Description = columnStrings[index++];
             ConditionType = int.Parse(columnStrings[index++]);
-            ConditionParam = columnStrings[index++];
+            ConditionParam = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             DefaultSpawnPosId = int.Parse(columnStrings[index++]);
             RecommendLevel = int.Parse(columnStrings[index++]);
 
@@ -136,7 +136,7 @@ public partial class SceneTable : DataRowBase
                     DisplayName = binaryReader.ReadString();
                     Description = binaryReader.ReadString();
                     ConditionType = binaryReader.Read7BitEncodedInt32();
-                    ConditionParam = binaryReader.ReadString();
+                    ConditionParam = binaryReader.ReadArray<int>();
                     DefaultSpawnPosId = binaryReader.Read7BitEncodedInt32();
                     RecommendLevel = binaryReader.Read7BitEncodedInt32();
                 }
