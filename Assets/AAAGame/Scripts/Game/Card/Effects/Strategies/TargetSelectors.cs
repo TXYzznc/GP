@@ -140,3 +140,86 @@ public class EnemiesInRadiusSelector : ICardTargetSelector
         return targets;
     }
 }
+
+/// <summary>
+/// 选择施法者（召唤师）自身
+/// </summary>
+public class SelfSelector : ICardTargetSelector
+{
+    public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
+    {
+        var targets = new List<ChessEntity>();
+
+        var playerCharacterManager = PlayerCharacterManager.Instance;
+        if (playerCharacterManager == null)
+            return targets;
+
+        var playerCharacter = playerCharacterManager.CurrentPlayerCharacter;
+        if (playerCharacter == null)
+            return targets;
+
+        var casterChess = playerCharacter.GetComponent<ChessEntity>();
+        if (casterChess != null)
+            targets.Add(casterChess);
+
+        return targets;
+    }
+}
+
+/// <summary>
+/// 选择全体友方（不含召唤师）
+/// </summary>
+public class AllAllyExcludeSummonerSelector : ICardTargetSelector
+{
+    public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
+    {
+        var targets = new List<ChessEntity>();
+
+        var summonerChess = GetSummonerChess();
+
+        foreach (var chess in allChess)
+        {
+            if (chess != null && chess.Camp == (int)CampType.Player && chess != summonerChess)
+                targets.Add(chess);
+        }
+
+        return targets;
+    }
+
+    private ChessEntity GetSummonerChess()
+    {
+        var playerCharacterManager = PlayerCharacterManager.Instance;
+        if (playerCharacterManager == null)
+            return null;
+
+        var playerCharacter = playerCharacterManager.CurrentPlayerCharacter;
+        if (playerCharacter == null)
+            return null;
+
+        return playerCharacter.GetComponent<ChessEntity>();
+    }
+}
+
+/// <summary>
+/// 选择范围内所有友方
+/// </summary>
+public class AlliesInRadiusSelector : ICardTargetSelector
+{
+    public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
+    {
+        float radius = cardData.AreaRadius;
+        var targets = new List<ChessEntity>();
+
+        foreach (var chess in allChess)
+        {
+            if (chess != null && chess.Camp == (int)CampType.Player)
+            {
+                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (distance <= radius)
+                    targets.Add(chess);
+            }
+        }
+
+        return targets;
+    }
+}

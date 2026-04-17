@@ -64,68 +64,30 @@ public class CardEffectExecutor : MonoBehaviour
         {
             ICardEffect effectInstance = null;
 
-            // 使用新框架的卡牌效果
-            switch (cardData.CardId)
+            // 尝试使用特殊脚本（有复杂逻辑的卡牌）
+            if (m_EffectTypeMap.TryGetValue(cardData.CardId, out var effectType))
             {
-                case 1001: // 神圣庇护
-                    effectInstance = CreateGenericEffect(cardData,
-                        new AllAlliesSelector(), new InstantBuffApplier());
-                    break;
-                case 1002: // 烈焰风暴
-                    effectInstance = CreateGenericEffect(cardData,
-                        new AllEnemiesSelector(), new DamageApplier(), new BuffApplier());
-                    break;
-                // case 1003 已移到 default 分支，使用旧脚本（待实现真正的效果）
-                case 1004: // 战争号角
-                    effectInstance = CreateGenericEffect(cardData,
-                        new AllAlliesSelector(), new InstantBuffApplier());
-                    break;
-                case 1005: // 暗影突袭（需要获取施法者）
-                    {
-                        var casterChess = GetCasterChess();
-                        effectInstance = CreateGenericEffect(cardData,
-                            new ClosestEnemySelector(),
-                            new DamageWithCoefficientApplier(casterChess),
-                            new BuffApplier());
-                    }
-                    break;
-                case 1007: // 冰霜新星
-                    effectInstance = CreateGenericEffect(cardData,
-                        new EnemiesInRadiusSelector(), new BuffApplier());
-                    break;
-                case 1008: // 狂暴
-                    effectInstance = CreateGenericEffect(cardData,
-                        new ClosestAllySelector(), new InstantBuffApplier());
-                    break;
-                case 1009: // 群体治疗
-                    effectInstance = CreateGenericEffect(cardData,
-                        new AllAlliesSelector(), new HealApplier());
-                    break;
-                case 1010: // 雷霆一击
-                    effectInstance = CreateGenericEffect(cardData,
-                        new ClosestEnemySelector(), new DamageApplier());
-                    break;
-                case 1011: // 混乱诅咒
-                    effectInstance = CreateGenericEffect(cardData,
-                        new AllEnemiesSelector(), new BuffApplier());
-                    break;
-                default:
-                    // 兼容旧脚本（LifeDrain、Resurrection 等特殊效果）
-                    if (!m_EffectTypeMap.TryGetValue(cardData.CardId, out var effectType))
-                    {
-                        DebugEx.ErrorModule("CardEffectExecutor", $"未找到卡牌效果类型: ID={cardData.CardId}");
-                        return;
-                    }
+                effectInstance = Activator.CreateInstance(effectType) as ICardEffect;
+                if (effectInstance == null)
+                {
+                    DebugEx.ErrorModule("CardEffectExecutor", $"无法创建效果实例: {effectType.Name}");
+                    return;
+                }
 
-                    effectInstance = Activator.CreateInstance(effectType) as ICardEffect;
-                    if (effectInstance == null)
-                    {
-                        DebugEx.ErrorModule("CardEffectExecutor", $"无法创建效果实例: {effectType.Name}");
-                        return;
-                    }
+                effectInstance.Init(cardData);
+            }
+            else
+            {
+                // 使用通用框架
+                var targetSelector = GetTargetSelector(cardData.CTargetType);
+                if (targetSelector == null)
+                {
+                    DebugEx.ErrorModule("CardEffectExecutor", $"未找到目标类型选择器: {cardData.CTargetType}");
+                    return;
+                }
 
-                    effectInstance.Init(cardData);
-                    break;
+                var appliers = GetEffectAppliers(cardData);
+                effectInstance = CreateGenericEffect(cardData, targetSelector, appliers);
             }
 
             if (effectInstance == null)
@@ -151,6 +113,67 @@ public class CardEffectExecutor : MonoBehaviour
         var effect = new GenericCardEffect();
         effect.Init(cardData, selector, appliers);
         return effect;
+    }
+
+    /// <summary>
+    /// 根据卡牌目标类型获取对应的选择器
+    /// </summary>
+    private ICardTargetSelector GetTargetSelector(CardTargetType targetType)
+    {
+        return targetType switch
+        {
+            CardTargetType.Self => new SelfSelector(),
+            CardTargetType.AllAllyExcludeSummoner => new AllAllyExcludeSummonerSelector(),
+            CardTargetType.AllAlly => new AllAlliesSelector(),
+            CardTargetType.AllEnemy => new AllEnemiesSelector(),
+            CardTargetType.SingleAlly => new ClosestAllySelector(),
+            CardTargetType.AreaAlly => new AlliesInRadiusSelector(),
+            CardTargetType.AreaEnemy => new EnemiesInRadiusSelector(),
+            CardTargetType.SingleEnemy => new ClosestEnemySelector(),
+            _ => null
+        };
+    }
+
+    /// <summary>
+    /// 根据卡牌配置智能选择效果应用器
+    /// </summary>
+    private ICardEffectApplier[] GetEffectAppliers(CardData cardData)
+    {
+        var appliers = new List<ICardEffectApplier>();
+
+        // 判断是否需要伤害应用器
+        if (cardData.TableRow.DamageType > 0)
+        {
+            if (cardData.TableRow.DamageCoeff > 0)
+            {
+                var casterChess = GetCasterChess();
+                appliers.Add(new DamageWithCoefficientApplier(casterChess));
+            }
+            else if (cardData.TableRow.BaseDamage > 0)
+            {
+                appliers.Add(new DamageApplier());
+            }
+        }
+
+        // 判断是否需要治疗应用器
+        if (cardData.GetParam("healAmount", 0f) > 0)
+        {
+            appliers.Add(new HealApplier());
+        }
+
+        // 判断是否需要命中 Buff 应用器
+        if (cardData.HitBuffIds.Length > 0)
+        {
+            appliers.Add(new BuffApplier());
+        }
+
+        // 判断是否需要立即 Buff 应用器
+        if (cardData.InstantBuffIds.Length > 0)
+        {
+            appliers.Add(new InstantBuffApplier());
+        }
+
+        return appliers.ToArray();
     }
 
     /// <summary>
