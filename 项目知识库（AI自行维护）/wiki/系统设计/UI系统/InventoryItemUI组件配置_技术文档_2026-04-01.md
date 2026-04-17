@@ -1,12 +1,12 @@
 # InventoryItemUI 组件配置检查报告
 
-> **最后更新**: 2026-04-01
-> **状态**: 有效
-> **版本**: 1.0
+> **最后更新**: 2026-04-17
+> **状态**: 已验证有效
+> **版本**: 1.1（已对标当前实现）
 
 ---
 
-**检查时间**: 2026-04-01
+**检查时间**: 2026-04-17
 **场景**: InventoryItemUI.prefab
 **相关文件**:
 - Prefab: `Assets/AAAGame/Prefabs/UI/Items/InventoryItemUI.prefab`

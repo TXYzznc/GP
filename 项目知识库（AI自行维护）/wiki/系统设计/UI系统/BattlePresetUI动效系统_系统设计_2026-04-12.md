@@ -1,11 +1,11 @@
-> **最后更新**: 2026-04-14
-> **状态**: 有效
+> **最后更新**: 2026-04-17
+> **状态**: 已验证有效
 > **分类**: 系统设计
 
 ---
 # BattlePresetUI 动效系统实现
 
-**实现日期**: 2026-04-12  
+**实现日期**: 2026-04-17  
 **文件**: `Assets/AAAGame/Scripts/UI/BattlePresetUI.cs`
 
 ## 实现方案
@@ -127,5 +127,5 @@ for (int i = m_EditingPreset.UnitCardIds.Count; i < m_SelectedChessItems.Count; 
 
 ---
 
-**最后更新**: 2026-04-12  
+**最后更新**: 2026-04-17  
 **状态**: 实现完成，等待测试
