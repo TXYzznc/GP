@@ -10,7 +10,7 @@ public enum ItemType
     Consumable = 1, // 消耗品
     Quest = 2, // 任务道具
     Treasure = 3, // 宝物
-    Equipment = 4, // 装备
+    Equipment = 4, // 装备 
 }
 
 /// <summary>
