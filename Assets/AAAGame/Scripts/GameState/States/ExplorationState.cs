@@ -200,21 +200,6 @@ public class ExplorationState : FsmState<InGameState>
     private int m_InventoryFormId = -1;
     private int m_WarehouseFormId = -1;
 
-    private void ToggleWarehouse()
-    {
-        if (GF.UI.HasUIForm(m_WarehouseFormId))
-        {
-            GF.UI.CloseUIForm(m_WarehouseFormId);
-            m_WarehouseFormId = -1;
-            DebugEx.LogModule("ExplorationState", "关闭仓库");
-        }
-        else
-        {
-            m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
-            DebugEx.LogModule("ExplorationState", "打开仓库");
-        }
-    }
-
     private void ToggleInventory()
     {
         if (GF.UI.HasUIForm(m_InventoryFormId))
@@ -227,6 +212,21 @@ public class ExplorationState : FsmState<InGameState>
         {
             m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
             DebugEx.LogModule("ExplorationState", "打开背包");
+        }
+    }
+
+    private void ToggleWarehouse()
+    {
+        if (GF.UI.HasUIForm(m_WarehouseFormId))
+        {
+            GF.UI.CloseUIForm(m_WarehouseFormId);
+            m_WarehouseFormId = -1;
+            DebugEx.LogModule("ExplorationState", "关闭仓库");
+        }
+        else
+        {
+            m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
+            DebugEx.LogModule("ExplorationState", "打开仓库");
         }
     }
 
