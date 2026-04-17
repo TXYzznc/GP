@@ -124,11 +124,17 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                 return false;
 
             targetSlot.SetItem(item, count);
+
+            // 刷新背包UI（如果打开的话）
+            RefreshInventoryUIIfOpen();
             return true;
         }
         else if (targetSlot.ItemId == itemId && targetSlot.ItemStack?.Item?.MaxStackCount > 1)
         {
             targetSlot.AddItem(count);
+
+            // 刷新背包UI（如果打开的话）
+            RefreshInventoryUIIfOpen();
             return true;
         }
 
@@ -136,18 +142,70 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
     }
 
     /// <summary>
-    /// 从背包拖拽物品到宝箱（背包格子调用）
+    /// 如果背包UI打开，刷新它的显示
     /// </summary>
-    public bool ReceiveItemFromInventory(int itemId, int count)
+    private void RefreshInventoryUIIfOpen()
     {
+        var inventoryUI = GF.UI.GetUIForm(UIViews.InventoryUI);
+        if (inventoryUI != null && inventoryUI is InventoryUI invUI)
+        {
+            invUI.RefreshAll();
+            DebugEx.Log("TreasureBoxContainer", "[MoveToInventory] 已刷新背包UI");
+        }
+    }
+
+    /// <summary>
+    /// 从背包拖拽物品到宝箱（背包格子调用）
+    /// targetSlotIndex：用户想放入的目标格子，如果为-1则自动查找
+    /// </summary>
+    public bool ReceiveItemFromInventory(int itemId, int count, int targetSlotIndex = -1)
+    {
+        // 如果指定了目标格子且格子为空，直接存入该格子
+        if (targetSlotIndex >= 0 && targetSlotIndex < TREASURE_BOX_CAPACITY)
+        {
+            var targetItem = GetItemBySlot(targetSlotIndex);
+            if (targetItem == null)
+            {
+                // 目标格子为空，直接存入
+                var item = new InventoryItem(itemId, count, 0, targetSlotIndex);
+                m_TreasureItems.Add(item);
+                DebugEx.Log("TreasureBoxContainer", $"物品直接存入格子: ID={itemId}, 数量={count}, 格子={targetSlotIndex}");
+                OnSlotChanged?.Invoke();
+                return true;
+            }
+            else if (targetItem.ItemId == itemId)
+            {
+                // 目标格子有相同物品，尝试堆叠
+                var itemData = ItemManager.Instance?.GetItemData(itemId);
+                if (itemData != null && itemData.MaxStackCount > 1)
+                {
+                    int addCount = Mathf.Min(count, itemData.MaxStackCount - targetItem.Count);
+                    int oldCount = targetItem.Count;
+                    targetItem.Count += addCount;
+                    DebugEx.Log("TreasureBoxContainer",
+                        $"物品堆叠: ID={itemId}, 数量 {oldCount} -> {targetItem.Count}");
+                    OnSlotChanged?.Invoke();
+
+                    // 如果还有剩余物品，存入新格子
+                    int remainCount = count - addCount;
+                    if (remainCount > 0)
+                    {
+                        return StoreItem(itemId, remainCount);
+                    }
+                    return true;
+                }
+            }
+        }
+
+        // 如果目标格子不可用，或为-1，则自动查找格子
         // 查找宝箱中是否已有相同物品
         var existingItem = GetItemById(itemId);
-        var itemData = ItemManager.Instance?.GetItemData(itemId);
+        var itemData2 = ItemManager.Instance?.GetItemData(itemId);
 
-        if (existingItem != null && itemData != null && itemData.MaxStackCount > 1)
+        if (existingItem != null && itemData2 != null && itemData2.MaxStackCount > 1)
         {
             // 堆叠到现有物品
-            int addCount = Mathf.Min(count, itemData.MaxStackCount - existingItem.Count);
+            int addCount = Mathf.Min(count, itemData2.MaxStackCount - existingItem.Count);
             int oldCount = existingItem.Count;
             existingItem.Count += addCount;
 

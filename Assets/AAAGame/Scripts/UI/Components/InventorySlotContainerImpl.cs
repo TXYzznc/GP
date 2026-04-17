@@ -49,7 +49,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
         {
             InventorySlotContainerImpl inv => MoveToInventory(inv, fromSlotIndex, targetSlotIndex),
             WarehouseSlotContainerImpl wh => MoveToWarehouse(wh, itemId, count, targetSlotIndex),
-            TreasureBoxSlotContainerImpl tb => MoveToTreasureBox(tb, itemId, count),
+            TreasureBoxSlotContainerImpl tb => MoveToTreasureBox(tb, itemId, count, targetSlotIndex),
             FastBarSlotContainerImpl fb => MoveToFastBar(fb, fromSlot, targetSlotIndex),
             _ => false
         };
@@ -83,10 +83,10 @@ public class InventorySlotContainerImpl : SlotContainerBase
         return ok;
     }
 
-    private bool MoveToTreasureBox(TreasureBoxSlotContainerImpl targetTb, int itemId, int count)
+    private bool MoveToTreasureBox(TreasureBoxSlotContainerImpl targetTb, int itemId, int count, int targetSlotIndex)
     {
-        bool ok = targetTb != null && targetTb.ReceiveItemFromInventory(itemId, count);
-        DebugEx.Log("InventorySlotContainer", $"[背包→宝箱] ReceiveItemFromInventory {ok}");
+        bool ok = targetTb != null && targetTb.ReceiveItemFromInventory(itemId, count, targetSlotIndex);
+        DebugEx.Log("InventorySlotContainer", $"[背包→宝箱] ReceiveItemFromInventory {ok} targetSlot={targetSlotIndex}");
         return ok;
     }
 
