@@ -20,8 +20,7 @@ public partial class OverworldUI : UIFormBase
         }
 
         // 打开地图时解锁鼠标
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = true;
+        PlayerInputManager.Instance.SetCursorLock(false);
     }
 
     protected override void OnClose(bool isShutdown, object userData)
@@ -34,8 +33,7 @@ public partial class OverworldUI : UIFormBase
         }
 
         // 关闭地图时锁定鼠标
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        PlayerInputManager.Instance.SetCursorLock(true);
     }
 
     /// <summary>

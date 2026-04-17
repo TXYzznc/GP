@@ -26,5 +26,6 @@ public enum UIViews : int
 	WarehouseUI = 29,
 	DictionariesUI = 30,
 	BattlePresetUI = 31,
-	TreasureBoxUI = 32
+	TreasureBoxUI = 32,
+	OverworldUI = 33
 }
