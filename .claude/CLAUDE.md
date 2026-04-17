@@ -8,9 +8,36 @@
 - **INDEX.md**文件路径：D:\unity\UnityProject\GP\Clash_Of_Gods\项目知识库（AI自行维护）\INDEX.md
 - **GITNEXUS.md**文件路径：D:\unity\UnityProject\GP\Clash_Of_Gods\.claude\GITNEXUS.md
 
+## SKILL 系统使用规则
+
+**任务需要使用 SKILL 时的标准流程：**
+
+1. **主动探索 SKILL 文件夹** - `.claude/skills/` 目录中包含所有可用技能
+   - 查看目录结构：每个子文件夹对应一个 SKILL
+   - 每个 SKILL 文件夹中有 `SKILL.md` 文件，包含完整的使用说明
+
+2. **打开对应 SKILL 的 SKILL.md** - 理解该技能的子技能列表和应用场景
+   - 示例：`unity-dev/SKILL.md` 中包含：`cog-config-table-designer`、`unity-ui-builder`、`animate` 等子技能
+
+3. **根据任务需求选择子技能** - 匹配最合适的子技能
+   - **配置表设计** → `unity-dev` → `cog-config-table-designer`
+   - **UI 开发全流程** → `unity-dev` → `unity-ui-builder`
+   - **动画/微交互** → `unity-dev` → `animate`
+   - **文档创建/转换** → `document-tools` 
+   - **绘图提示词** → `ai-art`
+   - **MCP/SKILL 创建** → `dev-tools`
+
+4. **读取对应的 references 文件** - 获取详细操作指令
+   - 路径：`.claude/skills/[SKILL]/references/[子技能].md`
+   - 示例：`.claude/skills/unity-dev/references/cog-config-table-designer.md`
+
+5. **按照 references 文件的规范执行任务** - 严格遵循其中的格式、规范和工作流
+
+**重要原则**：即使没有 CLAUDE.md 指导，也应该能够通过探索 `.claude/skills/` 文件夹和阅读 SKILL.md 来理解整个系统。
+
 ## 任务工作流
 
-**处理任务时的标准流程（提高精确度、减少 Token 消耗）：**
+**处理通用任务时的标准流程（提高精确度、减少 Token 消耗）：**
 
 1. **初步分析** - 理解任务需求，识别关键关键词和系统名称
 2. **使用 Graphify 查询** - 搜索与任务相关的脚本
