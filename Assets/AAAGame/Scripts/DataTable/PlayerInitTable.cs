@@ -56,18 +56,9 @@ public partial class PlayerInitTable : DataRowBase
         }
 
         /// <summary>
-        /// 初始钻石
+        /// 初始起源石
         /// </summary>
-        public int InitDiamond
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 初始圣水
-        /// </summary>
-        public int InitHolyWater
+        public int InitOriginStone
         {
             get;
             private set;
@@ -169,8 +160,7 @@ public partial class PlayerInitTable : DataRowBase
             InitLevel = int.Parse(columnStrings[index++]);
             InitExp = int.Parse(columnStrings[index++]);
             InitGold = int.Parse(columnStrings[index++]);
-            InitDiamond = int.Parse(columnStrings[index++]);
-            InitHolyWater = int.Parse(columnStrings[index++]);
+            InitOriginStone = int.Parse(columnStrings[index++]);
             InitSummonerId = int.Parse(columnStrings[index++]);
             InitUnitCards = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             InitStrategyCards = DataTableExtension.ParseArray<int>(columnStrings[index++]);
@@ -194,8 +184,7 @@ public partial class PlayerInitTable : DataRowBase
                     InitLevel = binaryReader.Read7BitEncodedInt32();
                     InitExp = binaryReader.Read7BitEncodedInt32();
                     InitGold = binaryReader.Read7BitEncodedInt32();
-                    InitDiamond = binaryReader.Read7BitEncodedInt32();
-                    InitHolyWater = binaryReader.Read7BitEncodedInt32();
+                    InitOriginStone = binaryReader.Read7BitEncodedInt32();
                     InitSummonerId = binaryReader.Read7BitEncodedInt32();
                     InitUnitCards = binaryReader.ReadArray<int>();
                     InitStrategyCards = binaryReader.ReadArray<int>();

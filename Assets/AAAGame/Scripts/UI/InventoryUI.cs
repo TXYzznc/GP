@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameExtension;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -13,14 +13,14 @@ public partial class InventoryUI : UIFormBase
     #region 字段
 
     private readonly List<InventorySlotUI> m_InventorySlots = new();
-    private readonly List<InventorySlotUI> m_FastSlots = new();   // 快捷栏（预置 5 格）
+    private readonly List<InventorySlotUI> m_FastSlots = new(); // 快捷栏（预置 5 格）
 
     private const int COLUMNS_PER_ROW = 6;
-    private const int SLOTS_PER_PAGE = 42;       // 每页格子数（6列×7行）
+    private const int SLOTS_PER_PAGE = 42; // 每页格子数（6列×7行）
 
     // 页签选中颜色
     private static readonly UnityEngine.Color s_TabSelectedColor = new(0.55f, 0.55f, 0.55f, 1f);
-    private static readonly UnityEngine.Color s_TabNormalColor   = UnityEngine.Color.white;
+    private static readonly UnityEngine.Color s_TabNormalColor = UnityEngine.Color.white;
 
     private InventoryManager m_InventoryManager;
     private FastBarManager m_FastBarManager;
@@ -181,7 +181,10 @@ public partial class InventoryUI : UIFormBase
         {
             // 检查点击是否在菜单范围内
             var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
-            if (menuRect != null && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
+            if (
+                menuRect != null
+                && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition)
+            )
             {
                 // 在菜单外，关闭菜单
                 m_CachedContextMenu.HideContextMenu();
@@ -329,7 +332,7 @@ public partial class InventoryUI : UIFormBase
             slotUI.SetSlotIndex(i);
             slotUI.SetContainerType(SlotContainerType.Equip);
             slotUI.SetSlotContainer(m_EquipSlotContainer);
-            slotUI.gameObject.SetActive(true);  // 始终激活
+            slotUI.gameObject.SetActive(true); // 始终激活
             m_EquipSlots.Add(slotUI);
         }
 
@@ -382,18 +385,23 @@ public partial class InventoryUI : UIFormBase
         }
 
         var allSlots = m_InventoryManager.GetAllSlots();
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
         int pageStart = m_CurrentPage * SLOTS_PER_PAGE;
-        int pageEnd   = pageStart + SLOTS_PER_PAGE;
+        int pageEnd = pageStart + SLOTS_PER_PAGE;
         int inventorySize = GetPlayerInventorySize();
 
-        DebugEx.Log("InventoryUI", $"RefreshInventory: allSlots.Count={allSlots.Count}, inventorySize={inventorySize}, m_InventorySlots.Count={m_InventorySlots.Count}, currentPage={m_CurrentPage}");
+        DebugEx.Log(
+            "InventoryUI",
+            $"RefreshInventory: allSlots.Count={allSlots.Count}, inventorySize={inventorySize}, m_InventorySlots.Count={m_InventorySlots.Count}, currentPage={m_CurrentPage}"
+        );
 
         for (int i = 0; i < m_InventorySlots.Count; i++)
         {
             // 不在当前页的格子隐藏
             bool inPage = i >= pageStart && i < pageEnd;
             m_InventorySlots[i].gameObject.SetActive(inPage);
-            if (!inPage) continue;
+            if (!inPage)
+                continue;
 
             var slotUI = m_InventorySlots[i];
 
@@ -412,8 +420,24 @@ public partial class InventoryUI : UIFormBase
             ItemStack itemStack = null;
             if (i < allSlots.Count && !allSlots[i].IsEmpty)
             {
+                // 检查物品类型，过滤 Type 0 资源项
+                var itemRow = itemTable?.GetDataRow(allSlots[i].ItemStack.Item.ItemId);
+                if (itemRow != null && itemRow.Type == 0)
+                {
+                    // Type 0 资源项不显示在背包中
+                    DebugEx.Log(
+                        "InventoryUI",
+                        $"过滤资源项: slot[{i}] = {allSlots[i].ItemStack.Item.Name} (Type 0)"
+                    );
+                    slotUI.SetData(null);
+                    continue;
+                }
+
                 itemStack = allSlots[i].ItemStack;
-                DebugEx.Log("InventoryUI", $"显示物品: slot[{i}] = {itemStack.Item.Name} x{itemStack.Count}");
+                DebugEx.Log(
+                    "InventoryUI",
+                    $"显示物品: slot[{i}] = {itemStack.Item.Name} x{itemStack.Count}"
+                );
             }
 
             slotUI.SetData(itemStack);
@@ -486,7 +510,7 @@ public partial class InventoryUI : UIFormBase
         var itemTable = GF.DataTable.GetDataTable<ItemTable>();
         var allSlots = m_InventoryManager.GetAllSlots();
 
-        // 收集背包中所有 Equipment 类型的物品
+        // 收集背包中所有 Equipment 类型的物品（过滤 Type 0 资源项）
         int equipmentCount = 0;
         for (int i = 0; i < allSlots.Count; i++)
         {
@@ -498,11 +522,17 @@ public partial class InventoryUI : UIFormBase
             if (row != null && row.Type == (int)ItemType.Equipment)
             {
                 equipmentCount++;
-                DebugEx.Log("InventoryUI", $"找到装备: {slot.ItemStack.Item.Name} (ID:{slot.ItemStack.Item.ItemId})");
+                DebugEx.Log(
+                    "InventoryUI",
+                    $"找到装备: {slot.ItemStack.Item.Name} (ID:{slot.ItemStack.Item.ItemId})"
+                );
             }
         }
 
-        DebugEx.Log("InventoryUI", $"装备栏刷新: 找到 {equipmentCount} 个装备，可用槽位 {m_EquipSlots.Count}");
+        DebugEx.Log(
+            "InventoryUI",
+            $"装备栏刷新: 找到 {equipmentCount} 个装备，可用槽位 {m_EquipSlots.Count}"
+        );
 
         // 显示装备物品（使用预创建的9个格子）
         int displayIndex = 0;
@@ -531,13 +561,16 @@ public partial class InventoryUI : UIFormBase
         // 清空未显示的装备槽（始终激活所有格子）
         for (int i = displayIndex; i < m_EquipSlots.Count; i++)
         {
-            m_EquipSlots[i].gameObject.SetActive(true);  // 始终激活，不隐藏
+            m_EquipSlots[i].gameObject.SetActive(true); // 始终激活，不隐藏
 
             // 统一使用 SetData(null) 清空显示
             m_EquipSlots[i].SetData(null);
         }
 
-        DebugEx.Success("InventoryUI", $"装备栏刷新完成: 显示 {displayIndex} 个装备，总槽位 {m_EquipSlots.Count}");
+        DebugEx.Success(
+            "InventoryUI",
+            $"装备栏刷新完成: 显示 {displayIndex} 个装备，总槽位 {m_EquipSlots.Count}"
+        );
     }
 
     private void RefreshSummonerState()
@@ -555,7 +588,8 @@ public partial class InventoryUI : UIFormBase
         // 召唤师名称 + 阶段
         var summonerConfig = PlayerAccountDataManager.Instance.GetCurrentSummonerConfig();
         string summonerName = summonerConfig != null ? summonerConfig.Name : "未知";
-        string phaseName = summonerConfig != null ? $"阶段{ToRoman(summonerConfig.Phase)}" : string.Empty;
+        string phaseName =
+            summonerConfig != null ? $"阶段{ToRoman(summonerConfig.Phase)}" : string.Empty;
 
         // 等级 + 经验
         int level = saveData.GlobalLevel;
@@ -569,7 +603,8 @@ public partial class InventoryUI : UIFormBase
                 requiredExp = levelRow.RequiredExp;
         }
 
-        varSummonerStateText.text = $"{summonerName} · {phaseName}\nLv.{level}  经验: {currentExp} / {requiredExp}";
+        varSummonerStateText.text =
+            $"{summonerName} · {phaseName}\nLv.{level}  经验: {currentExp} / {requiredExp}";
     }
 
     private static string ToRoman(int phase)
@@ -580,7 +615,7 @@ public partial class InventoryUI : UIFormBase
             2 => "II",
             3 => "III",
             4 => "IV",
-            _ => phase.ToString()
+            _ => phase.ToString(),
         };
     }
 
@@ -685,7 +720,7 @@ public partial class InventoryUI : UIFormBase
             if (row != null)
             {
                 varRarityText.text = $"稀有度: {row.Rarity}";
-                
+
                 // 获取稀有度对应的颜色
                 var rarityColor = RarityColorHelper.GetColor(row.Rarity);
                 varRarityText.color = rarityColor;
@@ -753,14 +788,22 @@ public partial class InventoryUI : UIFormBase
         {
             if (varItemDetailImg != null)
             {
-                await GameExtension.ResourceExtension.LoadSpriteAsync(iconId, varItemDetailImg, 1f, null);
+                await GameExtension.ResourceExtension.LoadSpriteAsync(
+                    iconId,
+                    varItemDetailImg,
+                    1f,
+                    null
+                );
                 varItemDetailImg.color = Color.white;
                 DebugEx.Log("InventoryUI", $"物品详情图标加载成功: IconId={iconId}");
             }
         }
         catch (System.Exception e)
         {
-            DebugEx.Error("InventoryUI", $"加载物品详情图标异常: IconId={iconId}, Error:{e.Message}");
+            DebugEx.Error(
+                "InventoryUI",
+                $"加载物品详情图标异常: IconId={iconId}, Error:{e.Message}"
+            );
         }
     }
 
@@ -783,8 +826,9 @@ public partial class InventoryUI : UIFormBase
     #region 分页
 
     private int PageCount =>
-        m_InventorySlots.Count == 0 ? 1
-        : Mathf.CeilToInt((float)m_InventorySlots.Count / SLOTS_PER_PAGE);
+        m_InventorySlots.Count == 0
+            ? 1
+            : Mathf.CeilToInt((float)m_InventorySlots.Count / SLOTS_PER_PAGE);
 
     /// <summary>
     /// 构建页签按钮（每次打开背包时重建）
@@ -795,17 +839,20 @@ public partial class InventoryUI : UIFormBase
             return;
 
         foreach (var btn in m_PageLabels)
-            if (btn != null) Destroy(btn.gameObject);
+            if (btn != null)
+                Destroy(btn.gameObject);
         m_PageLabels.Clear();
 
         for (int i = 0; i < PageCount; i++)
         {
             int pageIndex = i;
             var go = Instantiate(varPageLabelItem.gameObject, varPages.transform);
-            if (!go.TryGetComponent(out Button btn)) continue;
+            if (!go.TryGetComponent(out Button btn))
+                continue;
 
             var txt = go.GetComponentInChildren<Text>();
-            if (txt != null) txt.text = (i + 1).ToString();
+            if (txt != null)
+                txt.text = (i + 1).ToString();
 
             btn.onClick.AddListener(() => SwitchPage(pageIndex));
             m_PageLabels.Add(btn);
@@ -818,7 +865,8 @@ public partial class InventoryUI : UIFormBase
     private void SwitchPage(int page)
     {
         int clamped = Mathf.Clamp(page, 0, PageCount - 1);
-        if (clamped == m_CurrentPage) return;
+        if (clamped == m_CurrentPage)
+            return;
 
         m_CurrentPage = clamped;
         RefreshPageLabelHighlight();
@@ -832,7 +880,8 @@ public partial class InventoryUI : UIFormBase
         for (int i = 0; i < m_PageLabels.Count; i++)
         {
             var btn = m_PageLabels[i];
-            if (btn == null) continue;
+            if (btn == null)
+                continue;
 
             bool selected = i == m_CurrentPage;
             btn.interactable = !selected;
@@ -899,7 +948,10 @@ public partial class InventoryUI : UIFormBase
         {
             if (varItemContextMenu == null)
             {
-                DebugEx.Error("InventoryUI", "ShowItemContextMenu: varItemContextMenu 预制体未设置");
+                DebugEx.Error(
+                    "InventoryUI",
+                    "ShowItemContextMenu: varItemContextMenu 预制体未设置"
+                );
                 return;
             }
 
@@ -916,7 +968,10 @@ public partial class InventoryUI : UIFormBase
 
             if (m_CachedContextMenu == null)
             {
-                DebugEx.Error("InventoryUI", "ShowItemContextMenu: 菜单预制体中没有 ItemContextMenu 组件");
+                DebugEx.Error(
+                    "InventoryUI",
+                    "ShowItemContextMenu: 菜单预制体中没有 ItemContextMenu 组件"
+                );
                 Destroy(menuGO);
                 return;
             }

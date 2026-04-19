@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using GameFramework.Event;
-using System.Collections.Generic;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -117,7 +117,7 @@ public partial class CurrencyUI : StateAwareUIForm
     /// <summary>
     /// 刷新货币显示
     /// </summary>
-    private void RefreshCurrency()
+    public void RefreshCurrency()
     {
         // 清理已生成的货币项
         ClearCurrencyItems();
@@ -130,10 +130,9 @@ public partial class CurrencyUI : StateAwareUIForm
             return;
         }
 
-        // 创建三种货币（直接使用 ResourceConfigTable 中的图标ID）
-        CreateCurrencyItem(1101, saveData.Gold);           // 金币图标 ID=1101
-        CreateCurrencyItem(1102, saveData.MagicalStone);   // 灵石图标 ID=1102
-        CreateCurrencyItem(1103, saveData.HolyWater);      // 圣水图标 ID=1103
+        // 创建两种货币（直接使用 ResourceConfigTable 中的图标ID）
+        CreateCurrencyItem(1101, saveData.Gold); // 金币图标 ID=1101
+        CreateCurrencyItem(1102, saveData.OriginStone); // 起源石图标 ID=1102
 
         Log.Info("CurrencyUI: 货币信息已刷新");
     }
@@ -162,7 +161,7 @@ public partial class CurrencyUI : StateAwareUIForm
             // 直接使用 ResourceConfigTable 的图标ID
             currencyItem.SetData(iconId, count);
             m_CurrencyItems.Add(currencyItem);
-            
+
             Log.Info($"CurrencyUI: 创建货币项成功 - IconId={iconId}, Count={count}");
         }
         else

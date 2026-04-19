@@ -50,7 +50,10 @@ public partial class ItemContextMenu : UIItemBase
         if (buttons.Length > 2)
             m_DiscardBtn = buttons[2];
 
-        DebugEx.Log("ItemContextMenu", $"按钮初始化完成：UseBtn={m_UseBtn != null}, SplitBtn={m_SplitBtn != null}, DiscardBtn={m_DiscardBtn != null}");
+        DebugEx.Log(
+            "ItemContextMenu",
+            $"按钮初始化完成：UseBtn={m_UseBtn != null}, SplitBtn={m_SplitBtn != null}, DiscardBtn={m_DiscardBtn != null}"
+        );
     }
 
     #endregion
@@ -60,7 +63,12 @@ public partial class ItemContextMenu : UIItemBase
     /// <summary>
     /// 显示上下文菜单
     /// </summary>
-    public void ShowContextMenu(ItemStack itemStack, int slotIndex, Vector2 position, RectTransform slotRect = null)
+    public void ShowContextMenu(
+        ItemStack itemStack,
+        int slotIndex,
+        Vector2 position,
+        RectTransform slotRect = null
+    )
     {
         if (itemStack == null || itemStack.IsEmpty)
         {
@@ -82,7 +90,10 @@ public partial class ItemContextMenu : UIItemBase
         m_CurrentItemRow = itemTable.GetDataRow(itemStack.Item.ItemId);
         if (m_CurrentItemRow == null)
         {
-            DebugEx.Error("ItemContextMenu", $"ItemTable 中不存在 ID={itemStack.Item.ItemId} 的物品");
+            DebugEx.Error(
+                "ItemContextMenu",
+                $"ItemTable 中不存在 ID={itemStack.Item.ItemId} 的物品"
+            );
             return;
         }
 
@@ -96,7 +107,8 @@ public partial class ItemContextMenu : UIItemBase
             if (slotRect != null)
             {
                 var parentCanvas = GetComponentInParent<Canvas>();
-                var canvasRect = parentCanvas != null ? parentCanvas.GetComponent<RectTransform>() : null;
+                var canvasRect =
+                    parentCanvas != null ? parentCanvas.GetComponent<RectTransform>() : null;
                 if (canvasRect == null)
                 {
                     DebugEx.Error("ItemContextMenu", "未找到 Canvas");
@@ -104,8 +116,14 @@ public partial class ItemContextMenu : UIItemBase
                 }
 
                 // 格子中心的屏幕坐标
-                Camera cam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : parentCanvas.worldCamera;
-                Vector2 slotScreenPos = RectTransformUtility.WorldToScreenPoint(cam, slotRect.position);
+                Camera cam =
+                    parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                        ? null
+                        : parentCanvas.worldCamera;
+                Vector2 slotScreenPos = RectTransformUtility.WorldToScreenPoint(
+                    cam,
+                    slotRect.position
+                );
 
                 // 偏移规则：(格子宽度 + 菜单宽度) / 2 + 5，在屏幕坐标里偏移像素
                 float offsetX = (slotRect.rect.width + rectTransform.rect.width) / 2f;
@@ -114,10 +132,18 @@ public partial class ItemContextMenu : UIItemBase
                 Vector2 menuScreenPos = slotScreenPos + new Vector2(offsetX * canvasScale, 0);
 
                 // 屏幕坐标转 Canvas 本地坐标，设置 anchoredPosition
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, menuScreenPos, cam, out var localPos);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvasRect,
+                    menuScreenPos,
+                    cam,
+                    out var localPos
+                );
                 rectTransform.anchoredPosition = localPos;
 
-                DebugEx.Log("ItemContextMenu", $"格子屏幕坐标: {slotScreenPos}, 偏移(px): {offsetX * canvasScale}, 菜单屏幕坐标: {menuScreenPos}, anchoredPosition: {localPos}");
+                DebugEx.Log(
+                    "ItemContextMenu",
+                    $"格子屏幕坐标: {slotScreenPos}, 偏移(px): {offsetX * canvasScale}, 菜单屏幕坐标: {menuScreenPos}, anchoredPosition: {localPos}"
+                );
             }
         }
 
@@ -152,14 +178,22 @@ public partial class ItemContextMenu : UIItemBase
 
         // 隐藏所有按钮，确保 MenuBg 显示
         HideAllButtons();
-        if (varMenuBg != null) varMenuBg.SetActive(true);
+        if (varMenuBg != null)
+            varMenuBg.SetActive(true);
 
         int itemType = m_CurrentItemRow.Type;
 
         // 根据物品类型显示不同的选项
-        // 物品类型：1=消耗品, 2=任务道具, 3=宝物, 4=装备
+        // 物品类型：0=资源(不进入背包), 1=消耗品, 2=任务道具, 3=宝物, 4=装备
         switch (itemType)
         {
+            case 0: // 资源（金币、起源石、灵石等）
+                // 资源物品隐藏菜单背景，不显示任何操作
+                if (varMenuBg != null)
+                    varMenuBg.SetActive(false);
+                DebugEx.Log("ItemContextMenu", "资源物品，隐藏菜单背景");
+                break;
+
             case 1: // 消耗品
                 ShowButton(m_UseBtn, "使用", OnClickUse);
                 if (m_CurrentItemStack.Count > 1)
@@ -171,7 +205,8 @@ public partial class ItemContextMenu : UIItemBase
 
             case 2: // 任务道具
                 // 任务道具隐藏菜单背景
-                if (varMenuBg != null) varMenuBg.SetActive(false);
+                if (varMenuBg != null)
+                    varMenuBg.SetActive(false);
                 DebugEx.Log("ItemContextMenu", "任务道具，隐藏菜单背景");
                 break;
 
@@ -195,9 +230,12 @@ public partial class ItemContextMenu : UIItemBase
     /// </summary>
     private void HideAllButtons()
     {
-        if (m_UseBtn != null) m_UseBtn.gameObject.SetActive(false);
-        if (m_SplitBtn != null) m_SplitBtn.gameObject.SetActive(false);
-        if (m_DiscardBtn != null) m_DiscardBtn.gameObject.SetActive(false);
+        if (m_UseBtn != null)
+            m_UseBtn.gameObject.SetActive(false);
+        if (m_SplitBtn != null)
+            m_SplitBtn.gameObject.SetActive(false);
+        if (m_DiscardBtn != null)
+            m_DiscardBtn.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -209,7 +247,7 @@ public partial class ItemContextMenu : UIItemBase
             return;
 
         button.gameObject.SetActive(true);
-        
+
         // 设置按钮文本
         var textComponent = button.GetComponentInChildren<Text>();
         if (textComponent != null)
@@ -267,10 +305,16 @@ public partial class ItemContextMenu : UIItemBase
         var inventoryManager = InventoryManager.Instance;
         if (inventoryManager != null)
         {
-            bool success = inventoryManager.RemoveItem(m_CurrentItemStack.Item.ItemId, m_CurrentItemStack.Count);
+            bool success = inventoryManager.RemoveItem(
+                m_CurrentItemStack.Item.ItemId,
+                m_CurrentItemStack.Count
+            );
             if (success)
             {
-                DebugEx.Success("ItemContextMenu", $"丢弃物品: {m_CurrentItemStack.Item.Name} x{m_CurrentItemStack.Count}");
+                DebugEx.Success(
+                    "ItemContextMenu",
+                    $"丢弃物品: {m_CurrentItemStack.Item.Name} x{m_CurrentItemStack.Count}"
+                );
             }
             else
             {

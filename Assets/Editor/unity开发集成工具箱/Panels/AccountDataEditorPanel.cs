@@ -264,8 +264,7 @@ public class AccountDataEditorPanel : IToolHubPanel
         var data = save.SaveData;
         EditorGUILayout.LabelField("货币", EditorStyles.boldLabel);
         data.Gold = EditorGUILayout.IntField("金币", data.Gold);
-        data.MagicalStone = EditorGUILayout.IntField("灵石", data.MagicalStone);
-        data.HolyWater = EditorGUILayout.IntField("圣水", data.HolyWater);
+        data.OriginStone = EditorGUILayout.IntField("起源石", data.OriginStone);
     }
 
     private void DrawSummonerTab(SaveInfo save)

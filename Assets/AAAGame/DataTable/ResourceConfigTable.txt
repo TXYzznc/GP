@@ -7,8 +7,8 @@
 	1003		1	UI/StartMenuUI/Clash Of Gods.png	游戏名称-英文
 	1004		1	UI/StartMenuUI/存档上云.png	存档上云图标
 	1101		1	UI/Items/Gold.png	金币图标
-	1102		1	UI/Items/MagicalStone.png	灵石图标
-	1103		1	UI/Items/HolyWater.png	圣水图标
+	1102		1	UI/Items/OriginStone.png	起源石图标
+	1103		1	UI/Items/MagicalStone.png	灵石图标
 	1104		1	UI/Items/Circle.png	战斗交互预览图标
 	1105		1	Summoner/狂战士.png	召唤师-狂战士立绘
 	1106		1	Summoner/狂战士.png	召唤师-术士立绘
@@ -26,6 +26,20 @@
 	1210		1	Card/策略卡/雷霆一击.png	雷霆一击-策略卡图标
 	1211		1	Card/策略卡/混乱诅咒.png	混乱诅咒-策略卡图标
 	1212		1	Card/策略卡/不屈意志.png	不屈意志-策略卡图标
+	1213		1	Card/策略卡/反伤之盾.png	反伤之盾-策略卡图标
+	1214		1	Card/策略卡/圣域防线.png	圣域防线-策略卡图标
+	1215		1	Card/策略卡/护盾再生.png	护盾再生-策略卡图标
+	1216		1	Card/策略卡/救赎之光.png	救赎之光-策略卡图标
+	1217		1	Card/策略卡/血源强化.png	血源强化-策略卡图标
+	1218		1	Card/策略卡/吸血之刃.png	吸血之刃-策略卡图标
+	1219		1	Card/策略卡/灾厄之雷.png	灾厄之雷-策略卡图标
+	1220		1	Card/策略卡/护甲破碎.png	护甲破碎-策略卡图标
+	1221		1	Card/策略卡/虚弱诅咒.png	虚弱诅咒-策略卡图标
+	1222		1	Card/策略卡/沉默之符.png	沉默之符-策略卡图标
+	1223		1	Card/策略卡/嘲讽之声.png	嘲讽之声-策略卡图标
+	1224		1	Card/策略卡/剧毒之雾.png	剧毒之雾-策略卡图标
+	1225		1	Card/策略卡/伤害转移.png	伤害转移-策略卡图标
+	1226		1	Card/策略卡/绝对零度.png	绝对零度-策略卡图标
 	1301		1	Chess/后羿/后羿立绘.png	棋子-后羿图标
 	1304		1	Chess/嫦娥/嫦娥立绘.png	棋子-嫦娥图标
 	1399		1	Chess/靶子.png	棋子-靶子图标
@@ -122,6 +136,18 @@
 	15007		1	Buff/5007.png	冰霜新星Buff图标
 	15008		1	Buff/5008.png	狂暴Buff图标
 	15009		1	Buff/5009.png	混乱诅咒Buff图标
+	15011		1	Buff/5011.png	反伤之盾Buff图标
+	15012		1	Buff/5012.png	圣域防线Buff图标
+	15013		1	Buff/5013.png	护盾再生Buff图标
+	15014		1	Buff/5014.png	血源强化Buff图标
+	15015		1	Buff/5015.png	吸血之刃Buff图标
+	15017		1	Buff/5017.png	护甲破碎Buff图标
+	15018		1	Buff/5018.png	虚弱诅咒Buff图标
+	15019		1	Buff/5019.png	沉默之符Buff图标
+	15020		1	Buff/5020.png	嘲讽之声Buff图标
+	15021		1	Buff/5021.png	剧毒之雾Buff图标
+	15022		1	Buff/5022.png	伤害转移Buff图标
+	15023		1	Buff/5023.png	绝对零度Buff图标
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4

@@ -1,6 +1,6 @@
+using GameFramework;
 using UnityEngine;
 using UnityGameFramework.Runtime;
-using GameFramework;
 
 /// <summary>
 /// 游戏流程管理器 - 集中管理游戏状态转换和场景切换
@@ -21,7 +21,7 @@ public static class GameFlowManager
             Log.Info($"存档名称: {currentSave.SaveName}");
             Log.Info($"玩家等级: {currentSave.GlobalLevel}");
             Log.Info($"金币: {currentSave.Gold}");
-            Log.Info($"灵石: {currentSave.MagicalStone}");
+            Log.Info($"灵石: {currentSave.OriginStone}");
             Log.Info($"召唤师ID: {currentSave.CurrentSummonerId}");
             Log.Info($"玩家位置: {currentSave.PlayerPos}");
             Log.Info($"是否完成引导: {currentSave.HasCompletedTutorial}");
@@ -55,12 +55,13 @@ public static class GameFlowManager
             return;
         }
 
-        Log.Info($"GameFlowManager: 进入场景 {sceneRow.SceneName} (ID={sceneId}, Type={sceneRow.GetSceneTypeEnum()})");
+        Log.Info(
+            $"GameFlowManager: 进入场景 {sceneRow.SceneName} (ID={sceneId}, Type={sceneRow.GetSceneTypeEnum()})"
+        );
 
         // 切换到对应场景
         ChangeScene(sceneRow.SceneName);
     }
-
 
     /// <summary>
     /// 切换场景

@@ -85,14 +85,14 @@ public class PlayerSaveData
     public int Gold;
 
     /// <summary>
-    /// 魔石
+    /// 起源石
     /// </summary>
-    public int MagicalStone;
+    public int OriginStone;
 
     /// <summary>
-    /// 圣水
+    /// 灵石（战斗资源，用于棋子进阶）
     /// </summary>
-    public int HolyWater;
+    public int SpiritStone;
 
     // ========== 背包 ==========
     /// <summary>

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 7
+  selectedIndex: 5
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -39,10 +39,6 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u8D26\u53F7\u6570\u636E\u7BA1\u7406\u5668"
     description: "\u5FEB\u901F\u4FEE\u6539\u6E38\u620F\u5B58\u6863\u6570\u636E\uFF0C\u652F\u6301\u6279\u91CF\u7F16\u8F91\u548C\u4FDD\u5B58"
-  - typeName: ChessSkillTestPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-    displayName: "\u68CB\u5B50\u6D4B\u8BD5\u5668"
-    description: "\u6D4B\u8BD5\u68CB\u5B50\u7684\u6280\u80FD\u6548\u679C\u3001\u52A8\u753B\u548C\u7279\u6548\uFF0C\u652F\u6301\u8FD0\u884C\u65F6\u53C2\u6570\u4FEE\u6539"
   - typeName: CombatSimulatorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     displayName: "\u6218\u6597\u6A21\u62DF\u5668"

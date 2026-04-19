@@ -297,6 +297,10 @@ public class ItemManager : SingletonBase<ItemManager>
                 item = new EquipmentItem(itemId, itemData);
                 break;
 
+            case ItemType.Virtual:
+                item = new VirtualItem(itemId, itemData);
+                break;
+
             default:
                 DebugEx.ErrorModule("ItemManager", $"未知的物品类型: {itemData.Type}");
                 break;

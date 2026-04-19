@@ -45,8 +45,11 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
         if (m_ItemUI == null)
         {
-            DebugEx.Warning("InventorySlotUI", $"格子 {gameObject.name} 找不到 InventoryItemUI 子组件！" +
-                $"请检查预制体层级：InventorySlotUI > InventoryItemUI");
+            DebugEx.Warning(
+                "InventorySlotUI",
+                $"格子 {gameObject.name} 找不到 InventoryItemUI 子组件！"
+                    + $"请检查预制体层级：InventorySlotUI > InventoryItemUI"
+            );
         }
     }
 
@@ -69,8 +72,10 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         SlotContainer = container;
         if (container != null && container.ContainerType != ContainerType)
         {
-            DebugEx.Warning("InventorySlotUI",
-                $"格子容器类型不匹配: ContainerType={ContainerType}, Container.Type={container.ContainerType}");
+            DebugEx.Warning(
+                "InventorySlotUI",
+                $"格子容器类型不匹配: ContainerType={ContainerType}, Container.Type={container.ContainerType}"
+            );
         }
     }
 
@@ -92,7 +97,8 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// </summary>
     public void SetRarity(int rarity)
     {
-        if (varBg == null) return;
+        if (varBg == null)
+            return;
 
         if (!IsAvailable)
         {
@@ -100,7 +106,8 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         }
         else
         {
-            varBg.color = rarity > 0 ? RarityColorHelper.GetColor(rarity) : RarityColorHelper.DefaultBg;
+            varBg.color =
+                rarity > 0 ? RarityColorHelper.GetColor(rarity) : RarityColorHelper.DefaultBg;
         }
     }
 
@@ -158,6 +165,54 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     #region 点击事件处理
 
     /// <summary>
+    /// 判断物品是否为资源类型（Type==0）
+    /// </summary>
+    private bool IsResourceItem(int itemId)
+    {
+        return itemId == 999 || itemId == 9999 || itemId == 99999;
+    }
+
+    /// <summary>
+    /// 处理资源类物品的获取（直接增加到资源管理系统）
+    /// </summary>
+    private void HandleResourceAcquisition(int itemId, int count)
+    {
+        switch (itemId)
+        {
+            case 999: // 金币
+                PlayerAccountDataManager.Instance?.AddGold(count);
+                DebugEx.Success(
+                    "InventorySlotUI",
+                    $"[HandleResourceAcquisition] 获得金币: +{count}"
+                );
+                break;
+
+            case 9999: // 起源石
+                PlayerAccountDataManager.Instance?.AddOriginStone(count);
+                DebugEx.Success(
+                    "InventorySlotUI",
+                    $"[HandleResourceAcquisition] 获得起源石: +{count}"
+                );
+                break;
+
+            case 99999: // 灵石
+                PlayerRuntimeDataManager.Instance?.AddSpiritStone(count);
+                DebugEx.Success(
+                    "InventorySlotUI",
+                    $"[HandleResourceAcquisition] 获得灵石: +{count}"
+                );
+                break;
+
+            default:
+                DebugEx.Warning(
+                    "InventorySlotUI",
+                    $"[HandleResourceAcquisition] 未知的资源类型: {itemId}"
+                );
+                break;
+        }
+    }
+
+    /// <summary>
     /// 处理左键点击（显示物品详情）
     /// 由 InventoryClickHandler 分发调用
     /// </summary>
@@ -177,14 +232,27 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        DebugEx.Log("InventorySlotUI", $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}");
+        // 虚拟物品不能拖拽
+        if (itemStack.Item.ItemData.Type == ItemType.Virtual)
+        {
+            DebugEx.Warning(
+                "InventorySlotUI",
+                $"[OnLeftClick] 虚拟物品不能拖拽: {itemStack.Item.Name}"
+            );
+            return;
+        }
+
+        DebugEx.Log(
+            "InventorySlotUI",
+            $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}"
+        );
 
         ShowItemDetailPanel(itemStack);
     }
 
     /// <summary>
     /// 处理右键点击
-    /// 宝箱格子：直接将物品移入背包（快捷键）
+    /// 宝箱格子：资源类物品直接增加到资源系统，其他物品移入背包
     /// 其他容器：显示上下文菜单
     /// </summary>
     public void OnRightClick(Vector2 mousePosition)
@@ -203,9 +271,22 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        DebugEx.Log("InventorySlotUI", $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}");
+        // 虚拟物品不能进行任何交互
+        if (itemStack.Item.ItemData.Type == ItemType.Virtual)
+        {
+            DebugEx.Warning(
+                "InventorySlotUI",
+                $"[OnRightClick] 虚拟物品不能交互: {itemStack.Item.Name}"
+            );
+            return;
+        }
 
-        // 宝箱格子：右键 = 快捷转移到背包
+        DebugEx.Log(
+            "InventorySlotUI",
+            $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}"
+        );
+
+        // 宝箱格子：特殊处理
         if (ContainerType == SlotContainerType.TreasureBox)
         {
             var treasureContainer = SlotContainer as TreasureBoxSlotContainerImpl;
@@ -214,12 +295,27 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
                 var slot = treasureContainer.GetSlot(SlotIndex);
                 if (slot != null && !slot.IsEmpty)
                 {
+                    // 资源类物品（Type==0）：直接增加到资源系统
+                    if (IsResourceItem(slot.ItemId))
+                    {
+                        HandleResourceAcquisition(slot.ItemId, slot.Count);
+                        treasureContainer.RemoveItem(SlotIndex, slot.Count);
+                        DebugEx.Log(
+                            "InventorySlotUI",
+                            $"[OnRightClick] 宝箱资源快捷获取: {itemStack.Item.Name}"
+                        );
+                        return;
+                    }
+
+                    // 普通物品：移入背包
                     bool ok = InventoryManager.Instance?.AddItem(slot.ItemId, slot.Count) ?? false;
                     if (ok)
                     {
                         treasureContainer.RemoveItem(SlotIndex, slot.Count);
-                        // RemoveItem 触发 OnSlotChanged 事件，TreasureBoxUI 会自动刷新
-                        DebugEx.Log("InventorySlotUI", $"[OnRightClick] 宝箱物品快捷移入背包: {itemStack.Item.Name}");
+                        DebugEx.Log(
+                            "InventorySlotUI",
+                            $"[OnRightClick] 宝箱物品快捷移入背包: {itemStack.Item.Name}"
+                        );
                     }
                     else
                     {
@@ -249,7 +345,10 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (inventoryUI != null)
         {
             inventoryUI.ShowItemDetail(itemStack);
-            DebugEx.Success("InventorySlotUI", $"[ShowItemDetailPanel] 显示物品详情: {itemStack.Item.Name}");
+            DebugEx.Success(
+                "InventorySlotUI",
+                $"[ShowItemDetailPanel] 显示物品详情: {itemStack.Item.Name}"
+            );
         }
         else
         {
@@ -260,7 +359,12 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// <summary>
     /// 显示上下文菜单
     /// </summary>
-    private void ShowContextMenu(ItemStack itemStack, int slotIndex, Vector2 position, RectTransform slotRect)
+    private void ShowContextMenu(
+        ItemStack itemStack,
+        int slotIndex,
+        Vector2 position,
+        RectTransform slotRect
+    )
     {
         if (itemStack == null || itemStack.IsEmpty)
         {
@@ -273,7 +377,10 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (inventoryUI != null)
         {
             inventoryUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
-            DebugEx.Success("InventorySlotUI", $"[ShowContextMenu] 显示上下文菜单（来自InventoryUI）: {itemStack.Item.Name}");
+            DebugEx.Success(
+                "InventorySlotUI",
+                $"[ShowContextMenu] 显示上下文菜单（来自InventoryUI）: {itemStack.Item.Name}"
+            );
             return;
         }
 
@@ -282,7 +389,10 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (warehouseUI != null)
         {
             warehouseUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
-            DebugEx.Success("InventorySlotUI", $"[ShowContextMenu] 显示上下文菜单（来自WarehouseUI）: {itemStack.Item.Name}");
+            DebugEx.Success(
+                "InventorySlotUI",
+                $"[ShowContextMenu] 显示上下文菜单（来自WarehouseUI）: {itemStack.Item.Name}"
+            );
             return;
         }
 
@@ -291,11 +401,17 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (treasureBoxUI != null)
         {
             treasureBoxUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
-            DebugEx.Success("InventorySlotUI", $"[ShowContextMenu] 显示上下文菜单（来自TreasureBoxUI）: {itemStack.Item.Name}");
+            DebugEx.Success(
+                "InventorySlotUI",
+                $"[ShowContextMenu] 显示上下文菜单（来自TreasureBoxUI）: {itemStack.Item.Name}"
+            );
             return;
         }
 
-        DebugEx.Error("InventorySlotUI", "[ShowContextMenu] 无法获取 InventoryUI、WarehouseUI 或 TreasureBoxUI");
+        DebugEx.Error(
+            "InventorySlotUI",
+            "[ShowContextMenu] 无法获取 InventoryUI、WarehouseUI 或 TreasureBoxUI"
+        );
     }
 
     #endregion

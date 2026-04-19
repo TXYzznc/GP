@@ -146,18 +146,9 @@ public partial class PlayerAccountTable : DataRowBase
         }
 
         /// <summary>
-        /// 灵石
+        /// 起源石
         /// </summary>
-        public int MagicalStone
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 圣水
-        /// </summary>
-        public int HolyWater
+        public int OriginStone
         {
             get;
             private set;
@@ -278,8 +269,7 @@ public partial class PlayerAccountTable : DataRowBase
             OwnedStrategyCardIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             UnlockedTechIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             Gold = int.Parse(columnStrings[index++]);
-            MagicalStone = int.Parse(columnStrings[index++]);
-            HolyWater = int.Parse(columnStrings[index++]);
+            OriginStone = int.Parse(columnStrings[index++]);
             InventoryItems = columnStrings[index++];
             InventoryCapacity = int.Parse(columnStrings[index++]);
             SavedDecks = columnStrings[index++];
@@ -314,8 +304,7 @@ public partial class PlayerAccountTable : DataRowBase
                     OwnedStrategyCardIds = binaryReader.ReadArray<int>();
                     UnlockedTechIds = binaryReader.ReadArray<int>();
                     Gold = binaryReader.Read7BitEncodedInt32();
-                    MagicalStone = binaryReader.Read7BitEncodedInt32();
-                    HolyWater = binaryReader.Read7BitEncodedInt32();
+                    OriginStone = binaryReader.Read7BitEncodedInt32();
                     InventoryItems = binaryReader.ReadString();
                     InventoryCapacity = binaryReader.Read7BitEncodedInt32();
                     SavedDecks = binaryReader.ReadString();

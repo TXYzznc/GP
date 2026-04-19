@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// 玩家运行时数据管理器
@@ -42,8 +42,14 @@ public class PlayerRuntimeDataManager
     /// <summary>当前移速</summary>
     private float m_CurrentMoveSpeed = 5f;
 
+    /// <summary>当前灵石数量（局内资源，不保存到存档）</summary>
+    private int m_SpiritStone = 0;
+
     /// <summary>污染值变化事件</summary>
     public event Action<float, float> OnCorruptionChanged;
+
+    /// <summary>灵石变化事件</summary>
+    public event Action<int, int> OnSpiritStoneChanged;
 
     #endregion
 
@@ -59,13 +65,17 @@ public class PlayerRuntimeDataManager
     public float MaxCorruption => m_MaxCorruption;
 
     /// <summary>污染值百分比（0-1）</summary>
-    public float CorruptionPercent => m_MaxCorruption > 0 ? m_CurrentCorruption / m_MaxCorruption : 0f;
+    public float CorruptionPercent =>
+        m_MaxCorruption > 0 ? m_CurrentCorruption / m_MaxCorruption : 0f;
 
     /// <summary>污染值增长速度（每秒）</summary>
     public float CorruptionGrowthRate => m_CorruptionGrowthRate;
 
     /// <summary>当前移速</summary>
     public float CurrentMoveSpeed => m_CurrentMoveSpeed;
+
+    /// <summary>当前灵石数量</summary>
+    public int SpiritStone => m_SpiritStone;
 
     #endregion
 
@@ -87,7 +97,10 @@ public class PlayerRuntimeDataManager
         if (summonerConfig != null)
         {
             m_CurrentMoveSpeed = summonerConfig.PlayerMoveSpeed;
-            DebugEx.LogModule("PlayerRuntimeDataManager", $"从召唤师配置读取移速: {m_CurrentMoveSpeed}");
+            DebugEx.LogModule(
+                "PlayerRuntimeDataManager",
+                $"从召唤师配置读取移速: {m_CurrentMoveSpeed}"
+            );
         }
         else
         {
@@ -102,8 +115,10 @@ public class PlayerRuntimeDataManager
 
         m_IsInitialized = true;
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", 
-            $"玩家运行时数据初始化完成 - 移速:{m_CurrentMoveSpeed}, 污染值:{m_CurrentCorruption}/{m_MaxCorruption}, 增长速度:{m_CorruptionGrowthRate}/秒");
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"玩家运行时数据初始化完成 - 移速:{m_CurrentMoveSpeed}, 污染值:{m_CurrentCorruption}/{m_MaxCorruption}, 增长速度:{m_CorruptionGrowthRate}/秒"
+        );
     }
 
     /// <summary>
@@ -119,6 +134,7 @@ public class PlayerRuntimeDataManager
         m_CurrentCorruption = 0f;
         m_CurrentMoveSpeed = 5f;
         m_CorruptionGrowthRate = 1f;
+        m_SpiritStone = 0;
         m_IsInitialized = false;
 
         DebugEx.LogModule("PlayerRuntimeDataManager", "玩家运行时数据已清理");
@@ -140,7 +156,11 @@ public class PlayerRuntimeDataManager
         {
             float growthAmount = m_CorruptionGrowthRate * deltaTime;
             float oldValue = m_CurrentCorruption;
-            m_CurrentCorruption = Mathf.Clamp(m_CurrentCorruption + growthAmount, 0f, m_MaxCorruption);
+            m_CurrentCorruption = Mathf.Clamp(
+                m_CurrentCorruption + growthAmount,
+                0f,
+                m_MaxCorruption
+            );
 
             // 只有当污染值实际发生变化时才触发事件
             if (Mathf.Abs(m_CurrentCorruption - oldValue) > 0.01f)
@@ -169,8 +189,10 @@ public class PlayerRuntimeDataManager
         float oldRate = m_CorruptionGrowthRate;
         m_CorruptionGrowthRate = Mathf.Max(0f, growthRate);
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", 
-            $"污染值增长速度设置: {oldRate:F2}/秒 -> {m_CorruptionGrowthRate:F2}/秒");
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"污染值增长速度设置: {oldRate:F2}/秒 -> {m_CorruptionGrowthRate:F2}/秒"
+        );
     }
 
     /// <summary>
@@ -207,8 +229,10 @@ public class PlayerRuntimeDataManager
         float oldValue = m_CurrentCorruption;
         m_CurrentCorruption = Mathf.Clamp(m_CurrentCorruption + amount, 0f, m_MaxCorruption);
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", 
-            $"污染值增加: {oldValue:F1} -> {m_CurrentCorruption:F1} (+{amount:F1})");
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"污染值增加: {oldValue:F1} -> {m_CurrentCorruption:F1} (+{amount:F1})"
+        );
 
         // 触发事件
         OnCorruptionChanged?.Invoke(oldValue, m_CurrentCorruption);
@@ -229,8 +253,10 @@ public class PlayerRuntimeDataManager
         float oldValue = m_CurrentCorruption;
         m_CurrentCorruption = Mathf.Clamp(m_CurrentCorruption - amount, 0f, m_MaxCorruption);
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", 
-            $"污染值减少: {oldValue:F1} -> {m_CurrentCorruption:F1} (-{amount:F1})");
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"污染值减少: {oldValue:F1} -> {m_CurrentCorruption:F1} (-{amount:F1})"
+        );
 
         // 触发事件
         OnCorruptionChanged?.Invoke(oldValue, m_CurrentCorruption);
@@ -251,8 +277,10 @@ public class PlayerRuntimeDataManager
         float oldValue = m_CurrentCorruption;
         m_CurrentCorruption = Mathf.Clamp(value, 0f, m_MaxCorruption);
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", 
-            $"污染值设置: {oldValue:F1} -> {m_CurrentCorruption:F1}");
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"污染值设置: {oldValue:F1} -> {m_CurrentCorruption:F1}"
+        );
 
         // 触发事件
         OnCorruptionChanged?.Invoke(oldValue, m_CurrentCorruption);
@@ -272,8 +300,10 @@ public class PlayerRuntimeDataManager
         float halfCorruption = m_CurrentCorruption * 0.5f;
         AddCorruption(halfCorruption);
 
-        DebugEx.WarningModule("PlayerRuntimeDataManager", 
-            $"战斗失败！污染值增加一半: +{halfCorruption:F1}");
+        DebugEx.WarningModule(
+            "PlayerRuntimeDataManager",
+            $"战斗失败！污染值增加一半: +{halfCorruption:F1}"
+        );
     }
 
     #endregion
@@ -295,8 +325,10 @@ public class PlayerRuntimeDataManager
         float oldSpeed = m_CurrentMoveSpeed;
         m_CurrentMoveSpeed = Mathf.Max(0f, speed);
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", 
-            $"移速设置: {oldSpeed:F1} -> {m_CurrentMoveSpeed:F1}");
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"移速设置: {oldSpeed:F1} -> {m_CurrentMoveSpeed:F1}"
+        );
     }
 
     /// <summary>
@@ -312,6 +344,90 @@ public class PlayerRuntimeDataManager
         }
 
         SetMoveSpeed(m_CurrentMoveSpeed + delta);
+    }
+
+    #endregion
+
+    #region 灵石管理
+
+    /// <summary>
+    /// 增加灵石
+    /// </summary>
+    /// <param name="amount">增加的数量</param>
+    public void AddSpiritStone(int amount)
+    {
+        if (!m_IsInitialized)
+        {
+            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法增加灵石");
+            return;
+        }
+
+        int oldValue = m_SpiritStone;
+        m_SpiritStone = Mathf.Max(0, m_SpiritStone + amount);
+
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"灵石增加: {oldValue} -> {m_SpiritStone} (+{amount})"
+        );
+
+        // 触发事件
+        OnSpiritStoneChanged?.Invoke(oldValue, m_SpiritStone);
+    }
+
+    /// <summary>
+    /// 消耗灵石
+    /// </summary>
+    /// <param name="amount">消耗的数量</param>
+    /// <returns>是否消耗成功</returns>
+    public bool ConsumeSpiritStone(int amount)
+    {
+        if (!m_IsInitialized)
+        {
+            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法消耗灵石");
+            return false;
+        }
+
+        if (m_SpiritStone < amount)
+        {
+            DebugEx.WarningModule(
+                "PlayerRuntimeDataManager",
+                $"灵石不足: 需要{amount}，当前{m_SpiritStone}"
+            );
+            return false;
+        }
+
+        int oldValue = m_SpiritStone;
+        m_SpiritStone -= amount;
+
+        DebugEx.LogModule(
+            "PlayerRuntimeDataManager",
+            $"灵石消耗: {oldValue} -> {m_SpiritStone} (-{amount})"
+        );
+
+        // 触发事件
+        OnSpiritStoneChanged?.Invoke(oldValue, m_SpiritStone);
+        return true;
+    }
+
+    /// <summary>
+    /// 设置灵石数量
+    /// </summary>
+    /// <param name="amount">新的灵石数量</param>
+    public void SetSpiritStone(int amount)
+    {
+        if (!m_IsInitialized)
+        {
+            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法设置灵石");
+            return;
+        }
+
+        int oldValue = m_SpiritStone;
+        m_SpiritStone = Mathf.Max(0, amount);
+
+        DebugEx.LogModule("PlayerRuntimeDataManager", $"灵石设置: {oldValue} -> {m_SpiritStone}");
+
+        // 触发事件
+        OnSpiritStoneChanged?.Invoke(oldValue, m_SpiritStone);
     }
 
     #endregion

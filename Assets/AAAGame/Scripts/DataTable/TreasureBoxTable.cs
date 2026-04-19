@@ -65,9 +65,63 @@ public partial class TreasureBoxTable : DataRowBase
         }
 
         /// <summary>
-        /// 物品组ID
+        /// 物品组ID列表
         /// </summary>
-        public int ItemGroupId
+        public int[] ItemGroupIds
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 有金币的概率
+        /// </summary>
+        public double CoinsProbability
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最小金币数量
+        /// </summary>
+        public int MinCoins
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最大金币数量
+        /// </summary>
+        public int MaxCoins
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 有灵石的概率
+        /// </summary>
+        public double MagicaStoneProbability
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最小灵石数量
+        /// </summary>
+        public int MinMagicaStone
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最大灵石数量
+        /// </summary>
+        public int MaxMagicaStone
         {
             get;
             private set;
@@ -98,7 +152,13 @@ public partial class TreasureBoxTable : DataRowBase
             Rarity = int.Parse(columnStrings[index++]);
             ItemCountMin = int.Parse(columnStrings[index++]);
             ItemCountMax = int.Parse(columnStrings[index++]);
-            ItemGroupId = int.Parse(columnStrings[index++]);
+            ItemGroupIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            CoinsProbability = double.Parse(columnStrings[index++]);
+            MinCoins = int.Parse(columnStrings[index++]);
+            MaxCoins = int.Parse(columnStrings[index++]);
+            MagicaStoneProbability = double.Parse(columnStrings[index++]);
+            MinMagicaStone = int.Parse(columnStrings[index++]);
+            MaxMagicaStone = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
 
             return true;
@@ -115,7 +175,13 @@ public partial class TreasureBoxTable : DataRowBase
                     Rarity = binaryReader.Read7BitEncodedInt32();
                     ItemCountMin = binaryReader.Read7BitEncodedInt32();
                     ItemCountMax = binaryReader.Read7BitEncodedInt32();
-                    ItemGroupId = binaryReader.Read7BitEncodedInt32();
+                    ItemGroupIds = binaryReader.ReadArray<int>();
+                    CoinsProbability = binaryReader.ReadDouble();
+                    MinCoins = binaryReader.Read7BitEncodedInt32();
+                    MaxCoins = binaryReader.Read7BitEncodedInt32();
+                    MagicaStoneProbability = binaryReader.ReadDouble();
+                    MinMagicaStone = binaryReader.Read7BitEncodedInt32();
+                    MaxMagicaStone = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
                 }
             }

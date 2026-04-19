@@ -307,8 +307,7 @@ public class PlayerAccountDataManager
 
             // 资源
             Gold = initConfig.InitGold,
-            MagicalStone = initConfig.InitDiamond,
-            HolyWater = initConfig.InitHolyWater,
+            OriginStone = initConfig.InitOriginStone,
 
             // 初始化背包
             InventoryCapacity = 100, // 默认背包容量
@@ -840,7 +839,7 @@ public class PlayerAccountDataManager
     {
         if (m_CurrentSaveData == null)
             return;
-        m_CurrentSaveData.MagicalStone += amount;
+        m_CurrentSaveData.OriginStone += amount;
     }
 
     /// <summary>
@@ -848,37 +847,90 @@ public class PlayerAccountDataManager
     /// </summary>
     public bool ConsumeMagicalStone(int amount)
     {
-        if (m_CurrentSaveData == null || m_CurrentSaveData.MagicalStone < amount)
+        if (m_CurrentSaveData == null || m_CurrentSaveData.OriginStone < amount)
         {
             return false;
         }
-        m_CurrentSaveData.MagicalStone -= amount;
+        m_CurrentSaveData.OriginStone -= amount;
+        return true;
+    }
+
+    /// <summary>
+    /// 添加起源石
+    /// </summary>
+    public void AddOriginStone(int amount)
+    {
+        if (m_CurrentSaveData == null)
+            return;
+        m_CurrentSaveData.OriginStone += amount;
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"添加起源石: +{amount}, 当前: {m_CurrentSaveData.OriginStone}"
+        );
+    }
+
+    /// <summary>
+    /// 消耗起源石
+    /// </summary>
+    public bool ConsumeOriginStone(int amount)
+    {
+        if (m_CurrentSaveData == null)
+            return false;
+        if (m_CurrentSaveData.OriginStone < amount)
+        {
+            DebugEx.Warning(
+                "PlayerAccountDataManager",
+                $"起源石不足: 需要 {amount}, 当前 {m_CurrentSaveData.OriginStone}"
+            );
+            return false;
+        }
+        m_CurrentSaveData.OriginStone -= amount;
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"消耗起源石: -{amount}, 当前: {m_CurrentSaveData.OriginStone}"
+        );
+        return true;
+    }
+
+    /// <summary>
+    /// 添加灵石
+    /// </summary>
+    public void AddSpiritStone(int amount)
+    {
+        if (m_CurrentSaveData == null)
+            return;
+        m_CurrentSaveData.SpiritStone += amount;
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"添加灵石: +{amount}, 当前: {m_CurrentSaveData.SpiritStone}"
+        );
+    }
+
+    /// <summary>
+    /// 消耗灵石
+    /// </summary>
+    public bool ConsumeSpiritStone(int amount)
+    {
+        if (m_CurrentSaveData == null)
+            return false;
+        if (m_CurrentSaveData.SpiritStone < amount)
+        {
+            DebugEx.Warning(
+                "PlayerAccountDataManager",
+                $"灵石不足: 需要 {amount}, 当前 {m_CurrentSaveData.SpiritStone}"
+            );
+            return false;
+        }
+        m_CurrentSaveData.SpiritStone -= amount;
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"消耗灵石: -{amount}, 当前: {m_CurrentSaveData.SpiritStone}"
+        );
         return true;
     }
 
     /// <summary>
     /// 添加圣水
-    /// </summary>
-    public void AddHolyWater(int amount)
-    {
-        if (m_CurrentSaveData == null)
-            return;
-        m_CurrentSaveData.HolyWater += amount;
-    }
-
-    /// <summary>
-    /// 消耗圣水
-    /// </summary>
-    public bool ConsumeHolyWater(int amount)
-    {
-        if (m_CurrentSaveData == null || m_CurrentSaveData.HolyWater < amount)
-        {
-            return false;
-        }
-        m_CurrentSaveData.HolyWater -= amount;
-        return true;
-    }
-
     #endregion
 
 

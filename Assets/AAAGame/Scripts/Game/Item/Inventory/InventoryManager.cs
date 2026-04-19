@@ -114,6 +114,18 @@ public class InventoryManager : SingletonBase<InventoryManager>
             return false;
         }
 
+        // 检查是否为 Type 0 资源项，资源项不应进入背包
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        var itemRow = itemTable?.GetDataRow(itemId);
+        if (itemRow != null && itemRow.Type == 0)
+        {
+            DebugEx.Warning(
+                "InventoryManager",
+                $"Type 0 资源项不应进入背包: ID={itemId}, 名称={itemData.Name}"
+            );
+            return false;
+        }
+
         // 如果可堆叠，先尝试合并到现有堆叠
         if (itemData.CanStack)
         {
@@ -349,9 +361,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         var merged = new List<ItemStack>();
         foreach (var stack in stacks)
         {
-            var existing = merged.Find(s =>
-                s.ItemId == stack.ItemId && !s.IsFull
-            );
+            var existing = merged.Find(s => s.ItemId == stack.ItemId && !s.IsFull);
             if (existing != null)
             {
                 int canAdd = existing.Item.MaxStackCount - existing.Count;
@@ -368,16 +378,18 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         // 3. 按 ItemType 升序，Quality 降序，ItemId 升序 排序
-        merged.Sort((a, b) =>
-        {
-            int typeCompare = a.Item.ItemData.Type.CompareTo(b.Item.ItemData.Type);
-            if (typeCompare != 0)
-                return typeCompare;
-            int qualityCompare = b.Item.ItemData.Quality.CompareTo(a.Item.ItemData.Quality);
-            if (qualityCompare != 0)
-                return qualityCompare;
-            return a.ItemId.CompareTo(b.ItemId);
-        });
+        merged.Sort(
+            (a, b) =>
+            {
+                int typeCompare = a.Item.ItemData.Type.CompareTo(b.Item.ItemData.Type);
+                if (typeCompare != 0)
+                    return typeCompare;
+                int qualityCompare = b.Item.ItemData.Quality.CompareTo(a.Item.ItemData.Quality);
+                if (qualityCompare != 0)
+                    return qualityCompare;
+                return a.ItemId.CompareTo(b.ItemId);
+            }
+        );
 
         // 4. 重新填回格子
         for (int i = 0; i < m_Slots.Count; i++)
