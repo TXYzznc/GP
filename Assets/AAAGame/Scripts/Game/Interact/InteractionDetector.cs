@@ -137,9 +137,12 @@ public class InteractionDetector : MonoBehaviour
             CurrentTarget = bestTarget;
             OnTargetChanged?.Invoke(CurrentTarget);
 
-            // 通知新目标高亮
+            // 通知新目标高亮（仅在未开始交互时显示）
             var newBase = CurrentTarget as InteractableBase;
-            if (newBase != null) newBase.OnSetAsTarget(true);
+            if (newBase != null && !newBase.HasStartedInteraction)
+            {
+                newBase.OnSetAsTarget(true);
+            }
 
             // 更新提示 UI
             UpdateTipVisibility();
@@ -173,7 +176,9 @@ public class InteractionDetector : MonoBehaviour
         if (interactable != null)
         {
             m_Candidates.Remove(interactable);
-            // 不在此处触发事件，由下一帧 Update 的 EvaluateBestTarget 统一处理
+            // 重置交互标记
+            var base_ = interactable as InteractableBase;
+            if (base_ != null) base_.SetInteractionStarted(false);
         }
     }
 
@@ -297,11 +302,21 @@ public class InteractionDetector : MonoBehaviour
     {
         if (m_TipInstance == null) return;
 
-        if (CurrentTarget != null)
+        if (CurrentTarget != null && CurrentTarget.CanInteract(gameObject))
         {
-            if (m_TipText != null)
-                m_TipText.text = CurrentTarget.InteractionTip;
-            m_TipInstance.SetActive(true);
+            var base_ = CurrentTarget as InteractableBase;
+            bool shouldShowTip = base_ == null || !base_.HasStartedInteraction;
+
+            if (shouldShowTip)
+            {
+                if (m_TipText != null)
+                    m_TipText.text = CurrentTarget.InteractionTip;
+                m_TipInstance.SetActive(true);
+            }
+            else
+            {
+                m_TipInstance.SetActive(false);
+            }
         }
         else
         {
