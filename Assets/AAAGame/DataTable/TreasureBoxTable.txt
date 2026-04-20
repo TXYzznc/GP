@@ -2,7 +2,7 @@
 #	Id		Name	Rarity	ItemCountMin	ItemCountMax	ItemGroupIds	CoinsProbability	MinCoins	MaxCoins	MagicaStoneProbability	MinMagicaStone	MaxMagicaStone	Description
 #	int		string	int	int	int	int[]	double	int	int	double	int	int	string
 #	宝箱ID	备注	宝箱名字	稀有度(0普通 1稀有 2史诗 3传说)	开箱最小物品数	开箱最大物品数	物品组ID列表	有金币的概率	最小金币数量	最大金币数量	有灵石的概率	最小灵石数量	最大灵石数量	宝箱描述
-	1		可疑的箱子	0	3	8	1	1	200	500	0.2	1	2	一个看起来很可疑的箱子
+	1		破损的宝箱	0	3	8	1	0.5	200	500	0.2	0	2	一个看起来很可疑的箱子
 	2		精致的宝箱	1	3	6	2	0.6	500	1000	0.4	0	3	华丽的宝箱，散发着神秘光芒
 	3		华丽的宝箱	2	5	8	3	0.8	1000	10000	0.6	0	4	满是珍宝的宝箱
-	4		神秘古董箱	3	6	10	4	1	10000	100000	0.8	1	5	传说中的古董宝藏
+	4		神秘的宝箱	3	6	10	4	1	10000	100000	0.8	1	5	传说中的古董宝藏
