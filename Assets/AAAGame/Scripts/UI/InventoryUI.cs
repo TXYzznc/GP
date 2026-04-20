@@ -108,6 +108,23 @@ public partial class InventoryUI : UIFormBase
     {
         base.OnClose(isShutdown, userData);
 
+        // 清理所有格子的物品数量变化事件订阅
+        foreach (var slot in m_InventorySlots)
+        {
+            if (slot != null)
+                slot.ClearItemQuantitySubscription();
+        }
+        foreach (var slot in m_FastSlots)
+        {
+            if (slot != null)
+                slot.ClearItemQuantitySubscription();
+        }
+        foreach (var slot in m_EquipSlots)
+        {
+            if (slot != null)
+                slot.ClearItemQuantitySubscription();
+        }
+
         if (m_InventoryManager != null)
             m_InventoryManager.OnInventoryChanged -= OnInventoryChanged;
 
@@ -719,10 +736,10 @@ public partial class InventoryUI : UIFormBase
             var row = itemTable?.GetDataRow(item.ItemId);
             if (row != null)
             {
-                varRarityText.text = $"稀有度: {row.Rarity}";
+                varRarityText.text = $"品质: {row.Quality}";
 
-                // 获取稀有度对应的颜色
-                var rarityColor = RarityColorHelper.GetColor(row.Rarity);
+                // 获取品质对应的颜色
+                var rarityColor = RarityColorHelper.GetColor(row.Quality);
                 varRarityText.color = rarityColor;
             }
         }
