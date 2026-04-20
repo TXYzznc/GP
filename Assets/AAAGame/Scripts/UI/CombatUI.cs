@@ -15,7 +15,10 @@ public partial class CombatUI : StateAwareUIForm
 
     /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
     private ChessEntity m_CurrentDetailChess;
-    
+
+    /// <summary>⭐ 新增：当前战斗中的刷新次数</summary>
+    private int m_RefreshCount = 0;
+
     #endregion
 
     #region 事件订阅
@@ -85,13 +88,14 @@ public partial class CombatUI : StateAwareUIForm
         // ⭐ 新增：创建卡牌预览管理器
         CreateCardPreviewManager();
 
-        // 初始化 CardManager
+        // ⭐ 新增：初始化刷新次数
+        m_RefreshCount = 0;
+
+        // CardManager 已在 CombatState 中初始化，只订阅事件
         if (CardManager.Instance != null)
         {
-            CardManager.Instance.InitializeForCombat();
-            // 订阅卡牌移除事件，自动刷新卡槽
             CardManager.Instance.OnCardRemoved += OnCardRemoved;
-            DebugEx.LogModule("CombatUI", "CardManager 已初始化");
+            DebugEx.LogModule("CombatUI", "CardManager 事件已订阅");
         }
 
         ShowUI();
@@ -163,23 +167,18 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private void OnCardRemoved(int cardId)
     {
-        DebugEx.LogModule("CombatUI", $"卡牌已移除: ID={cardId}，更新卡槽");
+        DebugEx.LogModule("CombatUI", $"[OnCardRemoved] 触发卡牌移除事件 ID={cardId}");
 
-        // 查找被移除的卡牌对应的 UI 并移除
         var container = GetCardSlotContainer();
         if (container == null)
-            return;
-
-        var cardSlots = varCardSlots.transform.GetComponentsInChildren<CardSlotItem>();
-        foreach (var slot in cardSlots)
         {
-            if (slot.GetCardData()?.CardId == cardId)
-            {
-                container.RemoveCard(slot);
-                Destroy(slot.gameObject);
-                break;
-            }
+            DebugEx.ErrorModule("CombatUI", $"[OnCardRemoved] 未找到 CardSlotContainer");
+            return;
         }
+
+        DebugEx.LogModule("CombatUI", $"[OnCardRemoved] 调用 RemoveCardByIdAsync(ID={cardId})");
+        // 异步移除卡牌，延迟销毁对象避免时序冲突
+        container.RemoveCardByIdAsync(cardId).Forget();
     }
     /// <summary>
     /// 获取详情UI
@@ -461,6 +460,14 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private void RefreshCardSlots()
     {
+        RefreshCardSlotsAsync().Forget();
+    }
+
+    /// <summary>
+    /// 异步刷新卡牌槽（带动效）
+    /// </summary>
+    private async UniTask RefreshCardSlotsAsync()
+    {
         if (varCardSlots == null || varCardSlotItem == null)
         {
             return;
@@ -473,24 +480,59 @@ public partial class CombatUI : StateAwareUIForm
             return;
         }
 
-        // 清理所有卡牌槽
+        // 清理所有卡牌槽（通过容器的正式接口）
+        var oldCards = new List<CardSlotItem>();
         for (int i = varCardSlots.transform.childCount - 1; i >= 0; i--)
         {
             var child = varCardSlots.transform.GetChild(i);
             if (child.gameObject != varCardSlotItem)
             {
-                Destroy(child.gameObject);
+                var cardSlotItem = child.GetComponent<CardSlotItem>();
+                if (cardSlotItem != null)
+                {
+                    oldCards.Add(cardSlotItem);
+                }
             }
         }
+
+        // 销毁旧卡牌
+        foreach (var card in oldCards)
+        {
+            container.RemoveCard(card);
+            Destroy(card.gameObject);
+        }
+
+        // 等待一帧，确保旧卡牌已移除
+        await UniTask.Yield();
+
+        // 清理容器状态
+        container.ClearState();
 
         // 从 CardManager 获取卡牌列表并创建卡牌槽
         if (CardManager.Instance != null)
         {
             var cards = CardManager.Instance.GetAvailableCards();
+
+            // 第一步：先创建所有卡牌 UI，但不播放动画
+            var cardSlots = new List<CardSlotItem>();
             for (int i = 0; i < cards.Count; i++)
             {
-                CreateCardSlot(cards[i], i, container).Forget();
+                GameObject slotGo = Instantiate(varCardSlotItem, varCardSlots.transform);
+                slotGo.SetActive(true);
+                slotGo.name = $"CardSlot_{i}";
+
+                CardSlotItem slotItem = slotGo.GetComponent<CardSlotItem>();
+                if (slotItem != null)
+                {
+                    slotItem.SetData(cards[i]);
+                    // 仅添加到容器，不播放动画
+                    container.AddCardSilent(slotItem);
+                    cardSlots.Add(slotItem);
+                }
             }
+
+            // 第二步：统一启动所有卡牌的进场动画（此时所有卡都已添加，位置计算基于最终的卡牌数量）
+            await container.PlayAllCardAnimationsAsync();
 
             DebugEx.LogModule("CombatUI", $"刷新卡牌槽完成，共 {cards.Count} 张卡牌");
         }
@@ -503,7 +545,7 @@ public partial class CombatUI : StateAwareUIForm
     /// <summary>
     /// 创建卡牌槽
     /// </summary>
-    private async UniTaskVoid CreateCardSlot(CardData cardData, int index, CardSlotContainer container)
+    private async UniTask CreateCardSlot(CardData cardData, int index, CardSlotContainer container, bool isRefreshMode = false)
     {
         GameObject slotGo = Instantiate(varCardSlotItem, varCardSlots.transform);
         slotGo.SetActive(true);
@@ -514,7 +556,7 @@ public partial class CombatUI : StateAwareUIForm
         {
             slotItem.SetData(cardData);
             // 通过容器添加卡牌，播放进场动画
-            await container.AddCardAsync(slotItem);
+            await container.AddCardAsync(slotItem, isRefreshMode);
         }
     }
 
@@ -624,8 +666,88 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private void OnRefreshButtonClicked()
     {
+        OnRefreshButtonClickedAsync().Forget();
+    }
+
+    /// <summary>
+    /// 刷新按钮点击回调（异步）
+    /// </summary>
+    private async UniTask OnRefreshButtonClickedAsync()
+    {
         DebugEx.LogModule("CombatUI", "点击了刷新按钮");
-        // TODO: 刷新卡牌池
+
+        // 检查是否还有刷新次数
+        if (m_RefreshCount >= 3)
+        {
+            DebugEx.WarningModule("CombatUI", "本战斗已达到最大刷新次数（3次）");
+            // TODO: 显示提示信息
+            return;
+        }
+
+        // 检查召唤师运行时数据
+        if (SummonerRuntimeDataManager.Instance == null || !SummonerRuntimeDataManager.Instance.IsInitialized)
+        {
+            DebugEx.ErrorModule("CombatUI", "召唤师数据未初始化");
+            return;
+        }
+
+        var summonerData = SummonerRuntimeDataManager.Instance;
+        float costAmount = 0;
+        string costType = "";
+
+        // 计算消耗
+        if (m_RefreshCount == 0)
+        {
+            // 第一次：消耗 40% 最大灵力
+            costAmount = summonerData.MaxMP * 0.4f;
+            costType = "MP";
+            if (summonerData.CurrentMP < costAmount)
+            {
+                DebugEx.WarningModule("CombatUI", $"灵力不足（需要 {costAmount:F0}，当前 {summonerData.CurrentMP:F0}）");
+                return;
+            }
+        }
+        else if (m_RefreshCount == 1)
+        {
+            // 第二次：消耗 30% 最大生命值
+            costAmount = summonerData.MaxHP * 0.3f;
+            costType = "HP";
+            if (summonerData.CurrentHP < costAmount)
+            {
+                DebugEx.WarningModule("CombatUI", $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
+                return;
+            }
+        }
+        else if (m_RefreshCount == 2)
+        {
+            // 第三次：消耗 40% 最大生命值
+            costAmount = summonerData.MaxHP * 0.4f;
+            costType = "HP";
+            if (summonerData.CurrentHP < costAmount)
+            {
+                DebugEx.WarningModule("CombatUI", $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
+                return;
+            }
+        }
+
+        // 扣除资源
+        if (costType == "MP")
+        {
+            summonerData.ConsumeMP(costAmount);
+        }
+        else if (costType == "HP")
+        {
+            summonerData.ReduceHP(costAmount);
+        }
+
+        // 刷新卡牌
+        if (CardManager.Instance != null)
+        {
+            CardManager.Instance.RefreshCards();
+            await RefreshCardSlotsAsync();
+            m_RefreshCount++;
+            DebugEx.LogModule("CombatUI", $"卡牌已刷新（第 {m_RefreshCount} 次），消耗 {costAmount:F0} {costType}");
+        }
     }
 
     /// <summary>

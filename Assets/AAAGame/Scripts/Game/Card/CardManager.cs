@@ -9,6 +9,13 @@ using GameFramework.Event;
 /// </summary>
 public class CardManager : MonoBehaviour
 {
+    #region 常量
+
+    /// <summary>每次刷新时的卡牌数量</summary>
+    public const int REFRESH_CARD_COUNT = 8;
+
+    #endregion
+
     #region 单例
 
     private static CardManager s_Instance;
@@ -101,9 +108,12 @@ public class CardManager : MonoBehaviour
     /// </summary>
     public bool RemoveCard(int cardId)
     {
+        DebugEx.LogModule("CardManager", $"[RemoveCard] 尝试移除卡牌 ID={cardId}，当前卡牌总数={m_AvailableCards.Count}");
+
         var card = m_AvailableCards.FirstOrDefault(c => c.CardId == cardId);
         if (card != null)
         {
+            DebugEx.LogModule("CardManager", $"[RemoveCard] 找到卡牌 ID={cardId}，移除前数量={m_AvailableCards.Count}");
             m_AvailableCards.Remove(card);
 
             // 如果移除的是当前选中的卡牌，清除选中状态
@@ -112,12 +122,13 @@ public class CardManager : MonoBehaviour
                 CurrentSelectedCard = null;
             }
 
+            DebugEx.LogModule("CardManager", $"[RemoveCard] 移除完成，移除后数量={m_AvailableCards.Count}，触发 OnCardRemoved 事件");
             OnCardRemoved?.Invoke(cardId);
-            DebugEx.LogModule("CardManager", $"移除卡牌: ID={cardId}");
+            DebugEx.LogModule("CardManager", $"[RemoveCard] 卡牌 ID={cardId} 已移除");
             return true;
         }
 
-        DebugEx.WarningModule("CardManager", $"尝试移除不存在的卡牌: ID={cardId}");
+        DebugEx.WarningModule("CardManager", $"[RemoveCard] 未找到卡牌 ID={cardId}");
         return false;
     }
 
@@ -146,7 +157,7 @@ public class CardManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 战斗开始时初始化（随机加载 8 张卡）
+    /// 战斗开始时初始化（从预设随机选择8张卡牌）
     /// </summary>
     public void InitializeForCombat()
     {
@@ -159,28 +170,30 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        // 获取所有卡牌ID（1001-1012）
-        var allCardIds = new List<int>();
-        for (int id = 1001; id <= 1012; id++)
+        // 从预设获取策略卡ID
+        var preparedCardIds = BattleLoadoutProvider.Instance.GetPreparedStrategyCardIds();
+        if (preparedCardIds == null || preparedCardIds.Count == 0)
         {
-            var row = cardTable.GetDataRow(id);
-            if (row != null)
-            {
-                allCardIds.Add(id);
-            }
+            DebugEx.WarningModule("CardManager", "预设中没有策略卡");
+            return;
         }
 
-        // 随机选择 8 张卡
+        // 随机选择 REFRESH_CARD_COUNT 张卡（可重复）
         var random = new System.Random();
-        var selectedIds = allCardIds.OrderBy(x => random.Next()).Take(8).ToList();
-
-        foreach (var cardId in selectedIds)
+        for (int i = 0; i < REFRESH_CARD_COUNT; i++)
         {
+            int randomIndex = random.Next(0, preparedCardIds.Count);
+            int cardId = preparedCardIds[randomIndex];
+
             var row = cardTable.GetDataRow(cardId);
             if (row != null)
             {
                 var cardData = new CardData(cardId, row);
                 AddCard(cardData);
+            }
+            else
+            {
+                DebugEx.WarningModule("CardManager", $"卡牌ID {cardId} 不存在于 CardTable");
             }
         }
 
@@ -195,6 +208,51 @@ public class CardManager : MonoBehaviour
         m_AvailableCards.Clear();
         CurrentSelectedCard = null;
         DebugEx.LogModule("CardManager", "清理卡牌数据");
+    }
+
+    /// <summary>
+    /// 刷新卡牌（从预设中随机选择 8 张，可重复）
+    /// </summary>
+    public void RefreshCards()
+    {
+        m_AvailableCards.Clear();
+        CurrentSelectedCard = null;
+
+        var cardTable = GF.DataTable.GetDataTable<CardTable>();
+        if (cardTable == null)
+        {
+            DebugEx.ErrorModule("CardManager", "CardTable 未加载，刷新失败");
+            return;
+        }
+
+        // 从预设获取策略卡ID
+        var preparedCardIds = BattleLoadoutProvider.Instance.GetPreparedStrategyCardIds();
+        if (preparedCardIds == null || preparedCardIds.Count == 0)
+        {
+            DebugEx.WarningModule("CardManager", "预设中没有策略卡");
+            return;
+        }
+
+        // 随机选择 8 张卡（可重复）
+        var random = new System.Random();
+        for (int i = 0; i < REFRESH_CARD_COUNT; i++)
+        {
+            int randomIndex = random.Next(0, preparedCardIds.Count);
+            int cardId = preparedCardIds[randomIndex];
+
+            var row = cardTable.GetDataRow(cardId);
+            if (row != null)
+            {
+                var cardData = new CardData(cardId, row);
+                AddCard(cardData);
+            }
+            else
+            {
+                DebugEx.WarningModule("CardManager", $"卡牌ID {cardId} 不存在于 CardTable");
+            }
+        }
+
+        DebugEx.LogModule("CardManager", $"卡牌已刷新，重新加载了 {m_AvailableCards.Count} 张卡牌");
     }
 
     #endregion

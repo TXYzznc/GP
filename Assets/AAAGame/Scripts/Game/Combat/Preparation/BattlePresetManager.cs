@@ -34,8 +34,11 @@ public class BattlePresetManager
     /// <summary>最大预设数量</summary>
     public const int MAX_PRESET_COUNT = 5;
 
+    /// <summary>每预设最大棋子数</summary>
+    public const int MAX_CHESS_COUNT = 8;
+
     /// <summary>每预设最大策略卡数</summary>
-    public const int MAX_CARD_COUNT = 8;
+    public const int MAX_STRATEGY_CARD_COUNT = 12;
 
     #endregion
 

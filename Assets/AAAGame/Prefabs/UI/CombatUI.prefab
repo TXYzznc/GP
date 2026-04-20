@@ -2008,9 +2008,10 @@ MonoBehaviour:
   m_MaxFanAngle: 30
   m_CircleCenter: {x: 0, y: 0}
   m_CircleCenterOffsetY: 120
-  m_EnterDuration: 0.35
-  m_CardDealInterval: 0.1
-  m_RearrangeDuration: 0.25
+  m_EnterDuration: 0.2
+  m_CardDealInterval: 0.05
+  m_RefreshEmitInterval: 0.2
+  m_RearrangeDuration: 0.2
   m_RearrangeEase: 9
 --- !u!1 &5245978160703895660
 GameObject:

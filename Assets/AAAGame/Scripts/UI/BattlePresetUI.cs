@@ -250,7 +250,7 @@ public partial class BattlePresetUI : UIFormBase
         var summaryText = go.transform.Find("PresetSummary")?.GetComponent<TMP_Text>();
         if (summaryText != null)
             summaryText.text =
-                $"棋子 {data.UnitCardIds.Count} · 策略卡 {data.StrategyCardIds.Count}/{BattlePresetManager.MAX_CARD_COUNT}";
+                $"棋子 {data.UnitCardIds.Count} · 策略卡 {data.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
 
         // 默认标记
         var defaultBadge = go.transform.Find("DefaultBadge");
@@ -645,14 +645,15 @@ public partial class BattlePresetUI : UIFormBase
             return;
 
         // 检查是否已达到最大数量限制（8个）
-        if (m_EditingPreset.UnitCardIds.Count >= 8)
+        if (m_EditingPreset.UnitCardIds.Count >= BattlePresetManager.MAX_CHESS_COUNT)
         {
-            DebugEx.Warning("BattlePresetUI", "已达到最大棋子数量限制（8个）");
+            DebugEx.Warning("BattlePresetUI", "已达到最大棋子数量限制");
 
             // 播放达到上限动画
             if (varChessCountText != null)
             {
-                PlayCounterUpdateAnimation(varChessCountText, "8/8", true);
+                string limitText = $"{BattlePresetManager.MAX_CHESS_COUNT}/{BattlePresetManager.MAX_CHESS_COUNT}";
+                PlayCounterUpdateAnimation(varChessCountText, limitText, true);
             }
             return;
         }
@@ -762,7 +763,7 @@ public partial class BattlePresetUI : UIFormBase
         // 更新已选策略卡数量
         if (varCardCountText != null)
             varCardCountText.text =
-                $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_CARD_COUNT}";
+                $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
 
         var allCardIds = BattlePresetManager.Instance.GetAvailableCardIds();
         var selectedSet = new HashSet<int>(m_EditingPreset.StrategyCardIds);
@@ -906,7 +907,7 @@ public partial class BattlePresetUI : UIFormBase
                 if (varCardCountText != null)
                 {
                     string newCount =
-                        $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_CARD_COUNT}";
+                        $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
                     varCardCountText.text = newCount;
                 }
             }
@@ -996,7 +997,7 @@ public partial class BattlePresetUI : UIFormBase
         if (m_EditingPreset.StrategyCardIds.Contains(cardId))
             return;
 
-        if (m_EditingPreset.StrategyCardIds.Count >= BattlePresetManager.MAX_CARD_COUNT)
+        if (m_EditingPreset.StrategyCardIds.Count >= BattlePresetManager.MAX_STRATEGY_CARD_COUNT)
         {
             DebugEx.WarningModule("BattlePresetUI", "策略卡数量已达上限");
 
@@ -1004,7 +1005,7 @@ public partial class BattlePresetUI : UIFormBase
             if (varCardCountText != null)
             {
                 string limitText =
-                    $"{BattlePresetManager.MAX_CARD_COUNT}/{BattlePresetManager.MAX_CARD_COUNT}";
+                    $"{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
                 PlayCounterUpdateAnimation(varCardCountText, limitText, true);
             }
             return;
@@ -1031,9 +1032,9 @@ public partial class BattlePresetUI : UIFormBase
         if (varCardCountText != null)
         {
             string newCount =
-                $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_CARD_COUNT}";
+                $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
             bool isLimit =
-                m_EditingPreset.StrategyCardIds.Count >= BattlePresetManager.MAX_CARD_COUNT;
+                m_EditingPreset.StrategyCardIds.Count >= BattlePresetManager.MAX_STRATEGY_CARD_COUNT;
             PlayCounterUpdateAnimation(varCardCountText, newCount, isLimit);
         }
 

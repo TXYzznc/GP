@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -12,15 +14,16 @@ public class CardSlotContainer : MonoBehaviour
     #region 参数配置
 
     [Header("扇形排列")]
-    [SerializeField] private float m_FanRadius = 800f;           // 圆弧半径
-    [SerializeField] private float m_MaxFanAngle = 50f;          // 最大展开角度（度）
+    [SerializeField] private float m_FanRadius = 1500f;           // 圆弧半径
+    [SerializeField] private float m_MaxFanAngle = 30f;          // 最大展开角度（度）
     [SerializeField] private Vector2 m_CircleCenter = Vector2.zero;  // 圆心偏移
-    [SerializeField] private float m_CircleCenterOffsetY = -100f;    // 圆心在容器底部偏下距离
+    [SerializeField] private float m_CircleCenterOffsetY = 120f;    // 圆心在容器底部偏下距离
 
     [Header("动效时长")]
-    [SerializeField] private float m_EnterDuration = 0.35f;      // 进场动画时长
-    [SerializeField] private float m_CardDealInterval = 0.1f;    // 卡牌发牌间隔时间（秒）
-    [SerializeField] private float m_RearrangeDuration = 0.25f;  // 补位动画时长
+    [SerializeField] private float m_EnterDuration = 0.2f;      // 进场动画时长
+    [SerializeField] private float m_CardDealInterval = 0.05f;    // 卡牌发牌间隔时间（秒）
+    [SerializeField] private float m_RefreshEmitInterval = 0.2f; // 刷新时卡牌发射间隔（秒）
+    [SerializeField] private float m_RearrangeDuration = 0.2f;  // 补位动画时长
     [SerializeField] private Ease m_RearrangeEase = Ease.OutCubic;
 
     // 缓存旧参数，用于检测参数变化
@@ -43,6 +46,10 @@ public class CardSlotContainer : MonoBehaviour
 
     // 动效控制
     private Tween m_RearrangeTween;
+
+    // 调试：位置追踪
+    private float m_DebugTimer = 0f;
+    private const float m_DebugInterval = 0.5f;
 
     #endregion
 
@@ -74,6 +81,14 @@ public class CardSlotContainer : MonoBehaviour
             // 立即更新位置（不播放动画，实时反馈）
             RefreshCardPositionsImmediate();
         }
+
+        // 调试：每 0.5s 输出一次卡牌位置
+        m_DebugTimer += Time.deltaTime;
+        if (m_DebugTimer >= m_DebugInterval)
+        {
+            m_DebugTimer = 0f;
+            DebugCardPositions();
+        }
     }
 
     /// <summary>
@@ -96,6 +111,95 @@ public class CardSlotContainer : MonoBehaviour
             || !Mathf.Approximately(m_MaxFanAngle, m_CachedMaxFanAngle)
             || m_CircleCenter != m_CachedCircleCenter
             || !Mathf.Approximately(m_CircleCenterOffsetY, m_CachedCircleCenterOffsetY);
+    }
+
+    #endregion
+
+    #region Gizmo调试
+
+    private void OnDrawGizmos()
+    {
+        if (m_RectTransform == null)
+            return;
+
+        // 圆心在本地坐标系（rect坐标）中的位置
+        float circleCenterX_local = 0; // rect.center.x
+        float circleCenterY_local = -m_FanRadius + m_CircleCenterOffsetY;
+        Vector3 circleCenterLocal = new Vector3(circleCenterX_local + m_CircleCenter.x, circleCenterY_local, 0);
+
+        // 转换到世界坐标进行绘制
+        Vector3 circleCenterWorld = m_RectTransform.TransformPoint(circleCenterLocal);
+
+        // 绘制圆心
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(circleCenterWorld, 30f);
+
+        // 绘制发射方向（从圆心出发，角度范围从 -MaxFanAngle/2 到 +MaxFanAngle/2）
+        float fanRangeRad = m_MaxFanAngle * Mathf.Deg2Rad;
+        float halfFanRangeRad = fanRangeRad * 0.5f;
+
+        Gizmos.color = Color.yellow;
+        float rayLength = m_FanRadius * 0.3f; // 射线长度为半径的30%
+
+        // 绘制左侧边界（-MaxFanAngle/2）
+        float leftAngle = -halfFanRangeRad;
+        Vector3 leftDir = new Vector3(Mathf.Sin(leftAngle), Mathf.Cos(leftAngle), 0);
+        Gizmos.DrawLine(circleCenterWorld, circleCenterWorld + leftDir * rayLength);
+
+        // 绘制中心线（0°）
+        Gizmos.color = Color.green;
+        Vector3 centerDir = new Vector3(0, 1, 0);
+        Gizmos.DrawLine(circleCenterWorld, circleCenterWorld + centerDir * rayLength);
+
+        // 绘制右侧边界（+MaxFanAngle/2）
+        Gizmos.color = Color.yellow;
+        float rightAngle = halfFanRangeRad;
+        Vector3 rightDir = new Vector3(Mathf.Sin(rightAngle), Mathf.Cos(rightAngle), 0);
+        Gizmos.DrawLine(circleCenterWorld, circleCenterWorld + rightDir * rayLength);
+
+        // 绘制扇形弧线
+        Gizmos.color = Color.cyan;
+        int segments = 20;
+        Vector3 prevPoint = circleCenterWorld + new Vector3(Mathf.Sin(-halfFanRangeRad), Mathf.Cos(-halfFanRangeRad), 0) * rayLength;
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = -halfFanRangeRad + (fanRangeRad / segments) * i;
+            Vector3 nextPoint = circleCenterWorld + new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0) * rayLength;
+            Gizmos.DrawLine(prevPoint, nextPoint);
+            prevPoint = nextPoint;
+        }
+    }
+
+    #endregion
+
+    #region 调试
+
+    /// <summary>
+    /// 输出所有卡牌的当前位置
+    /// </summary>
+    private void DebugCardPositions()
+    {
+        if (m_Cards.Count == 0)
+            return;
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"[CardSlotContainer] 卡牌位置调试（共 {m_Cards.Count} 张）:");
+        for (int i = 0; i < m_Cards.Count; i++)
+        {
+            var card = m_Cards[i];
+            if (card == null)
+                continue;
+
+            var rect = card.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                var pos = rect.anchoredPosition;
+                var rot = rect.localRotation.eulerAngles.z;
+                sb.AppendLine($"  [{i}] {card.name}: pos=({pos.x:F0}, {pos.y:F0}), rot={rot:F0}°");
+            }
+        }
+
+        DebugEx.LogModule("CardSlotContainer", sb.ToString());
     }
 
     #endregion
@@ -140,7 +244,10 @@ public class CardSlotContainer : MonoBehaviour
     /// <summary>
     /// 新增卡牌并播放进场动画
     /// </summary>
-    public async UniTask AddCardAsync(CardSlotItem card)
+    /// <summary>
+    /// 添加卡牌且播放进场动画（普通模式，单张添加带延迟）
+    /// </summary>
+    public async UniTask AddCardAsync(CardSlotItem card, bool isRefreshMode = false)
     {
         if (card == null)
             return;
@@ -150,18 +257,21 @@ public class CardSlotContainer : MonoBehaviour
 
         DebugEx.LogModule("CardSlotContainer", $"添加卡牌: {m_Cards.Count} 张");
 
-        // 计算延迟时间（按卡牌索引从左到右发牌）
         int cardIndex = m_Cards.IndexOf(card);
-        float delayTime = cardIndex * m_CardDealInterval;
 
-        // 等待延迟后再播放进场动画
-        if (delayTime > 0)
+        // 刷新模式下，延迟逻辑由 PlayCardEnterAnimationAsync 处理
+        // 正常模式下，使用发牌间隔
+        if (!isRefreshMode)
         {
-            await UniTask.Delay((int)(delayTime * 1000));
+            float delayTime = cardIndex * m_CardDealInterval;
+            if (delayTime > 0)
+            {
+                await UniTask.Delay((int)(delayTime * 1000));
+            }
         }
 
         // 播放新卡进场动画
-        await PlayCardEnterAnimationAsync(card);
+        await PlayCardEnterAnimationAsync(card, isRefreshMode);
 
         // 最后一张卡播放完后，重新排列所有卡（确保位置准确）
         if (cardIndex == m_Cards.Count - 1)
@@ -171,17 +281,87 @@ public class CardSlotContainer : MonoBehaviour
     }
 
     /// <summary>
+    /// 仅添加卡牌到容器，不播放动画（用于批量添加）
+    /// </summary>
+    public void AddCardSilent(CardSlotItem card)
+    {
+        if (card == null)
+            return;
+
+        m_Cards.Add(card);
+        card.transform.SetParent(transform);
+
+        DebugEx.LogModule("CardSlotContainer", $"静默添加卡牌: {m_Cards.Count} 张");
+    }
+
+    /// <summary>
+    /// 批量启动所有卡牌的进场动画（刷新模式）
+    /// </summary>
+    public async UniTask PlayAllCardAnimationsAsync()
+    {
+        if (m_Cards.Count == 0)
+            return;
+
+        var animationTasks = new List<UniTask>();
+
+        for (int i = 0; i < m_Cards.Count; i++)
+        {
+            animationTasks.Add(PlayCardEnterAnimationAsync(m_Cards[i], isRefreshMode: true));
+        }
+
+        // 等待所有动画完成
+        await UniTask.WhenAll(animationTasks);
+
+        // 动画都播放完后，重新排列所有卡（确保位置准确）
+        await RearrangeAsync(skipNewCard: false);
+
+        DebugEx.LogModule("CardSlotContainer", "所有卡牌动画播放完成");
+    }
+
+    /// <summary>
+    /// 移除卡牌并重排（通过卡牌ID，安全销毁对应的卡牌对象）
+    /// </summary>
+    public async UniTask RemoveCardByIdAsync(int cardId)
+    {
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardByIdAsync] 尝试移除卡牌 ID={cardId}，当前容器卡牌数={m_Cards.Count}");
+
+        var cardSlot = m_Cards.FirstOrDefault(c => c.GetCardData()?.CardId == cardId);
+        if (cardSlot == null)
+        {
+            DebugEx.WarningModule("CardSlotContainer", $"[RemoveCardByIdAsync] 未找到卡牌 ID={cardId}");
+            return;
+        }
+
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardByIdAsync] 找到卡牌 ID={cardId}，移除前容器卡牌数={m_Cards.Count}");
+        RemoveCard(cardSlot);
+
+        // 延迟销毁，等待重排动画完成
+        await UniTask.Delay(100, cancellationToken: this.GetCancellationTokenOnDestroy());
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardByIdAsync] 重排完成，即将销毁对象");
+
+        if (cardSlot != null && cardSlot.gameObject != null)
+        {
+            Destroy(cardSlot.gameObject);
+            DebugEx.LogModule("CardSlotContainer", $"[RemoveCardByIdAsync] 对象已销毁");
+        }
+    }
+
+    /// <summary>
     /// 移除卡牌并重排
     /// </summary>
     public void RemoveCard(CardSlotItem card)
     {
         if (card == null || !m_Cards.Contains(card))
+        {
+            DebugEx.WarningModule("CardSlotContainer", $"[RemoveCard] 卡牌为空或不在容器中");
             return;
+        }
 
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 移除卡牌 {card.name}（卡牌ID={card.GetCardData()?.CardId}），移除前数量={m_Cards.Count}");
         m_Cards.Remove(card);
         m_TempOffsets.Remove(card);
 
-        DebugEx.LogModule("CardSlotContainer", $"移除卡牌，剩余: {m_Cards.Count} 张");
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 移除完成，剩余: {m_Cards.Count} 张，触发重排动画");
 
         // 其他卡补位
         RearrangeAsync(skipNewCard: false).Forget();
@@ -246,7 +426,33 @@ public class CardSlotContainer : MonoBehaviour
     #region 核心算法
 
     /// <summary>
-    /// 计算所有卡的扇形位置
+    /// 根据卡牌的anchor和pivot灵活计算圆心的anchoredPosition
+    /// </summary>
+    private Vector2 GetCircleCenterAnchoredPos(RectTransform cardRect)
+    {
+        if (cardRect == null || m_RectTransform == null)
+            return m_CircleCenter;
+
+        // 圆心想要的位置（在CardSlots的rect本地坐标系中）
+        float circleCenterX_local = 0; // rect.center.x，加上手动偏移
+        float circleCenterY_local = -m_FanRadius + m_CircleCenterOffsetY;
+
+        // 卡牌的anchor位置（在CardSlots的rect坐标系中）
+        // anchor在[0,1]范围，转换到rect坐标系
+        float anchorX = cardRect.anchorMin.x;
+        float anchorY = cardRect.anchorMin.y;
+        float cardAnchorX = Mathf.Lerp(m_RectTransform.rect.min.x, m_RectTransform.rect.max.x, anchorX);
+        float cardAnchorY = Mathf.Lerp(m_RectTransform.rect.min.y, m_RectTransform.rect.max.y, anchorY);
+
+        // 圆心相对于卡牌anchor的anchoredPosition
+        float circleCenterX = circleCenterX_local - cardAnchorX + m_CircleCenter.x;
+        float circleCenterY = circleCenterY_local - cardAnchorY;
+
+        return new Vector2(circleCenterX, circleCenterY);
+    }
+
+    /// <summary>
+    /// 计算所有卡的扇形位置（基于世界坐标转换，确保anchor/pivot一致性）
     /// </summary>
     private FanTransform[] CalculateFanPositions(bool includeDragCard = false)
     {
@@ -256,9 +462,15 @@ public class CardSlotContainer : MonoBehaviour
 
         var transforms = new FanTransform[cardCount];
 
-        // 计算圆心位置（容器坐标）
-        var rectSize = m_RectTransform.rect;
-        Vector2 center = new Vector2(rectSize.width * 0.5f + m_CircleCenter.x, m_CircleCenterOffsetY + m_CircleCenter.y);
+        // 获取卡牌的anchor位置（在rect本地坐标系中）
+        float anchorX = 0; // 卡牌anchor.x = 0
+        float anchorY = 0; // 卡牌anchor.y = 0
+        float cardAnchorX = Mathf.Lerp(m_RectTransform.rect.min.x, m_RectTransform.rect.max.x, anchorX);
+        float cardAnchorY = Mathf.Lerp(m_RectTransform.rect.min.y, m_RectTransform.rect.max.y, anchorY);
+
+        // 圆心在rect本地坐标系中的位置
+        float circleCenterX_local = 0;
+        float circleCenterY_local = -m_FanRadius + m_CircleCenterOffsetY;
 
         // 计算角度范围
         float fanRangeRad = m_MaxFanAngle * Mathf.Deg2Rad;
@@ -271,15 +483,18 @@ public class CardSlotContainer : MonoBehaviour
         {
             float angle = -halfFanRangeRad + i * angleStep;
 
-            // 位置计算：圆弧上的点
-            float x = Mathf.Sin(angle) * m_FanRadius;
-            float y = Mathf.Cos(angle) * m_FanRadius - m_FanRadius;
-            transforms[i].AnchoredPos = center + new Vector2(x, y);
+            // 卡牌在rect本地坐标系中的目标位置
+            float offsetX = Mathf.Sin(angle) * m_FanRadius;
+            float offsetY = Mathf.Cos(angle) * m_FanRadius;
+            float cardTargetX_local = circleCenterX_local + offsetX;
+            float cardTargetY_local = circleCenterY_local + offsetY;
 
-            // 旋转：与圆弧切线对齐
+            // anchoredPosition = 本地坐标 - anchor位置
+            float cardAnchoredX = cardTargetX_local - cardAnchorX + m_CircleCenter.x;
+            float cardAnchoredY = cardTargetY_local - cardAnchorY;
+
+            transforms[i].AnchoredPos = new Vector2(cardAnchoredX, cardAnchoredY);
             transforms[i].RotationZ = -angle * Mathf.Rad2Deg;
-
-            // 缩放：可选的深度感
             transforms[i].Scale = Vector3.one;
         }
 
@@ -387,7 +602,7 @@ public class CardSlotContainer : MonoBehaviour
     /// <summary>
     /// 播放卡牌进场动画
     /// </summary>
-    private async UniTask PlayCardEnterAnimationAsync(CardSlotItem card)
+    private async UniTask PlayCardEnterAnimationAsync(CardSlotItem card, bool isRefreshMode = false)
     {
         if (card == null)
             return;
@@ -397,11 +612,6 @@ public class CardSlotContainer : MonoBehaviour
 
         if (cardRect == null)
             return;
-
-        // 初始位置：容器底部中央，Y 偏移
-        var rectSize = m_RectTransform.rect;
-        Vector2 startPos = new Vector2(rectSize.width * 0.5f, -200f);
-        cardRect.anchoredPosition = startPos;
 
         // 初始透明度
         if (cardImage == null)
@@ -421,6 +631,17 @@ public class CardSlotContainer : MonoBehaviour
         // 更新卡牌的基准位置
         card.SetBaseFanTransform(this, targetTransform.AnchoredPos, targetTransform.RotationZ);
 
+        // 圆心发射点（根据卡牌的anchor和pivot灵活计算）
+        Vector2 circleCenter = GetCircleCenterAnchoredPos(cardRect);
+        cardRect.anchoredPosition = circleCenter;
+
+        // 刷新模式：等待发射延迟
+        if (isRefreshMode && cardIndex > 0)
+        {
+            float emitDelay = cardIndex * m_RefreshEmitInterval;
+            await UniTask.Delay((int)(emitDelay * 1000), cancellationToken: this.GetCancellationTokenOnDestroy());
+        }
+
         // 播放进场动画：淡入 + 移动
         var sequence = DOTween.Sequence();
         sequence.Join(cardImage.DOFade(1f, m_EnterDuration).SetEase(Ease.OutQuad));
@@ -437,14 +658,20 @@ public class CardSlotContainer : MonoBehaviour
     /// </summary>
     private async UniTask RearrangeAsync(bool skipNewCard)
     {
+        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 开始重排，当前卡牌数={m_Cards.Count}");
+
         if (m_Cards.Count == 0)
+        {
+            DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 卡牌数为0，直接返回");
             return;
+        }
 
         // 杀死之前的重排动画
         m_RearrangeTween?.Kill();
 
         // 计算新位置
         var fanTransforms = CalculateFanPositions(includeDragCard: false);
+        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 计算出 {fanTransforms.Length} 个目标位置");
 
         var sequence = DOTween.Sequence();
 
@@ -457,7 +684,10 @@ public class CardSlotContainer : MonoBehaviour
 
             var cardRect = card.GetComponent<RectTransform>();
             if (cardRect == null)
+            {
+                DebugEx.WarningModule("CardSlotContainer", $"[RearrangeAsync] 卡牌 {card.name} 没有 RectTransform");
                 continue;
+            }
 
             // 应用临时偏移（拖拽中使用）
             Vector2 targetPos = fanTransforms[transformIndex].AnchoredPos;
@@ -480,9 +710,10 @@ public class CardSlotContainer : MonoBehaviour
 
         m_RearrangeTween = sequence;
 
+        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 播放重排动画，共 {transformIndex} 张卡牌");
         await sequence.AsyncWaitForCompletion();
 
-        DebugEx.LogModule("CardSlotContainer", "卡牌重排完成");
+        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 重排完成，当前卡牌数={m_Cards.Count}");
     }
 
     /// <summary>
