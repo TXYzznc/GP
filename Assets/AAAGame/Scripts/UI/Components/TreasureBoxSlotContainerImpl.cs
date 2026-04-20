@@ -146,21 +146,6 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         int targetSlotIndex
     )
     {
-        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
-        var itemRow = itemTable?.GetDataRow(itemId);
-
-        // 检查是否为 Type 0 资源项
-        if (itemRow != null && itemRow.Type == 0)
-        {
-            // Type 0 资源项直接添加到全局资源
-            HandleResourceItem(itemId, count);
-            DebugEx.Log(
-                "TreasureBoxContainer",
-                $"[宝箱→资源] 资源项转换: ID={itemId}, 数量={count}"
-            );
-            return true;
-        }
-
         var inv = InventoryManager.Instance;
         var targetSlot = inv?.GetSlot(targetSlotIndex);
 
@@ -296,18 +281,6 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
     {
         if (itemId <= 0 || count <= 0)
             return false;
-
-        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
-        var itemRow = itemTable?.GetDataRow(itemId);
-
-        // 检查是否为 Type 0 资源项
-        if (itemRow != null && itemRow.Type == 0)
-        {
-            // Type 0 资源项直接添加到全局资源，不存入宝箱
-            HandleResourceItem(itemId, count);
-            DebugEx.Log("TreasureBoxContainer", $"[资源直接添加] ID={itemId}, 数量={count}");
-            return true;
-        }
 
         // 如果指定了目标格子
         if (targetSlotIndex >= 0 && targetSlotIndex < TREASURE_BOX_CAPACITY)
@@ -527,11 +500,11 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
 
     /// <summary>
     /// 将所有物品放入背包（全部拿走按钮用）
+    /// 虚拟物品（金币、灵石）作为普通物品进入背包
     /// </summary>
     public int TakeAll()
     {
         int successCount = 0;
-        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
 
         for (int i = 0; i < TREASURE_BOX_CAPACITY; i++)
         {
@@ -539,33 +512,17 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
             {
                 var item = m_Slots[i];
 
-                // 检查物品类型
-                var itemRow = itemTable?.GetDataRow(item.ItemId);
-                if (itemRow != null && itemRow.Type == 0)
+                // 所有物品都通过AddItem放入背包
+                bool ok = InventoryManager.Instance?.AddItem(item.ItemId, item.Count) ?? false;
+                if (ok)
                 {
-                    // Type 0 = 资源项，直接添加到全局资源
-                    HandleResourceItem(item.ItemId, item.Count);
                     m_Slots[i] = null;
                     successCount++;
-                    DebugEx.Log(
-                        "TreasureBoxContainer",
-                        $"收集资源: ID={item.ItemId}, 数量={item.Count}"
-                    );
                 }
                 else
                 {
-                    // 其他类型物品放入背包
-                    bool ok = InventoryManager.Instance?.AddItem(item.ItemId, item.Count) ?? false;
-                    if (ok)
-                    {
-                        m_Slots[i] = null;
-                        successCount++;
-                    }
-                    else
-                    {
-                        DebugEx.Warning("TreasureBoxContainer", "背包已满，剩余物品无法全部放入");
-                        break;
-                    }
+                    DebugEx.Warning("TreasureBoxContainer", "背包已满，剩余物品无法全部放入");
+                    break;
                 }
             }
         }
@@ -573,39 +530,6 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         DebugEx.Log("TreasureBoxContainer", $"全部拿走: 成功 {successCount} 件");
         OnSlotChanged?.Invoke();
         return successCount;
-    }
-
-    /// <summary>
-    /// 处理资源项（Type 0），直接添加到全局资源
-    /// </summary>
-    private void HandleResourceItem(int itemId, int count)
-    {
-        var accountManager = PlayerAccountDataManager.Instance;
-        if (accountManager == null)
-        {
-            DebugEx.Error("TreasureBoxContainer", "PlayerAccountDataManager 未初始化");
-            return;
-        }
-
-        // 根据资源ID添加到对应的全局资源
-        switch (itemId)
-        {
-            case 999: // 金币
-                accountManager.AddGold(count);
-                DebugEx.Log("TreasureBoxContainer", $"添加金币: +{count}");
-                break;
-            case 9999: // 起源石
-                accountManager.AddOriginStone(count);
-                DebugEx.Log("TreasureBoxContainer", $"添加起源石: +{count}");
-                break;
-            case 99999: // 灵石
-                accountManager.AddSpiritStone(count);
-                DebugEx.Log("TreasureBoxContainer", $"添加灵石: +{count}");
-                break;
-            default:
-                DebugEx.Warning("TreasureBoxContainer", $"未知的资源项ID: {itemId}");
-                break;
-        }
     }
 
     /// <summary>

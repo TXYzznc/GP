@@ -21,8 +21,8 @@ public partial class TreasureBoxUI : UIFormBase
 
     #region 动画参数
 
-    private const float SLOT_ANIMATION_DURATION = 0.4f;  // 每个格子动画时长
-    private const float SLOT_ANIMATION_DELAY = 0.08f;    // 格子间隔（产生瀑布效果）
+    private const float SLOT_ANIMATION_DURATION = 0.2f;  // 每个格子动画时长
+    private const float SLOT_ANIMATION_DELAY = 0.05f;    // 格子间隔（产生瀑布效果）
     private const float SLOT_SCALE_START = 0.5f;         // 起始缩放
     private const float SLOT_ALPHA_START = 0f;           // 起始透明度
 
