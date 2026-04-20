@@ -3,17 +3,27 @@ using UnityGameFramework.Runtime;
 
 /// <summary>
 /// 传送阵可交互对象
-/// 交互时打开地图界面（OverworldUI），显示所有可传送的场景
+/// 支持两种类型：
+/// 1. 基地传送阵 - 直接回到基地（SceneTable ID=1）
+/// 2. 普通传送阵 - 打开地图UI，选择传送目标
 /// </summary>
 public class TeleportGateInteractable : InteractableBase
 {
+    public enum TeleportType
+    {
+        ToBase = 0,      // 回到基地
+        AnyWhere = 1     // 可去任何地方
+    }
+
+    [SerializeField] private TeleportType m_TeleportType = TeleportType.AnyWhere;
+
     public override int Priority => 1;
     public override int InteractAnimIndex => -1;
 
     protected override void Awake()
     {
         base.Awake();
-        interactionTip = "进入传送阵";
+        interactionTip = m_TeleportType == TeleportType.ToBase ? "回到基地" : "进入传送阵";
     }
 
     public override bool CanInteract(GameObject player)
@@ -24,8 +34,31 @@ public class TeleportGateInteractable : InteractableBase
 
     public override void OnInteract(GameObject player)
     {
-        // 打开地图UI
+        if (m_TeleportType == TeleportType.ToBase)
+        {
+            TeleportToBase();
+        }
+        else
+        {
+            OpenMapUI();
+        }
+    }
+
+    private void TeleportToBase()
+    {
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null || !sceneTable.HasDataRow(1))
+        {
+            Log.Error("TeleportGateInteractable: SceneTable 中不存在 ID=1 的基地场景");
+            return;
+        }
+
+        var baseScene = sceneTable.GetDataRow(1);
+        GF.Scene.LoadScene(baseScene.SceneName);
+    }
+
+    private void OpenMapUI()
+    {
         GF.UI.OpenUIForm(UIViews.OverworldUI);
-        Log.Warning("TeleportGateInteractable: 需要先将 OverworldUI 添加到 UITable，然后取消注释上一行");
     }
 }

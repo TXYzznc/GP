@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4211976199862641794}
   - component: {fileID: 8442163992536657559}
   m_Layer: 9
-  m_Name: "\u4F20\u9001\u9635"
+  m_Name: "\u4F20\u9001\u9635\uFF08\u5355\u5411\uFF09"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,3 +135,4 @@ MonoBehaviour:
   priority: 0
   interactAnimIndex: -1
   interactionRadius: 1.5
+  m_TeleportType: 0
