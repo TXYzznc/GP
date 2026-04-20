@@ -21,10 +21,29 @@ public class InventoryManager : SingletonBase<InventoryManager>
     private List<InventorySlot> m_Slots; // 背包格子列表
     private bool m_IsInitialized = false; // 是否已初始化
 
+    // 虚拟物品缓存
+    private int m_CachedGold = 0;      // 金币缓存
+    private int m_CachedSpiritStone = 0; // 灵石缓存
+
     /// <summary>
     /// 背包内容变化事件
     /// </summary>
     public event System.Action OnInventoryChanged;
+
+    /// <summary>
+    /// 特定物品数量变化事件（物品ID, 新数量）
+    /// </summary>
+    public event System.Action<int, int> OnItemQuantityChanged;
+
+    /// <summary>
+    /// 金币数量变化事件
+    /// </summary>
+    public event System.Action<int> OnGoldChanged;
+
+    /// <summary>
+    /// 灵石数量变化事件
+    /// </summary>
+    public event System.Action<int> OnSpiritStoneChanged;
 
     #endregion
 
@@ -37,6 +56,16 @@ public class InventoryManager : SingletonBase<InventoryManager>
 
     /// <summary>是否已初始化</summary>
     public bool IsInitialized => m_IsInitialized;
+
+    /// <summary>
+    /// 背包中金币的数量（缓存值）
+    /// </summary>
+    public int Gold => m_CachedGold;
+
+    /// <summary>
+    /// 背包中灵石的数量（缓存值）
+    /// </summary>
+    public int SpiritStone => m_CachedSpiritStone;
 
     /// <summary>
     /// 当前使用的格子数量
@@ -114,25 +143,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
             return false;
         }
 
-        // 检查是否为 Type 0 资源项，资源项不应进入背包
-        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
-        var itemRow = itemTable?.GetDataRow(itemId);
-        if (itemRow != null && itemRow.Type == 0)
-        {
-            DebugEx.Warning(
-                "InventoryManager",
-                $"Type 0 资源项不应进入背包: ID={itemId}, 名称={itemData.Name}"
-            );
-            return false;
-        }
-
         // 如果可堆叠，先尝试合并到现有堆叠
         if (itemData.CanStack)
         {
             int remaining = TryStackItem(itemId, count);
             if (remaining <= 0)
             {
+                UpdateVirtualItemCache(itemId, count);
+                int stackedCount = GetItemCount(itemId);
+                OnItemQuantityChanged?.Invoke(itemId, stackedCount);
                 DebugEx.Success("InventoryManager", $"物品添加成功（堆叠）: {itemData.Name}");
+                OnInventoryChanged?.Invoke();
                 return true;
             }
             count = remaining;
@@ -160,7 +181,11 @@ public class InventoryManager : SingletonBase<InventoryManager>
             count -= addCount;
         }
 
+        UpdateVirtualItemCache(itemId, count);
         DebugEx.Success("InventoryManager", $"物品添加成功: {itemData.Name}");
+
+        int newCount = GetItemCount(itemId);
+        OnItemQuantityChanged?.Invoke(itemId, newCount);
 
         // 触发背包变化事件
         OnInventoryChanged?.Invoke();
@@ -201,7 +226,11 @@ public class InventoryManager : SingletonBase<InventoryManager>
             }
         }
 
+        UpdateVirtualItemCache(itemId, -count);
         DebugEx.Success("InventoryManager", $"物品移除成功 ID:{itemId}, 数量:{count}");
+
+        int newCount = GetItemCount(itemId);
+        OnItemQuantityChanged?.Invoke(itemId, newCount);
 
         // 触发背包变化事件
         OnInventoryChanged?.Invoke();
@@ -555,7 +584,47 @@ public class InventoryManager : SingletonBase<InventoryManager>
         {
             slot.Clear();
         }
+        m_CachedGold = 0;
+        m_CachedSpiritStone = 0;
         DebugEx.Log("InventoryManager", "背包已清空");
+    }
+
+    /// <summary>
+    /// 更新虚拟物品缓存
+    /// </summary>
+    private void UpdateVirtualItemCache(int itemId, int changeCount)
+    {
+        switch (itemId)
+        {
+            case 999: // 金币
+                int oldGold = m_CachedGold;
+                m_CachedGold = GetItemCount(999);
+                if (m_CachedGold != oldGold)
+                {
+                    OnGoldChanged?.Invoke(m_CachedGold);
+                    DebugEx.Log("InventoryManager", $"金币更新: {oldGold} → {m_CachedGold}");
+                }
+                break;
+
+            case 99999: // 灵石
+                int oldStone = m_CachedSpiritStone;
+                m_CachedSpiritStone = GetItemCount(99999);
+                if (m_CachedSpiritStone != oldStone)
+                {
+                    OnSpiritStoneChanged?.Invoke(m_CachedSpiritStone);
+                    DebugEx.Log("InventoryManager", $"灵石更新: {oldStone} → {m_CachedSpiritStone}");
+                }
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 刷新所有虚拟物品缓存
+    /// </summary>
+    public void RefreshVirtualItemCache()
+    {
+        UpdateVirtualItemCache(999, 0);
+        UpdateVirtualItemCache(99999, 0);
     }
 
     #endregion

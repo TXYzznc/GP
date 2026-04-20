@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// 格子所属的容器类型
@@ -23,6 +24,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 {
     /// <summary>缓存的 InventoryItemUI 组件</summary>
     private InventoryItemUI m_ItemUI;
+
+    /// <summary>当前物品ID（用于订阅数量变化事件）</summary>
+    private int m_CurrentItemId = -1;
 
     /// <summary>格子索引</summary>
     public int SlotIndex { get; private set; }
@@ -122,6 +126,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (itemUI == null)
             return;
 
+        // 更新物品ID并订阅数量变化事件
+        UpdateItemQuantitySubscription(itemStack?.ItemId ?? -1);
+
         // 设置物品数据
         itemUI.SetData(itemStack);
 
@@ -132,6 +139,69 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             quality = (int)itemStack.Item.Quality;
         }
         SetRarity(quality);
+    }
+
+    /// <summary>
+    /// 更新物品数量变化事件的订阅
+    /// </summary>
+    private void UpdateItemQuantitySubscription(int newItemId)
+    {
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager == null)
+            return;
+
+        // 取消旧的订阅
+        if (m_CurrentItemId >= 0)
+        {
+            inventoryManager.OnItemQuantityChanged -= OnItemQuantityChanged;
+        }
+
+        // 订阅新的物品
+        m_CurrentItemId = newItemId;
+        if (m_CurrentItemId >= 0)
+        {
+            inventoryManager.OnItemQuantityChanged += OnItemQuantityChanged;
+        }
+    }
+
+    /// <summary>
+    /// 清理物品数量变化事件的订阅
+    /// </summary>
+    public void ClearItemQuantitySubscription()
+    {
+        var inventoryManager = InventoryManager.Instance;
+        if (inventoryManager != null && m_CurrentItemId >= 0)
+        {
+            inventoryManager.OnItemQuantityChanged -= OnItemQuantityChanged;
+        }
+        m_CurrentItemId = -1;
+    }
+
+    /// <summary>
+    /// 物品数量变化回调
+    /// </summary>
+    private void OnItemQuantityChanged(int itemId, int newCount)
+    {
+        if (itemId != m_CurrentItemId)
+            return;
+
+        var itemUI = GetItemUI();
+        if (itemUI == null)
+            return;
+
+        var itemStack = itemUI.GetItemStack();
+        if (itemStack == null)
+            return;
+
+        // 更新物品数量并刷新显示
+        itemStack.Count = newCount;
+        itemUI.SetData(itemStack);
+
+        // 如果物品数量为0，解除订阅
+        if (newCount <= 0)
+        {
+            UpdateItemQuantitySubscription(-1);
+        }
     }
 
     #region 鼠标交互
@@ -164,53 +234,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
     #region 点击事件处理
 
-    /// <summary>
-    /// 判断物品是否为资源类型（Type==0）
-    /// </summary>
-    private bool IsResourceItem(int itemId)
-    {
-        return itemId == 999 || itemId == 9999 || itemId == 99999;
-    }
-
-    /// <summary>
-    /// 处理资源类物品的获取（直接增加到资源管理系统）
-    /// </summary>
-    private void HandleResourceAcquisition(int itemId, int count)
-    {
-        switch (itemId)
-        {
-            case 999: // 金币
-                PlayerAccountDataManager.Instance?.AddGold(count);
-                DebugEx.Success(
-                    "InventorySlotUI",
-                    $"[HandleResourceAcquisition] 获得金币: +{count}"
-                );
-                break;
-
-            case 9999: // 起源石
-                PlayerAccountDataManager.Instance?.AddOriginStone(count);
-                DebugEx.Success(
-                    "InventorySlotUI",
-                    $"[HandleResourceAcquisition] 获得起源石: +{count}"
-                );
-                break;
-
-            case 99999: // 灵石
-                PlayerRuntimeDataManager.Instance?.AddSpiritStone(count);
-                DebugEx.Success(
-                    "InventorySlotUI",
-                    $"[HandleResourceAcquisition] 获得灵石: +{count}"
-                );
-                break;
-
-            default:
-                DebugEx.Warning(
-                    "InventorySlotUI",
-                    $"[HandleResourceAcquisition] 未知的资源类型: {itemId}"
-                );
-                break;
-        }
-    }
 
     /// <summary>
     /// 处理左键点击（显示物品详情）
@@ -232,16 +255,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        // 虚拟物品不能拖拽
-        if (itemStack.Item.ItemData.Type == ItemType.Virtual)
-        {
-            DebugEx.Warning(
-                "InventorySlotUI",
-                $"[OnLeftClick] 虚拟物品不能拖拽: {itemStack.Item.Name}"
-            );
-            return;
-        }
-
         DebugEx.Log(
             "InventorySlotUI",
             $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}"
@@ -252,7 +265,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
     /// <summary>
     /// 处理右键点击
-    /// 宝箱格子：资源类物品直接增加到资源系统，其他物品移入背包
+    /// 宝箱格子：快捷键直接移入背包（不显示菜单）
     /// 其他容器：显示上下文菜单
     /// </summary>
     public void OnRightClick(Vector2 mousePosition)
@@ -271,22 +284,12 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
-        // 虚拟物品不能进行任何交互
-        if (itemStack.Item.ItemData.Type == ItemType.Virtual)
-        {
-            DebugEx.Warning(
-                "InventorySlotUI",
-                $"[OnRightClick] 虚拟物品不能交互: {itemStack.Item.Name}"
-            );
-            return;
-        }
-
         DebugEx.Log(
             "InventorySlotUI",
             $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}"
         );
 
-        // 宝箱格子：特殊处理
+        // 宝箱格子：右键快捷键直接移入背包
         if (ContainerType == SlotContainerType.TreasureBox)
         {
             var treasureContainer = SlotContainer as TreasureBoxSlotContainerImpl;
@@ -295,37 +298,26 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
                 var slot = treasureContainer.GetSlot(SlotIndex);
                 if (slot != null && !slot.IsEmpty)
                 {
-                    // 资源类物品（Type==0）：直接增加到资源系统
-                    if (IsResourceItem(slot.ItemId))
-                    {
-                        HandleResourceAcquisition(slot.ItemId, slot.Count);
-                        treasureContainer.RemoveItem(SlotIndex, slot.Count);
-                        DebugEx.Log(
-                            "InventorySlotUI",
-                            $"[OnRightClick] 宝箱资源快捷获取: {itemStack.Item.Name}"
-                        );
-                        return;
-                    }
-
-                    // 普通物品：移入背包
+                    // 尝试添加到背包
                     bool ok = InventoryManager.Instance?.AddItem(slot.ItemId, slot.Count) ?? false;
                     if (ok)
                     {
                         treasureContainer.RemoveItem(SlotIndex, slot.Count);
-                        DebugEx.Log(
+                        DebugEx.Success(
                             "InventorySlotUI",
-                            $"[OnRightClick] 宝箱物品快捷移入背包: {itemStack.Item.Name}"
+                            $"[OnRightClick] 宝箱物品快捷放入背包: {itemStack.Item.Name}"
                         );
                     }
                     else
                     {
-                        DebugEx.Warning("InventorySlotUI", "[OnRightClick] 背包已满，无法移入");
+                        DebugEx.Warning("InventorySlotUI", "[OnRightClick] 背包已满，无法放入");
                     }
                 }
             }
             return;
         }
 
+        // 其他容器：显示上下文菜单
         ShowContextMenu(itemStack, SlotIndex, mousePosition, GetComponent<RectTransform>());
     }
 

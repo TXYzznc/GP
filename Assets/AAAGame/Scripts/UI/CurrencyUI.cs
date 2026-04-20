@@ -3,6 +3,7 @@ using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
+using Cysharp.Threading.Tasks;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -74,15 +75,15 @@ public partial class CurrencyUI : StateAwareUIForm
 
     private void OnInGameEnter(object sender, GameEventArgs e)
     {
-        Log.Info("CurrencyUI: 收到局内进入事件 → 显示UI");
-        ShowUI();
-        RefreshCurrency();
+        Log.Info("CurrencyUI: 收到局内进入事件 → 隐藏UI");
+        HideUI();
     }
 
     private void OnInGameLeave(object sender, GameEventArgs e)
     {
-        Log.Info("CurrencyUI: 收到局内离开事件 → 隐藏UI");
-        HideUI();
+        Log.Info("CurrencyUI: 收到局内离开事件 → 显示UI");
+        ShowUI();
+        RefreshCurrency();
     }
 
     private void OnCombatEnter(object sender, GameEventArgs e)
@@ -93,16 +94,15 @@ public partial class CurrencyUI : StateAwareUIForm
 
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
-        Log.Info("CurrencyUI: 收到战斗离开事件 → 显示UI");
-        ShowUI();
-        RefreshCurrency();
+        Log.Info("CurrencyUI: 收到战斗离开事件 → 不做处理（仍在局内）");
+        // 不做处理，仍然保持隐藏（还在局内）
+        // 离开局内时由 OnInGameLeave 恢复显示
     }
 
     private void OnExplorationEnter(object sender, GameEventArgs e)
     {
-        Log.Info("CurrencyUI: 收到探索进入事件 → 显示UI");
-        ShowUI();
-        RefreshCurrency();
+        Log.Info("CurrencyUI: 收到探索进入事件 → 隐藏UI");
+        HideUI();
     }
 
     private void OnExplorationLeave(object sender, GameEventArgs e)
@@ -135,6 +135,46 @@ public partial class CurrencyUI : StateAwareUIForm
         CreateCurrencyItem(1102, saveData.OriginStone); // 起源石图标 ID=1102
 
         Log.Info("CurrencyUI: 货币信息已刷新");
+    }
+
+    /// <summary>
+    /// 刷新单个货币项（带动效，不重新生成所有项）
+    /// </summary>
+    public async UniTask RefreshCurrencyItemAsync(int iconId)
+    {
+        var saveData = PlayerAccountDataManager.Instance?.CurrentSaveData;
+        if (saveData == null)
+        {
+            Log.Warning("CurrencyUI: 当前没有存档数据");
+            return;
+        }
+
+        int newCount = 0;
+        switch (iconId)
+        {
+            case 1101: // 金币
+                newCount = saveData.Gold;
+                break;
+            case 1102: // 起源石
+                newCount = saveData.OriginStone;
+                break;
+            default:
+                Log.Warning($"CurrencyUI: 未知的货币图标ID {iconId}");
+                return;
+        }
+
+        // 查找对应的货币项并更新
+        foreach (var item in m_CurrencyItems)
+        {
+            if (item != null && item.IconId == iconId && item.gameObject.activeInHierarchy)
+            {
+                await item.UpdateCountAsync(newCount);
+                Log.Info($"CurrencyUI: 货币项 {iconId} 已更新为 {newCount}");
+                return;
+            }
+        }
+
+        Log.Warning($"CurrencyUI: 未找到货币项 {iconId}");
     }
 
     /// <summary>

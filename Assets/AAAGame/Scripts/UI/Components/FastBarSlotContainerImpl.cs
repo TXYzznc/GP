@@ -36,6 +36,18 @@ public class FastBarSlotContainerImpl : SlotContainerBase
 
         var itemId = fromSlot.ItemId;
 
+        // 检查是否为虚拟物品（虚拟物品不能进入快捷栏）
+        if (targetContainer is FastBarSlotContainerImpl)
+        {
+            var itemData = ItemManager.Instance?.GetItemData(itemId);
+            if (itemData != null && itemData.Type == ItemType.Virtual)
+            {
+                DebugEx.Warning("FastBarSlotContainer",
+                    $"虚拟物品不能进入快捷栏: ID={itemId}");
+                return false;
+            }
+        }
+
         // 检查目标格子是否为空（决定是存入还是交换）
         var targetSlot = targetContainer.GetSlot(targetSlotIndex);
         bool targetIsEmpty = targetSlot == null || targetSlot.IsEmpty;
