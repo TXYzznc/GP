@@ -208,15 +208,6 @@ public partial class ItemTable : DataRowBase
             private set;
         }
 
-        /// <summary>
-        /// 稀有度
-        /// </summary>
-        public int Rarity
-        {
-            get;
-            private set;
-        }
-
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -249,7 +240,6 @@ public partial class ItemTable : DataRowBase
             SellPrice = int.Parse(columnStrings[index++]);
             Weight = int.Parse(columnStrings[index++]);
             MaxDurability = int.Parse(columnStrings[index++]);
-            Rarity = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -281,7 +271,6 @@ public partial class ItemTable : DataRowBase
                     SellPrice = binaryReader.Read7BitEncodedInt32();
                     Weight = binaryReader.Read7BitEncodedInt32();
                     MaxDurability = binaryReader.Read7BitEncodedInt32();
-                    Rarity = binaryReader.Read7BitEncodedInt32();
                 }
             }
 

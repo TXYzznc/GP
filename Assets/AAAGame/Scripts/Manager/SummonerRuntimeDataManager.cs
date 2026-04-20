@@ -106,8 +106,8 @@ public class SummonerRuntimeDataManager
 
             m_MPRegen = summonerConfig.MPRegen;
 
-            DebugEx.LogModule("SummonerRuntimeDataManager", 
-                $"从召唤师配置读取数据 - HP:{m_CurrentHP}/{m_MaxHP}, MP:{m_CurrentMP}/{m_MaxMP}, MPRegen:{m_MPRegen}");
+            // DebugEx.LogModule("SummonerRuntimeDataManager", 
+            //     $"从召唤师配置读取数据 - HP:{m_CurrentHP}/{m_MaxHP}, MP:{m_CurrentMP}/{m_MaxMP}, MPRegen:{m_MPRegen}");
         }
         else
         {
@@ -264,8 +264,8 @@ public class SummonerRuntimeDataManager
         float oldValue = m_CurrentMP;
         m_CurrentMP = Mathf.Clamp(m_CurrentMP + amount, 0f, m_MaxMP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
-            $"灵力值增加: {oldValue:F1} -> {m_CurrentMP:F1} (+{amount:F1})");
+        // DebugEx.LogModule("SummonerRuntimeDataManager", 
+        //     $"灵力值增加: {oldValue:F1} -> {m_CurrentMP:F1} (+{amount:F1})");
 
         // 触发事件
         OnMPChanged?.Invoke(oldValue, m_CurrentMP);
