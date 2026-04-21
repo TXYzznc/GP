@@ -40,15 +40,23 @@ public class HealApplier : ICardEffectApplier
 /// </summary>
 public class BuffApplier : ICardEffectApplier
 {
+    private ChessEntity m_CasterChess;
+
+    public BuffApplier(ChessEntity casterChess = null)
+    {
+        m_CasterChess = casterChess;
+    }
+
     public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
     {
+        var casterGO = m_CasterChess != null ? m_CasterChess.gameObject : null;
         foreach (var target in targets)
         {
             if (target != null)
             {
                 foreach (int buffId in cardData.HitBuffIds)
                 {
-                    CardEffectHelper.ApplyBuff(target, buffId);
+                    CardEffectHelper.ApplyBuff(target, buffId, casterGO);
                 }
             }
         }
@@ -60,15 +68,23 @@ public class BuffApplier : ICardEffectApplier
 /// </summary>
 public class InstantBuffApplier : ICardEffectApplier
 {
+    private ChessEntity m_CasterChess;
+
+    public InstantBuffApplier(ChessEntity casterChess = null)
+    {
+        m_CasterChess = casterChess;
+    }
+
     public void ApplyEffect(List<ChessEntity> targets, CardData cardData)
     {
+        var casterGO = m_CasterChess != null ? m_CasterChess.gameObject : null;
         foreach (var target in targets)
         {
             if (target != null)
             {
                 foreach (int buffId in cardData.InstantBuffIds)
                 {
-                    CardEffectHelper.ApplyBuff(target, buffId);
+                    CardEffectHelper.ApplyBuff(target, buffId, casterGO);
                 }
             }
         }
@@ -97,7 +113,53 @@ public class DamageWithCoefficientApplier : ICardEffectApplier
         foreach (var target in targets)
         {
             if (target != null)
+            {
                 CardEffectHelper.DealDamage(target, damage, damageType);
+
+                // 处理反伤之盾：检查目标是否有反伤 Buff
+                HandleReflectDamage(target, damage, m_CasterChess);
+
+                // 处理吸血之刃：检查施法者是否有吸血 Buff
+                HandleLifesteal(m_CasterChess, damage);
+            }
+        }
+    }
+
+    private void HandleReflectDamage(ChessEntity target, float damage, ChessEntity caster)
+    {
+        if (target == null || caster == null) return;
+
+        var buffManager = target.GetComponent<BuffManager>();
+        if (buffManager == null) return;
+
+        // 检查目标是否有反伤之盾 Buff (ID: 5011)
+        var reflectBuff = buffManager.GetBuff(5011);
+        if (reflectBuff is ReflectDamageBuff reflect)
+        {
+            double reflectDamage = damage * reflect.GetReflectRatio();
+            if (reflectDamage > 0)
+            {
+                caster.Attribute.TakeDamage(reflectDamage, false, true, false, CombatVFXManager.DamageType.True);
+            }
+        }
+    }
+
+    private void HandleLifesteal(ChessEntity caster, float damage)
+    {
+        if (caster == null) return;
+
+        var buffManager = caster.GetComponent<BuffManager>();
+        if (buffManager == null) return;
+
+        // 检查施法者是否有吸血之刃 Buff (ID: 5015)
+        var lifestealBuff = buffManager.GetBuff(5015);
+        if (lifestealBuff is LifestealBuff lifesteal)
+        {
+            double healAmount = damage * lifesteal.GetLifestealRatio();
+            if (healAmount > 0)
+            {
+                caster.Attribute.ModifyHp(healAmount);
+            }
         }
     }
 }

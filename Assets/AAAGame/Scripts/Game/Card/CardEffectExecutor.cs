@@ -140,13 +140,13 @@ public class CardEffectExecutor : MonoBehaviour
     private ICardEffectApplier[] GetEffectAppliers(CardData cardData)
     {
         var appliers = new List<ICardEffectApplier>();
+        var casterChess = GetCasterChess();
 
         // 判断是否需要伤害应用器
         if (cardData.TableRow.DamageType > 0)
         {
             if (cardData.TableRow.DamageCoeff > 0)
             {
-                var casterChess = GetCasterChess();
                 appliers.Add(new DamageWithCoefficientApplier(casterChess));
             }
             else if (cardData.TableRow.BaseDamage > 0)
@@ -164,13 +164,13 @@ public class CardEffectExecutor : MonoBehaviour
         // 判断是否需要命中 Buff 应用器
         if (cardData.HitBuffIds.Length > 0)
         {
-            appliers.Add(new BuffApplier());
+            appliers.Add(new BuffApplier(casterChess));
         }
 
         // 判断是否需要立即 Buff 应用器
         if (cardData.InstantBuffIds.Length > 0)
         {
-            appliers.Add(new InstantBuffApplier());
+            appliers.Add(new InstantBuffApplier(casterChess));
         }
 
         return appliers.ToArray();
