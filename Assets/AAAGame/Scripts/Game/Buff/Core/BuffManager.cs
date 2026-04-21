@@ -72,11 +72,12 @@ public class BuffManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 添加 Buff
+    /// 添加 Buff（统一入口，支持自动提取施法者属性或显式指定）
     /// </summary>
     /// <param name="buffId">Buff ID</param>
-    /// <param name="caster">施法者</param>
-    public void AddBuff(int buffId, GameObject caster = null)
+    /// <param name="caster">施法者 GameObject（可选）</param>
+    /// <param name="casterAttr">施法者属性（可选，不指定时从 caster 自动提取）</param>
+    public void AddBuff(int buffId, GameObject caster = null, ChessAttribute casterAttr = null)
     {
         // 1. 获取配置
         var buffTable = GF.DataTable.GetDataTable<BuffTable>();
@@ -92,7 +93,6 @@ public class BuffManager : MonoBehaviour
         var existingBuff = GetBuff(buffId);
         if (existingBuff != null)
         {
-            // 尝试叠层
             existingBuff.OnStack();
             DebugEx.LogModule("BuffManager", $"Buff {config.Name} (ID:{buffId}) 叠层，当前层数: {existingBuff.StackCount}");
             OnBuffStackChanged?.Invoke(buffId, existingBuff.StackCount);
@@ -103,74 +103,19 @@ public class BuffManager : MonoBehaviour
 
         // 4. 创建新实例
         IBuff newBuff = BuffFactory.Create(buffId);
-
-        // 如果工厂没有注册特定类，可以考虑使用通用 Buff 类（如果需要）
-        // 目前策略：返回 null 则无法添加
-        if (newBuff == null)
-        {
-            // DebugEx.Warning("BuffManager", $"未找到 ID 为 {buffId} 的 Buff 实现类，无法使用通用类");
-            // newBuff = new GenericBuff(); // 这是一个可选的通用实现
-            DebugEx.ErrorModule("BuffManager", $"无法创建 Buff 实例: {buffId}");
-            return;
-        }
-
-        // 5. 初始化并生效
-        m_Context.Caster = caster;
-        m_Context.CasterAttribute = caster != null ? caster.GetComponent<ChessAttribute>() : null;
-        m_Context.OwnerAttribute = gameObject.GetComponent<ChessAttribute>();
-        m_Context.OwnerBuffManager = this;
-
-        newBuff.Init(m_Context, config);
-        m_Buffs.Add(newBuff);
-        newBuff.OnEnter();
-
-        DebugEx.LogModule("BuffManager", $"添加 Buff: {config.Name} (ID:{buffId})");
-        OnBuffAdded?.Invoke(buffId);
-    }
-
-    /// <summary>
-    /// 添加 Buff（扩展系统版本，支持传入施法者属性）
-    /// </summary>
-    /// <param name="buffId">Buff ID</param>
-    /// <param name="caster">施法者 GameObject</param>
-    /// <param name="casterAttr">施法者属性（用于伤害计算等）</param>
-    public void AddBuff(int buffId, GameObject caster, ChessAttribute casterAttr)
-    {
-        // 1. 获取配置
-        var buffTable = GF.DataTable.GetDataTable<BuffTable>();
-        var config = buffTable?.GetDataRow(buffId);
-
-        if (config == null)
-        {
-            DebugEx.ErrorModule("BuffManager", $"无法找到 ID 为 {buffId} 的 Buff 配置");
-            return;
-        }
-
-        // 2. 检查是否已存在同 ID Buff
-        var existingBuff = GetBuff(buffId);
-        if (existingBuff != null)
-        {
-            existingBuff.OnStack();
-            DebugEx.LogModule("BuffManager", $"Buff {config.Name} (ID:{buffId}) 叠层，当前层数: {existingBuff.StackCount}");
-            OnBuffStackChanged?.Invoke(buffId, existingBuff.StackCount);
-            return;
-        }
-
-        // 3. 创建新实例
-        IBuff newBuff = BuffFactory.Create(buffId);
         if (newBuff == null)
         {
             DebugEx.ErrorModule("BuffManager", $"无法创建 Buff 实例: {buffId}");
             return;
         }
 
-        // 4. 更新上下文（包含施法者属性）
+        // 5. 更新上下文（若未指定 casterAttr 则自动从 caster 提取）
         m_Context.Caster = caster;
-        m_Context.CasterAttribute = casterAttr;
+        m_Context.CasterAttribute = casterAttr ?? (caster != null ? caster.GetComponent<ChessAttribute>() : null);
         m_Context.OwnerAttribute = gameObject.GetComponent<ChessAttribute>();
         m_Context.OwnerBuffManager = this;
 
-        // 5. 初始化并生效
+        // 6. 初始化并生效
         newBuff.Init(m_Context, config);
         m_Buffs.Add(newBuff);
         newBuff.OnEnter();
