@@ -48,6 +48,17 @@ public static class BuffFactory
         Register(5008, () => new StatModBuff());      // 狂暴（攻击+80%，防御-30%，配置驱动）
         Register(5009, () => new ConfusedBuff());     // 混乱诅咒·混乱（特殊状态：有概率攻击队友）
 
+        // ⭐ 新增：更多英雄技能 Buff（属性修改类）
+        Register(5012, () => new StatModBuff());      // 圣域防线（护甲+30%，配置驱动）
+        Register(5017, () => new StatModBuff());      // 护甲破碎（护甲-5，配置驱动）
+        Register(5018, () => new StatModBuff());      // 虚弱诅咒（攻击-30%，配置驱动）
+        Register(5013, () => new ShieldRegenBuff());  // 护盾再生（每3秒恢复50护盾）
+        Register(5021, () => new PoisonBuff());       // 剧毒之雾（周期伤害）
+        Register(5019, () => new SilenceBuff());      // 沉默之符（禁用技能）
+        Register(5020, () => new TauntBuff());        // 嘲讽之声（强制索敌）
+        Register(5011, () => new ReflectDamageBuff()); // 反伤之盾（返还伤害30%）
+        Register(5015, () => new LifestealBuff());    // 吸血之刃（吸血40%）
+
         DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
     }
 

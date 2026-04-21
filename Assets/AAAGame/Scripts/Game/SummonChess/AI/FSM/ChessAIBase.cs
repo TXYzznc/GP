@@ -620,6 +620,11 @@ public abstract class ChessAIBase : IChessAI
             return null;
         }
 
+        // 检查是否被嘲讽，如果被嘲讽则强制攻击嘲讽来源
+        var taunted = CheckTauntedTarget(enemyCache);
+        if (taunted != null)
+            return taunted;
+
         // ⭐ 使用索敌策略选择最优目标
         if (m_SearchStrategy == null)
         {
@@ -631,6 +636,38 @@ public abstract class ChessAIBase : IChessAI
         }
 
         return m_SearchStrategy.SelectBestTarget(m_Context.Entity, enemyCache);
+    }
+
+    /// <summary>
+    /// 检查是否有嘲讽状态，如果有则返回嘲讽来源
+    /// </summary>
+    private ChessEntity CheckTauntedTarget(List<EnemyInfoCache> enemyCache)
+    {
+        if (m_Context?.Entity == null) return null;
+
+        var buffManager = m_Context.Entity.GetComponent<BuffManager>();
+        if (buffManager == null || !m_Context.Entity.HasSpecialState("Taunt"))
+            return null;
+
+        // 获取嘲讽 Buff (ID: 5020)
+        var tauntBuff = buffManager.GetBuff(5020) as TauntBuff;
+        if (tauntBuff == null)
+            return null;
+
+        var taunter = tauntBuff.GetTauntSource();
+        if (taunter == null)
+            return null;
+
+        // 在敌人列表中查找嘲讽来源
+        foreach (var enemy in enemyCache)
+        {
+            if (enemy.Entity != null && enemy.Entity.gameObject == taunter)
+                return enemy.Entity;
+            if (enemy.SummonerProxy != null && enemy.SummonerProxy == taunter)
+                return enemy.SummonerProxy.GetComponent<ChessEntity>();
+        }
+
+        return null;
     }
 
     /// <summary>

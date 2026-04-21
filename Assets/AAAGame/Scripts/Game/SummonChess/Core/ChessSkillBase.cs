@@ -43,7 +43,21 @@ public abstract class ChessSkillBase : IChessSkill
             return false;
         if (m_Ctx.Attribute.CurrentMp < m_Config.MpCost)
             return false;
+        // 检查沉默状态
+        if (IsEntitySilenced())
+            return false;
         return true;
+    }
+
+    /// <summary>
+    /// 检查实体是否被沉默
+    /// </summary>
+    private bool IsEntitySilenced()
+    {
+        if (m_Ctx?.Entity == null)
+            return false;
+
+        return m_Ctx.Entity.HasSpecialState("Silence");
     }
 
     public virtual bool TryCast()
