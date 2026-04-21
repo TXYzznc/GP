@@ -11,6 +11,7 @@ using UnityGameFramework.Runtime;
 /// <summary>
 /// 卡牌容器：管理卡牌的扇形排列和动效（进场、补位、拖拽让位）
 /// </summary>
+[RequireComponent(typeof(RectTransform))]
 public class CardSlotContainer : MonoBehaviour
 {
     #region 参数配置
@@ -59,8 +60,6 @@ public class CardSlotContainer : MonoBehaviour
 
     private void Awake()
     {
-        DebugEx.LogModule("CardSlotContainer", "[初始化] CardSlotContainer Awake 开始");
-
         m_RectTransform = GetComponent<RectTransform>();
         if (m_RectTransform == null)
         {
@@ -69,18 +68,21 @@ public class CardSlotContainer : MonoBehaviour
 
         // 初始化缓存参数
         CacheParameters();
-
-        // 订阅事件
-        SubscribeToCardEvents();
-
-        DebugEx.LogModule("CardSlotContainer", "[初始化] CardSlotContainer Awake 完成");
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
-        // 取消订阅事件
+        // 当容器启用时订阅事件（而不是在 Awake 中）
+        // 这样可以避免时序问题，确保只在真正需要时才订阅
+        SubscribeToCardEvents();
+        DebugEx.LogModule("CardSlotContainer", "[启用] 已订阅所有卡牌事件");
+    }
+
+    private void OnDisable()
+    {
+        // 当容器禁用时取消订阅
         UnsubscribeFromCardEvents();
-        DebugEx.LogModule("CardSlotContainer", "[销毁] CardSlotContainer 已销毁，取消事件订阅");
+        DebugEx.LogModule("CardSlotContainer", "[禁用] 已取消事件订阅");
     }
 
     /// <summary>
@@ -271,8 +273,8 @@ public class CardSlotContainer : MonoBehaviour
         // 重新缓存参数（以便下次参数检测）
         CacheParameters();
 
-        // 取消订阅事件
-        UnsubscribeFromCardEvents();
+        // 注意：不在此取消订阅，事件订阅应该在容器销毁时才取消
+        // 这样可以确保容器还在运行时，事件始终保持订阅状态
 
         DebugEx.LogModule("CardSlotContainer", "容器状态已清理");
     }
