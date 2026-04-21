@@ -157,22 +157,32 @@ public class SceneSpawnManager : MonoBehaviour
             return;
         }
 
-        // 获取预制体路径并加载
-        GameObject prefab = null;
+        // 获取预制体配置 ID 并异步加载
+        int prefabId = 0;
 
         if (isEnemy)
         {
-            prefab = LoadEnemyPrefab((int)selectedConfig.SpawnTargetId);
+            prefabId = GetEnemyPrefabId((int)selectedConfig.SpawnTargetId);
         }
         else
         {
-            prefab = LoadTreasureBoxPrefab((int)selectedConfig.SpawnTargetId);
+            prefabId = GetTreasureBoxPrefabId((int)selectedConfig.SpawnTargetId);
         }
+
+        if (prefabId == 0)
+        {
+            if (m_ShowSpawnLogs)
+                DebugEx.Log("SceneSpawn", $"找不到生成目标 {selectedConfig.SpawnTargetId} 的预制体配置");
+            return;
+        }
+
+        // 异步加载预制体
+        var prefab = await GameExtension.ResourceExtension.LoadPrefabAsync(prefabId);
 
         if (prefab == null)
         {
             if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"找不到生成目标 {selectedConfig.SpawnTargetId} 的预制体");
+                DebugEx.Log("SceneSpawn", $"加载预制体失败：prefabId={prefabId}");
             return;
         }
 
@@ -204,82 +214,43 @@ public class SceneSpawnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 从 EnemyEntityTable 获取 PrefabId，再从 ResourceConfigTable 加载
+    /// 从 EnemyEntityTable 获取预制体资源 ID
     /// </summary>
-    private GameObject LoadEnemyPrefab(int enemyEntityTableId)
+    private int GetEnemyPrefabId(int enemyEntityTableId)
     {
         var enemyEntityTable = GF.DataTable.GetDataTable<EnemyEntityTable>();
         if (enemyEntityTable == null)
-            return null;
+            return 0;
 
         var enemyData = enemyEntityTable.GetDataRow(enemyEntityTableId);
         if (enemyData == null)
         {
             if (m_ShowSpawnLogs)
                 DebugEx.Log("SceneSpawn", $"EnemyEntityTable 中找不到 ID {enemyEntityTableId}");
-            return null;
+            return 0;
         }
 
-        // 获取预制体资源 ID（对应 ResourceConfigTable 的 Id）
-        int prefabId = (int)enemyData.PrefabId;
-        return LoadPrefabFromResourceConfig(prefabId, "敌人");
+        return (int)enemyData.PrefabId;
     }
 
     /// <summary>
-    /// 从 TreasureBoxTable 获取 PrefabId，再从 ResourceConfigTable 加载
+    /// 从 TreasureBoxTable 获取预制体资源 ID
     /// </summary>
-    private GameObject LoadTreasureBoxPrefab(int treasureBoxTableId)
+    private int GetTreasureBoxPrefabId(int treasureBoxTableId)
     {
         var treasureBoxTable = GF.DataTable.GetDataTable<TreasureBoxTable>();
         if (treasureBoxTable == null)
-            return null;
+            return 0;
 
         var treasureBoxData = treasureBoxTable.GetDataRow(treasureBoxTableId);
         if (treasureBoxData == null)
         {
             if (m_ShowSpawnLogs)
                 DebugEx.Log("SceneSpawn", $"TreasureBoxTable 中找不到 ID {treasureBoxTableId}");
-            return null;
+            return 0;
         }
 
-        // 获取预制体资源 ID（对应 ResourceConfigTable 的 Id）
-        int prefabId = (int)treasureBoxData.PrefabId;
-        return LoadPrefabFromResourceConfig(prefabId, "宝箱");
-    }
-
-    /// <summary>
-    /// 从 ResourceConfigTable 加载预制体
-    /// </summary>
-    private GameObject LoadPrefabFromResourceConfig(int resourceId, string resourceType)
-    {
-        var resourceConfigTable = GF.DataTable.GetDataTable<ResourceConfigTable>();
-        if (resourceConfigTable == null)
-            return null;
-
-        var resourceData = resourceConfigTable.GetDataRow(resourceId);
-        if (resourceData == null)
-        {
-            if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"ResourceConfigTable 中找不到资源 ID {resourceId}");
-            return null;
-        }
-
-        // Type 2 = Prefab
-        if (resourceData.Type != 2)
-        {
-            if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"资源 {resourceId} 类型不是 Prefab (Type={resourceData.Type})");
-            return null;
-        }
-
-        // 从 Resources 文件夹加载预制体
-        string fullPath = $"Prefabs/{resourceData.Path}";
-        GameObject prefab = Resources.Load<GameObject>(fullPath);
-
-        if (prefab == null && m_ShowSpawnLogs)
-            DebugEx.Log("SceneSpawn", $"加载预制体失败：{fullPath} ({resourceType})");
-
-        return prefab;
+        return (int)treasureBoxData.PrefabId;
     }
 
     private MapSpawnTable PickWeightedRandom(List<MapSpawnTable> configs)
