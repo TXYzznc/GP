@@ -483,7 +483,7 @@ public partial class CombatUI : StateAwareUIForm
         }
 
         // 等待一帧，确保旧卡牌已移除
-        await UniTask.Yield();
+        await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
 
         // 清理容器状态
         container.ClearState();
