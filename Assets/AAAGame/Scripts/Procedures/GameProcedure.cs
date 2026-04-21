@@ -13,6 +13,7 @@ public class GameProcedure : ProcedureBase
 {
     private IFsm<IProcedureManager> m_ProcedureFsm;
     private PlayerSkillManager m_SkillManager; // 玩家技能管理器引用
+    private SceneSpawnManager m_SceneSpawnManager; // 场景生成管理器
 
     protected override void OnEnter(IFsm<IProcedureManager> procedureOwner)
     {
@@ -55,10 +56,13 @@ public class GameProcedure : ProcedureBase
         // 3. 初始化战斗特效系统
         InitializeCombatVFXSystem();
 
-        // 4. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
+        // 4. 初始化场景生成管理器（根据当前地图 ID 生成敌人/宝箱）
+        InitializeSceneSpawnManager();
+
+        // 5. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
         OpenGameUIs();
 
-        // 5. 最后生成角色
+        // 6. 最后生成角色
         PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
 
         Log.Info("GameProcedure 初始化完成");
@@ -82,6 +86,14 @@ public class GameProcedure : ProcedureBase
             Object.Destroy(m_SkillManager.gameObject);
             m_SkillManager = null;
             Log.Info("GameProcedure: 技能管理器已清理");
+        }
+
+        // 清理场景生成管理器
+        if (m_SceneSpawnManager != null)
+        {
+            Object.Destroy(m_SceneSpawnManager.gameObject);
+            m_SceneSpawnManager = null;
+            Log.Info("GameProcedure: 场景生成管理器已清理");
         }
 
         // 确保游戏未暂停
@@ -199,6 +211,72 @@ public class GameProcedure : ProcedureBase
         // 使用 InitializeAndWaitAsync 确保初始化完成后再继续
         await CombatVFXManager.InitializeAndWaitAsync();
         Log.Info("GameProcedure: CombatVFXManager 已初始化");
+    }
+
+    #endregion
+
+    #region 场景生成管理器初始化
+
+    /// <summary>
+    /// 初始化场景生成管理器
+    /// </summary>
+    private void InitializeSceneSpawnManager()
+    {
+        Log.Info("GameProcedure: [开始] 初始化场景生成管理器");
+
+        // 获取当前场景的 MapId
+        int mapId = GetCurrentMapId();
+        Log.Info($"GameProcedure: [查询] 当前场景 MapId={mapId}");
+
+        if (mapId < 0)
+        {
+            Log.Warning("GameProcedure: [失败] 无法获取当前场景的 MapId，检查 SceneTable 配置");
+            return;
+        }
+
+        // 创建场景生成管理器
+        GameObject spawnManagerObj = new GameObject("SceneSpawnManager");
+        m_SceneSpawnManager = spawnManagerObj.AddComponent<SceneSpawnManager>();
+        Log.Info("GameProcedure: [创建] SceneSpawnManager GameObject 已创建");
+
+        // 初始化生成管理器
+        m_SceneSpawnManager.Initialize(mapId);
+        Log.Info($"GameProcedure: [完成] 场景生成管理器已初始化 (MapId={mapId})");
+    }
+
+    /// <summary>
+    /// 获取当前场景的 MapId（对应 SceneTable.Id）
+    /// </summary>
+    private int GetCurrentMapId()
+    {
+        // 从 SceneStateManager 或通过场景名称查询 SceneTable
+        string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        Log.Info($"GameProcedure: [查表] 当前场景名称 = '{currentSceneName}'");
+
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null)
+        {
+            Log.Error("GameProcedure: [错误] SceneTable 未加载");
+            return -1;
+        }
+
+        Log.Info($"GameProcedure: [查表] SceneTable 已加载，开始匹配...");
+
+        var allScenes = sceneTable.GetAllDataRows();
+        Log.Info($"GameProcedure: [查表] SceneTable 中共有 {allScenes.Length} 个场景");
+
+        foreach (var scene in allScenes)
+        {
+            Log.Info($"GameProcedure:   - Scene: Id={scene.Id}, Name='{scene.SceneName}'");
+            if (scene.SceneName == currentSceneName)
+            {
+                Log.Info($"GameProcedure: [匹配成功] 场景 '{currentSceneName}' 对应 MapId={scene.Id}");
+                return (int)scene.Id;
+            }
+        }
+
+        Log.Warning($"GameProcedure: [匹配失败] 在 SceneTable 中找不到场景 '{currentSceneName}'");
+        return -1;
     }
 
     #endregion
