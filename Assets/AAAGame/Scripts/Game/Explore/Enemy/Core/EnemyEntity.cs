@@ -91,6 +91,19 @@ public class EnemyEntity : MonoBehaviour
 
     #endregion
 
+    #region 公开方法
+
+    /// <summary>
+    /// 设置敌人配置ID（运行时动态生成用）
+    /// 必须在 Awake 和 Start 之间调用，以便 Start 能读到正确值
+    /// </summary>
+    public void SetEntityConfigId(int id)
+    {
+        m_EntityConfigId = id;
+    }
+
+    #endregion
+
     #region Unity 生命周期
 
     private void Awake()

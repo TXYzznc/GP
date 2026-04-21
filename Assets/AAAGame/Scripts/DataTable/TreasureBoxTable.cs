@@ -38,6 +38,15 @@ public partial class TreasureBoxTable : DataRowBase
         }
 
         /// <summary>
+        /// 预制体资源Id
+        /// </summary>
+        public int PrefabId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 稀有度(0普通 1稀有 2史诗 3传说)
         /// </summary>
         public int Rarity
@@ -149,6 +158,7 @@ public partial class TreasureBoxTable : DataRowBase
             m_Id = int.Parse(columnStrings[index++]);
             index++;
             Name = columnStrings[index++];
+            PrefabId = int.Parse(columnStrings[index++]);
             Rarity = int.Parse(columnStrings[index++]);
             ItemCountMin = int.Parse(columnStrings[index++]);
             ItemCountMax = int.Parse(columnStrings[index++]);
@@ -172,6 +182,7 @@ public partial class TreasureBoxTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
+                    PrefabId = binaryReader.Read7BitEncodedInt32();
                     Rarity = binaryReader.Read7BitEncodedInt32();
                     ItemCountMin = binaryReader.Read7BitEncodedInt32();
                     ItemCountMax = binaryReader.Read7BitEncodedInt32();

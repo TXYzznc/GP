@@ -81,6 +81,16 @@ public class TreasureChestInteractable : InteractableBase
         OpenChestAsync().Forget();
     }
 
+    /// <summary>
+    /// 设置宝箱配置（运行时动态生成用）
+    /// 必须在 Awake 和 Start 之间调用
+    /// </summary>
+    public void SetTreasureBoxData(int treasureBoxId, int chestLevel)
+    {
+        m_TreasureBoxId = treasureBoxId;
+        m_ChestLevel = Mathf.Clamp(chestLevel, 1, 100);
+    }
+
     protected override void Awake()
     {
         base.Awake();
