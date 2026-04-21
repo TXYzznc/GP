@@ -188,6 +188,9 @@ public class SceneSpawnManager : MonoBehaviour
 
         var spawnedObject = Instantiate(prefab, spawnPos, Quaternion.identity);
 
+        // 调整敌人/宝箱底部贴在 NavMesh 上（计算 Collider 高度偏移）
+        AdjustPositionToNavMesh(spawnedObject, spawnPos);
+
         // 初始化
         if (isEnemy)
         {
@@ -251,6 +254,28 @@ public class SceneSpawnManager : MonoBehaviour
         }
 
         return (int)treasureBoxData.PrefabId;
+    }
+
+    /// <summary>
+    /// 调整对象位置，使其底部贴在 NavMesh 上
+    /// 通过计算 Collider 的 bounds，调整 Y 坐标
+    /// </summary>
+    private void AdjustPositionToNavMesh(GameObject obj, Vector3 navMeshSurfacePos)
+    {
+        var collider = obj.GetComponent<Collider>();
+        if (collider == null)
+            return;
+
+        // 获取 Collider 的 bounds，计算底部到中心的偏移
+        var bounds = collider.bounds;
+        float heightOffset = bounds.extents.y; // Collider 底部到中心的距离
+
+        // 调整位置：NavMesh 表面点 + 高度偏移
+        Vector3 adjustedPos = new Vector3(navMeshSurfacePos.x, navMeshSurfacePos.y + heightOffset, navMeshSurfacePos.z);
+        obj.transform.position = adjustedPos;
+
+        if (m_ShowSpawnLogs)
+            DebugEx.Log("SceneSpawn", $"位置已调整：底部贴 NavMesh，高度偏移={heightOffset:F2}m");
     }
 
     private MapSpawnTable PickWeightedRandom(List<MapSpawnTable> configs)
