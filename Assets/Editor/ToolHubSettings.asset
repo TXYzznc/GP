@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 5
+  selectedIndex: 7
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -43,3 +43,8 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u6218\u6597\u6A21\u62DF\u5668"
     description: "\u4E00\u952E\u751F\u6210\u68CB\u5B50\u5BF9\u5E76\u6A21\u62DF\u6218\u6597\uFF0C\u652F\u6301AI\u81EA\u52A8\u6218\u6597\u548C\u624B\u52A8\u6280\u80FD\u89E6\u53D1"
+  - typeName: EnemySpawnPointBatchCreatorPanel, Assembly-CSharp-Editor, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    displayName: "\u751F\u6210\u70B9\u6279\u91CF\u521B\u5EFA\u5668"
+    description: "\u667A\u80FD\u6279\u91CF\u751F\u6210 EnemySpawnPoint\uFF0C\u652F\u6301
+      NavMesh \u7EA6\u675F\u548C\u5BC6\u5EA6\u63A7\u5236"
