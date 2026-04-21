@@ -63,9 +63,9 @@ public class BuffManager : MonoBehaviour
         // 2. 移除已结束的 Buff
         if (m_BuffsToRemove.Count > 0)
         {
-            foreach (var buff in m_BuffsToRemove)
+            for (int i = 0; i < m_BuffsToRemove.Count; i++)
             {
-                RemoveBuffInstance(buff);
+                RemoveBuffInstance(m_BuffsToRemove[i]);
             }
             m_BuffsToRemove.Clear();
         }
