@@ -95,6 +95,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\AAAGame\DataTable\AffixTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_170726.txt" />
     <None Include="Assets\EnvironmentResources\实验室和基地\Origin\Tools\Self_illum_reflective.shader" />
     <None Include="Assets\AAAGame\DataTable\LanguageTextTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Readme.txt" />

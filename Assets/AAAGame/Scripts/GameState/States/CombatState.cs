@@ -104,7 +104,7 @@ public class CombatState : FsmState<InGameState>
     /// <summary>
     /// 异步初始化战斗特效并开始战斗
     /// </summary>
-    private async UniTaskVoid InitializeCombatVFXAsync(CancellationToken ct)
+    private async UniTask InitializeCombatVFXAsync(CancellationToken ct)
     {
         await CombatVFXManager.InitializeAndWaitAsync();
 
@@ -640,12 +640,6 @@ public class CombatState : FsmState<InGameState>
 
         // 敌人生成完成后，应用待定的战斗效果（偷袭Debuff/先手Buff）
         ApplyPendingCombatEffects();
-    }
-
-    private async void SpawnEnemies()
-    {
-        await EnemySpawnManager.Instance.SpawnWaveAsync();
-        DebugEx.LogModule("CombatState", "敌人生成完成");
     }
 
     #endregion
