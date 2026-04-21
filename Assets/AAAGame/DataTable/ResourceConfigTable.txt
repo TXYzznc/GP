@@ -158,3 +158,8 @@
 	19023		1	Card/Component/Mask/Mask3.png	名字背景-稀有度3
 	19024		1	Card/Component/Mask/Mask4.png	名字背景-稀有度4
 	11001		1	Enemy/默认.png	敌人图标
+	2501		2	Game/Interact/破损的宝箱	破损的宝箱
+	2502		2	Game/Interact/精致的宝箱	精致的宝箱
+	2503		2	Game/Interact/华丽的宝箱	华丽的宝箱
+	2504		2	Game/Interact/神秘的宝箱	神秘的宝箱
+	2601		2	Enemy/后羿(敌人测试)	敌人测试预制体
