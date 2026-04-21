@@ -89,21 +89,27 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_172510.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\LevelTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_180134.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceConfigTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\AAAGame\DataTable\AffixTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260421_170726.txt" />
     <None Include="Assets\EnvironmentResources\实验室和基地\Origin\Tools\Self_illum_reflective.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_172654.txt" />
     <None Include="Assets\AAAGame\DataTable\LanguageTextTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_180645.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Readme.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UIGroupTable.txt" />
     <None Include="Assets\特效\法阵特效\Prefabs\Hyper Casual FX\ReadMe_Hyper Casual FX Vol.1.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_171933.txt" />
     <None Include="Assets\TA\Sky\SkyboxBlendingAdvanced.shader" />
     <None Include="Assets\特效\ARPG Effects\Readme.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_171250.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
@@ -113,6 +119,7 @@
     <None Include="Assets\AAAGame\DataTable\TestTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles_Cutout.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_171808.txt" />
     <None Include="Assets\AAAGame\DataTable\BuffTable.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AdditiveMobile_Scroll01.shader" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Aura.shader" />
@@ -120,6 +127,7 @@
     <None Include="Assets\TA\OuterGlow\Custom_Outline.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlendedMobile_Scroll01.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_171904.txt" />
     <None Include="Assets\HybridCLRData\Generated\link.xml" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Trail.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
@@ -131,6 +139,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260421_165610.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_173444.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\AAAGame\DataTable\EnemyTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Dilate.shader" />
@@ -143,6 +152,7 @@
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\Additive_EdgeSoft.shader" />
     <None Include="Assets\AAAGame\DataTable\SummonerTable.txt" />
     <None Include="Assets\AAAGame\HotfixDlls\HotfixFileList.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_180006.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_EdgeSoft.shader" />
     <None Include="Assets\TA\Combat\CirclePreview.shader" />
     <None Include="Assets\TA\溶解\Dissolve.shader" />
@@ -155,6 +165,7 @@
     <None Include="Assets\AAAGame\DataTable\MapSpawnTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles.shader" />
     <None Include="Assets\TA\Cartoon\OilPaintingToon.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_174526.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_back.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerDataTable.txt" />
@@ -162,6 +173,7 @@
     <None Include="Assets\AAAGame\DataTable\SceneTable.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatUnitTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_180258.txt" />
     <None Include="Assets\AAAGame\DataTable\PosTable.txt" />
     <None Include="Assets\TA\Cartoon\PlayerCartoon.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
@@ -1189,12 +1201,28 @@
       <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.Profiling.Core">
+      <HintPath>Library\ScriptAssemblies\Unity.Profiling.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.MemoryProfiler">
+      <HintPath>Library\ScriptAssemblies\Unity.MemoryProfiler.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.EditorCoroutines.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.EditorCoroutines.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.MemoryProfiler.Editor.MemoryProfilerModule">
+      <HintPath>Library\ScriptAssemblies\Unity.MemoryProfiler.Editor.MemoryProfilerModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Runtime">
@@ -1239,6 +1267,10 @@
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.MemoryProfiler.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.MemoryProfiler.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.AI.Navigation.Updater">

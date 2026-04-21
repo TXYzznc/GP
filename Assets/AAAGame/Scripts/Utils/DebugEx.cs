@@ -33,17 +33,17 @@ public static class DebugEx
     /// <summary>
     /// 是否启用日志输出（Release 版本可设为 false）
     /// </summary>
-    public static bool EnableLog = true;
+    public static bool EnableLog = false;
 
     /// <summary>
     /// 是否启用警告输出
     /// </summary>
-    public static bool EnableWarning = true;
+    public static bool EnableWarning = false;
 
     /// <summary>
     /// 是否启用错误输出
     /// </summary>
-    public static bool EnableError = true;
+    public static bool EnableError = false;
 
     #endregion
 
