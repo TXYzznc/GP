@@ -222,12 +222,12 @@ public class CombatManager : SingletonBase<CombatManager>
     {
         if (!m_IsInCombat)
         {
-            Log.Warning("CombatManager: 当前不在战斗中");
+            DebugEx.WarningModule("CombatManager", "当前不在战斗中");
             return;
         }
 
         m_IsInCombat = false;
-        Log.Info($"CombatManager: 战斗结束 - {(isVictory ? "胜利" : "失败")}");
+        DebugEx.LogModule("CombatManager", $"战斗结束 - {(isVictory ? "胜利" : "失败")}");
 
         // 0. 停用召唤师技能系统（Dispose 所有被动 Buff）
         var playerCharacterForSkill = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
