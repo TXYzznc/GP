@@ -80,7 +80,7 @@ public class ChessPlacementManager
     /// <summary>
     /// 初始化放置管理器
     /// </summary>
-    public void Initialize()
+    public async UniTask InitializeAsync()
     {
         // 获取GhostPreview组件(挂载到CombatTickDriver上)
         var updater = CombatTickDriver.Instance;
@@ -109,7 +109,7 @@ public class ChessPlacementManager
         }
 
         // 初始化鼠标位置预览
-        InitializeMousePreview();
+        await InitializeMousePreviewAsync();
 
         Log.Info("ChessPlacementManager: 初始化完成");
     }
@@ -150,7 +150,7 @@ public class ChessPlacementManager
     /// </summary>
     /// <param name="instanceId">棋子实例ID</param>
     /// <param name="isDragMode">是否为拖拽模式</param>
-    public async void StartPlacement(string instanceId, bool isDragMode = false)
+    public async UniTask StartPlacementAsync(string instanceId, bool isDragMode = false)
     {
         // 必须在拖拽模式标记后，在 await 之前设置，确保 OnEndDrag 时能正确判断
         m_IsDragMode = isDragMode;
@@ -269,7 +269,7 @@ public class ChessPlacementManager
             }
 
             // 在我方区域 → 确认放置
-            ConfirmPlacementInternal();
+            ConfirmPlacementInternalAsync().Forget();
         }
         else
         {
@@ -370,7 +370,7 @@ public class ChessPlacementManager
             }
 
             // 在我方区域 → 确认放置
-            ConfirmPlacementInternal();
+            ConfirmPlacementInternalAsync().Forget();
         }
         else
         {
@@ -447,7 +447,7 @@ public class ChessPlacementManager
     /// <summary>
     /// 确认放置（内部实现）
     /// </summary>
-    private async void ConfirmPlacementInternal()
+    private async UniTask ConfirmPlacementInternalAsync()
     {
         Camera playerCamera = CameraRegistry.PlayerCamera;
         if (playerCamera == null)
@@ -526,7 +526,7 @@ public class ChessPlacementManager
     /// <summary>
     /// 初始化鼠标位置预览
     /// </summary>
-    private async void InitializeMousePreview()
+    private async UniTask InitializeMousePreviewAsync()
     {
         // 创建预览对象
         m_MousePreviewObject = new GameObject("MousePlacementPreview");

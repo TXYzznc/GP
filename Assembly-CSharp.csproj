@@ -124,6 +124,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260421_170133.txt" />
     <None Include="Assets\link.xml" />
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260421_165610.txt" />

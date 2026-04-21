@@ -661,7 +661,7 @@ public partial class CombatPreparationUI : UIFormBase
         // 启动放置系统（拖拽模式）
         if (ChessPlacementManager.Instance != null)
         {
-            ChessPlacementManager.Instance.StartPlacement(instanceId, isDragMode: true);
+            ChessPlacementManager.Instance.StartPlacementAsync(instanceId, isDragMode: true).Forget();
         }
     }
 

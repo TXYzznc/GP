@@ -257,7 +257,7 @@ public class CombatPreparationState : FsmState<InGameState>
         DebugEx.LogModule("CombatPreparationState", "使用已初始化的棋子库存");
 
         // 初始化战斗管理器
-        InitializeCombatManagers();
+        await InitializeCombatManagersAsync();
 
         // ⭐ 预热棋子状态UI对象池（战斗准备阶段显式指定预热数量）
         ChessStateUIWorldManager.EnsureExistsAsync(10).Forget();
@@ -526,13 +526,13 @@ public class CombatPreparationState : FsmState<InGameState>
     /// <summary>
     /// 初始化战斗管理器
     /// </summary>
-    private void InitializeCombatManagers()
+    private async UniTask InitializeCombatManagersAsync()
     {
         // 初始化战斗场地管理器
         BattleArenaManager.Instance.Initialize(ResourceIds.PREFAB_BATTLE_ARENA); // TODO: 从配置表获取ResourceId
 
         // 初始化棋子放置管理器
-        ChessPlacementManager.Instance.Initialize();
+        await ChessPlacementManager.Instance.InitializeAsync();
 
         // 初始化棋子选择管理器
         ChessSelectionManager.Instance.Initialize();
