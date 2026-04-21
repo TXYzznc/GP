@@ -110,24 +110,26 @@ public class CardSlotContainer : MonoBehaviour
 
     private void Update()
     {
-        // 仅在运行时检测参数变化（用于实时调参）
+        // 仅在运行时检测参数变化（用于编辑器调参）
         if (!Application.isPlaying)
             return;
 
-        // 检测参数是否有变化
-        if (HasParametersChanged())
-        {
-            DebugEx.LogModule("CardSlotContainer", "检测到参数变化，立即更新卡牌位置");
-            CacheParameters();
-            // 立即更新位置（不播放动画，实时反馈）
-            RefreshCardPositionsImmediate();
-        }
-
-        // 调试：每 0.5s 输出一次卡牌位置
+        // 每 0.5s 检测一次参数变化（减少热路径负担）
         m_DebugTimer += Time.deltaTime;
         if (m_DebugTimer >= m_DebugInterval)
         {
             m_DebugTimer = 0f;
+
+            // 检测参数是否有变化
+            if (HasParametersChanged())
+            {
+                DebugEx.LogModule("CardSlotContainer", "检测到参数变化，立即更新卡牌位置");
+                CacheParameters();
+                // 立即更新位置（不播放动画，实时反馈）
+                RefreshCardPositionsImmediate();
+            }
+
+            // 调试：输出卡牌位置
             DebugCardPositions();
         }
     }
