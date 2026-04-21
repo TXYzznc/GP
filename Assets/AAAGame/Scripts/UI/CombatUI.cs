@@ -91,11 +91,10 @@ public partial class CombatUI : StateAwareUIForm
         // ⭐ 新增：初始化刷新次数
         m_RefreshCount = 0;
 
-        // CardManager 已在 CombatState 中初始化，只订阅事件
+        // CardManager 已在 CombatState 中初始化
         if (CardManager.Instance != null)
         {
-            CardManager.Instance.OnCardRemoved += OnCardRemoved;
-            DebugEx.LogModule("CombatUI", "CardManager 事件已订阅");
+            DebugEx.LogModule("CombatUI", "CardManager 已初始化");
         }
 
         ShowUI();
@@ -116,7 +115,6 @@ public partial class CombatUI : StateAwareUIForm
         // 清理 CardManager
         if (CardManager.Instance != null)
         {
-            CardManager.Instance.OnCardRemoved -= OnCardRemoved;
             CardManager.Instance.Clear();
             DebugEx.LogModule("CombatUI", "CardManager 已清理");
         }
@@ -162,24 +160,6 @@ public partial class CombatUI : StateAwareUIForm
         DebugEx.LogModule("CombatUI", "卡牌预览管理器已创建");
     }
 
-    /// <summary>
-    /// 卡牌移除事件回调
-    /// </summary>
-    private void OnCardRemoved(int cardId)
-    {
-        DebugEx.LogModule("CombatUI", $"[OnCardRemoved] 触发卡牌移除事件 ID={cardId}");
-
-        var container = GetCardSlotContainer();
-        if (container == null)
-        {
-            DebugEx.ErrorModule("CombatUI", $"[OnCardRemoved] 未找到 CardSlotContainer");
-            return;
-        }
-
-        DebugEx.LogModule("CombatUI", $"[OnCardRemoved] 调用 RemoveCardByIdAsync(ID={cardId})");
-        // 异步移除卡牌，延迟销毁对象避免时序冲突
-        container.RemoveCardByIdAsync(cardId).Forget();
-    }
     /// <summary>
     /// 获取详情UI
     /// </summary>
@@ -495,11 +475,11 @@ public partial class CombatUI : StateAwareUIForm
             }
         }
 
-        // 销毁旧卡牌
+        // 回收旧卡牌到对象池
         foreach (var card in oldCards)
         {
             container.RemoveCard(card);
-            Destroy(card.gameObject);
+            CardSlotItemPool.Instance?.ReturnCard(card);
         }
 
         // 等待一帧，确保旧卡牌已移除
@@ -517,17 +497,24 @@ public partial class CombatUI : StateAwareUIForm
             var cardSlots = new List<CardSlotItem>();
             for (int i = 0; i < cards.Count; i++)
             {
-                GameObject slotGo = Instantiate(varCardSlotItem, varCardSlots.transform);
-                slotGo.SetActive(true);
-                slotGo.name = $"CardSlot_{i}";
-
-                CardSlotItem slotItem = slotGo.GetComponent<CardSlotItem>();
+                // 从对象池获取卡牌
+                CardSlotItem slotItem = CardSlotItemPool.Instance?.GetCard();
                 if (slotItem != null)
                 {
+                    // 重新设置 parent（确保卡牌在正确的容器下）
+                    slotItem.transform.SetParent(varCardSlots.transform, worldPositionStays: false);
+                    slotItem.gameObject.name = $"CardSlot_{i}";
+
                     slotItem.SetData(cards[i]);
                     // 仅添加到容器，不播放动画
                     container.AddCardSilent(slotItem);
                     cardSlots.Add(slotItem);
+
+                    DebugEx.LogModule("CombatUI", $"从对象池获取卡牌槽 {i}");
+                }
+                else
+                {
+                    DebugEx.ErrorModule("CombatUI", "无法从对象池获取卡牌槽");
                 }
             }
 
@@ -547,16 +534,23 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private async UniTask CreateCardSlot(CardData cardData, int index, CardSlotContainer container, bool isRefreshMode = false)
     {
-        GameObject slotGo = Instantiate(varCardSlotItem, varCardSlots.transform);
-        slotGo.SetActive(true);
-        slotGo.name = $"CardSlot_{index}";
-
-        CardSlotItem slotItem = slotGo.GetComponent<CardSlotItem>();
+        // 从对象池获取卡牌
+        CardSlotItem slotItem = CardSlotItemPool.Instance?.GetCard();
         if (slotItem != null)
         {
+            // 重新设置 parent（确保卡牌在正确的容器下）
+            slotItem.transform.SetParent(varCardSlots.transform, worldPositionStays: false);
+            slotItem.gameObject.name = $"CardSlot_{index}";
+
             slotItem.SetData(cardData);
             // 通过容器添加卡牌，播放进场动画
             await container.AddCardAsync(slotItem, isRefreshMode);
+
+            DebugEx.LogModule("CombatUI", $"从对象池获取并创建卡牌槽 {index}");
+        }
+        else
+        {
+            DebugEx.ErrorModule("CombatUI", $"无法从对象池获取卡牌槽 {index}");
         }
     }
 

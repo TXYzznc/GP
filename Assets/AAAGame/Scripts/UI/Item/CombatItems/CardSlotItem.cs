@@ -44,15 +44,15 @@ public partial class CardSlotItem
     private Tween m_PositionTween; // 位置动画（悬停上移）
     private CanvasGroup m_BtnCanvasGroup;
     private RectTransform m_ItemRectTransform;
-    private const float HOVER_SCALE = 1.05f;
-    private const float HOVER_DURATION = 0.2f;
-    private const float HOVER_OFFSET_Y = 30f; // 悬停上移距离
-    private const float PULSE_SCALE = 1.1f;
-    private const float PULSE_DURATION = 0.3f;
-    private const float DRAG_ALPHA = 0.5f;
-    private const float PREVIEW_ROTATION = 5f;
-    private const float FLASH_DURATION = 0.2f;
-    private const float FLASH_ALPHA = 1.5f;
+    private const float HOVER_SCALE = 1.05f;           // 鼠标悬停时放大倍数
+    private const float HOVER_DURATION = 0.2f;         // 悬停动画时长（秒）
+    private const float HOVER_OFFSET_Y = 30f;          // 悬停时向上移动距离（像素）
+    private const float PULSE_SCALE = 1.1f;            // 选中卡牌脉冲效果最大放大倍数
+    private const float PULSE_DURATION = 0.3f;         // 脉冲动画时长（秒）
+    private const float DRAG_ALPHA = 0.5f;             // 拖拽时卡牌透明度（0-1）
+    private const float PREVIEW_ROTATION = 5f;         // 拖拽预览旋转角度（度）
+    private const float FLASH_DURATION = 0.2f;         // 卡牌使用时闪光效果时长（秒）
+    private const float FLASH_ALPHA = 1.5f;            // 闪光时最大亮度倍数
 
     #endregion
 
@@ -97,11 +97,23 @@ public partial class CardSlotItem
     }
 
     /// <summary>
-    /// 重置卡牌状态（战斗结束时调用）
+    /// 设置卡牌交互状态（禁用/启用）
+    /// </summary>
+    public void SetInteractable(bool enabled)
+    {
+        if (varBtn != null && varBtn.TryGetComponent<Image>(out var image))
+        {
+            image.raycastTarget = enabled;
+        }
+    }
+
+    /// <summary>
+    /// 重置卡牌状态（从对象池回收时调用）
     /// </summary>
     public void ResetState()
     {
         m_IsSelected = false;
+        m_CardData = null;
         m_Container = null;
         m_BaseAnchoredPos = Vector2.zero;
         m_BaseRotZ = 0f;
@@ -112,7 +124,35 @@ public partial class CardSlotItem
         m_PositionTween?.Kill();
         m_DragPreviewTween?.Kill();
 
-        DebugEx.LogModule("CardSlotItem", $"卡牌状态已重置: {m_CardData?.Name ?? "unknown"}");
+        // 重置 RectTransform
+        var rectTransform = GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition = Vector2.zero;
+            rectTransform.localRotation = Quaternion.identity;
+        }
+
+        // 重置 CanvasGroup 透明度
+        if (m_BtnCanvasGroup != null)
+        {
+            m_BtnCanvasGroup.alpha = 1f;
+        }
+
+        // 重置 Button 的 Image 和 scale
+        if (varBtn != null)
+        {
+            var btnImage = varBtn.GetComponent<Image>();
+            if (btnImage != null)
+            {
+                btnImage.color = new Color(1f, 1f, 1f, 0f);  // 按钮Image应保持透明（alpha=0）
+                btnImage.raycastTarget = true;
+            }
+            varBtn.transform.localScale = Vector3.one;
+        }
+
+        m_BtnOriginalPosition = Vector3.zero;
+
+        DebugEx.LogModule("CardSlotItem", $"卡牌状态已重置");
     }
 
     /// <summary>
@@ -229,34 +269,80 @@ public partial class CardSlotItem
     #region 销毁动画
 
     /// <summary>
+    /// 播放销毁动画并回收到对象池
+    /// 关键：RemoveCard 和 销毁动画 并行执行，提升用户体验
+    /// </summary>
+    private async UniTaskVoid PlayDestroyAnimationAndRemoveAsync()
+    {
+        // 保存必要信息
+        int cardId = m_CardData?.CardId ?? -1;
+        string cardName = m_CardData?.Name ?? "unknown";
+
+        // ==================== 立即执行（不等待） ====================
+        // 第1步：从 Container 中移除卡牌 → 立即启动重排
+        // 这样其他卡牌会立即开始向中心靠拢
+        if (m_Container != null)
+        {
+            m_Container.RemoveCard(this);
+            DebugEx.LogModule("CardSlotItem", $"[立即] 从容器移除卡牌，启动重排: {cardName}");
+        }
+
+        // 第2步：通知 CardManager 移除卡牌数据
+        if (CardManager.Instance != null && cardId > 0)
+        {
+            CardManager.Instance.RemoveCard(cardId);
+            DebugEx.LogModule("CardSlotItem", $"[立即] 从 CardManager 移除卡牌: {cardName}");
+        }
+
+        // ==================== 并行执行：销毁动画 ====================
+        // 第3步：播放销毁动画（同时，其他卡牌在重排，形成流畅的视觉效果）
+        await PlayDestroyAnimationAsync();
+        DebugEx.LogModule("CardSlotItem", $"[动画完成] 销毁动画播放完成: {cardName}");
+
+        // ==================== 后续清理（异步进行） ====================
+        // 第4步：等待容器重排完成，然后归还到对象池
+        if (m_Container != null)
+        {
+            try
+            {
+                await m_Container.WaitForLatestRearrangeAsync();
+                DebugEx.LogModule("CardSlotItem", $"[后台] 容器重排完成: {cardName}");
+            }
+            catch (OperationCanceledException)
+            {
+                DebugEx.LogModule("CardSlotItem", $"[后台] 重排被取消: {cardName}");
+            }
+        }
+
+        // 第5步：归还到对象池
+        if (CardSlotItemPool.Instance != null)
+        {
+            CardSlotItemPool.Instance.ReturnCard(this);
+            DebugEx.LogModule("CardSlotItem", $"[完成] 卡牌已归还到对象池: {cardName}");
+        }
+    }
+
+    /// <summary>
     /// 播放卡牌销毁动画（淡出 + 缩小）
     /// </summary>
-    public async UniTaskVoid PlayDestroyAnimationAsync()
+    private async UniTask PlayDestroyAnimationAsync()
     {
         if (varBtn == null)
-        {
-            Destroy(gameObject);
             return;
-        }
 
         var btnImage = varBtn.GetComponent<Image>();
         var btnTransform = varBtn.transform;
 
         if (btnImage != null)
         {
-            // 销毁动画：0.3 秒内透明度从 1 变为 0，同时缩小到 0.5
+            // 销毁动画：0.1 秒内透明度从 1 变为 0，同时缩小到 0.5
             var sequence = DOTween.Sequence();
-            sequence.Append(btnImage.DOFade(0f, 0.3f).SetEase(Ease.InQuad));
-            sequence.Join(btnTransform.DOScale(Vector3.one * 0.5f, 0.3f).SetEase(Ease.InQuad));
+            sequence.Append(btnImage.DOFade(0f, 0.1f).SetEase(Ease.InQuad));
+            sequence.Join(btnTransform.DOScale(Vector3.one * 0.5f, 0.1f).SetEase(Ease.InQuad));
 
-            await UniTask.Delay(300, cancellationToken: this.GetCancellationTokenOnDestroy()); // 等待 0.3 秒（销毁时自动取消）
+            await sequence.AsyncWaitForCompletion();
         }
 
-        // 销毁游戏对象前，清理所有 DOTween
-        DOTween.Kill(this);
-
-        // 销毁游戏对象
-        Destroy(gameObject);
         DebugEx.LogModule("CardSlotItem", $"卡牌销毁动画完成: {m_CardData?.Name ?? "unknown"}");
     }
 
@@ -590,9 +676,6 @@ public partial class CardSlotItem
             m_DragPreviewTween = null;
         }
 
-        // 通知容器拖拽结束
-        m_Container?.OnCardEndDrag(this);
-
         // 判断释放位置：只有离开过 GreenArea 后回来才算吸附区
         bool isInGreenAreaRaw = IsPositionInAdsorptionArea(eventData.position);
         bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
@@ -607,12 +690,16 @@ public partial class CardSlotItem
             DebugEx.LogModule("CardSlotItem",
                 $"释放位置在保留/无效区 (吸附={isInRetractArea}, 无效={isInInvalidArea})，卡牌返回卡槽");
             ReturnToSlot();
+            // 通知容器拖拽结束（true 表示返回卡槽）
+            if (m_Container != null)
+                m_Container.OnCardEndDrag(this, true);
         }
         else
         {
             // 战场区域：执行卡牌效果
             DebugEx.LogModule("CardSlotItem", $"释放位置在战场，执行卡牌效果");
             ExecuteCardEffect(GetWorldPosFromScreen(eventData.position));
+            // 注意：不调用 OnCardEndDrag，重排由 PlayDestroyAnimationAndExecuteAsync 中的 RemoveCard 管理
         }
 
         // 隐藏区域高亮显示
@@ -791,18 +878,8 @@ public partial class CardSlotItem
             DebugEx.ErrorModule("CardSlotItem", "无法创建 CardEffectExecutor");
         }
 
-        // 播放销毁动画
-        PlayDestroyAnimationAsync().Forget();
-
-        // 从 CardManager 移除卡牌
-        if (CardManager.Instance != null)
-        {
-            CardManager.Instance.RemoveCard(m_CardData.CardId);
-        }
-        else
-        {
-            DebugEx.WarningModule("CardSlotItem", "CardManager 为空");
-        }
+        // 播放销毁动画并自管理销毁流程
+        PlayDestroyAnimationAndRemoveAsync().Forget();
     }
 
     /// <summary>
