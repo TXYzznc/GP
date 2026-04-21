@@ -41,15 +41,13 @@ public class CardSlotContainer : MonoBehaviour
     private RectTransform m_RectTransform;
     private List<CardSlotItem> m_Cards = new List<CardSlotItem>();
 
-    // 拖拽状态
-    private CardSlotItem m_DragCard;
-    private int m_InsertIndex = -1;
-    private Dictionary<CardSlotItem, Vector2> m_TempOffsets = new Dictionary<CardSlotItem, Vector2>();  // 拖拽时的临时偏移
+    // 拖拽上下文：记录当前谁在拖拽、插入位置在哪（仅缓存，不控制）
+    private DragContext m_DragContext;
 
     // 动效控制
     private Tween m_RearrangeTween;
-    private CancellationTokenSource m_RearrangeCts;  // 用于取消旧的 RearrangeAsync
-    private UniTask m_LatestRearrangeTask = UniTask.CompletedTask;  // 最新的重排任务，用于等待完成
+    private CancellationTokenSource m_RearrangeCts;
+    private UniTask m_LatestRearrangeTask = UniTask.CompletedTask;
 
     // 调试：位置追踪
     private float m_DebugTimer = 0f;
@@ -61,6 +59,8 @@ public class CardSlotContainer : MonoBehaviour
 
     private void Awake()
     {
+        DebugEx.LogModule("CardSlotContainer", "[初始化] CardSlotContainer Awake 开始");
+
         m_RectTransform = GetComponent<RectTransform>();
         if (m_RectTransform == null)
         {
@@ -69,6 +69,41 @@ public class CardSlotContainer : MonoBehaviour
 
         // 初始化缓存参数
         CacheParameters();
+
+        // 订阅事件
+        SubscribeToCardEvents();
+
+        DebugEx.LogModule("CardSlotContainer", "[初始化] CardSlotContainer Awake 完成");
+    }
+
+    private void OnDestroy()
+    {
+        // 取消订阅事件
+        UnsubscribeFromCardEvents();
+        DebugEx.LogModule("CardSlotContainer", "[销毁] CardSlotContainer 已销毁，取消事件订阅");
+    }
+
+    /// <summary>
+    /// 订阅卡牌事件（从 EventDispatcher）
+    /// </summary>
+    private void SubscribeToCardEvents()
+    {
+        CardSlotItemEventDispatcher.OnDragStarted += OnCardDragStarted;
+        CardSlotItemEventDispatcher.OnDragPositionChanged += OnCardDragPositionChanged;
+        CardSlotItemEventDispatcher.OnDragEnded += OnCardDragEnded;
+        CardSlotItemEventDispatcher.OnAboutToDestroy += OnCardAboutToDestroy;
+        DebugEx.LogModule("CardSlotContainer", "[订阅] 已订阅所有卡牌事件");
+    }
+
+    /// <summary>
+    /// 取消订阅卡牌事件
+    /// </summary>
+    private void UnsubscribeFromCardEvents()
+    {
+        CardSlotItemEventDispatcher.OnDragStarted -= OnCardDragStarted;
+        CardSlotItemEventDispatcher.OnDragPositionChanged -= OnCardDragPositionChanged;
+        CardSlotItemEventDispatcher.OnDragEnded -= OnCardDragEnded;
+        CardSlotItemEventDispatcher.OnAboutToDestroy -= OnCardAboutToDestroy;
     }
 
     private void Update()
@@ -229,17 +264,90 @@ public class CardSlotContainer : MonoBehaviour
 
         // 清理卡牌列表
         m_Cards.Clear();
-        m_TempOffsets.Clear();
 
-
-        // 重置拖拽状态
-        m_DragCard = null;
-        m_InsertIndex = -1;
+        // 重置拖拽上下文
+        m_DragContext.Clear();
 
         // 重新缓存参数（以便下次参数检测）
         CacheParameters();
 
+        // 取消订阅事件
+        UnsubscribeFromCardEvents();
+
         DebugEx.LogModule("CardSlotContainer", "容器状态已清理");
+    }
+
+    #endregion
+
+    #region 事件回调（从 EventDispatcher）
+
+    /// <summary>
+    /// 卡牌开始拖拽（事件回调）
+    /// </summary>
+    private void OnCardDragStarted(CardSlotItem card, int startIndex)
+    {
+        if (card == null || !m_Cards.Contains(card))
+            return;
+
+        m_DragContext = new DragContext { Card = card, StartIndex = startIndex, CurrentInsertIndex = startIndex };
+        DebugEx.LogModule("CardSlotContainer", $"[事件] 卡牌拖拽开始: {card.GetCardData()?.Name}");
+    }
+
+    /// <summary>
+    /// 卡牌拖拽中，插入位置改变（事件回调）
+    /// </summary>
+    private void OnCardDragPositionChanged(CardSlotItem card, int newInsertIndex)
+    {
+        if (m_DragContext.Card != card)
+            return;
+
+        if (m_DragContext.CurrentInsertIndex == newInsertIndex)
+            return;
+
+        m_DragContext.CurrentInsertIndex = newInsertIndex;
+        DebugEx.LogModule("CardSlotContainer", $"[事件] 拖拽位置改变: {newInsertIndex}");
+
+        // 立即启动重排动画
+        RearrangeAsync(default).Forget();
+    }
+
+    /// <summary>
+    /// 卡牌拖拽结束（事件回调）
+    /// </summary>
+    private void OnCardDragEnded(CardSlotItem card, Vector3 worldPos, bool isValid)
+    {
+        if (m_DragContext.Card != card)
+            return;
+
+        DebugEx.LogModule("CardSlotContainer", $"[事件] 拖拽结束: isValid={isValid}");
+
+        // 清理拖拽上下文
+        m_DragContext.Clear();
+
+        // 如果拖拽成功（释放在战场），容器不需要做什么
+        // 如果拖拽失败（返回卡槽），由 RearrangeAsync 处理位置恢复
+        if (!isValid)
+        {
+            // 立即启动重排，让卡牌回到正常位置
+            RearrangeAsync(default).Forget();
+        }
+    }
+
+    /// <summary>
+    /// 卡牌即将销毁（事件回调）
+    /// </summary>
+    private void OnCardAboutToDestroy(CardSlotItem card)
+    {
+        if (!m_Cards.Contains(card))
+            return;
+
+        DebugEx.LogModule("CardSlotContainer", $"[事件] 卡牌即将销毁: {card.GetCardData()?.Name}");
+
+        // 立即从列表移除（这样重排计算时不会包含这张卡）
+        m_Cards.Remove(card);
+
+        // 立即启动重排动画，其他卡向中心靠拢
+        RearrangeAsync(default).Forget();
     }
 
     #endregion
@@ -324,11 +432,11 @@ public class CardSlotContainer : MonoBehaviour
     }
 
     /// <summary>
-    /// 移除卡牌（通过卡牌ID）— 容器负责完整生命周期
+    /// 移除卡牌（通过卡牌ID）— 触发卡牌销毁流程
     /// </summary>
     public void RemoveCardById(int cardId)
     {
-        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardById] 尝试移除卡牌 ID={cardId}，当前容器卡牌数={m_Cards.Count}");
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardById] 尝试移除卡牌 ID={cardId}");
 
         var cardSlot = m_Cards.FirstOrDefault(c => c.GetCardData()?.CardId == cardId);
         if (cardSlot == null)
@@ -337,12 +445,12 @@ public class CardSlotContainer : MonoBehaviour
             return;
         }
 
-        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardById] 找到卡牌 ID={cardId}，标记为待销毁");
-        RemoveCard(cardSlot);
+        // 触发卡牌销毁流程（卡牌会发出 OnAboutToDestroy 事件）
+        cardSlot.BeginDestruction();
     }
 
     /// <summary>
-    /// 移除卡牌并重排（卡牌的销毁由 CardSlotItem 标记，Container 负责最后销毁）
+    /// 移除卡牌（内部使用，由 EventDispatcher 触发）
     /// </summary>
     public void RemoveCard(CardSlotItem card)
     {
@@ -352,28 +460,10 @@ public class CardSlotContainer : MonoBehaviour
             return;
         }
 
-        DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 移除卡牌 {card.name}（卡牌ID={card.GetCardData()?.CardId}），移除前数量={m_Cards.Count}");
+        DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 移除卡牌，当前数量={m_Cards.Count}");
 
-        // 从活跃卡列表中移除
-        m_Cards.Remove(card);
-        m_TempOffsets.Remove(card);
-
-        // 清除拖拽状态
-        if (m_DragCard == card)
-        {
-            m_DragCard = null;
-            m_InsertIndex = -1;
-            DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 已清除拖拽状态");
-        }
-
-        DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 卡牌已移除，剩余: {m_Cards.Count} 张，触发重排动画");
-
-        // 取消旧RearrangeAsync并启动新的
-        m_RearrangeCts?.Cancel();
-        m_RearrangeTween?.Kill();
-
-        m_RearrangeCts = new CancellationTokenSource();
-        m_LatestRearrangeTask = RearrangeAsync(m_RearrangeCts.Token);
+        // 从活跃卡列表中移除（已在 OnCardAboutToDestroy 中完成）
+        // 这个方法现在保留用于兼容性
     }
 
     /// <summary>
@@ -385,63 +475,6 @@ public class CardSlotContainer : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 拖拽开始
-    /// </summary>
-    public void OnCardBeginDrag(CardSlotItem card)
-    {
-        if (card == null || !m_Cards.Contains(card))
-            return;
-
-        m_DragCard = card;
-        m_InsertIndex = m_Cards.IndexOf(card);
-        m_TempOffsets.Clear();
-
-        DebugEx.LogModule("CardSlotContainer", $"卡牌拖拽开始: index={m_InsertIndex}");
-    }
-
-    /// <summary>
-    /// 拖拽中：根据鼠标位置计算插入位置，其他卡让位
-    /// </summary>
-    public void OnCardDrag(CardSlotItem card, Vector2 screenPos)
-    {
-        if (m_DragCard != card || m_Cards.Count <= 1)
-            return;
-
-        // 计算插入位置
-        int newInsertIndex = CalculateInsertIndex(screenPos);
-        if (newInsertIndex == m_InsertIndex)
-            return;
-
-        m_InsertIndex = newInsertIndex;
-
-        // 更新其他卡的临时偏移
-        UpdateDragOffsets();
-
-        DebugEx.LogModule("CardSlotContainer", $"拖拽中，插入位置: {m_InsertIndex}");
-    }
-
-    /// <summary>
-    /// 拖拽结束：恢复排列
-    /// </summary>
-    public void OnCardEndDrag(CardSlotItem card, bool isReturn)
-    {
-        if (m_DragCard != card)
-            return;
-
-        DebugEx.LogModule("CardSlotContainer", $"卡牌拖拽结束，isReturn={isReturn}");
-
-        // 清理拖拽状态
-        m_DragCard = null;
-        m_InsertIndex = -1;
-        m_TempOffsets.Clear();
-
-        // 只在返回卡槽时重排
-        if (isReturn)
-        {
-            RearrangeAsync(default).Forget();
-        }
-    }
 
     #endregion
 
@@ -478,7 +511,7 @@ public class CardSlotContainer : MonoBehaviour
     /// </summary>
     private FanTransform[] CalculateFanPositions(bool includeDragCard = false)
     {
-        int cardCount = includeDragCard ? m_Cards.Count : m_Cards.Count - (m_DragCard != null ? 1 : 0);
+        int cardCount = includeDragCard ? m_Cards.Count : m_Cards.Count - (m_DragContext.IsActive ? 1 : 0);
         if (cardCount == 0)
             return new FanTransform[0];
 
@@ -524,14 +557,22 @@ public class CardSlotContainer : MonoBehaviour
     }
 
     /// <summary>
+    /// 获取卡牌在容器中的索引（用于拖拽开始时）
+    /// </summary>
+    public int GetCardIndex(CardSlotItem card)
+    {
+        return m_Cards.IndexOf(card);
+    }
+
+    /// <summary>
     /// 根据鼠标屏幕位置计算卡牌应该插入的索引
     /// </summary>
-    private int CalculateInsertIndex(Vector2 screenPos)
+    public int CalculateInsertIndex(Vector2 screenPos)
     {
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
             m_RectTransform, screenPos, null, out Vector2 localPos))
         {
-            return m_Cards.IndexOf(m_DragCard);
+            return m_DragContext.StartIndex;
         }
 
         // 根据 X 坐标判断插入位置
@@ -540,7 +581,7 @@ public class CardSlotContainer : MonoBehaviour
 
         for (int i = 0; i < m_Cards.Count; i++)
         {
-            if (m_Cards[i] == m_DragCard)
+            if (m_Cards[i] == m_DragContext.Card)
                 continue;
 
             var cardRect = m_Cards[i].GetComponent<RectTransform>();
@@ -566,56 +607,6 @@ public class CardSlotContainer : MonoBehaviour
         return closestIndex;
     }
 
-    /// <summary>
-    /// 更新拖拽状态下的卡牌偏移
-    /// </summary>
-    private void UpdateDragOffsets()
-    {
-        m_TempOffsets.Clear();
-
-        int dragIndex = m_Cards.IndexOf(m_DragCard);
-        int insertIndex = m_InsertIndex;
-
-        // 计算卡牌宽度（用于让位距离）
-        float cardWidth = 100f;
-        var dragCardRect = m_DragCard?.GetComponent<RectTransform>();
-        if (dragCardRect != null)
-        {
-            cardWidth = dragCardRect.rect.width;
-        }
-
-        float offsetDistance = cardWidth * 0.5f;
-
-        // 左侧卡向左，右侧卡向右
-        for (int i = 0; i < m_Cards.Count; i++)
-        {
-            if (i == dragIndex)
-                continue;
-
-            Vector2 offset = Vector2.zero;
-            if (dragIndex < insertIndex)
-            {
-                // 拖往右：左边卡不动，中间卡左移
-                if (i > dragIndex && i < insertIndex)
-                {
-                    offset.x = -offsetDistance;
-                }
-            }
-            else
-            {
-                // 拖往左：右边卡不动，中间卡右移
-                if (i < dragIndex && i >= insertIndex)
-                {
-                    offset.x = offsetDistance;
-                }
-            }
-
-            if (offset != Vector2.zero)
-            {
-                m_TempOffsets[m_Cards[i]] = offset;
-            }
-        }
-    }
 
     #endregion
 
@@ -678,15 +669,15 @@ public class CardSlotContainer : MonoBehaviour
     /// <summary>
     /// 重新排列所有卡牌（只负责排列，销毁由 CardSlotItem 自管理）
     /// </summary>
-    private async UniTask RearrangeAsync(CancellationToken ct)
+    public async UniTask RearrangeAsync(CancellationToken ct)
     {
         // 清理已销毁的卡牌引用（防止位置计算时count不匹配）
         m_Cards.RemoveAll(c => c == null || c.gameObject == null);
 
         DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 开始重排，当前卡牌数={m_Cards.Count}");
 
-        // 创建快照：只对当前活跃卡进行动画（避免期间被修改导致位置计算错误）
-        var activeCards = m_Cards.Where(c => c != m_DragCard).ToList();
+        // 创建快照：只对当前活跃卡进行动画（拖拽中的卡不动画）
+        var activeCards = m_Cards.Where(c => c != m_DragContext.Card).ToList();
 
         if (activeCards.Count == 0)
         {
@@ -717,8 +708,6 @@ public class CardSlotContainer : MonoBehaviour
                 continue;
 
             Vector2 targetPos = fanTransforms[i].AnchoredPos;
-            if (m_TempOffsets.TryGetValue(card, out var offset))
-                targetPos += offset;
 
             float targetRotZ = fanTransforms[i].RotationZ;
             card.SetBaseFanTransform(this, fanTransforms[i].AnchoredPos, targetRotZ);
@@ -762,7 +751,7 @@ public class CardSlotContainer : MonoBehaviour
         for (int i = 0; i < m_Cards.Count; i++)
         {
             var card = m_Cards[i];
-            if (card == m_DragCard)
+            if (card == m_DragContext.Card)
                 continue;
 
             var cardRect = card.GetComponent<RectTransform>();
@@ -770,10 +759,6 @@ public class CardSlotContainer : MonoBehaviour
                 continue;
 
             Vector2 targetPos = fanTransforms[transformIndex].AnchoredPos;
-            if (m_TempOffsets.TryGetValue(card, out var offset))
-            {
-                targetPos += offset;
-            }
 
             float targetRotZ = fanTransforms[transformIndex].RotationZ;
 

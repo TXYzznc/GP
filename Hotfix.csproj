@@ -102,6 +102,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PostCombatStealth.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarAction.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\ShieldRegenBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\TA\噪声\FastNoiseLite.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessAnimator.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\EnemyMask.cs" />
@@ -247,6 +248,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardTargetType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\ConfusedBuff.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\SilenceBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\SettingDialog.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataTableExtension.cs" />
@@ -371,6 +373,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PlayerAccountTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\SpecialEffectData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiPassive.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\ReflectDamageBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\ChaosCurseCardEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillCommonConfig.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\CSPacketBase.cs" />
@@ -425,6 +428,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\TreasureBoxUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampRelation.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\InventoryUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItemEventDispatcher.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatTickDriver.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\ItemContextMenu.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\MeleeHitDetector.cs" />
@@ -507,6 +511,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyAlertState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EndCombatUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\DictionarySlot.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\LifestealBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Detection\PlayerDetectionInfo.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillManager.cs" />
@@ -538,11 +543,13 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyEntityTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\ExplorationEnterEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\SampleEntity.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\PoisonBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\StarPhoneUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\System\EnemyAlertUIManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Utils\DebugEx.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\LanguageTextTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\EndCombatUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\TauntBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamagePopupItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\StaticUIComponent.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PageLabelItem.Variables.cs" />

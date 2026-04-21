@@ -18,14 +18,14 @@ public partial class CardSlotItem
     #region 字段
 
     private CardData m_CardData;
-    private bool m_IsSelected;
+    private CardSlotItemState m_State = CardSlotItemState.Idle;  // 状态机
     private Vector3 m_BtnOriginalPosition;
     private const float SELECTED_OFFSET = 20f;
 
     // 扇形容器相关
     private CardSlotContainer m_Container;
-    private Vector2 m_BaseAnchoredPos; // Container 分配的基准位置
-    private float m_BaseRotZ; // 基准旋转
+    private Vector2 m_BaseAnchoredPos;
+    private float m_BaseRotZ;
 
     // 拖拽相关字段
     private GameObject m_DragPreview;
@@ -41,18 +41,18 @@ public partial class CardSlotItem
     private Tween m_SelectTween;
     private Tween m_HoverTween;
     private Tween m_DragPreviewTween;
-    private Tween m_PositionTween; // 位置动画（悬停上移）
+    private Tween m_PositionTween;
     private CanvasGroup m_BtnCanvasGroup;
     private RectTransform m_ItemRectTransform;
-    private const float HOVER_SCALE = 1.05f;           // 鼠标悬停时放大倍数
-    private const float HOVER_DURATION = 0.2f;         // 悬停动画时长（秒）
-    private const float HOVER_OFFSET_Y = 30f;          // 悬停时向上移动距离（像素）
-    private const float PULSE_SCALE = 1.1f;            // 选中卡牌脉冲效果最大放大倍数
-    private const float PULSE_DURATION = 0.3f;         // 脉冲动画时长（秒）
-    private const float DRAG_ALPHA = 0.5f;             // 拖拽时卡牌透明度（0-1）
-    private const float PREVIEW_ROTATION = 5f;         // 拖拽预览旋转角度（度）
-    private const float FLASH_DURATION = 0.2f;         // 卡牌使用时闪光效果时长（秒）
-    private const float FLASH_ALPHA = 1.5f;            // 闪光时最大亮度倍数
+    private const float HOVER_SCALE = 1.05f;
+    private const float HOVER_DURATION = 0.2f;
+    private const float HOVER_OFFSET_Y = 30f;
+    private const float PULSE_SCALE = 1.1f;
+    private const float PULSE_DURATION = 0.3f;
+    private const float DRAG_ALPHA = 0.5f;
+    private const float PREVIEW_ROTATION = 5f;
+    private const float FLASH_DURATION = 0.2f;
+    private const float FLASH_ALPHA = 1.5f;
 
     #endregion
 
@@ -64,7 +64,7 @@ public partial class CardSlotItem
     public void SetData(CardData cardData)
     {
         m_CardData = cardData;
-        m_IsSelected = false;
+        m_State = CardSlotItemState.Idle;
         RefreshUI();
     }
 
@@ -112,7 +112,7 @@ public partial class CardSlotItem
     /// </summary>
     public void ResetState()
     {
-        m_IsSelected = false;
+        m_State = CardSlotItemState.Idle;
         m_CardData = null;
         m_Container = null;
         m_BaseAnchoredPos = Vector2.zero;
@@ -266,6 +266,19 @@ public partial class CardSlotItem
 
     #endregion
 
+    #region 销毁管理
+
+    /// <summary>
+    /// 开始销毁流程（由外部调用，如 CardSlotContainer.RemoveCardById）
+    /// </summary>
+    public void BeginDestruction()
+    {
+        if (m_State == CardSlotItemState.Destroyed)
+            return;
+
+        SetState(CardSlotItemState.Destroying);
+    }
+
     #region 销毁动画
 
     /// <summary>
@@ -279,13 +292,11 @@ public partial class CardSlotItem
         string cardName = m_CardData?.Name ?? "unknown";
 
         // ==================== 立即执行（不等待） ====================
-        // 第1步：从 Container 中移除卡牌 → 立即启动重排
-        // 这样其他卡牌会立即开始向中心靠拢
-        if (m_Container != null)
-        {
-            m_Container.RemoveCard(this);
-            DebugEx.LogModule("CardSlotItem", $"[立即] 从容器移除卡牌，启动重排: {cardName}");
-        }
+        // 第1步：发出即将销毁事件 → Container 监听并启动重排
+        string containerName = m_Container != null ? m_Container.gameObject.name : "null";
+        DebugEx.LogModule("CardSlotItem", $"[销毁前] m_Container={containerName}，卡牌={cardName}");
+        CardSlotItemEventDispatcher.RaiseAboutToDestroy(this);
+        DebugEx.LogModule("CardSlotItem", $"[事件] 发出销毁事件，触发容器重排: {cardName}");
 
         // 第2步：通知 CardManager 移除卡牌数据
         if (CardManager.Instance != null && cardId > 0)
@@ -358,15 +369,51 @@ public partial class CardSlotItem
         if (m_CardData == null)
             return;
 
-        if (m_IsSelected)
+        // 拖拽/销毁中不响应点击
+        if (m_State == CardSlotItemState.Dragging || m_State == CardSlotItemState.Destroying || m_State == CardSlotItemState.Destroyed)
+            return;
+
+        if (m_State == CardSlotItemState.Selected)
         {
-            // 取消选中
-            DeselectCard();
+            SetState(CardSlotItemState.Idle);
         }
-        else
+        else if (m_State == CardSlotItemState.Idle || m_State == CardSlotItemState.Hovering)
         {
-            // 选中卡牌
-            SelectCard();
+            SetState(CardSlotItemState.Selected);
+        }
+    }
+
+    /// <summary>
+    /// 设置卡牌状态
+    /// </summary>
+    private void SetState(CardSlotItemState newState)
+    {
+        if (m_State == newState)
+            return;
+
+        ExitState(m_State);
+        m_State = newState;
+        EnterState(newState);
+    }
+
+    private void ExitState(CardSlotItemState state) { }
+
+    private void EnterState(CardSlotItemState state)
+    {
+        switch (state)
+        {
+            case CardSlotItemState.Selected:
+                SelectCard();
+                break;
+            case CardSlotItemState.Idle:
+                DeselectCard();
+                break;
+            case CardSlotItemState.Dragging:
+                OnDragStart();
+                break;
+            case CardSlotItemState.Destroying:
+                PlayDestroyAnimationAndRemoveAsync().Forget();
+                break;
         }
     }
 
@@ -375,7 +422,8 @@ public partial class CardSlotItem
     /// </summary>
     private void SelectCard()
     {
-        m_IsSelected = true;
+        // 发出事件
+        CardSlotItemEventDispatcher.RaiseSelectionChanged(this, true);
 
         // 取消场景中选中的棋子（点策略卡时应取消棋子选中）
         ChessSelectionManager.Instance?.ForceDeselect();
@@ -438,8 +486,6 @@ public partial class CardSlotItem
     /// </summary>
     private void DeselectCard()
     {
-        m_IsSelected = false;
-
         // 恢复到基准坐标
         var itemRectTransform = GetComponent<RectTransform>();
         if (itemRectTransform != null)
@@ -465,6 +511,9 @@ public partial class CardSlotItem
                 detailUI.gameObject.SetActive(false);
             }
         }
+
+        // 发出事件
+        CardSlotItemEventDispatcher.RaiseSelectionChanged(this, false);
 
         // 更新 CardManager 的选中状态
         if (CardManager.Instance != null && CardManager.Instance.CurrentSelectedCard == m_CardData)
@@ -497,8 +546,13 @@ public partial class CardSlotItem
 
     #region 拖拽交互
 
-    private bool m_IsDragging;  // 正在拖拽标志
-    private bool m_HasLeftGreenArea;  // 拖拽后是否已离开过 GreenArea
+    /// <summary>
+    /// 拖拽开始时的内部处理（由 SetState 调用）
+    /// </summary>
+    private void OnDragStart()
+    {
+        DebugEx.LogModule("CardSlotItem", $"[状态] 进入拖拽状态: {m_CardData?.Name}");
+    }
 
     /// <summary>
     /// 开始拖拽
@@ -508,17 +562,26 @@ public partial class CardSlotItem
         if (m_CardData == null)
             return;
 
-        m_IsDragging = true;
-        m_HasLeftGreenArea = false;
+        // 检查状态：只有 Idle 或 Selected 状态下才能拖拽
+        if (m_State != CardSlotItemState.Idle && m_State != CardSlotItemState.Selected)
+            return;
+
+        // 转换到 Dragging 状态（会自动调用 OnDragStart）
+        SetState(CardSlotItemState.Dragging);
 
         DebugEx.LogModule("CardSlotItem",
-            $"[拖拽开始] 卡牌: {m_CardData.Name}, 鼠标位置: {eventData.position}");
+            $"[拖拽开始] 卡牌: {m_CardData.Name}");
 
         // 取消选中状态（如果已选中）
-        if (m_IsSelected)
+        if (m_State == CardSlotItemState.Selected)
         {
-            DeselectCard();
+            // 先从 Selected 改为 Dragging，所以这里检查已经过期
+            // 此处保留用于安全性
         }
+
+        // 计算起始索引并通知容器拖拽开始
+        int startIndex = m_Container != null ? m_Container.GetCardIndex(this) : -1;
+        CardSlotItemEventDispatcher.RaiseDragStarted(this, startIndex);
 
         // 停止所有位置相关的动画，避免干扰拖拽
         m_SelectTween?.Kill();
@@ -559,9 +622,6 @@ public partial class CardSlotItem
             m_ItemRectTransform.localRotation = Quaternion.identity;
             DebugEx.LogModule("CardSlotItem", "[拖拽开始] 卡牌旋转已重置为正常");
         }
-
-        // 通知容器拖拽开始
-        m_Container?.OnCardBeginDrag(this);
     }
 
     /// <summary>
@@ -626,20 +686,18 @@ public partial class CardSlotItem
         // 检测区域并更新预览（优先级：吸附区 > 无效区 > 战场区）
         bool isInGreenAreaRaw = IsPositionInAdsorptionArea(eventData.position);
         bool isInInvalidArea = IsPositionInInvalidArea(eventData.position);
-
-        // 拖拽后必须先离开 GreenArea 一次，再回来才算"吸附"
-        if (!m_HasLeftGreenArea && !isInGreenAreaRaw)
-        {
-            m_HasLeftGreenArea = true;
-        }
-        bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
+        bool isInRetractArea = isInGreenAreaRaw;  // 简化：直接判断是否在吸附区
 
         UpdateAreaHighlight(isInRetractArea, isInInvalidArea);
 
-        // 通知容器拖拽中的位置
-        m_Container?.OnCardDrag(this, eventData.position);
+        // 计算并通知容器插入位置改变
+        if (m_Container != null)
+        {
+            int newInsertIndex = m_Container.CalculateInsertIndex(eventData.position);
+            CardSlotItemEventDispatcher.RaiseDragPositionChanged(this, newInsertIndex);
+        }
 
-        // ⭐ 新增：显示卡牌预览
+        // 显示卡牌预览
         UpdateCardPreview(eventData.position);
     }
 
@@ -650,8 +708,6 @@ public partial class CardSlotItem
     {
         if (m_CardData == null)
             return;
-
-        m_IsDragging = false;
 
         DebugEx.LogModule("CardSlotItem", $"结束拖拽卡牌: {m_CardData.Name}");
 
@@ -676,30 +732,37 @@ public partial class CardSlotItem
             m_DragPreviewTween = null;
         }
 
-        // 判断释放位置：只有离开过 GreenArea 后回来才算吸附区
+        // 判断释放位置
         bool isInGreenAreaRaw = IsPositionInAdsorptionArea(eventData.position);
-        bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
+        bool isInRetractArea = isInGreenAreaRaw;
         bool isInInvalidArea = IsPositionInInvalidArea(eventData.position);
+        bool isValid = !isInRetractArea && !isInInvalidArea;
 
-        // 重置标记
-        m_HasLeftGreenArea = false;
+        // 发出拖拽结束事件
+        CardSlotItemEventDispatcher.RaiseDragEnded(this, GetWorldPosFromScreen(eventData.position), isValid);
 
         if (isInRetractArea || isInInvalidArea)
         {
-            // 吸附区或无效区：返回卡槽
+            // 吸附区或无效区：返回卡槽，触发重排
             DebugEx.LogModule("CardSlotItem",
-                $"释放位置在保留/无效区 (吸附={isInRetractArea}, 无效={isInInvalidArea})，卡牌返回卡槽");
+                $"释放位置在保留/无效区，卡牌返回卡槽，触发重排");
             ReturnToSlot();
-            // 通知容器拖拽结束（true 表示返回卡槽）
+
+            // 发出拖拽结束事件，让 Container 处理重排
             if (m_Container != null)
-                m_Container.OnCardEndDrag(this, true);
+            {
+                // Container 会在 OnCardDragEnded 中处理重排
+                m_Container.RearrangeAsync(default).Forget();
+            }
+
+            SetState(CardSlotItemState.Idle);
         }
         else
         {
-            // 战场区域：执行卡牌效果
+            // 战场区域：执行卡牌效果，转换到 Destroying 状态
             DebugEx.LogModule("CardSlotItem", $"释放位置在战场，执行卡牌效果");
             ExecuteCardEffect(GetWorldPosFromScreen(eventData.position));
-            // 注意：不调用 OnCardEndDrag，重排由 PlayDestroyAnimationAndExecuteAsync 中的 RemoveCard 管理
+            SetState(CardSlotItemState.Destroying);
         }
 
         // 隐藏区域高亮显示
@@ -878,8 +941,8 @@ public partial class CardSlotItem
             DebugEx.ErrorModule("CardSlotItem", "无法创建 CardEffectExecutor");
         }
 
-        // 播放销毁动画并自管理销毁流程
-        PlayDestroyAnimationAndRemoveAsync().Forget();
+        // 注意：销毁流程由 OnEndDrag 中的 SetState(CardSlotItemState.Destroying) 来触发
+        // 避免在这里重复调用 PlayDestroyAnimationAndRemoveAsync()
     }
 
     /// <summary>
@@ -934,10 +997,10 @@ public partial class CardSlotItem
     public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData)
     {
         // 拖拽中禁止处理悬停事件
-        if (m_IsDragging)
+        if (m_State == CardSlotItemState.Dragging)
             return;
 
-        if (m_IsSelected || varBtn == null)
+        if (m_State == CardSlotItemState.Selected || varBtn == null)
             return;
 
         var btnTransform = varBtn.transform;
@@ -970,10 +1033,10 @@ public partial class CardSlotItem
     public void OnPointerExit(UnityEngine.EventSystems.PointerEventData eventData)
     {
         // 拖拽中禁止处理悬停事件
-        if (m_IsDragging)
+        if (m_State == CardSlotItemState.Dragging)
             return;
 
-        if (m_IsSelected || varBtn == null)
+        if (m_State == CardSlotItemState.Selected || varBtn == null)
             return;
 
         var btnTransform = varBtn.transform;
@@ -1091,7 +1154,7 @@ public partial class CardSlotItem
 
         // 战场区域 = 不在吸附区 且 不在无效区
         bool isInGreenAreaRaw = IsPositionInAdsorptionArea(screenPos);
-        bool isInRetractArea = m_HasLeftGreenArea && isInGreenAreaRaw;
+        bool isInRetractArea = isInGreenAreaRaw;
         bool isInInvalidArea = IsPositionInInvalidArea(screenPos);
         bool isInBattle = !isInRetractArea && !isInInvalidArea;
 
@@ -1330,6 +1393,8 @@ public partial class CardSlotItem
 
         return targets;
     }
+
+    #endregion
 
     #endregion
 }

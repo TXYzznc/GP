@@ -95,6 +95,7 @@
     <Compile Include="Assets\Editor\RuntimeDebugConsole\RuntimeDebugConsoleWindow.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.TypeProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.QuaternionProcessor.cs" />
+    <Compile Include="Assets\Editor\unity开发集成工具箱\Panels\TreasureBoxSpawnPointBatchCreatorPanel.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.GenericDataProcessor.cs" />
     <Compile Include="Assets\Editor\unity开发集成工具箱\Wrappers\ToolPanelWindow.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Vector3Processor.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Float2DArrayProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\EditorTools\EditorToolMenuAttribute.cs" />
+    <Compile Include="Assets\Editor\TreasureBoxSpawnPointBatchCreator.cs" />
     <Compile Include="Assets\Editor\unity开发集成工具箱\Panels\FontReplacerPanel.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.DoubleArrayProcessor.cs" />
     <Compile Include="Assets\Editor\unity开发集成工具箱\Panels\ChessSkillTestPanel.cs" />
