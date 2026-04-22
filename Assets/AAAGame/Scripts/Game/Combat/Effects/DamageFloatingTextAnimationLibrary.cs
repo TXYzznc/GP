@@ -46,73 +46,75 @@ public class DamageFloatingTextAnimationLibrary
     /// </summary>
     /// <param name="popupItem">飘字对象</param>
     /// <param name="animationType">动画类型ID</param>
+    /// <param name="moveDistance">上升高度（来自配置表）</param>
+    /// <param name="duration">动画时长（来自配置表）</param>
     /// <param name="onComplete">完成回调</param>
-    public void PlayAnimation(DamagePopupItem popupItem, int animationType, Action onComplete = null)
+    public void PlayAnimation(DamagePopupItem popupItem, int animationType, float moveDistance, float duration, Action onComplete = null)
     {
-        DebugEx.Log("DamageFloatingTextAnimationLibrary", $"开始播放动画类型: {animationType}");
-        
+        DebugEx.Log("DamageFloatingTextAnimationLibrary", $"开始播放动画类型: {animationType}, 高度: {moveDistance}, 时长: {duration}");
+
         switch ((AnimationType)animationType)
         {
             case AnimationType.基础上升:
-                PlayBasicRiseAnimation(popupItem, onComplete);
+                PlayBasicRiseAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.弹跳缩放:
-                PlayBounceScaleAnimation(popupItem, onComplete);
+                PlayBounceScaleAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.震动效果:
-                PlayShakeAnimation(popupItem, onComplete);
+                PlayShakeAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.螺旋上升:
-                PlaySpiralRiseAnimation(popupItem, onComplete);
+                PlaySpiralRiseAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.淡入淡出:
-                PlayFadeAnimation(popupItem, onComplete);
+                PlayFadeAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.火焰摇摆:
-                PlayFlameSwayAnimation(popupItem, onComplete);
+                PlayFlameSwayAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.冰霜闪烁:
-                PlayIceFlickerAnimation(popupItem, onComplete);
+                PlayIceFlickerAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.雷电跳跃:
-                PlayLightningJumpAnimation(popupItem, onComplete);
+                PlayLightningJumpAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.治疗光环:
-                PlayHealingAuraAnimation(popupItem, onComplete);
+                PlayHealingAuraAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.护盾展开:
-                PlayShieldExpandAnimation(popupItem, onComplete);
+                PlayShieldExpandAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.经验飞散:
-                PlayExpScatterAnimation(popupItem, onComplete);
+                PlayExpScatterAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.金币闪耀:
-                PlayCoinShineAnimation(popupItem, onComplete);
+                PlayCoinShineAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.技能爆发:
-                PlaySkillBurstAnimation(popupItem, onComplete);
+                PlaySkillBurstAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.连击叠加:
-                PlayComboStackAnimation(popupItem, onComplete);
+                PlayComboStackAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.反弹回旋:
-                PlayBounceSpinAnimation(popupItem, onComplete);
+                PlayBounceSpinAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.吸血脉冲:
-                PlayLifestealPulseAnimation(popupItem, onComplete);
+                PlayLifestealPulseAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.法力流动:
-                PlayManaFlowAnimation(popupItem, onComplete);
+                PlayManaFlowAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.恢复波纹:
-                PlayRestoreRippleAnimation(popupItem, onComplete);
+                PlayRestoreRippleAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             case AnimationType.免疫消散:
-                PlayImmunityFadeAnimation(popupItem, onComplete);
+                PlayImmunityFadeAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
             default:
                 DebugEx.Warning("DamageFloatingTextAnimationLibrary", $"未知动画类型: {animationType}，使用默认动画");
-                PlayBasicRiseAnimation(popupItem, onComplete);
+                PlayBasicRiseAnimation(popupItem, moveDistance, duration, onComplete);
                 break;
         }
     }
@@ -124,31 +126,24 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 基础上升动画
     /// </summary>
-    private void PlayBasicRiseAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayBasicRiseAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayBasicRiseAnimationAsync(popupItem, onComplete).Forget();
-    }
-
-    private async UniTaskVoid PlayBasicRiseAnimationAsync(DamagePopupItem popupItem, Action onComplete)
-    {
-        // 使用原有的Play方法
+        popupItem.SetAnimationParams(duration, moveDistance);
         popupItem.Play(onComplete);
-        await UniTask.CompletedTask;
     }
 
     /// <summary>
     /// 弹跳缩放动画（暴击伤害）
     /// </summary>
-    private void PlayBounceScaleAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayBounceScaleAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayBounceScaleAnimationAsync(popupItem, onComplete).Forget();
+        PlayBounceScaleAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlayBounceScaleAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlayBounceScaleAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
         Vector3 startScale = popupItem.transform.localScale;
-        float duration = 2.0f;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -161,7 +156,7 @@ public class DamageFloatingTextAnimationLibrary
             popupItem.transform.localScale = startScale * bounceScale;
 
             // 上升运动
-            float riseHeight = 100f * Mathf.Sin(t * Mathf.PI * 0.5f);
+            float riseHeight = moveDistance * Mathf.Sin(t * Mathf.PI * 0.5f);
             popupItem.transform.position = startPos + Vector3.up * riseHeight;
 
             // 透明度变化
@@ -180,15 +175,14 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 震动效果动画（真实伤害）
     /// </summary>
-    private void PlayShakeAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayShakeAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayShakeAnimationAsync(popupItem, onComplete).Forget();
+        PlayShakeAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlayShakeAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlayShakeAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
-        float duration = 2.2f;
         float elapsedTime = 0f;
         float shakeIntensity = 0.1f;
 
@@ -205,7 +199,7 @@ public class DamageFloatingTextAnimationLibrary
             ) * (1f - t); // 震动强度随时间减弱
 
             // 基础上升
-            float riseHeight = 70f * t;
+            float riseHeight = moveDistance * t;
             popupItem.transform.position = startPos + Vector3.up * riseHeight + shakeOffset;
 
             // 透明度变化
@@ -224,15 +218,14 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 螺旋上升动画（护盾吸收）
     /// </summary>
-    private void PlaySpiralRiseAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlaySpiralRiseAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlaySpiralRiseAnimationAsync(popupItem, onComplete).Forget();
+        PlaySpiralRiseAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlaySpiralRiseAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlaySpiralRiseAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
-        float duration = 1.2f;
         float elapsedTime = 0f;
         float spiralRadius = 0.5f;
 
@@ -250,7 +243,7 @@ public class DamageFloatingTextAnimationLibrary
             );
 
             // 上升运动
-            float riseHeight = 40f * t;
+            float riseHeight = moveDistance * t;
             popupItem.transform.position = startPos + Vector3.up * riseHeight + spiralOffset;
 
             // 透明度变化
@@ -269,15 +262,14 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 淡入淡出动画（毒伤害）
     /// </summary>
-    private void PlayFadeAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayFadeAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayFadeAnimationAsync(popupItem, onComplete).Forget();
+        PlayFadeAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlayFadeAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlayFadeAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
-        float duration = 2.5f;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -286,7 +278,7 @@ public class DamageFloatingTextAnimationLibrary
             float t = elapsedTime / duration;
 
             // 缓慢上升
-            float riseHeight = 55f * t;
+            float riseHeight = moveDistance * t;
             popupItem.transform.position = startPos + Vector3.up * riseHeight;
 
             // 脉冲透明度效果
@@ -307,15 +299,14 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 火焰摇摆动画（火焰伤害）
     /// </summary>
-    private void PlayFlameSwayAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayFlameSwayAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayFlameSwayAnimationAsync(popupItem, onComplete).Forget();
+        PlayFlameSwayAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlayFlameSwayAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlayFlameSwayAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
-        float duration = 2.0f;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -325,9 +316,9 @@ public class DamageFloatingTextAnimationLibrary
 
             // 摇摆效果
             float swayX = Mathf.Sin(t * Mathf.PI * 4f) * 0.3f * (1f - t);
-            
+
             // 上升运动
-            float riseHeight = 65f * t;
+            float riseHeight = moveDistance * t;
             popupItem.transform.position = startPos + new Vector3(swayX, riseHeight, 0f);
 
             // 透明度变化
@@ -346,16 +337,15 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 冰霜闪烁动画（冰霜伤害）
     /// </summary>
-    private void PlayIceFlickerAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayIceFlickerAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayIceFlickerAnimationAsync(popupItem, onComplete).Forget();
+        PlayIceFlickerAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlayIceFlickerAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlayIceFlickerAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
         Vector3 startScale = popupItem.transform.localScale;
-        float duration = 2.2f;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -368,7 +358,7 @@ public class DamageFloatingTextAnimationLibrary
             popupItem.transform.localScale = startScale * flicker;
 
             // 上升运动
-            float riseHeight = 60f * t;
+            float riseHeight = moveDistance * t;
             popupItem.transform.position = startPos + Vector3.up * riseHeight;
 
             // 透明度变化
@@ -387,15 +377,14 @@ public class DamageFloatingTextAnimationLibrary
     /// <summary>
     /// 雷电跳跃动画（雷电伤害）
     /// </summary>
-    private void PlayLightningJumpAnimation(DamagePopupItem popupItem, Action onComplete)
+    private void PlayLightningJumpAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
-        PlayLightningJumpAnimationAsync(popupItem, onComplete).Forget();
+        PlayLightningJumpAnimationAsync(popupItem, moveDistance, duration, onComplete).Forget();
     }
 
-    private async UniTaskVoid PlayLightningJumpAnimationAsync(DamagePopupItem popupItem, Action onComplete)
+    private async UniTaskVoid PlayLightningJumpAnimationAsync(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete)
     {
         Vector3 startPos = popupItem.transform.position;
-        float duration = 1.8f;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -404,8 +393,8 @@ public class DamageFloatingTextAnimationLibrary
             float t = elapsedTime / duration;
 
             // 跳跃效果（抛物线）
-            float jumpHeight = 4f * t * (1f - t) * 75f; // 抛物线公式
-            
+            float jumpHeight = 4f * t * (1f - t) * moveDistance; // 抛物线公式
+
             // 随机偏移模拟雷电效果
             Vector3 randomOffset = new Vector3(
                 UnityEngine.Random.Range(-0.2f, 0.2f),
@@ -429,17 +418,17 @@ public class DamageFloatingTextAnimationLibrary
     }
 
     // 其他动画方法的简化实现，使用基础动画作为占位符
-    private void PlayHealingAuraAnimation(DamagePopupItem popupItem, Action onComplete) => PlayBasicRiseAnimation(popupItem, onComplete);
-    private void PlayShieldExpandAnimation(DamagePopupItem popupItem, Action onComplete) => PlaySpiralRiseAnimation(popupItem, onComplete);
-    private void PlayExpScatterAnimation(DamagePopupItem popupItem, Action onComplete) => PlayBasicRiseAnimation(popupItem, onComplete);
-    private void PlayCoinShineAnimation(DamagePopupItem popupItem, Action onComplete) => PlayBounceScaleAnimation(popupItem, onComplete);
-    private void PlaySkillBurstAnimation(DamagePopupItem popupItem, Action onComplete) => PlayBounceScaleAnimation(popupItem, onComplete);
-    private void PlayComboStackAnimation(DamagePopupItem popupItem, Action onComplete) => PlayBounceScaleAnimation(popupItem, onComplete);
-    private void PlayBounceSpinAnimation(DamagePopupItem popupItem, Action onComplete) => PlaySpiralRiseAnimation(popupItem, onComplete);
-    private void PlayLifestealPulseAnimation(DamagePopupItem popupItem, Action onComplete) => PlayFadeAnimation(popupItem, onComplete);
-    private void PlayManaFlowAnimation(DamagePopupItem popupItem, Action onComplete) => PlayFlameSwayAnimation(popupItem, onComplete);
-    private void PlayRestoreRippleAnimation(DamagePopupItem popupItem, Action onComplete) => PlayBasicRiseAnimation(popupItem, onComplete);
-    private void PlayImmunityFadeAnimation(DamagePopupItem popupItem, Action onComplete) => PlayFadeAnimation(popupItem, onComplete);
+    private void PlayHealingAuraAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayBasicRiseAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayShieldExpandAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlaySpiralRiseAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayExpScatterAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayBasicRiseAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayCoinShineAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayBounceScaleAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlaySkillBurstAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayBounceScaleAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayComboStackAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayBounceScaleAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayBounceSpinAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlaySpiralRiseAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayLifestealPulseAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayFadeAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayManaFlowAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayFlameSwayAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayRestoreRippleAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayBasicRiseAnimation(popupItem, moveDistance, duration, onComplete);
+    private void PlayImmunityFadeAnimation(DamagePopupItem popupItem, float moveDistance, float duration, Action onComplete) => PlayFadeAnimation(popupItem, moveDistance, duration, onComplete);
 
     #endregion
 }

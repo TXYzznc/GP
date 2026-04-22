@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using GameExtension;
+using TMPro;
 
 /// <summary>
 /// 伤害飘字管理器
@@ -7,6 +10,12 @@ using UnityEngine;
 /// </summary>
 public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager>
 {
+    #region 常量
+
+    private const string WORLD_CANVAS_NAME = "WorldCanvas";
+
+    #endregion
+
     #region 伤害类型枚举
 
     /// <summary>
@@ -41,13 +50,6 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
 
     #region 私有字段
 
-    [Header("配置")]
-    [SerializeField]
-    private readonly GameObject m_PopupPrefab;
-
-    [SerializeField]
-    private readonly Transform m_PopupParent;
-
     [Header("对象池设置")]
     [SerializeField]
     private int m_PoolInitialSize = 15; // ⭐ 对象池初始大小
@@ -55,6 +57,8 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
     [SerializeField]
     private int m_PoolMaxSize = 50; // ⭐ 对象池最大容量
 
+    private GameObject m_PopupPrefab;
+    private Transform m_PopupParent;
     private DamageFloatingTextAnimationLibrary m_AnimationLibrary;
     private Queue<DamagePopupItem> m_PopupPool;
 
@@ -67,9 +71,7 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
         base.Awake();
         DebugEx.LogModule("DamageFloatingTextManager", "管理器初始化开始");
 
-        InitializeManager();
-
-        DebugEx.Success("DamageFloatingTextManager", "管理器初始化完成");
+        InitializeManagerAsync().Forget();
     }
 
     #endregion
@@ -77,9 +79,10 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
     #region 初始化
 
     /// <summary>
-    /// 初始化管理器
+    /// 异步初始化管理器
+    /// 从配置表加载预制体和创建对象池
     /// </summary>
-    private void InitializeManager()
+    private async UniTaskVoid InitializeManagerAsync()
     {
         // 初始化对象池
         m_PopupPool = new Queue<DamagePopupItem>();
@@ -87,10 +90,34 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
         // 初始化动画库
         m_AnimationLibrary = new DamageFloatingTextAnimationLibrary();
 
+        // 从配置表读取预制体ID
+        var config = DataTableExtension.GetRowById<DamageFloatingTextTable>(1);
+        if (config == null)
+        {
+            DebugEx.Error("DamageFloatingTextManager", "未找到飘字配置表");
+            return;
+        }
+
+        // 加载预制体（从配置表读取EffectId）
+        m_PopupPrefab = await ResourceExtension.LoadPrefabAsync(config.EffectId);
+        if (m_PopupPrefab == null)
+        {
+            DebugEx.Error("DamageFloatingTextManager", $"加载飘字预制体失败: EffectId={config.EffectId}");
+            return;
+        }
+
+        // 查找或创建WorldCanvas，设置为PopupParent
+        GameObject worldCanvas = GameObject.Find(WORLD_CANVAS_NAME);
+        if (worldCanvas == null)
+        {
+            worldCanvas = new GameObject(WORLD_CANVAS_NAME);
+        }
+        m_PopupParent = worldCanvas.transform;
+
         // ⭐ 对象池预热：预创建指定数量的对象
         PrewarmPool();
 
-        DebugEx.LogModule("DamageFloatingTextManager", "管理器初始化完成");
+        DebugEx.Success("DamageFloatingTextManager", "管理器初始化完成");
     }
 
     /// <summary>
@@ -116,6 +143,19 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
 
             if (popupItem != null)
             {
+                // 初始化文本组件
+                TextMeshProUGUI textComponent = popupObj.GetComponentInChildren<TextMeshProUGUI>();
+                if (textComponent != null)
+                {
+                    popupItem.Initialize(textComponent);
+                }
+                else
+                {
+                    DebugEx.Error("DamageFloatingTextManager", "飘字预制体缺少 TextMeshProUGUI 组件");
+                    Destroy(popupObj);
+                    break;
+                }
+
                 popupObj.SetActive(false);
                 m_PopupPool.Enqueue(popupItem);
             }
@@ -156,6 +196,13 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
     /// <param name="worldPosition">世界坐标位置</param>
     public void ShowDamageText(int typeId, string text, Vector3 worldPosition)
     {
+        // 检查是否已初始化
+        if (m_PopupPrefab == null)
+        {
+            DebugEx.Error("DamageFloatingTextManager", "尚未初始化完成，无法显示飘字");
+            return;
+        }
+
         // 从配置表获取配置数据
         var config = DataTableExtension.GetRowById<DamageFloatingTextTable>(typeId);
         if (config == null)
@@ -176,6 +223,25 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
         ApplyConfig(popupItem, config, text, worldPosition);
 
         DebugEx.Log("DamageFloatingTextManager", $"显示飘字: {config.Name} - {text}");
+    }
+
+    /// <summary>
+    /// 显示伤害飘字（简化版：仅需提供世界位置、伤害值和伤害类型）
+    /// 用于从 CombatVFXManager 迁移
+    /// </summary>
+    /// <param name="worldPosition">世界坐标位置</param>
+    /// <param name="damage">伤害值</param>
+    /// <param name="damageTypeName">伤害类型名称（对应 DamageType 枚举）</param>
+    public void ShowDamageTextSimple(Vector3 worldPosition, double damage, string damageTypeName)
+    {
+        // 将伤害类型名称转换为 DamageType 枚举值
+        if (!System.Enum.TryParse<DamageType>(damageTypeName, out var damageType))
+        {
+            DebugEx.Warning("DamageFloatingTextManager", $"无效的伤害类型: {damageTypeName}");
+            damageType = DamageType.普通伤害;
+        }
+
+        ShowDamageText(damageType, (float)damage, worldPosition);
     }
 
     /// <summary>
@@ -230,6 +296,13 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
                 return null;
             }
 
+            // 初始化文本组件
+            TextMeshProUGUI textComponent = popupObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (textComponent != null)
+            {
+                popupItem.Initialize(textComponent);
+            }
+
             return popupItem;
         }
 
@@ -280,13 +353,12 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
             popupItem.SetColor(textColor);
         }
 
-        // 设置动画参数
-        popupItem.SetAnimationParams(config.Duration, config.MoveDistance);
-
-        // 播放动画，使用动画库
+        // 播放动画，使用动画库（传入配置参数）
         m_AnimationLibrary.PlayAnimation(
             popupItem,
             config.AnimationType,
+            config.MoveDistance,
+            config.Duration,
             () =>
             {
                 // 动画完成后回收到对象池

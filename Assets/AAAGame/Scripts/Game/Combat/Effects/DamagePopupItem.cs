@@ -79,11 +79,26 @@ public class DamagePopupItem : MonoBehaviour
 
     /// <summary>
     /// 设置位置
+    /// 飘字向摄像机方向偏移 0.1 单位，确保不被目标对象遮挡
     /// </summary>
     public void SetPosition(Vector3 worldPosition)
     {
-        transform.position = worldPosition;
-        m_StartPosition = worldPosition;
+        // 尝试获取摄像机
+        if (m_Camera == null)
+        {
+            m_Camera = CameraRegistry.PlayerCamera;
+        }
+
+        // 向摄像机方向偏移 0.1 单位
+        Vector3 adjustedPosition = worldPosition;
+        if (m_Camera != null)
+        {
+            Vector3 cameraDir = (m_Camera.transform.position - worldPosition).normalized;
+            adjustedPosition = worldPosition + cameraDir * 0.1f;
+        }
+
+        transform.position = adjustedPosition;
+        m_StartPosition = adjustedPosition;
     }
 
     /// <summary>

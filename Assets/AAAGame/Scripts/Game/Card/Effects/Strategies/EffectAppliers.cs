@@ -139,7 +139,7 @@ public class DamageWithCoefficientApplier : ICardEffectApplier
             double reflectDamage = damage * reflect.GetReflectRatio();
             if (reflectDamage > 0)
             {
-                caster.Attribute.TakeDamage(reflectDamage, false, true, false, CombatVFXManager.DamageType.True);
+                caster.Attribute.TakeDamage(reflectDamage, false, true, false, DamageFloatingTextManager.DamageType.反弹伤害);
             }
         }
     }
