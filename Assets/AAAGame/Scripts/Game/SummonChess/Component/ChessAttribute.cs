@@ -512,7 +512,36 @@ public class ChessAttribute : MonoBehaviour
             }
         }
 
-        Vector3 popupPosition = transform.position + Vector3.up * 0.2f;
+        // 获取摄像机
+        Camera playerCamera = CameraRegistry.PlayerCamera;
+        Vector3 basePosition = transform.position;
+
+        // 计算相对屏幕的偏移方向
+        Vector3 screenRight = Vector3.right;      // 屏幕右方向
+        Vector3 screenForward = Vector3.forward;  // 屏幕内侧方向
+        if (playerCamera != null)
+        {
+            screenRight = playerCamera.transform.right;
+            screenForward = playerCamera.transform.forward;
+        }
+
+        // 计算飘字位置：基础位置 + Y轴随机偏移 + 相对屏幕的左右偏移 + 相对屏幕的内外偏移
+        float yOffset = 2f + UnityEngine.Random.Range(-0.8f, 0.8f);
+        float screenRightOffset = UnityEngine.Random.Range(-1f, 1f);     // 相对屏幕左右
+        float screenForwardOffset = UnityEngine.Random.Range(0f, 1f);    // 相对屏幕内侧
+
+        Vector3 popupPosition = basePosition
+            + Vector3.up * yOffset
+            + screenRight * screenRightOffset
+            + screenForward * screenForwardOffset;
+
+        // 向摄像机方向偏移 0.1 单位，避免被目标对象遮挡
+        if (playerCamera != null)
+        {
+            Vector3 cameraDir = (playerCamera.transform.position - popupPosition).normalized;
+            popupPosition += cameraDir * 0.1f;
+        }
+
         DamageFloatingTextManager.Instance.ShowDamageText(finalDamageType, (float)actualDamage, popupPosition);
 
         // 触发伤害事件

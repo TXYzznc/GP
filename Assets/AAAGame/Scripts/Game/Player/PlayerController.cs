@@ -893,10 +893,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (PlayerCharacterManager.Instance != null)
-        {
-            PlayerCharacterManager.Instance.SaveCurrentPosition();
-        }
+        // ⭐ 删除自动保存位置的机制
+        // 玩家位置现在通过配置表的 DefaultSpawnPosId 来管理，不再读写存档位置
     }
 
     #endregion

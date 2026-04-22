@@ -86,6 +86,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260422_144121.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Credits.txt" />
     <None Include="Assets\AAAGame\DataTable\ColorTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260422_164746.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\Additive_Scroll01.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260422_160708.txt" />
     <None Include="Assets\AAAGame\DataTable\ItemTable.txt" />
@@ -103,6 +104,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260422_143657.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\Readme.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UIGroupTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260422_164400.txt" />
     <None Include="Assets\特效\法阵特效\Prefabs\Hyper Casual FX\ReadMe_Hyper Casual FX Vol.1.txt" />
     <None Include="Assets\TA\Sky\SkyboxBlendingAdvanced.shader" />
     <None Include="Assets\特效\ARPG Effects\Readme.txt" />
@@ -134,6 +136,7 @@
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260422_180713.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\AAAGame\DataTable\EnemyTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Dilate.shader" />
@@ -150,10 +153,12 @@
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_EdgeSoft.shader" />
     <None Include="Assets\TA\Combat\CirclePreview.shader" />
     <None Include="Assets\TA\溶解\Dissolve.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260422_164702.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_Scroll01.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\AAAGame\DataTable\EnemyEntityTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Blur.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260422_174919.txt" />
     <None Include="Assets\AAAGame\DataTable\PlayerAccountTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260422_161350.txt" />
     <None Include="Assets\AAAGame\DataTable\MapSpawnTable.txt" />

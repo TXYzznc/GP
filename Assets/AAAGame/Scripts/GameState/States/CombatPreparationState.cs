@@ -41,12 +41,6 @@ public class CombatPreparationState : FsmState<InGameState>
         m_Cts?.Dispose();
         m_Cts = new CancellationTokenSource();
 
-        // ⭐ 记录玩家位置（战斗前）
-        if (PlayerCharacterManager.Instance != null)
-        {
-            PlayerCharacterManager.Instance.RecordPositionBeforeCombat();
-        }
-
         // ⭐ 先显示战斗进入提示，等待提示完成后再继续初始化
         ShowEnterCombatTipAndContinue(m_Cts.Token).Forget();
     }
@@ -231,8 +225,8 @@ public class CombatPreparationState : FsmState<InGameState>
         // ⭐ 缓存当前视角模式并切换到战斗视角
         SetupCombatCamera();
 
-        // ⭐ 场景转换：隐藏敌人、溶解环境物体、标记玩家进入战斗
-        await SceneTransitionManager.Instance.EnterCombatAsync();
+        // ⭐ 场景转换前置：隐藏敌人、交互物体，记录玩家状态
+        SceneTransitionManager.Instance.PrepareBeforeArenaSpawn();
 
         ct.ThrowIfCancellationRequested();
 
@@ -616,15 +610,13 @@ public class CombatPreparationState : FsmState<InGameState>
 
             ct.ThrowIfCancellationRequested();
 
-            // ⭐ 先开始移动相机（不等待，与场景加载并行）
-            StartCameraSmoothMove();
+            // ⭐ 战场生成后：调整玩家位置到 PlayerAnchor，播放溶解过渡
+            await SceneTransitionManager.Instance.FinalizeAfterArenaSpawn();
 
-            // 播放溶解过渡效果（从探索场景显示战斗场地）
-            var arena = BattleArenaManager.Instance.CurrentArena;
-            if (arena != null)
-            {
-                await DissolveTransitionManager.Instance.TransitionToBattle(arena);
-            }
+            ct.ThrowIfCancellationRequested();
+
+            // ⭐ 开始移动相机（与敌人加载并行）
+            StartCameraSmoothMove();
 
             ct.ThrowIfCancellationRequested();
 

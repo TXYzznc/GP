@@ -106,11 +106,14 @@ public class BattleArenaManager
         }
         else
         {
+            // ⭐ 计算战场的正确旋转，使得子对象 PlayerAnchor 的绝对方向与玩家朝向一致
+            Quaternion arenaRotation = CalculateArenaRotation(prefab, playerRotation);
+
             // 计算场地生成位置（让 PlayerAnchor 对齐玩家底部位置，考虑旋转）
-            Vector3 spawnPosition = CalculateArenaSpawnPosition(prefab, playerBottomPosition, playerRotation);
+            Vector3 spawnPosition = CalculateArenaSpawnPosition(prefab, playerBottomPosition, arenaRotation);
             // 向上偏移战场，物理隔离周边敌人
             spawnPosition.y += ARENA_HEIGHT_OFFSET;
-            m_CurrentArena = Object.Instantiate(prefab, spawnPosition, playerRotation);
+            m_CurrentArena = Object.Instantiate(prefab, spawnPosition, arenaRotation);
             m_CurrentArena.name = "BattleArena";
         }
 
@@ -118,7 +121,7 @@ public class BattleArenaManager
         CacheZoneReferences();
 
         DebugEx.LogModule("BattleArenaManager",
-            $"战斗场地已生成，PlayerAnchor 对齐玩家底部位置: {playerBottomPosition}, 朝向: {playerRotation.eulerAngles.y}°");
+            $"战斗场地已生成，PlayerAnchor 对齐玩家底部位置: {playerBottomPosition}, 战场朝向: {CalculateArenaRotation(prefab, playerRotation).eulerAngles.y}°, 玩家朝向: {playerRotation.eulerAngles.y}°");
 
         return m_CurrentArena;
     }
@@ -265,9 +268,58 @@ public class BattleArenaManager
     }
 
     /// <summary>
+    /// 计算战场的正确旋转，使得生成后 PlayerAnchor 的绝对朝向与玩家朝向一致
+    ///
+    /// 旋转场景说明：
+    ///   1. 预制体中 PlayerAnchor 相对战场有一个本地朝向（如朝东 90°）
+    ///   2. 通过旋转战场，使 PlayerAnchor 最终的绝对朝向与玩家朝向一致（如玩家朝南 180°）
+    ///   3. PlayerAnchor 相对战场的朝向不变（仍是 90°），但战场本身旋转了
+    ///
+    /// 数学推导：
+    ///   PlayerAnchor 绝对朝向 = 战场朝向 + PlayerAnchor 相对朝向
+    ///   目标：PlayerAnchor 绝对朝向 = 玩家朝向
+    ///   所以：战场朝向 + PlayerAnchor 相对朝向 = 玩家朝向
+    ///   即：arenaRotation × playerAnchorLocalRotation = playerRotation
+    ///   解得：arenaRotation = playerRotation × (playerAnchorLocalRotation)^-1
+    ///
+    /// 具体例子：
+    ///   - 玩家朝向：南 180°
+    ///   - PlayerAnchor 本地朝向：东 90°
+    ///   - 计算：战场朝向 = 180° × (90°)^-1 = 180° × 270° = 90° （朝东）
+    ///   - 验证：东 90° + 东 90° = 南 180° ✓
+    /// </summary>
+    private Quaternion CalculateArenaRotation(GameObject arenaPrefab, Quaternion playerRotation)
+    {
+        // 查找预制体中的 PlayerAnchor
+        Transform playerAnchor = arenaPrefab.transform.Find("PlayerAnchor");
+
+        if (playerAnchor == null)
+        {
+            DebugEx.WarningModule("BattleArenaManager",
+                "预制体中未找到 PlayerAnchor，使用玩家旋转作为战场旋转");
+            return playerRotation;
+        }
+
+        // PlayerAnchor 在预制体中的本地朝向（预制体的默认旋转通常是 Quaternion.identity）
+        Quaternion playerAnchorLocalRotation = playerAnchor.localRotation;
+
+        // 计算战场旋转：使得旋转后的 PlayerAnchor 朝向与玩家朝向一致
+        // arenaRotation * playerAnchorLocalRotation = playerRotation
+        // arenaRotation = playerRotation * playerAnchorLocalRotation^-1
+        Quaternion arenaRotation = playerRotation * Quaternion.Inverse(playerAnchorLocalRotation);
+
+        DebugEx.LogModule("BattleArenaManager",
+            $"战场旋转计算: 玩家朝向={playerRotation.eulerAngles.y}°, " +
+            $"PlayerAnchor本地朝向={playerAnchorLocalRotation.eulerAngles.y}°, " +
+            $"计算后战场朝向={arenaRotation.eulerAngles.y}°");
+
+        return arenaRotation;
+    }
+
+    /// <summary>
     /// 计算场地生成位置（让 PlayerAnchor 对齐玩家底部位置，考虑旋转）
     /// </summary>
-    private Vector3 CalculateArenaSpawnPosition(GameObject arenaPrefab, Vector3 playerBottomPosition, Quaternion playerRotation)
+    private Vector3 CalculateArenaSpawnPosition(GameObject arenaPrefab, Vector3 playerBottomPosition, Quaternion arenaRotation)
     {
         // 查找预制体中的 PlayerAnchor
         Transform playerAnchor = arenaPrefab.transform.Find("PlayerAnchor");
@@ -280,14 +332,14 @@ public class BattleArenaManager
         }
 
         // 计算偏移：考虑旋转后的锚点位置
-        // 场地位置 = 玩家底部位置 - (旋转后的锚点本地坐标)
+        // 场地位置 = 玩家底部位置 - (战场旋转后的锚点本地坐标)
         Vector3 anchorLocalPos = playerAnchor.localPosition;
-        Vector3 rotatedOffset = playerRotation * anchorLocalPos;
+        Vector3 rotatedOffset = arenaRotation * anchorLocalPos;
         Vector3 spawnPosition = playerBottomPosition - rotatedOffset;
 
         DebugEx.LogModule("BattleArenaManager",
             $"场地生成位置计算: 玩家底部位置={playerBottomPosition}, " +
-            $"锚点本地坐标={anchorLocalPos}, 旋转后偏移={rotatedOffset}, 场地位置={spawnPosition}");
+            $"锚点本地坐标={anchorLocalPos}, 战场旋转后偏移={rotatedOffset}, 场地位置={spawnPosition}");
 
         return spawnPosition;
     }
@@ -354,16 +406,18 @@ public class BattleArenaManager
     /// <summary>
     /// 创建默认战斗场地(用于测试)
     /// </summary>
-    private GameObject CreateDefaultArena(Vector3 position, Quaternion rotation)
+    private GameObject CreateDefaultArena(Vector3 position, Quaternion playerRotation)
     {
         GameObject arena = new GameObject("BattleArena_Default");
         arena.transform.position = position;
-        arena.transform.rotation = rotation;
+        // ⭐ 对于默认场地，PlayerAnchor 默认朝向是 (0, 0, 0)，所以战场旋转就是玩家旋转
+        arena.transform.rotation = playerRotation;
 
         // 创建 PlayerAnchor
         GameObject playerAnchor = new GameObject("PlayerAnchor");
         playerAnchor.transform.SetParent(arena.transform);
         playerAnchor.transform.localPosition = Vector3.zero;
+        playerAnchor.transform.localRotation = Quaternion.identity;
 
         // 创建我方区域
         GameObject playerZone = GameObject.CreatePrimitive(PrimitiveType.Plane);

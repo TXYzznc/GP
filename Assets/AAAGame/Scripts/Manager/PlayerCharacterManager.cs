@@ -47,13 +47,14 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
 
     /// <summary>
     /// 在场景加载完成后生成玩家角色
+    /// ⭐ 玩家生成位置从 SceneTable.DefaultSpawnPosId → PosTable 读取
     /// </summary>
     /// <param name="onComplete">生成完成回调</param>
     public void SpawnPlayerCharacterFromSave(Action<GameObject> onComplete = null)
     {
         DebugEx.LogModule("PlayerCharacterManager", "========== 开始生成玩家角色流程 ==========");
 
-        // 获取当前存档数据
+        // 获取当前存档数据（只需要召唤师ID）
         var saveData = PlayerAccountDataManager.Instance.CurrentSaveData;
         if (saveData == null)
         {
@@ -62,9 +63,14 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
             return;
         }
 
-        // 获取召唤师ID和生成位置
         int summonerId = saveData.CurrentSummonerId;
-        Vector3 spawnPosition = saveData.PlayerPos;
+
+        // ⭐ 从当前场景的配置表读取默认出生点
+        Vector3 spawnPosition = GetDefaultSpawnPositionForCurrentScene();
+        if (spawnPosition == Vector3.zero)
+        {
+            Log.Warning("[PlayerCharacterManager] ⚠️ 无法读取默认出生点，使用原点 (0, 0, 0)");
+        }
 
         Log.Info(
             $"[PlayerCharacterManager] 准备生成玩家角色: 召唤师ID={summonerId}, 位置={spawnPosition}"
@@ -85,6 +91,54 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
 
         // 异步加载并生成角色
         SpawnCharacter(prefabConfigId, spawnPosition, onComplete);
+    }
+
+    /// <summary>
+    /// 从当前场景的配置表读取默认出生点坐标
+    /// </summary>
+    private Vector3 GetDefaultSpawnPositionForCurrentScene()
+    {
+        string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        DebugEx.LogModule("PlayerCharacterManager", $"查询场景 '{currentSceneName}' 的默认出生点");
+
+        // 从 SceneTable 获取当前场景配置
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null)
+        {
+            Log.Error("PlayerCharacterManager: SceneTable 未加载");
+            return Vector3.zero;
+        }
+
+        var sceneRow = sceneTable.GetDataRow(row => row.SceneName == currentSceneName);
+        if (sceneRow == null)
+        {
+            Log.Warning($"PlayerCharacterManager: 未找到场景 '{currentSceneName}' 的配置");
+            return Vector3.zero;
+        }
+
+        int defaultSpawnPosId = sceneRow.DefaultSpawnPosId;
+        DebugEx.LogModule("PlayerCharacterManager", $"场景默认出生点ID: {defaultSpawnPosId}");
+
+        // 从 PosTable 获取坐标
+        var posTable = GF.DataTable.GetDataTable<PosTable>();
+        if (posTable == null)
+        {
+            Log.Error("PlayerCharacterManager: PosTable 未加载");
+            return Vector3.zero;
+        }
+
+        var posRow = posTable.GetDataRow(defaultSpawnPosId);
+        if (posRow == null)
+        {
+            Log.Warning($"PlayerCharacterManager: 未找到出生点 ID {defaultSpawnPosId} 的配置");
+            return Vector3.zero;
+        }
+
+        Vector3 spawnPos = posRow.Position;
+        DebugEx.LogModule("PlayerCharacterManager",
+            $"✅ 读取出生点: ID={defaultSpawnPosId}, 位置={spawnPos}, 描述={posRow.Description}");
+
+        return spawnPos;
     }
 
     /// <summary>
@@ -306,20 +360,13 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     }
 
     /// <summary>
-    /// 保存当前角色位置到存档
+    /// ⭐ 已弃用：玩家位置现在通过配置表的 DefaultSpawnPosId 来管理
+    /// 不再使用存档中的 PlayerPos 字段
     /// </summary>
+    [System.Obsolete("玩家位置现在从 SceneTable.DefaultSpawnPosId 读取，不再保存到存档")]
     public void SaveCurrentPosition()
     {
-        if (CurrentPlayerCharacter == null)
-            return;
-
-        var saveData = PlayerAccountDataManager.Instance.CurrentSaveData;
-        if (saveData != null)
-        {
-            saveData.PlayerPos = CurrentPlayerCharacter.transform.position;
-            PlayerAccountDataManager.Instance.SaveCurrentSave();
-            Log.Info($"角色位置已保存: {saveData.PlayerPos}");
-        }
+        Log.Warning("SaveCurrentPosition() 已弃用，玩家位置由配置表管理");
     }
 
     #region 战斗位置管理

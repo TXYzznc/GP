@@ -186,9 +186,34 @@ public class InteractionDetector : MonoBehaviour
     {
         for (int i = m_Candidates.Count - 1; i >= 0; i--)
         {
-            // 所有 IInteractable 实现类均为 MonoBehaviour，通过 Unity 的 == 运算符检测已销毁对象
-            if (m_Candidates[i] is MonoBehaviour mb && mb == null)
+            var candidate = m_Candidates[i];
+
+            // ⭐ 检查对象是否已销毁
+            if (candidate is MonoBehaviour mb && mb == null)
             {
+                m_Candidates.RemoveAt(i);
+                continue;
+            }
+
+            // ⭐ 检查对象是否隐藏（SetActive(false)）
+            if (candidate is MonoBehaviour mb2 && !mb2.gameObject.activeSelf)
+            {
+                // 如果这个对象是当前目标，需要清除目标
+                if (CurrentTarget == candidate)
+                {
+                    CurrentTarget = null;
+                    OnTargetChanged?.Invoke(null);
+                    UpdateTipVisibility();
+                }
+
+                // 重置交互标记
+                var base_ = candidate as InteractableBase;
+                if (base_ != null)
+                {
+                    base_.SetInteractionStarted(false);
+                    base_.OnSetAsTarget(false);
+                }
+
                 m_Candidates.RemoveAt(i);
             }
         }

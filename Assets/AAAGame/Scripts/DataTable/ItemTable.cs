@@ -191,6 +191,15 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int Value
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 重量(克)
         /// </summary>
         public int Weight
@@ -238,6 +247,7 @@ public partial class ItemTable : DataRowBase
             SynergyIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             BaseAttributes = columnStrings[index++];
             SellPrice = int.Parse(columnStrings[index++]);
+            Value = int.Parse(columnStrings[index++]);
             Weight = int.Parse(columnStrings[index++]);
             MaxDurability = int.Parse(columnStrings[index++]);
 
@@ -269,6 +279,7 @@ public partial class ItemTable : DataRowBase
                     SynergyIds = binaryReader.ReadArray<int>();
                     BaseAttributes = binaryReader.ReadString();
                     SellPrice = binaryReader.Read7BitEncodedInt32();
+                    Value = binaryReader.Read7BitEncodedInt32();
                     Weight = binaryReader.Read7BitEncodedInt32();
                     MaxDurability = binaryReader.Read7BitEncodedInt32();
                 }
