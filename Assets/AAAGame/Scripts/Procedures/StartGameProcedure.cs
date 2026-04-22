@@ -20,6 +20,9 @@ public class StartGameProcedure : ProcedureBase
 
         GF.Log("进入游戏流程 - StartGame");
 
+        // 输出启动性能诊断信息
+        StartupPerformanceProfiler.OnGameReady();
+
         // 初始化游戏状态管理器，切换到主菜单状态
         GameStateManager.Instance.SwitchToMenu();
         Log.Info("StartGameProcedure: 已切换到主菜单状态");

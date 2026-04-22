@@ -47,8 +47,8 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\MeltBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Spawn\SceneSpawnManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\MeltBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\EquipSlotContainerImpl.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\HitDetectorFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\EffectExecutor.cs" />
@@ -313,6 +313,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatOpportunityDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\VariablePool\VariablePoolComponent.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\FastBarManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Diagnostics\StartupPerformanceProfiler.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\StatModBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\ThunderStrikeCardEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\EventArgs\ChangeSceneEventArgs.cs" />
@@ -427,8 +428,8 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatEnterEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\TreasureBoxUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampRelation.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\InventoryUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItemEventDispatcher.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\InventoryUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatTickDriver.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\ItemContextMenu.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\MeleeHitDetector.cs" />
