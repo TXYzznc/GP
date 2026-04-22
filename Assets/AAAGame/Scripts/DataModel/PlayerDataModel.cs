@@ -60,9 +60,8 @@ public class PlayerDataModel : DataModelStorageBase
         get => GetData(PlayerDataType.LevelId);
         set
         {
-            var lvTb = GF.DataTable.GetDataTable<LevelTable>();
-            int nextLvId = Const.RepeatLevel ? value : Mathf.Clamp(value, lvTb.MinIdDataRow.Id, lvTb.MaxIdDataRow.Id);
-            SetData(PlayerDataType.LevelId, nextLvId);
+            // TODO: 如需限制关卡 ID 范围，补充相应的验证逻辑
+            SetData(PlayerDataType.LevelId, Mathf.Max(1, value));
         }
     }
 

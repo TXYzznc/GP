@@ -26,7 +26,6 @@ MonoBehaviour:
   - ItemGroupTable
   - ItemTable
   - LanguageTextTable
-  - LevelTable
   - MapSpawnTable
   - PlayerAccountTable
   - PlayerDataTable
@@ -43,7 +42,6 @@ MonoBehaviour:
   - SummonerTable
   - SynergyTable
   - TreasureBoxTable
-  - Core/EntityGroupTable
   - Core/LanguagesTable
   - Core/SoundGroupTable
   - Core/UIGroupTable

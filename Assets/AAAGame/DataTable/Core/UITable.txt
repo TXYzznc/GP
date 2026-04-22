@@ -2,7 +2,7 @@
 #	Id		SortOrder	UIPrefab	PauseCoveredUI	UIGroupId	EscapeClose
 #	int		int	string	bool	int	bool
 #		备注	显示顺序,相对于Group,每个Group间隔100		同组界面被覆盖时是否隐藏	UI组Id	返回键触发关闭界面
-#	主界面(顶层)						
+#	主界面(底层)						
 	1	主菜单	1	StartMenuUI	True	1	False
 #	对话框(中层)						
 	5	设置	1	SettingDialog	True	2	True
@@ -29,3 +29,4 @@
 	31	出战预设界面	2	BattlePresetUI	False	1	True
 	32	宝箱界面	2	TreasureBoxUI	False	1	True
 	33	主地图界面	2	OverworldUI	False	1	True
+	34	结算界面	2	SettlementUIForm	False	3	True
