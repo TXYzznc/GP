@@ -72,7 +72,7 @@ public class BurnBuff : BuffBase
         if (Ctx?.OwnerAttribute == null) return;
 
         double damage = m_DamagePerStack * StackCount;
-        Ctx.OwnerAttribute.TakeDamage(damage, false, true, false, CombatVFXManager.DamageType.BurnDamage);
+        Ctx.OwnerAttribute.TakeDamage(damage, false, true, false, DamageFloatingTextManager.DamageType.火焰伤害);
 
         DebugEx.LogModule("BurnBuff", $"灼烧伤害: {damage:F1} ({StackCount}层 × {m_DamagePerStack})");
     }
