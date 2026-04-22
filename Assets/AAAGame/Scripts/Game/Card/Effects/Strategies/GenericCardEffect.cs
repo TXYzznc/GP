@@ -38,17 +38,8 @@ public class GenericCardEffect : ICardEffect
             return;
         }
 
-        var allChessReadOnly = BattleChessManager.Instance?.GetAllChessEntities();
-        if (allChessReadOnly == null || allChessReadOnly.Count == 0)
-        {
-            DebugEx.WarningModule("GenericCardEffect", "棋子列表为空");
-            return;
-        }
-
-        var allChess = new List<ChessEntity>(allChessReadOnly);
-
-        // 1. 选择目标
-        var targets = m_TargetSelector.SelectTargets(allChess, m_CardData, targetPosition);
+        // 1. 选择目标（allChess 参数不再使用，已由 TargetSelectors 改为使用 CombatEntityTracker）
+        var targets = m_TargetSelector.SelectTargets(null, m_CardData, targetPosition);
         if (targets == null || targets.Count == 0)
         {
             DebugEx.LogModule("GenericCardEffect", $"卡牌 {m_CardData.CardId} 未找到目标");
