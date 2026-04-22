@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -277,6 +278,28 @@ public class GameTestManager : SingletonBase<GameTestManager>
         {
             CombatManager.Instance.EndCombat(true);
         }
+    }
+
+    #endregion
+
+    #region 结算系统测试
+
+    /// <summary>
+    /// 快速触发游戏结算 - 传送
+    /// </summary>
+    public void TestTriggerSettlementTeleport()
+    {
+        DebugEx.LogModule("GameTestManager", "[测试] 触发结算 - 传送方式");
+        SettlementManager.Instance.TriggerSettlementAsync("BaseScene", SettlementTriggerSource.Teleport).Forget();
+    }
+
+    /// <summary>
+    /// 快速触发游戏结算 - 污染过高死亡
+    /// </summary>
+    public void TestTriggerSettlementCorruptionDeath()
+    {
+        DebugEx.LogModule("GameTestManager", "[测试] 触发结算 - 污染过高死亡");
+        SettlementManager.Instance.TriggerSettlementAsync("BaseScene", SettlementTriggerSource.Death).Forget();
     }
 
     #endregion

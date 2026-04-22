@@ -292,6 +292,9 @@ public partial class CardSlotItem
         string cardName = m_CardData?.Name ?? "unknown";
 
         // ==================== 立即执行（不等待） ====================
+        // 隐藏关联的 DetailInfoUI（防止残留显示）
+        HideDetailInfoUI();
+
         // 第1步：发出即将销毁事件 → Container 监听并启动重排
         string containerName = m_Container != null ? m_Container.gameObject.name : "null";
         DebugEx.LogModule("CardSlotItem", $"[销毁前] m_Container={containerName}，卡牌={cardName}");
@@ -502,15 +505,7 @@ public partial class CardSlotItem
         }
 
         // 隐藏 DetailInfoUI
-        var combatUI = GetComponentInParent<CombatUI>();
-        if (combatUI != null)
-        {
-            var detailUI = combatUI.GetDetailInfoUI();
-            if (detailUI != null)
-            {
-                detailUI.gameObject.SetActive(false);
-            }
-        }
+        HideDetailInfoUI();
 
         // 发出事件
         CardSlotItemEventDispatcher.RaiseSelectionChanged(this, false);
@@ -519,6 +514,22 @@ public partial class CardSlotItem
         if (CardManager.Instance != null && CardManager.Instance.CurrentSelectedCard == m_CardData)
         {
             CardManager.Instance.CurrentSelectedCard = null;
+        }
+    }
+
+    /// <summary>
+    /// 隐藏关联的 DetailInfoUI
+    /// </summary>
+    private void HideDetailInfoUI()
+    {
+        var combatUI = GetComponentInParent<CombatUI>();
+        if (combatUI != null)
+        {
+            var detailUI = combatUI.GetDetailInfoUI();
+            if (detailUI != null)
+            {
+                detailUI.HideWithAnimation();
+            }
         }
     }
 

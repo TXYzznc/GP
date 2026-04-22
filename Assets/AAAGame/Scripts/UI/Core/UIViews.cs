@@ -27,5 +27,6 @@ public enum UIViews : int
 	DictionariesUI = 30,
 	BattlePresetUI = 31,
 	TreasureBoxUI = 32,
-	OverworldUI = 33
+	OverworldUI = 33,
+	SettlementUIForm = 34
 }

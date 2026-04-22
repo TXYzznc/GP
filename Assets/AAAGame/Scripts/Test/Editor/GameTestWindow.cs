@@ -58,6 +58,10 @@ public class GameTestWindow : EditorWindow
     private int m_SelectedTab = 0;
     private readonly string[] m_TabNames = { "🧪 Buff", "📦 物品", "⚔️ 战斗", "🎲 状态", "✨ 描边", "📋 日志" };
 
+    // 结算系统测试
+    private int m_SettlementTriggerType = 0; // 0=传送, 1=污染死亡
+    private readonly string[] m_SettlementTriggerOptions = { "传送", "污染过高死亡" };
+
     #endregion
 
     #region EditorWindow 生命周期
@@ -115,7 +119,7 @@ public class GameTestWindow : EditorWindow
                 }
                 break;
 
-            case 2: // 战斗系统（战斗 + 敌人 + 投射物）
+            case 2: // 战斗系统（战斗 + 敌人 + 投射物 + 结算）
                 m_ExpandCombatSection = EditorGUILayout.Foldout(m_ExpandCombatSection, "⚔️ 战斗系统", true);
                 if (m_ExpandCombatSection)
                 {
@@ -129,6 +133,10 @@ public class GameTestWindow : EditorWindow
 
                 EditorGUILayout.LabelField("🔫 投射物系统", EditorStyles.boldLabel);
                 DrawProjectileTestSection();
+                EditorGUILayout.Space(15);
+
+                EditorGUILayout.LabelField("🏁 结算系统", EditorStyles.boldLabel);
+                DrawSettlementTestSection();
                 break;
 
             case 3: // 游戏状态
@@ -511,6 +519,57 @@ public class GameTestWindow : EditorWindow
         if (GUILayout.Button("生成战斗场地", GUILayout.Height(BUTTON_HEIGHT)))
             m_CombatTestController.SpawnBattleArena();
         EditorGUILayout.EndHorizontal();
+    }
+
+    #endregion
+
+    #region 结算系统测试
+
+    private void DrawSettlementTestSection()
+    {
+        EditorGUILayout.HelpBox("快速触发游戏结算系统测试，支持传送和污染死亡两种方式", MessageType.Info);
+
+        // 获取GameTestManager
+        if (m_GameTestManager == null)
+            m_GameTestManager = FindObjectOfType<GameTestManager>();
+
+        if (m_GameTestManager == null)
+        {
+            EditorGUILayout.HelpBox("场景中未找到 GameTestManager 组件", MessageType.Warning);
+            return;
+        }
+
+        // 结算触发类型选择
+        EditorGUILayout.LabelField("结算触发方式", EditorStyles.boldLabel);
+        m_SettlementTriggerType = EditorGUILayout.Popup("触发类型:", m_SettlementTriggerType, m_SettlementTriggerOptions);
+
+        EditorGUILayout.Space();
+
+        // 快速触发按钮
+        EditorGUILayout.BeginHorizontal();
+        GUI.backgroundColor = new Color(1f, 0.7f, 0.7f); // 浅红色
+        if (GUILayout.Button("▶ 快速触发结算", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            if (m_SettlementTriggerType == 0)
+            {
+                m_GameTestManager.TestTriggerSettlementTeleport();
+            }
+            else
+            {
+                m_GameTestManager.TestTriggerSettlementCorruptionDeath();
+            }
+        }
+        GUI.backgroundColor = Color.white;
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
+        // 说明信息
+        string triggerDescription = m_SettlementTriggerType == 0
+            ? "触发传送结算：直接传送回基地，显示结算 UI，然后切换场景"
+            : "触发污染死亡结算：模拟污染过高导致死亡，显示失败结算 UI，然后切换场景";
+
+        EditorGUILayout.HelpBox(triggerDescription, MessageType.Info);
     }
 
     #endregion

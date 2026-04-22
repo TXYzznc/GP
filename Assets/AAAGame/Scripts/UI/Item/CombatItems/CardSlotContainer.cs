@@ -123,7 +123,7 @@ public class CardSlotContainer : MonoBehaviour
             // 检测参数是否有变化
             if (HasParametersChanged())
             {
-                DebugEx.LogModule("CardSlotContainer", "检测到参数变化，立即更新卡牌位置");
+                //DebugEx.LogModule("CardSlotContainer", "检测到参数变化，立即更新卡牌位置");
                 CacheParameters();
                 // 立即更新位置（不播放动画，实时反馈）
                 RefreshCardPositionsImmediate();
@@ -242,7 +242,7 @@ public class CardSlotContainer : MonoBehaviour
             }
         }
 
-        DebugEx.LogModule("CardSlotContainer", sb.ToString());
+        //DebugEx.LogModule("CardSlotContainer", sb.ToString());
     }
 
     #endregion
@@ -294,7 +294,7 @@ public class CardSlotContainer : MonoBehaviour
             return;
 
         m_DragContext = new DragContext { Card = card, StartIndex = startIndex, CurrentInsertIndex = startIndex };
-        DebugEx.LogModule("CardSlotContainer", $"[事件] 卡牌拖拽开始: {card.GetCardData()?.Name}");
+        //DebugEx.LogModule("CardSlotContainer", $"[事件] 卡牌拖拽开始: {card.GetCardData()?.Name}");
     }
 
     /// <summary>
@@ -309,7 +309,7 @@ public class CardSlotContainer : MonoBehaviour
             return;
 
         m_DragContext.CurrentInsertIndex = newInsertIndex;
-        DebugEx.LogModule("CardSlotContainer", $"[事件] 拖拽位置改变: {newInsertIndex}");
+        //DebugEx.LogModule("CardSlotContainer", $"[事件] 拖拽位置改变: {newInsertIndex}");
 
         // 立即启动重排动画
         RearrangeAsync(default).Forget();
@@ -323,7 +323,7 @@ public class CardSlotContainer : MonoBehaviour
         if (m_DragContext.Card != card)
             return;
 
-        DebugEx.LogModule("CardSlotContainer", $"[事件] 拖拽结束: isValid={isValid}");
+        //DebugEx.LogModule("CardSlotContainer", $"[事件] 拖拽结束: isValid={isValid}");
 
         // 清理拖拽上下文
         m_DragContext.Clear();
@@ -345,7 +345,7 @@ public class CardSlotContainer : MonoBehaviour
         if (!m_Cards.Contains(card))
             return;
 
-        DebugEx.LogModule("CardSlotContainer", $"[事件] 卡牌即将销毁: {card.GetCardData()?.Name}");
+        //DebugEx.LogModule("CardSlotContainer", $"[事件] 卡牌即将销毁: {card.GetCardData()?.Name}");
 
         // 立即从列表移除（这样重排计算时不会包含这张卡）
         m_Cards.Remove(card);
@@ -371,6 +371,7 @@ public class CardSlotContainer : MonoBehaviour
 
         m_Cards.Add(card);
         card.transform.SetParent(transform);
+        card.transform.SetSiblingIndex(m_Cards.Count - 1);
 
         DebugEx.LogModule("CardSlotContainer", $"添加卡牌: {m_Cards.Count} 张");
 
@@ -407,6 +408,7 @@ public class CardSlotContainer : MonoBehaviour
 
         m_Cards.Add(card);
         card.transform.SetParent(transform);
+        card.transform.SetSiblingIndex(m_Cards.Count - 1);
 
         DebugEx.LogModule("CardSlotContainer", $"静默添加卡牌: {m_Cards.Count} 张");
     }
@@ -678,7 +680,7 @@ public class CardSlotContainer : MonoBehaviour
         // 清理已销毁的卡牌引用（防止位置计算时count不匹配）
         m_Cards.RemoveAll(c => c == null || c.gameObject == null);
 
-        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 开始重排，当前卡牌数={m_Cards.Count}");
+        //DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 开始重排，当前卡牌数={m_Cards.Count}");
 
         // 创建快照：只对当前活跃卡进行动画（拖拽中的卡不动画）
         var activeCards = m_Cards.Where(c => c != m_DragContext.Card).ToList();
@@ -700,7 +702,7 @@ public class CardSlotContainer : MonoBehaviour
 
         // 基于活跃卡的快照计算位置
         var fanTransforms = CalculateFanPositions(includeDragCard: false);
-        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 计算出 {fanTransforms.Length} 个目标位置，实际活跃卡={activeCards.Count}");
+        //DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 计算出 {fanTransforms.Length} 个目标位置，实际活跃卡={activeCards.Count}");
 
         var sequence = DOTween.Sequence();
 
@@ -716,13 +718,20 @@ public class CardSlotContainer : MonoBehaviour
             float targetRotZ = fanTransforms[i].RotationZ;
             card.SetBaseFanTransform(this, fanTransforms[i].AnchoredPos, targetRotZ);
 
+            // 根据在 m_Cards 中的实际索引设置 sibling index（确保层级顺序）
+            int actualIndex = m_Cards.IndexOf(card);
+            if (actualIndex >= 0)
+            {
+                card.transform.SetSiblingIndex(actualIndex);
+            }
+
             sequence.Join(cardRect.DOAnchorPos(targetPos, m_RearrangeDuration).SetEase(m_RearrangeEase));
             sequence.Join(cardRect.DORotate(new Vector3(0, 0, targetRotZ), m_RearrangeDuration).SetEase(m_RearrangeEase));
         }
 
         m_RearrangeTween = sequence;
 
-        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 播放重排动画，共 {activeCards.Count} 张卡牌");
+        //DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 播放重排动画，共 {activeCards.Count} 张卡牌");
         await sequence.AsyncWaitForCompletion();
 
         // 检查是否被新的 RearrangeAsync 取消
@@ -770,6 +779,9 @@ public class CardSlotContainer : MonoBehaviour
             cardRect.anchoredPosition = targetPos;
             cardRect.localRotation = Quaternion.Euler(0, 0, targetRotZ);
             card.SetBaseFanTransform(this, fanTransforms[transformIndex].AnchoredPos, targetRotZ);
+
+            // 更新 sibling index（确保层级顺序）
+            card.transform.SetSiblingIndex(i);
 
             transformIndex++;
         }
