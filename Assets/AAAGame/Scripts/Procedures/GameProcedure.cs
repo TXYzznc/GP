@@ -11,6 +11,7 @@ using System.Collections.Generic;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 public class GameProcedure : ProcedureBase
 {
+    private static IFsm<IProcedureManager> s_ProcedureOwner;
     private IFsm<IProcedureManager> m_ProcedureFsm;
     private PlayerSkillManager m_SkillManager; // 玩家技能管理器引用
     private SceneSpawnManager m_SceneSpawnManager; // 场景生成管理器
@@ -19,6 +20,7 @@ public class GameProcedure : ProcedureBase
     {
         base.OnEnter(procedureOwner);
         m_ProcedureFsm = procedureOwner;
+        s_ProcedureOwner = procedureOwner;
 
         Log.Info("进入 GameProcedure - 游戏开始");
 
@@ -113,7 +115,37 @@ public class GameProcedure : ProcedureBase
         GF.Event.Unsubscribe(OpenUIFormSuccessEventArgs.EventId, OnOpenUIFormSuccess);
         GF.Event.Unsubscribe(CloseUIFormCompleteEventArgs.EventId, OnCloseUIForm);
 
+        s_ProcedureOwner = null;
+
         base.OnLeave(procedureOwner, isShutdown);
+    }
+
+    /// <summary>
+    /// 在游戏内切换场景（场景A → 场景B）
+    /// </summary>
+    /// <param name="sceneName">目标场景名称</param>
+    public static void RequestChangeScene(string sceneName)
+    {
+        if (s_ProcedureOwner == null)
+        {
+            Log.Error("GameProcedure 未初始化，无法切换场景");
+            return;
+        }
+
+        Log.Info($"GameProcedure: 请求场景切换到 {sceneName}");
+
+        // 显示加载进度条
+        GFBuiltin.BuiltinView.ShowLoadingProgress();
+
+        // 设置场景名流程参数
+        s_ProcedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, sceneName);
+
+        // 获取当前 Procedure 并切换到 ChangeSceneProcedure
+        var currentProcedure = s_ProcedureOwner.CurrentState as GameProcedure;
+        if (currentProcedure != null)
+        {
+            currentProcedure.ChangeState<ChangeSceneProcedure>(s_ProcedureOwner);
+        }
     }
 
     /// <summary>

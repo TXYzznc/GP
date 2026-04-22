@@ -110,28 +110,6 @@ public class PreloadProcedure : ProcedureBase
     /// </summary>
     private void InitGameFrameworkSettings()
     {
-        // 初始化EntityGroup
-        var entityGroupTb = GF.DataTable.GetDataTable<EntityGroupTable>();
-        foreach (var tb in entityGroupTb.GetAllDataRows())
-        {
-            if (GF.Entity.HasEntityGroup(tb.Name))
-            {
-                var group = GF.Entity.GetEntityGroup(tb.Name);
-                group.InstanceAutoReleaseInterval = tb.ReleaseInterval;
-                group.InstanceCapacity = tb.Capacity;
-                group.InstanceExpireTime = tb.ExpireTime;
-                group.InstancePriority = tb.Priority;
-                continue;
-            }
-            GF.Entity.AddEntityGroup(
-                tb.Name,
-                tb.ReleaseInterval,
-                tb.Capacity,
-                tb.ExpireTime,
-                tb.Priority
-            );
-        }
-
         Dictionary<string, SoundGroupTable> defaultSoundGroupData =
             new Dictionary<string, SoundGroupTable>();
         // 初始化SoundGroup

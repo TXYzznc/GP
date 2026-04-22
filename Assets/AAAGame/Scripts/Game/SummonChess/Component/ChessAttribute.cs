@@ -448,7 +448,7 @@ public class ChessAttribute : MonoBehaviour
     /// <param name="isCritical">是否暴击</param>
     /// <param name="damageType">伤害类型（用于飘字显示）</param>
     public void TakeDamage(double damage, bool isMagic = false, bool isTrueDamage = false, bool isCritical = false,
-        CombatVFXManager.DamageType damageType = CombatVFXManager.DamageType.Physical)
+        DamageFloatingTextManager.DamageType damageType = DamageFloatingTextManager.DamageType.普通伤害)
     {
         if (damage <= 0)
         {
@@ -490,36 +490,30 @@ public class ChessAttribute : MonoBehaviour
 
         // 显示伤害飘字
         // 如果指定了 damageType，使用指定类型；否则根据参数推断
-        if (damageType == CombatVFXManager.DamageType.Physical && (isMagic || isCritical || isTrueDamage))
+        DamageFloatingTextManager.DamageType finalDamageType = damageType;
+        if (damageType == DamageFloatingTextManager.DamageType.普通伤害 && (isMagic || isCritical || isTrueDamage))
         {
             // 自动推断类型
-            CombatVFXManager.DamageType autoType;
             if (isCritical)
             {
-                autoType = CombatVFXManager.DamageType.Critical;
+                finalDamageType = DamageFloatingTextManager.DamageType.暴击伤害;
             }
             else if (isMagic)
             {
-                autoType = CombatVFXManager.DamageType.Magic;
+                finalDamageType = DamageFloatingTextManager.DamageType.法术伤害;
             }
             else if (isTrueDamage)
             {
-                autoType = CombatVFXManager.DamageType.True;
+                finalDamageType = DamageFloatingTextManager.DamageType.真实伤害;
             }
             else
             {
-                autoType = CombatVFXManager.DamageType.Physical;
+                finalDamageType = DamageFloatingTextManager.DamageType.普通伤害;
             }
+        }
 
-            Vector3 position = transform.position + Vector3.up * CombatVFXManager.DamagePopupConfig.BaseHeightOffset;
-            CombatVFXManager.ShowDamagePopup(position, actualDamage, autoType);
-        }
-        else
-        {
-            // 使用指定的 damageType
-            Vector3 position = transform.position + Vector3.up * CombatVFXManager.DamagePopupConfig.BaseHeightOffset;
-            CombatVFXManager.ShowDamagePopup(position, actualDamage, damageType);
-        }
+        Vector3 popupPosition = transform.position + Vector3.up * 0.2f;
+        DamageFloatingTextManager.Instance.ShowDamageText(finalDamageType, (float)actualDamage, popupPosition);
 
         // 触发伤害事件
         OnDamageTaken?.Invoke(actualDamage, isMagic);
