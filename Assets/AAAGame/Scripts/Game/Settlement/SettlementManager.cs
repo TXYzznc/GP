@@ -137,10 +137,30 @@ public class SettlementManager
             IsDefeat = triggerSource == SettlementTriggerSource.Death,
         };
 
-        // 从战斗系统收集数据
+        // 1. 计算背包价值差（资源收益）
+        var snapshot = InventoryManager.Instance?.GetSnapshot();
+        if (snapshot != null)
+        {
+            int snapshotValue = InventoryManager.CalculateInventoryValue(snapshot);
+            int currentValue = InventoryManager.Instance?.CalculateInventoryValue() ?? 0;
+            m_CurrentSettlementData.ResourceGain = Mathf.Max(0, currentValue - snapshotValue);
+
+            DebugEx.LogModule("SettlementManager",
+                $"背包价值对比: 进入局内={snapshotValue}, 当前={currentValue}, 收益={m_CurrentSettlementData.ResourceGain}");
+        }
+
+        // 2. 清理并收集虚拟物品
+        var (gold, originStone, spiritStone) = InventoryManager.Instance?.ConvertVirtualItems() ?? (0, 0, 0);
+        m_CurrentSettlementData.VirtualGold = gold;
+        m_CurrentSettlementData.VirtualOriginStone = originStone;
+        m_CurrentSettlementData.VirtualSpiritStone = spiritStone;
+
+        // 3. 从战斗系统收集其他数据
         await CollectSettlementDataFromCombatAsync();
 
-        DebugEx.LogModule("SettlementManager", $"数据收集完成: 经验={m_CurrentSettlementData.Experience}, 金币={m_CurrentSettlementData.Currency}");
+        DebugEx.LogModule("SettlementManager",
+            $"数据收集完成: 资源收益={m_CurrentSettlementData.ResourceGain}, " +
+            $"金币={gold}, 起源石={originStone}, 灵石={spiritStone}, 经验={m_CurrentSettlementData.Experience}");
 
         await UniTask.CompletedTask;
     }
@@ -152,9 +172,8 @@ public class SettlementManager
             return;
 
         // TODO: 从 CombatManager 查询战斗奖励数据
-        // 暂时使用默认值
+        // 暂时使用默认值（仅用于调试，实际应该从战斗系统读取）
         m_CurrentSettlementData.Experience = 100;
-        m_CurrentSettlementData.Currency = 50;
         m_CurrentSettlementData.EnemiesDefeated = 0;
 
         await UniTask.CompletedTask;
@@ -236,11 +255,32 @@ public class SettlementManager
             DebugEx.LogModule("SettlementManager", $"获得经验: {m_CurrentSettlementData.Experience}");
         }
 
-        // 应用金币
-        if (m_CurrentSettlementData.Currency > 0)
+        // ⭐ 应用资源收益（通过背包价值差计算）
+        if (m_CurrentSettlementData.ResourceGain > 0)
         {
-            accountManager.AddGold(m_CurrentSettlementData.Currency);
-            DebugEx.LogModule("SettlementManager", $"获得金币: {m_CurrentSettlementData.Currency}");
+            accountManager.AddGold(m_CurrentSettlementData.ResourceGain);
+            DebugEx.LogModule("SettlementManager", $"获得资源（价值）: {m_CurrentSettlementData.ResourceGain}");
+        }
+
+        // ⭐ 应用虚拟物品：金币
+        if (m_CurrentSettlementData.VirtualGold > 0)
+        {
+            accountManager.AddGold(m_CurrentSettlementData.VirtualGold);
+            DebugEx.LogModule("SettlementManager", $"获得金币（虚拟物品）: {m_CurrentSettlementData.VirtualGold}");
+        }
+
+        // ⭐ 应用虚拟物品：起源石
+        if (m_CurrentSettlementData.VirtualOriginStone > 0)
+        {
+            accountManager.AddOriginStone(m_CurrentSettlementData.VirtualOriginStone);
+            DebugEx.LogModule("SettlementManager", $"获得起源石（虚拟物品）: {m_CurrentSettlementData.VirtualOriginStone}");
+        }
+
+        // ⭐ 灵石不保存，仅记录日志
+        if (m_CurrentSettlementData.VirtualSpiritStone > 0)
+        {
+            DebugEx.LogModule("SettlementManager",
+                $"灵石（局内货币）已清理: {m_CurrentSettlementData.VirtualSpiritStone}");
         }
 
         // 应用掉落物品
@@ -249,6 +289,9 @@ public class SettlementManager
             accountManager.AddItem(itemId, 1);
             DebugEx.LogModule("SettlementManager", $"获得物品: {itemId}");
         }
+
+        // ⭐ 清理背包快照
+        InventoryManager.Instance?.ClearSnapshot();
 
         // 保存存档，确保数据持久化
         // TODO: 调用游戏存档系统的保存方法

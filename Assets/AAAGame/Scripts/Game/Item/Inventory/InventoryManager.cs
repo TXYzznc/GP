@@ -25,6 +25,14 @@ public class InventoryManager : SingletonBase<InventoryManager>
     private int m_CachedGold = 0;      // 金币缓存
     private int m_CachedSpiritStone = 0; // 灵石缓存
 
+    // 虚拟物品 ID 常量
+    public const int VIRTUAL_ITEM_GOLD = 999;           // 金币
+    public const int VIRTUAL_ITEM_ORIGIN_STONE = 99999; // 起源石
+    public const int VIRTUAL_ITEM_SPIRIT_STONE = 9999;  // 灵石（局内临时货币）
+
+    // 背包快照数据（进入局内时保存）
+    private List<InventoryItemSaveData> m_SnapshotBeforeSession = null;
+
     /// <summary>
     /// 背包内容变化事件
     /// </summary>
@@ -625,6 +633,141 @@ public class InventoryManager : SingletonBase<InventoryManager>
     {
         UpdateVirtualItemCache(999, 0);
         UpdateVirtualItemCache(99999, 0);
+    }
+
+    #endregion
+
+    #region 背包快照与价值计算
+
+    /// <summary>
+    /// 保存当前背包快照（进入局内时调用）
+    /// </summary>
+    public void CreateSnapshot()
+    {
+        m_SnapshotBeforeSession = SaveInventory();
+        DebugEx.Log("InventoryManager", $"背包快照已保存，物品数={m_SnapshotBeforeSession.Count}");
+    }
+
+    /// <summary>
+    /// 获取背包快照（结算时使用）
+    /// </summary>
+    public List<InventoryItemSaveData> GetSnapshot()
+    {
+        return m_SnapshotBeforeSession;
+    }
+
+    /// <summary>
+    /// 清除背包快照（结算完成后调用）
+    /// </summary>
+    public void ClearSnapshot()
+    {
+        m_SnapshotBeforeSession = null;
+        DebugEx.Log("InventoryManager", "背包快照已清除");
+    }
+
+    /// <summary>
+    /// 计算背包总价值（基于 ItemTable.Value）
+    /// </summary>
+    public int CalculateInventoryValue()
+    {
+        int totalValue = 0;
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        if (itemTable == null)
+        {
+            DebugEx.Warning("InventoryManager", "ItemTable 未加载，无法计算背包价值");
+            return 0;
+        }
+
+        foreach (var slot in m_Slots)
+        {
+            if (!slot.IsEmpty)
+            {
+                var itemRow = itemTable.GetDataRow(slot.ItemId);
+                if (itemRow != null)
+                {
+                    totalValue += itemRow.Value * slot.Count;
+                }
+            }
+        }
+        return totalValue;
+    }
+
+    /// <summary>
+    /// 计算指定背包数据的总价值
+    /// </summary>
+    public static int CalculateInventoryValue(List<InventoryItemSaveData> inventoryData)
+    {
+        if (inventoryData == null) return 0;
+
+        int totalValue = 0;
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        if (itemTable == null)
+        {
+            DebugEx.Warning("InventoryManager", "ItemTable 未加载，无法计算背包价值");
+            return 0;
+        }
+
+        foreach (var item in inventoryData)
+        {
+            var itemRow = itemTable.GetDataRow(item.ItemId);
+            if (itemRow != null)
+            {
+                totalValue += itemRow.Value * item.Count;
+            }
+        }
+        return totalValue;
+    }
+
+    /// <summary>
+    /// 清理背包中的虚拟物品并转换到账号资源
+    /// 金币 → PlayerSaveData.Gold
+    /// 起源石 → PlayerSaveData.OriginStone
+    /// 灵石 → 直接删除（仅局内使用）
+    /// </summary>
+    /// <returns>清理的虚拟物品统计（金币、起源石、灵石数量）</returns>
+    public (int gold, int originStone, int spiritStone) ConvertVirtualItems()
+    {
+        int goldCount = 0;
+        int originStoneCount = 0;
+        int spiritStoneCount = 0;
+
+        // 遍历所有格子，收集虚拟物品数量
+        foreach (var slot in m_Slots)
+        {
+            if (slot.IsEmpty) continue;
+
+            switch (slot.ItemId)
+            {
+                case VIRTUAL_ITEM_GOLD:
+                    goldCount += slot.Count;
+                    break;
+                case VIRTUAL_ITEM_ORIGIN_STONE:
+                    originStoneCount += slot.Count;
+                    break;
+                case VIRTUAL_ITEM_SPIRIT_STONE:
+                    spiritStoneCount += slot.Count;
+                    break;
+            }
+        }
+
+        // 移除背包中的虚拟物品
+        if (goldCount > 0)
+        {
+            RemoveItem(VIRTUAL_ITEM_GOLD, goldCount);
+            DebugEx.Log("InventoryManager", $"虚拟物品清理: 金币 x{goldCount} → 账号资源");
+        }
+        if (originStoneCount > 0)
+        {
+            RemoveItem(VIRTUAL_ITEM_ORIGIN_STONE, originStoneCount);
+            DebugEx.Log("InventoryManager", $"虚拟物品清理: 起源石 x{originStoneCount} → 账号资源");
+        }
+        if (spiritStoneCount > 0)
+        {
+            RemoveItem(VIRTUAL_ITEM_SPIRIT_STONE, spiritStoneCount);
+            DebugEx.Log("InventoryManager", $"虚拟物品清理: 灵石 x{spiritStoneCount} → 删除（局内货币）");
+        }
+
+        return (goldCount, originStoneCount, spiritStoneCount);
     }
 
     #endregion

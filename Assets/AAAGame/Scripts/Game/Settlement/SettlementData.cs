@@ -32,6 +32,18 @@ public class SettlementData
     /// <summary>是否为失败场景（true=死亡失败，false=传送胜利）</summary>
     public bool IsDefeat { get; set; }
 
+    /// <summary>通过背包价值差计算的资源收益</summary>
+    public int ResourceGain { get; set; }
+
+    /// <summary>虚拟物品：金币数量</summary>
+    public int VirtualGold { get; set; }
+
+    /// <summary>虚拟物品：起源石数量</summary>
+    public int VirtualOriginStone { get; set; }
+
+    /// <summary>虚拟物品：灵石数量（局内货币，仅统计不保存）</summary>
+    public int VirtualSpiritStone { get; set; }
+
     /// <summary>获取总经验值</summary>
     public int GetTotalExperience()
     {

@@ -69,6 +69,10 @@ public class InGameState : FsmState<GameStateManager>
         // 初始化背包与仓库（容量从 PlayerInitTable 读取）
         InitInventoryAndWarehouse();
 
+        // ⭐ 保存进入局内时的背包快照
+        InventoryManager.Instance?.CreateSnapshot();
+        DebugEx.LogModule("InGameState", "已创建背包快照");
+
         // 订阅战斗结束事件
         GF.Event.Subscribe(CombatEndEventArgs.EventId, OnCombatEnd);
 
