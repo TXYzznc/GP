@@ -9,11 +9,16 @@ public class AllEnemiesSelector : ICardTargetSelector
     public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
     {
         var targets = new List<ChessEntity>();
-        foreach (var chess in allChess)
+
+        if (CombatEntityTracker.Instance == null)
+            return targets;
+
+        var enemies = CombatEntityTracker.Instance.GetEnemies((int)CampType.Player);
+        if (enemies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Enemy)
-                targets.Add(chess);
+            targets.AddRange(enemies);
         }
+
         return targets;
     }
 }
@@ -26,11 +31,16 @@ public class AllAlliesSelector : ICardTargetSelector
     public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
     {
         var targets = new List<ChessEntity>();
-        foreach (var chess in allChess)
+
+        if (CombatEntityTracker.Instance == null)
+            return targets;
+
+        var allies = CombatEntityTracker.Instance.GetAllies((int)CampType.Player);
+        if (allies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Player)
-                targets.Add(chess);
+            targets.AddRange(allies);
         }
+
         return targets;
     }
 }
@@ -46,15 +56,22 @@ public class ClosestEnemySelector : ICardTargetSelector
         ChessEntity closest = null;
         float closestDistance = float.MaxValue;
 
-        foreach (var chess in allChess)
+        if (CombatEntityTracker.Instance == null)
+            return new List<ChessEntity>();
+
+        var enemies = CombatEntityTracker.Instance.GetEnemies((int)CampType.Player);
+        if (enemies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Enemy)
+            foreach (var enemy in enemies)
             {
-                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (enemy == null)
+                    continue;
+
+                float distance = Vector3.Distance(enemy.transform.position, targetPosition);
                 if (distance <= radius && distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closest = chess;
+                    closest = enemy;
                 }
             }
         }
@@ -74,15 +91,22 @@ public class ClosestAllySelector : ICardTargetSelector
         ChessEntity closest = null;
         float closestDistance = float.MaxValue;
 
-        foreach (var chess in allChess)
+        if (CombatEntityTracker.Instance == null)
+            return new List<ChessEntity>();
+
+        var allies = CombatEntityTracker.Instance.GetAllies((int)CampType.Player);
+        if (allies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Player)
+            foreach (var ally in allies)
             {
-                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (ally == null)
+                    continue;
+
+                float distance = Vector3.Distance(ally.transform.position, targetPosition);
                 if (distance <= radius && distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closest = chess;
+                    closest = ally;
                 }
             }
         }
@@ -98,18 +122,25 @@ public class LowestHpAllySelector : ICardTargetSelector
 {
     public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
     {
+        if (CombatEntityTracker.Instance == null)
+            return new List<ChessEntity>();
+
+        var allies = CombatEntityTracker.Instance.GetAllies((int)CampType.Player);
+        if (allies == null || allies.Count == 0)
+            return new List<ChessEntity>();
+
         ChessEntity lowestHp = null;
         double minHp = double.MaxValue;
 
-        foreach (var chess in allChess)
+        foreach (var ally in allies)
         {
-            if (chess != null && chess.Camp == (int)CampType.Player && chess.Attribute != null)
+            if (ally == null || ally.Attribute == null || ally.CurrentState == ChessState.Dead)
+                continue;
+
+            if (ally.Attribute.CurrentHp < minHp)
             {
-                if (chess.Attribute.CurrentHp < minHp)
-                {
-                    minHp = chess.Attribute.CurrentHp;
-                    lowestHp = chess;
-                }
+                minHp = ally.Attribute.CurrentHp;
+                lowestHp = ally;
             }
         }
 
@@ -127,13 +158,20 @@ public class EnemiesInRadiusSelector : ICardTargetSelector
         float radius = cardData.AreaRadius;
         var targets = new List<ChessEntity>();
 
-        foreach (var chess in allChess)
+        if (CombatEntityTracker.Instance == null)
+            return targets;
+
+        var enemies = CombatEntityTracker.Instance.GetEnemies((int)CampType.Player);
+        if (enemies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Enemy)
+            foreach (var enemy in enemies)
             {
-                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (enemy == null)
+                    continue;
+
+                float distance = Vector3.Distance(enemy.transform.position, targetPosition);
                 if (distance <= radius)
-                    targets.Add(chess);
+                    targets.Add(enemy);
             }
         }
 
@@ -175,12 +213,19 @@ public class AllAllyExcludeSummonerSelector : ICardTargetSelector
     {
         var targets = new List<ChessEntity>();
 
-        var summonerChess = GetSummonerChess();
+        if (CombatEntityTracker.Instance == null)
+            return targets;
 
-        foreach (var chess in allChess)
+        var summonerChess = GetSummonerChess();
+        var allies = CombatEntityTracker.Instance.GetAllies((int)CampType.Player);
+
+        if (allies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Player && chess != summonerChess)
-                targets.Add(chess);
+            foreach (var ally in allies)
+            {
+                if (ally != null && ally != summonerChess)
+                    targets.Add(ally);
+            }
         }
 
         return targets;
@@ -210,13 +255,20 @@ public class AlliesInRadiusSelector : ICardTargetSelector
         float radius = cardData.AreaRadius;
         var targets = new List<ChessEntity>();
 
-        foreach (var chess in allChess)
+        if (CombatEntityTracker.Instance == null)
+            return targets;
+
+        var allies = CombatEntityTracker.Instance.GetAllies((int)CampType.Player);
+        if (allies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Player)
+            foreach (var ally in allies)
             {
-                float distance = Vector3.Distance(chess.transform.position, targetPosition);
+                if (ally == null)
+                    continue;
+
+                float distance = Vector3.Distance(ally.transform.position, targetPosition);
                 if (distance <= radius)
-                    targets.Add(chess);
+                    targets.Add(ally);
             }
         }
 

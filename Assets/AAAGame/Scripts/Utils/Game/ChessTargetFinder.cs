@@ -16,16 +16,12 @@ public static class ChessTargetFinder
     /// <returns>最近的敌人，没有则返回null</returns>
     public static ChessEntity FindNearestEnemy(ChessEntity self)
     {
-        if (self == null || SummonChessManager.Instance == null)
+        if (self == null || CombatEntityTracker.Instance == null)
             return null;
 
-        // 使用阵营服务获取敌对阵营
-        int[] enemyCamps = CampRelationService.GetEnemyCamps(self.Camp);
-        var enemies = new System.Collections.Generic.List<ChessEntity>();
-        for (int c = 0; c < enemyCamps.Length; c++)
-        {
-            enemies.AddRange(SummonChessManager.Instance.GetChessByCamp(enemyCamps[c]));
-        }
+        var enemies = CombatEntityTracker.Instance.GetEnemies(self.Camp);
+        if (enemies == null || enemies.Count == 0)
+            return null;
 
         ChessEntity nearest = null;
         float minDistSqr = float.MaxValue;
@@ -61,16 +57,12 @@ public static class ChessTargetFinder
     {
         List<ChessEntity> result = new List<ChessEntity>();
 
-        if (self == null || SummonChessManager.Instance == null)
+        if (self == null || CombatEntityTracker.Instance == null)
             return result;
 
-        // 使用阵营服务获取敌对阵营
-        int[] enemyCamps = CampRelationService.GetEnemyCamps(self.Camp);
-        var enemies = new System.Collections.Generic.List<ChessEntity>();
-        for (int c = 0; c < enemyCamps.Length; c++)
-        {
-            enemies.AddRange(SummonChessManager.Instance.GetChessByCamp(enemyCamps[c]));
-        }
+        var enemies = CombatEntityTracker.Instance.GetEnemies(self.Camp);
+        if (enemies == null || enemies.Count == 0)
+            return result;
 
         float atkRange = (float)self.Attribute.AtkRange;
         Vector3 selfPos = self.transform.position;
@@ -99,16 +91,12 @@ public static class ChessTargetFinder
     /// <returns>攻击范围内最近的敌人，没有则返回null</returns>
     public static ChessEntity FindNearestEnemyInRange(ChessEntity self)
     {
-        if (self == null || SummonChessManager.Instance == null)
+        if (self == null || CombatEntityTracker.Instance == null)
             return null;
 
-        // 使用阵营服务获取敌对阵营
-        int[] enemyCamps = CampRelationService.GetEnemyCamps(self.Camp);
-        var enemies = new System.Collections.Generic.List<ChessEntity>();
-        for (int c = 0; c < enemyCamps.Length; c++)
-        {
-            enemies.AddRange(SummonChessManager.Instance.GetChessByCamp(enemyCamps[c]));
-        }
+        var enemies = CombatEntityTracker.Instance.GetEnemies(self.Camp);
+        if (enemies == null || enemies.Count == 0)
+            return null;
 
         float atkRange = (float)self.Attribute.AtkRange;
         Vector3 selfPos = self.transform.position;
@@ -171,6 +159,167 @@ public static class ChessTargetFinder
 
     #endregion
 
+    #region 查找友方目标
+
+    /// <summary>
+    /// 查找最近的友方
+    /// </summary>
+    public static ChessEntity FindNearestAlly(ChessEntity self)
+    {
+        if (self == null || CombatEntityTracker.Instance == null)
+            return null;
+
+        var allies = CombatEntityTracker.Instance.GetAllies(self.Camp);
+        if (allies == null || allies.Count == 0)
+            return null;
+
+        ChessEntity nearest = null;
+        float minDistSqr = float.MaxValue;
+        Vector3 selfPos = self.transform.position;
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            var ally = allies[i];
+            if (ally == null || ally == self || ally.CurrentState == ChessState.Dead)
+                continue;
+
+            float distSqr = (ally.transform.position - selfPos).sqrMagnitude;
+            if (distSqr < minDistSqr)
+            {
+                minDistSqr = distSqr;
+                nearest = ally;
+            }
+        }
+
+        return nearest;
+    }
+
+    /// <summary>
+    /// 查找范围内的友方
+    /// </summary>
+    public static List<ChessEntity> FindAlliesInRange(ChessEntity self)
+    {
+        List<ChessEntity> result = new List<ChessEntity>();
+
+        if (self == null || CombatEntityTracker.Instance == null)
+            return result;
+
+        var allies = CombatEntityTracker.Instance.GetAllies(self.Camp);
+        if (allies == null || allies.Count == 0)
+            return result;
+
+        float atkRange = (float)self.Attribute.AtkRange;
+        Vector3 selfPos = self.transform.position;
+        float rangeSqr = atkRange * atkRange;
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            var ally = allies[i];
+            if (ally == null || ally == self || ally.CurrentState == ChessState.Dead)
+                continue;
+
+            float distSqr = (ally.transform.position - selfPos).sqrMagnitude;
+            if (distSqr <= rangeSqr)
+            {
+                result.Add(ally);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 查找范围内最近的友方
+    /// </summary>
+    public static ChessEntity FindNearestAllyInRange(ChessEntity self)
+    {
+        if (self == null || CombatEntityTracker.Instance == null)
+            return null;
+
+        var allies = CombatEntityTracker.Instance.GetAllies(self.Camp);
+        if (allies == null || allies.Count == 0)
+            return null;
+
+        float atkRange = (float)self.Attribute.AtkRange;
+        Vector3 selfPos = self.transform.position;
+        float rangeSqr = atkRange * atkRange;
+
+        ChessEntity nearest = null;
+        float minDistSqr = float.MaxValue;
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            var ally = allies[i];
+            if (ally == null || ally == self || ally.CurrentState == ChessState.Dead)
+                continue;
+
+            float distSqr = (ally.transform.position - selfPos).sqrMagnitude;
+            if (distSqr <= rangeSqr && distSqr < minDistSqr)
+            {
+                minDistSqr = distSqr;
+                nearest = ally;
+            }
+        }
+
+        return nearest;
+    }
+
+    /// <summary>
+    /// 查找生命值最低的友方
+    /// </summary>
+    public static ChessEntity FindLowestHpAlly(ChessEntity self)
+    {
+        if (self == null || CombatEntityTracker.Instance == null)
+            return null;
+
+        var allies = CombatEntityTracker.Instance.GetAllies(self.Camp);
+        if (allies == null || allies.Count == 0)
+            return null;
+
+        ChessEntity lowestHp = null;
+        double minHp = double.MaxValue;
+
+        for (int i = 0; i < allies.Count; i++)
+        {
+            var ally = allies[i];
+            if (ally == null || ally == self || ally.CurrentState == ChessState.Dead)
+                continue;
+
+            if (ally.Attribute.CurrentHp < minHp)
+            {
+                minHp = ally.Attribute.CurrentHp;
+                lowestHp = ally;
+            }
+        }
+
+        return lowestHp;
+    }
+
+    /// <summary>
+    /// 查找范围内生命值最低的友方
+    /// </summary>
+    public static ChessEntity FindLowestHpAllyInRange(ChessEntity self)
+    {
+        var alliesInRange = FindAlliesInRange(self);
+
+        ChessEntity lowestHp = null;
+        double minHp = double.MaxValue;
+
+        for (int i = 0; i < alliesInRange.Count; i++)
+        {
+            var ally = alliesInRange[i];
+            if (ally.Attribute.CurrentHp < minHp)
+            {
+                minHp = ally.Attribute.CurrentHp;
+                lowestHp = ally;
+            }
+        }
+
+        return lowestHp;
+    }
+
+    #endregion
+
     #region 查找生命值最低的敌人
 
     /// <summary>
@@ -180,16 +329,12 @@ public static class ChessTargetFinder
     /// <returns>生命值最低的敌人，没有则返回null</returns>
     public static ChessEntity FindLowestHpEnemy(ChessEntity self)
     {
-        if (self == null || SummonChessManager.Instance == null)
+        if (self == null || CombatEntityTracker.Instance == null)
             return null;
 
-        // 使用阵营服务获取敌对阵营
-        int[] enemyCamps = CampRelationService.GetEnemyCamps(self.Camp);
-        var enemies = new System.Collections.Generic.List<ChessEntity>();
-        for (int c = 0; c < enemyCamps.Length; c++)
-        {
-            enemies.AddRange(SummonChessManager.Instance.GetChessByCamp(enemyCamps[c]));
-        }
+        var enemies = CombatEntityTracker.Instance.GetEnemies(self.Camp);
+        if (enemies == null || enemies.Count == 0)
+            return null;
 
         ChessEntity lowestHp = null;
         double minHp = double.MaxValue;
