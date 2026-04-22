@@ -231,11 +231,10 @@ public class CombatPreparationState : FsmState<InGameState>
         // ⭐ 缓存当前视角模式并切换到战斗视角
         SetupCombatCamera();
 
-        // ⭐ 标记玩家进入战斗（敌人AI将跳过对该玩家的索敌）
-        SetPlayerCombatFlag(true);
+        // ⭐ 场景转换：隐藏敌人、溶解环境物体、标记玩家进入战斗
+        await SceneTransitionManager.Instance.EnterCombatAsync();
 
-        // ⭐ 摄像机排除 Enemy Layer（敌人从画面中消失，但仍在场景中正常运行）
-        CameraRegistry.ThirdPersonCamera?.ExcludeLayer(LayerHelper.Layer.Enemy);
+        ct.ThrowIfCancellationRequested();
 
         // 确保CombatTickDriver存在
         var updater = CombatTickDriver.Instance;
@@ -810,21 +809,6 @@ public class CombatPreparationState : FsmState<InGameState>
         );
     }
 
-    /// <summary>
-    /// 设置玩家战斗状态标记
-    /// </summary>
-    private void SetPlayerCombatFlag(bool isInCombat)
-    {
-        var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
-        if (playerGo == null) return;
-
-        var flag = playerGo.GetComponent<PlayerCombatFlag>();
-        if (flag == null)
-            flag = playerGo.AddComponent<PlayerCombatFlag>();
-
-        flag.IsInCombat = isInCombat;
-        DebugEx.LogModule("CombatPreparationState", $"玩家战斗标记: {isInCombat}");
-    }
 
     #endregion
 }

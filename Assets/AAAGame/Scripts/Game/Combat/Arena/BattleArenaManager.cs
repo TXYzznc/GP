@@ -44,6 +44,9 @@ public class BattleArenaManager
     /// <summary>敌方区域 Collider</summary>
     private Collider m_EnemyZoneCollider;
 
+    /// <summary>战场 Y 轴偏移高度（隔离周边敌人）</summary>
+    private const float ARENA_HEIGHT_OFFSET = 20f;
+
     #endregion
 
     #region 属性
@@ -105,6 +108,8 @@ public class BattleArenaManager
         {
             // 计算场地生成位置（让 PlayerAnchor 对齐玩家底部位置，考虑旋转）
             Vector3 spawnPosition = CalculateArenaSpawnPosition(prefab, playerBottomPosition, playerRotation);
+            // 向上偏移战场，物理隔离周边敌人
+            spawnPosition.y += ARENA_HEIGHT_OFFSET;
             m_CurrentArena = Object.Instantiate(prefab, spawnPosition, playerRotation);
             m_CurrentArena.name = "BattleArena";
         }

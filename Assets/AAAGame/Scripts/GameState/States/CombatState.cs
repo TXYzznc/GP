@@ -106,7 +106,12 @@ public class CombatState : FsmState<InGameState>
     /// </summary>
     private async UniTask InitializeCombatVFXAsync(CancellationToken ct)
     {
-        await CombatVFXManager.InitializeAndWaitAsync();
+        // 初始化伤害飘字管理器
+        if (DamageFloatingTextManager.Instance != null)
+        {
+            // DamageFloatingTextManager 在 Awake 时自动初始化
+            DebugEx.LogModule("CombatState", "伤害飘字管理器已初始化");
+        }
 
         ct.ThrowIfCancellationRequested();
         CombatVFXUpdater.EnsureExists();
@@ -192,22 +197,15 @@ public class CombatState : FsmState<InGameState>
         {
             cameraController.SetViewModeLocked(false);
             cameraController.ClearOverrideFOV();
-
-            // 恢复 Enemy Layer 渲染（战斗准备时排除的）
-            cameraController.IncludeLayer(LayerHelper.Layer.Enemy);
-
-            DebugEx.LogModule("CombatState", "已解锁视角切换并清除FOV覆盖，已恢复 Enemy Layer（同步）");
+            DebugEx.LogModule("CombatState", "已解锁视角切换并清除FOV覆盖（同步）");
         }
 
-        // 16. 清除玩家战斗标记（敌人可重新索敌该玩家）
-        SetPlayerCombatFlag(false);
-
-        // 17. 触发战斗离开事件
+        // 16. 触发战斗离开事件
         GF.Event.Fire(this, ReferencePool.Acquire<CombatLeaveEventArgs>());
 
         base.OnLeave(fsm, isShutdown);
 
-        // 异步部分：恢复场景（溶解、相机、玩家位置），不阻塞状态切换
+        // 异步部分：恢复场景（敌人显示、溶解、相机、玩家位置），不阻塞状态切换
         OnLeaveRestoreAsync().Forget();
     }
 
@@ -224,10 +222,8 @@ public class CombatState : FsmState<InGameState>
             DebugEx.LogModule("CombatState", "玩家位置已恢复");
         }
 
-        // ⭐ 播放溶解过渡并等待完成
-        DebugEx.LogModule("CombatState", "开始溶解过渡...");
-        await DissolveTransitionManager.Instance.TransitionToExploration();
-        DebugEx.LogModule("CombatState", "溶解过渡完成");
+        // ⭐ 场景转换：显示敌人、溶解显示环境物体、清除玩家战斗标记
+        await SceneTransitionManager.Instance.ExitCombatAsync();
 
         // ⭐ 恢复视角模式（解锁已在 OnLeave 同步完成）
         ThirdPersonCamera cameraController = CameraRegistry.ThirdPersonCamera;
@@ -713,15 +709,6 @@ public class CombatState : FsmState<InGameState>
 
     #region 战斗特效管理
 
-    /// <summary>
-    /// 初始化战斗特效管理器
-    /// </summary>
-    private void InitializeCombatVFX()
-    {
-        CombatVFXManager.Initialize();
-        CombatVFXUpdater.EnsureExists();
-        DebugEx.LogModule("CombatState", "战斗特效管理器已初始化");
-    }
 
     /// <summary>
     /// 清理战斗特效管理器
@@ -732,21 +719,6 @@ public class CombatState : FsmState<InGameState>
         DebugEx.LogModule("CombatState", "战斗特效管理器已清理");
     }
 
-    /// <summary>
-    /// 设置玩家战斗状态标记
-    /// </summary>
-    private void SetPlayerCombatFlag(bool isInCombat)
-    {
-        var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
-        if (playerGo == null) return;
-
-        var flag = playerGo.GetComponent<PlayerCombatFlag>();
-        if (flag != null)
-        {
-            flag.IsInCombat = isInCombat;
-            DebugEx.LogModule("CombatState", $"玩家战斗标记: {isInCombat}");
-        }
-    }
 
     #endregion
 }

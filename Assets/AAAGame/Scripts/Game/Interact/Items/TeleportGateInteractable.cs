@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityGameFramework.Runtime;
+using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// 传送阵可交互对象
@@ -54,7 +55,11 @@ public class TeleportGateInteractable : InteractableBase
         }
 
         var baseScene = sceneTable.GetDataRow(1);
-        GF.Scene.LoadScene(baseScene.SceneName);
+        Log.Info($"TeleportGateInteractable: 触发传送门结算 -> {baseScene.SceneName}");
+
+        // 触发结算流程而非直接加载场景
+        // 结算系统会处理：数据收集 -> UI显示 -> 异步加载场景 -> 状态转换 -> 奖励应用
+        SettlementManager.Instance.TriggerSettlementAsync(baseScene.SceneName, SettlementTriggerSource.Teleport).Forget();
     }
 
     private void OpenMapUI()
