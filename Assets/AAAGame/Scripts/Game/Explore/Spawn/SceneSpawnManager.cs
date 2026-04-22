@@ -157,6 +157,8 @@ public class SceneSpawnManager : MonoBehaviour
             return;
         }
 
+        DebugEx.Log("SceneSpawn", $"[NavMesh采样] NavMesh Y位置={spawnPos.y:F3}, X={spawnPos.x:F3}, Z={spawnPos.z:F3}");
+
         // 获取预制体配置 ID 并异步加载
         int prefabId = 0;
 
@@ -187,6 +189,11 @@ public class SceneSpawnManager : MonoBehaviour
         }
 
         var spawnedObject = Instantiate(prefab, spawnPos, Quaternion.identity);
+
+        DebugEx.Log("SceneSpawn", $"[生成后初始位置] {spawnedObject.name} Y={spawnedObject.transform.position.y:F3}");
+
+        Vector3 bottomBeforeAdjust = EntityPositionHelper.GetBottomPosition(spawnedObject);
+        DebugEx.Log("SceneSpawn", $"[调整前底部位置] {spawnedObject.name} 底部Y={bottomBeforeAdjust.y:F3}, 中心Y={spawnedObject.transform.position.y:F3}");
 
         // 调整敌人/宝箱底部贴在 NavMesh 上（计算 Collider 高度偏移）
         AdjustPositionToNavMesh(spawnedObject, spawnPos);
@@ -258,24 +265,24 @@ public class SceneSpawnManager : MonoBehaviour
 
     /// <summary>
     /// 调整对象位置，使其底部贴在 NavMesh 上
-    /// 通过计算 Collider 的 bounds，调整 Y 坐标
+    /// 使用 EntityPositionHelper 工具类正确计算底部偏移
     /// </summary>
     private void AdjustPositionToNavMesh(GameObject obj, Vector3 navMeshSurfacePos)
     {
-        var collider = obj.GetComponent<Collider>();
-        if (collider == null)
-            return;
+        float heightOffset = EntityPositionHelper.CalculateBottomOffset(obj);
+        Vector3 bottomPos = EntityPositionHelper.GetBottomPosition(obj);
+        Vector3 adjustedPos = navMeshSurfacePos + Vector3.up * heightOffset;
 
-        // 获取 Collider 的 bounds，计算底部到中心的偏移
-        var bounds = collider.bounds;
-        float heightOffset = bounds.extents.y; // Collider 底部到中心的距离
+        DebugEx.Log("SceneSpawn", $"[调整位置计算] {obj.name}");
+        DebugEx.Log("SceneSpawn", $"  NavMesh表面Y={navMeshSurfacePos.y:F3}");
+        DebugEx.Log("SceneSpawn", $"  当前底部Y={bottomPos.y:F3}");
+        DebugEx.Log("SceneSpawn", $"  底部偏移={heightOffset:F3}");
+        DebugEx.Log("SceneSpawn", $"  目标Y位置={adjustedPos.y:F3}");
 
-        // 调整位置：NavMesh 表面点 + 高度偏移
-        Vector3 adjustedPos = new Vector3(navMeshSurfacePos.x, navMeshSurfacePos.y + heightOffset, navMeshSurfacePos.z);
         obj.transform.position = adjustedPos;
 
-        if (m_ShowSpawnLogs)
-            DebugEx.Log("SceneSpawn", $"位置已调整：底部贴 NavMesh，高度偏移={heightOffset:F2}m");
+        Vector3 bottomAfter = EntityPositionHelper.GetBottomPosition(obj);
+        DebugEx.Log("SceneSpawn", $"[调整完成] 调整后底部Y={bottomAfter.y:F3}");
     }
 
     private MapSpawnTable PickWeightedRandom(List<MapSpawnTable> configs)

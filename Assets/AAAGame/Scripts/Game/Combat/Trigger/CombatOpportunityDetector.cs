@@ -126,13 +126,13 @@ public class CombatOpportunityDetector : MonoBehaviour
         m_IsInitialized = true;
 
         // ===== 诊断日志 =====
-        DebugEx.LogModule("CombatOpportunityDetector",
-            $"<color=cyan>[诊断] 初始化完成 | " +
-            $"EnemyLayerMask={(int)m_EnemyLayerMask} (value={m_EnemyLayerMask.value}) | " +
-            $"SneakDist={m_SneakAttackDistance} | EncounterDist={m_EncounterDistance} | " +
-            $"BehindAngle={m_BehindAngleThreshold} | FacingAngle={m_PlayerFacingAngleThreshold} | " +
-            $"PlayerPos={m_PlayerTransform.position} | " +
-            $"GameObject={gameObject.name} Layer={LayerMask.LayerToName(gameObject.layer)}</color>");
+        // DebugEx.LogModule("CombatOpportunityDetector",
+        //     $"<color=cyan>[诊断] 初始化完成 | " +
+        //     $"EnemyLayerMask={(int)m_EnemyLayerMask} (value={m_EnemyLayerMask.value}) | " +
+        //     $"SneakDist={m_SneakAttackDistance} | EncounterDist={m_EncounterDistance} | " +
+        //     $"BehindAngle={m_BehindAngleThreshold} | FacingAngle={m_PlayerFacingAngleThreshold} | " +
+        //     $"PlayerPos={m_PlayerTransform.position} | " +
+        //     $"GameObject={gameObject.name} Layer={LayerMask.LayerToName(gameObject.layer)}</color>");
 
         if (m_EnemyLayerMask.value == 0)
         {
@@ -175,8 +175,8 @@ public class CombatOpportunityDetector : MonoBehaviour
         var inputManager = PlayerInputManager.Instance;
         if (inputManager != null && inputManager.SpaceKeyDown && m_CurrentTarget != null)
         {
-            DebugEx.LogModule("CombatOpportunityDetector",
-                "<color=green>[诊断] SpaceKeyDown=true 且有目标，触发战斗</color>");
+            //DebugEx.LogModule("CombatOpportunityDetector",
+            //    "<color=green>[诊断] SpaceKeyDown=true 且有目标，触发战斗</color>");
             TriggerCombat();
             return; // 触发后不再做检测
         }
@@ -209,7 +209,7 @@ public class CombatOpportunityDetector : MonoBehaviour
     {
         if (m_CurrentTarget == null)
         {
-            DebugEx.WarningModule("CombatOpportunityDetector", "当前没有目标");
+            //DebugEx.WarningModule("CombatOpportunityDetector", "当前没有目标");
             return;
         }
 
@@ -301,8 +301,8 @@ public class CombatOpportunityDetector : MonoBehaviour
     private void OnExplorationEnter(object sender, GameEventArgs e)
     {
         m_IsInExploration = true;
-        DebugEx.LogModule("CombatOpportunityDetector",
-            "<color=cyan>[诊断] 收到 ExplorationEnter 事件，m_IsInExploration=true</color>");
+        //DebugEx.LogModule("CombatOpportunityDetector",
+        //    "<color=cyan>[诊断] 收到 ExplorationEnter 事件，m_IsInExploration=true</color>");
     }
 
     /// <summary>
@@ -312,8 +312,8 @@ public class CombatOpportunityDetector : MonoBehaviour
     {
         m_IsInExploration = false;
         ClearOpportunity();
-        DebugEx.LogModule("CombatOpportunityDetector",
-            "<color=cyan>[诊断] 收到 ExplorationLeave 事件，m_IsInExploration=false</color>");
+        //DebugEx.LogModule("CombatOpportunityDetector",
+        //    "<color=cyan>[诊断] 收到 ExplorationLeave 事件，m_IsInExploration=false</color>");
     }
 
     /// <summary>
@@ -330,8 +330,8 @@ public class CombatOpportunityDetector : MonoBehaviour
             {
                 m_CurrentTarget = sneakTarget;
                 m_CurrentTriggerType = CombatTriggerType.SneakAttack;
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=lime>[诊断-检测] 检测到新的偷袭目标: {sneakTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
+                //DebugEx.LogModule("CombatOpportunityDetector",
+                //    $"<color=lime>[诊断-检测] 检测到新的偷袭目标: {sneakTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 ShowOpportunityUI(CombatTriggerType.SneakAttack);
                 ShowTargetOutline(sneakTarget);
             }
@@ -346,8 +346,8 @@ public class CombatOpportunityDetector : MonoBehaviour
             {
                 m_CurrentTarget = encounterTarget;
                 m_CurrentTriggerType = CombatTriggerType.Encounter;
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=lime>[诊断-检测] 检测到新的遭遇战目标: {encounterTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
+                //DebugEx.LogModule("CombatOpportunityDetector",
+                //    $"<color=lime>[诊断-检测] 检测到新的遭遇战目标: {encounterTarget.Config?.Name}, 调用 ShowOpportunityUI</color>");
                 ShowOpportunityUI(CombatTriggerType.Encounter);
                 ShowTargetOutline(encounterTarget);
             }
@@ -360,8 +360,8 @@ public class CombatOpportunityDetector : MonoBehaviour
             m_TargetGraceTimer += m_DetectionUpdateInterval;
             if (m_TargetGraceTimer >= TARGET_GRACE_PERIOD)
             {
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=yellow>[诊断-检测] 目标丢失(宽限期到期): {m_CurrentTarget.Config?.Name} 不再满足条件</color>");
+                //DebugEx.LogModule("CombatOpportunityDetector",
+                //    $"<color=yellow>[诊断-检测] 目标丢失(宽限期到期): {m_CurrentTarget.Config?.Name} 不再满足条件</color>");
                 ClearOpportunity();
                 m_TargetGraceTimer = 0f;
             }
@@ -439,8 +439,8 @@ public class CombatOpportunityDetector : MonoBehaviour
             target = SelectBestEnemy(validTargets, m_SneakAttackDistance);
             if (target != null)
             {
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=lime>[诊断-偷袭检测] 检测到偷袭目标: {target.Config?.Name}（评分最高）</color>");
+                // DebugEx.LogModule("CombatOpportunityDetector",
+                //     $"<color=lime>[诊断-偷袭检测] 检测到偷袭目标: {target.Config?.Name}（评分最高）</color>");
                 return true;
             }
         }
@@ -495,8 +495,8 @@ public class CombatOpportunityDetector : MonoBehaviour
             target = SelectBestEnemy(validTargets, m_EncounterDistance);
             if (target != null)
             {
-                DebugEx.LogModule("CombatOpportunityDetector",
-                    $"<color=lime>[诊断-遭遇检测] 检测到遭遇战目标: {target.Config?.Name}（评分最高）</color>");
+                // DebugEx.LogModule("CombatOpportunityDetector",
+                //     $"<color=lime>[诊断-遭遇检测] 检测到遭遇战目标: {target.Config?.Name}（评分最高）</color>");
                 return true;
             }
         }
@@ -511,16 +511,16 @@ public class CombatOpportunityDetector : MonoBehaviour
     {
         if (enemy == null || enemy.VisionDetector == null)
         {
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=gray>[诊断-IsSneakAttackTarget] enemy={enemy?.name ?? "null"}, VisionDetector={enemy?.VisionDetector != null} → false</color>");
+            //DebugEx.LogModule("CombatOpportunityDetector",
+            //    $"<color=gray>[诊断-IsSneakAttackTarget] enemy={enemy?.name ?? "null"}, VisionDetector={enemy?.VisionDetector != null} → false</color>");
             return false;
         }
 
         // 条件1：敌人未警觉（AlertLevel < 0.3）
         if (enemy.VisionDetector.AlertLevel >= 0.3f)
         {
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: AlertLevel={enemy.VisionDetector.AlertLevel} >= 0.3 → false</color>");
+            //DebugEx.LogModule("CombatOpportunityDetector",
+            //    $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: AlertLevel={enemy.VisionDetector.AlertLevel} >= 0.3 → false</color>");
             return false;
         }
 
@@ -530,8 +530,8 @@ public class CombatOpportunityDetector : MonoBehaviour
         float angleToPlayer = Vector3.Angle(-toPlayer.normalized, enemy.transform.forward);
         if (angleToPlayer > m_BehindAngleThreshold)
         {
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: 身后角度={angleToPlayer:F1}° > {m_BehindAngleThreshold}° → false</color>");
+            //DebugEx.LogModule("CombatOpportunityDetector",
+            //    $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: 身后角度={angleToPlayer:F1}° > {m_BehindAngleThreshold}° → false</color>");
             return false;
         }
 
@@ -540,13 +540,13 @@ public class CombatOpportunityDetector : MonoBehaviour
         float angleFromPlayer = Vector3.Angle(m_PlayerTransform.forward, -toPlayer.normalized);
         if (angleFromPlayer > m_PlayerFacingAngleThreshold)
         {
-            DebugEx.LogModule("CombatOpportunityDetector",
-                $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: 面向角度={angleFromPlayer:F1}° > {m_PlayerFacingAngleThreshold}° → false</color>");
+            //DebugEx.LogModule("CombatOpportunityDetector",
+            //    $"<color=gray>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: 面向角度={angleFromPlayer:F1}° > {m_PlayerFacingAngleThreshold}° → false</color>");
             return false;
         }
 
-        DebugEx.LogModule("CombatOpportunityDetector",
-            $"<color=green>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: ✓ 所有条件都满足 → true</color>");
+        //DebugEx.LogModule("CombatOpportunityDetector",
+        //    $"<color=green>[诊断-IsSneakAttackTarget] {enemy.Config?.Name}: ✓ 所有条件都满足 → true</color>");
         return true;
     }
 
@@ -671,15 +671,15 @@ public class CombatOpportunityDetector : MonoBehaviour
         bool behindOk = behindAngle <= m_BehindAngleThreshold;
         bool facingOk = facingAngle <= m_PlayerFacingAngleThreshold;
 
-        DebugEx.LogModule("CombatOpportunityDetector",
-            $"<color=magenta>[诊断-偷袭条件] {enemyName}: " +
-            $"距离={distance:F1}m | " +
-            $"VisionDetector={hasVision} | " +
-            $"AlertLevel={alertLevel:F2}(需<0.3 {(alertOk ? "✓" : "✗")}) | " +
-            $"身后角度={behindAngle:F1}°(需<{m_BehindAngleThreshold}° {(behindOk ? "✓" : "✗")}) | " +
-            $"面向角度={facingAngle:F1}°(需<{m_PlayerFacingAngleThreshold}° {(facingOk ? "✓" : "✗")}) | " +
-            $"敌人Layer={LayerMask.LayerToName(enemy.gameObject.layer)}({enemy.gameObject.layer})" +
-            $"</color>");
+        // DebugEx.LogModule("CombatOpportunityDetector",
+        //     $"<color=magenta>[诊断-偷袭条件] {enemyName}: " +
+        //     $"距离={distance:F1}m | " +
+        //     $"VisionDetector={hasVision} | " +
+        //     $"AlertLevel={alertLevel:F2}(需<0.3 {(alertOk ? "✓" : "✗")}) | " +
+        //     $"身后角度={behindAngle:F1}°(需<{m_BehindAngleThreshold}° {(behindOk ? "✓" : "✗")}) | " +
+        //     $"面向角度={facingAngle:F1}°(需<{m_PlayerFacingAngleThreshold}° {(facingOk ? "✓" : "✗")}) | " +
+        //     $"敌人Layer={LayerMask.LayerToName(enemy.gameObject.layer)}({enemy.gameObject.layer})" +
+        //     $"</color>");
     }
 
     /// <summary>
