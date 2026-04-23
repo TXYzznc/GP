@@ -95,6 +95,30 @@
 	1922		1	Items/22.png	古墓盗贼手套图标
 	1923		1	Items/23.png	冰晶靴图标
 	1924		1	Items/24.png	风暴法杖图标
+	1925		1	Items/CardUnlock/100.png	卡牌-神圣庇护解锁物图标
+	1926		1	Items/CardUnlock/101.png	卡牌-烈焰风暴解锁物图标
+	1927		1	Items/CardUnlock/102.png	卡牌-时间回溯解锁物图标
+	1928		1	Items/CardUnlock/103.png	卡牌-战争号角解锁物图标
+	1929		1	Items/CardUnlock/104.png	卡牌-暗影突袭解锁物图标
+	1930		1	Items/CardUnlock/105.png	卡牌-生命汲取解锁物图标
+	1931		1	Items/CardUnlock/106.png	卡牌-冰霜新星解锁物图标
+	1932		1	Items/CardUnlock/107.png	卡牌-狂暴解锁物图标
+	1933		1	Items/CardUnlock/108.png	卡牌-群体治疗解锁物图标
+	1934		1	Items/CardUnlock/109.png	卡牌-雷霆一击解锁物图标
+	1935		1	Items/CardUnlock/110.png	卡牌-混乱诅咒解锁物图标
+	1936		1	Items/CardUnlock/111.png	卡牌-不屈意志解锁物图标
+	1937		1	Items/CardUnlock/112.png	卡牌-反伤之盾解锁物图标
+	1938		1	Items/CardUnlock/113.png	卡牌-圣域防线解锁物图标
+	1939		1	Items/CardUnlock/114.png	卡牌-护盾再生解锁物图标
+	1940		1	Items/CardUnlock/115.png	卡牌-救赎之光解锁物图标
+	1941		1	Items/CardUnlock/116.png	卡牌-血源强化解锁物图标
+	1942		1	Items/CardUnlock/117.png	卡牌-吸血之刃解锁物图标
+	1943		1	Items/CardUnlock/118.png	卡牌-灾厄之雷解锁物图标
+	1944		1	Items/CardUnlock/119.png	卡牌-护甲破碎解锁物图标
+	1945		1	Items/CardUnlock/120.png	卡牌-虚弱诅咒解锁物图标
+	1946		1	Items/CardUnlock/121.png	卡牌-沉默之符解锁物图标
+	1947		1	Items/CardUnlock/122.png	卡牌-嘲讽之声解锁物图标
+	1948		1	Items/CardUnlock/123.png	卡牌-剧毒之雾解锁物图标
 	2001		2	UI/CloudInfo/PlayerInfo	角色信息预制体
 	2002		2	UI/CloudInfo/ItemsInfo	仓库信息预制体
 	2003		2	UI/CloudInfo/TimeInfo	存档时间预制体
@@ -130,7 +154,7 @@
 	10202		1	Buff/4002.png	狂怒之心Buff图标
 	10203		1	Buff/4003.png	暗影咒体Buff图标
 	15001		1	Buff/5001.png	神圣庇护Buff图标
-	15002		1	Buff/5002.png	烈焰风暴·灼烧Buff图标
+	15002	(不再使用)	1	Buff/5002.png	烈焰风暴·灼烧Buff图标
 	15003		1	Buff/5003.png	战争号角Buff图标
 	15005		1	Buff/5005.png	暗影突袭·眩晕Buff图标
 	15007		1	Buff/5007.png	冰霜新星Buff图标
@@ -146,8 +170,8 @@
 	15019		1	Buff/5019.png	沉默之符Buff图标
 	15020		1	Buff/5020.png	嘲讽之声Buff图标
 	15021		1	Buff/5021.png	剧毒之雾Buff图标
-	15022		1	Buff/5022.png	伤害转移Buff图标
-	15023		1	Buff/5023.png	绝对零度Buff图标
+	15022	暂未实现	1	Buff/5022.png	伤害转移Buff图标
+	15023	暂未实现	1	Buff/5023.png	绝对零度Buff图标
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4
