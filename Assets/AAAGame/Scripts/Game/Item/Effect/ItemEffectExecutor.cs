@@ -3,28 +3,11 @@ using UnityEngine;
 /// <summary>
 /// 物品效果执行器
 /// </summary>
-public class ItemEffectExecutor : MonoBehaviour
+public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
 {
     #region 单例
 
-    private static ItemEffectExecutor s_Instance;
-    public static ItemEffectExecutor Instance => s_Instance;
-
-    #endregion
-
-    #region Unity 生命周期
-
-    private void Awake()
-    {
-        if (s_Instance != null && s_Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        s_Instance = this;
-        DebugEx.Log("ItemEffectExecutor", "物品效果执行器初始化完成");
-    }
+    // Instance 由 SingletonBase 提供，访问时自动创建 GameObject
 
     #endregion
 

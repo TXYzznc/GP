@@ -407,7 +407,7 @@ GameObject:
   - component: {fileID: 8190580824171504583}
   - component: {fileID: 5752987702011998111}
   m_Layer: 5
-  m_Name: ExperienceBg
+  m_Name: CurrencyBg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -502,7 +502,7 @@ GameObject:
   - component: {fileID: 3462519713993877918}
   - component: {fileID: 6429990213281905771}
   m_Layer: 5
-  m_Name: ExpTitle
+  m_Name: CurrencyTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -555,7 +555,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u672C\u5C40\u83B7\u5F97\u91D1\u5E01\uFF1A"
+  m_text: "\u672C\u5C40\u83B7\u5F97\u8D44\u6E90\uFF1A"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 409c6e61f97c1e44289e9b594dd10fa2, type: 2}
   m_sharedMaterial: {fileID: -5875709577698468729, guid: 409c6e61f97c1e44289e9b594dd10fa2, type: 2}

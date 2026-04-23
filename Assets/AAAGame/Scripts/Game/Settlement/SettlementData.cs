@@ -56,6 +56,12 @@ public class SettlementData
         return Currency;
     }
 
+    /// <summary>获取本局总资源收益（背包价值差 + 虚拟物品转换）</summary>
+    public int GetTotalResourceGain()
+    {
+        return ResourceGain + VirtualGold + VirtualOriginStone;
+    }
+
     /// <summary>获取掉落物品列表</summary>
     public List<int> GetItemList()
     {

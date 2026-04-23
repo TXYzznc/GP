@@ -95,10 +95,10 @@ public partial class SettlementUIForm : StateAwareUIForm
             varExperienceText.text = $"经验: +{settlementData.GetTotalExperience()}";
         }
 
-        // 设置金币和起源石文本
+        // 设置资源收益文本（显示本局总资源）
         if (varCurrencyText != null)
         {
-            varCurrencyText.text = $"金币: +{settlementData.GetTotalCurrency()}\n起源石: +0";
+            varCurrencyText.text = $"资源收益: +{settlementData.GetTotalResourceGain()}";
         }
 
         DebugEx.LogModule("SettlementUIForm", "结算数据填充完成");

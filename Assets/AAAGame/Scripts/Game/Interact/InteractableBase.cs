@@ -13,7 +13,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
 
     [Header("检测范围")]
     [Tooltip("触发器半径，用于 InteractionDetector 检测进入/离开")]
-    [SerializeField] protected float interactionRadius = 2f;
+    [SerializeField] protected float interactionRadius = 1f;
 
     /// <summary>标记是否已开始交互（用于控制提示显示）</summary>
     protected bool m_HasStartedInteraction = false;
