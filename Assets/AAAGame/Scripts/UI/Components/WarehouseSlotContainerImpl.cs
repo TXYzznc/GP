@@ -77,8 +77,11 @@ public class WarehouseSlotContainerImpl : SlotContainerBase
     private bool MoveToInventory(InventorySlotContainerImpl _, int fromSlotIndex, int itemId, int count, int targetSlotIndex)
     {
         var inv = InventoryManager.Instance;
-        var targetSlot = inv?.GetSlot(targetSlotIndex);
+        if (inv == null)
+            return false;
 
+        // 用副本检查目标格子状态
+        var targetSlot = inv.GetSlot(targetSlotIndex);
         if (targetSlot == null)
             return false;
 
@@ -88,13 +91,11 @@ public class WarehouseSlotContainerImpl : SlotContainerBase
             if (item == null)
                 return false;
 
-            targetSlot.SetItem(item, count);
-            return true;
+            return inv.SetItemToSlot(targetSlotIndex, item, count);
         }
         else if (targetSlot.ItemId == itemId && targetSlot.ItemStack?.Item?.MaxStackCount > 1)
         {
-            targetSlot.AddItem(count);
-            return true;
+            return inv.AddItemToSlot(targetSlotIndex, count);
         }
 
         return false;

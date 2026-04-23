@@ -73,24 +73,17 @@ public partial class InventoryUI : UIFormBase
 
         m_InventoryManager = InventoryManager.Instance;
         if (m_InventoryManager != null)
-            m_InventoryManager.OnInventoryChanged += OnInventoryChanged;
+            m_InventoryManager.OnSlotChanged += OnInventorySlotChanged;
 
         m_FastBarManager = FastBarManager.Instance;
         if (!m_FastBarManager.IsInitialized)
             m_FastBarManager.Initialize();
         if (m_FastBarManager != null)
-        {
-            m_FastBarManager.OnItemStored += OnFastBarChanged;
-            m_FastBarManager.OnItemRetrieved += OnFastBarChanged;
-            m_FastBarManager.OnSlotCleared += OnFastBarSlotCleared;
-        }
+            m_FastBarManager.OnSlotChanged += OnFastBarSlotChanged;
 
         var warehouseManager = WarehouseManager.Instance;
         if (warehouseManager != null)
-        {
-            warehouseManager.OnItemStored += OnWarehouseChanged;
-            warehouseManager.OnItemRetrieved += OnWarehouseChanged;
-        }
+            warehouseManager.OnSlotChanged += OnWarehouseSlotChanged;
 
         m_CurrentPage = 0;
         BuildPageLabels();
@@ -108,39 +101,15 @@ public partial class InventoryUI : UIFormBase
     {
         base.OnClose(isShutdown, userData);
 
-        // 清理所有格子的物品数量变化事件订阅
-        foreach (var slot in m_InventorySlots)
-        {
-            if (slot != null)
-                slot.ClearItemQuantitySubscription();
-        }
-        foreach (var slot in m_FastSlots)
-        {
-            if (slot != null)
-                slot.ClearItemQuantitySubscription();
-        }
-        foreach (var slot in m_EquipSlots)
-        {
-            if (slot != null)
-                slot.ClearItemQuantitySubscription();
-        }
-
         if (m_InventoryManager != null)
-            m_InventoryManager.OnInventoryChanged -= OnInventoryChanged;
+            m_InventoryManager.OnSlotChanged -= OnInventorySlotChanged;
 
         if (m_FastBarManager != null)
-        {
-            m_FastBarManager.OnItemStored -= OnFastBarChanged;
-            m_FastBarManager.OnItemRetrieved -= OnFastBarChanged;
-            m_FastBarManager.OnSlotCleared -= OnFastBarSlotCleared;
-        }
+            m_FastBarManager.OnSlotChanged -= OnFastBarSlotChanged;
 
         var warehouseManager = WarehouseManager.Instance;
         if (warehouseManager != null)
-        {
-            warehouseManager.OnItemStored -= OnWarehouseChanged;
-            warehouseManager.OnItemRetrieved -= OnWarehouseChanged;
-        }
+            warehouseManager.OnSlotChanged -= OnWarehouseSlotChanged;
 
         LockPlayerMovement(false);
 
@@ -150,11 +119,27 @@ public partial class InventoryUI : UIFormBase
             input.RequestMouseLock();
     }
 
-    private void OnFastBarChanged(int _, InventorySlot __) => RefreshAll();
+    private void OnInventorySlotChanged(SlotChangeEventArgs args)
+    {
+        // 页数变化时重建页签
+        if (PageCount != m_PageLabels.Count)
+            BuildPageLabels();
 
-    private void OnFastBarSlotCleared(int _) => RefreshAll();
+        RefreshInventorySlotAt(args.SlotIndex);
+        RefreshWeightState();
+        RefreshEquipSlots();
+    }
 
-    private void OnWarehouseChanged(InventoryItem _) => RefreshAll();
+    private void OnFastBarSlotChanged(SlotChangeEventArgs args)
+    {
+        RefreshHotbarSlot(args.SlotIndex);
+    }
+
+    private void OnWarehouseSlotChanged(SlotChangeEventArgs args)
+    {
+        // 仓库变化不影响背包显示，不做全量刷新
+        DebugEx.Log("InventoryUI", $"仓库格子变化: slot={args.SlotIndex}");
+    }
 
     protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
     {
@@ -186,6 +171,7 @@ public partial class InventoryUI : UIFormBase
 
     /// <summary>
     /// 检查菜单外部点击，自动关闭菜单
+    /// 使用 EventSystem.IsPointerOverGameObject 判断是否点击在 UI 上
     /// </summary>
     private void CheckContextMenuClickOutside()
     {
@@ -196,17 +182,34 @@ public partial class InventoryUI : UIFormBase
         // 检查是否有鼠标点击
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
-            // 检查点击是否在菜单范围内
-            var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
-            if (
-                menuRect != null
-                && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition)
-            )
-            {
-                // 在菜单外，关闭菜单
-                m_CachedContextMenu.HideContextMenu();
-                DebugEx.Log("InventoryUI", "菜单外部点击，关闭菜单");
-            }
+            // 延迟一帧检查：先让 EventSystem 处理按钮点击，再判断是否关闭菜单
+            // 这样可以避免菜单按钮点击被误判为"菜单外部点击"
+            CheckMenuClickDelayedAsync().Forget();
+        }
+    }
+
+    private async UniTask CheckMenuClickDelayedAsync()
+    {
+        // 等待一帧，让 EventSystem 处理完按钮点击事件，再判断是否关闭菜单
+        await UniTask.Yield();
+
+        if (m_CachedContextMenu == null || !m_CachedContextMenu.gameObject.activeSelf)
+            return;
+
+        var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
+        if (menuRect == null)
+            return;
+
+        // Screen Space-Camera 模式必须传 worldCamera，否则坐标换算错误
+        var parentCanvas = GetComponentInParent<Canvas>();
+        Camera cam = parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? parentCanvas.worldCamera
+            : null;
+
+        if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition, cam))
+        {
+            m_CachedContextMenu.HideContextMenu();
+            DebugEx.Log("InventoryUI", "菜单外部点击，关闭菜单");
         }
     }
 
@@ -359,6 +362,40 @@ public partial class InventoryUI : UIFormBase
     #endregion
 
     #region 刷新
+
+    /// <summary>
+    /// 增量刷新单个背包格子
+    /// </summary>
+    private void RefreshInventorySlotAt(int slotIndex)
+    {
+        // 检查该格子是否在当前页内
+        int pageStart = m_CurrentPage * SLOTS_PER_PAGE;
+        int pageEnd = pageStart + SLOTS_PER_PAGE;
+        if (slotIndex < pageStart || slotIndex >= pageEnd)
+            return;
+
+        if (slotIndex >= m_InventorySlots.Count)
+            return;
+
+        var slotUI = m_InventorySlots[slotIndex];
+        if (slotUI == null || !slotUI.gameObject.activeSelf)
+            return;
+
+        var inventorySlot = m_InventoryManager.GetSlot(slotIndex);
+        ItemStack itemStack = null;
+
+        if (inventorySlot != null && !inventorySlot.IsEmpty)
+        {
+            var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+            var itemRow = itemTable?.GetDataRow(inventorySlot.ItemId);
+            if (itemRow == null || itemRow.Type != 0)
+            {
+                itemStack = inventorySlot.ItemStack;
+            }
+        }
+
+        slotUI.SetData(itemStack);
+    }
 
     public void RefreshAll()
     {
@@ -907,14 +944,6 @@ public partial class InventoryUI : UIFormBase
             if (btn.TryGetComponent<Image>(out var img))
                 img.color = selected ? s_TabSelectedColor : s_TabNormalColor;
         }
-    }
-
-    /// <summary>背包数据变化回调：仅在页数改变时重建页签</summary>
-    private void OnInventoryChanged()
-    {
-        if (PageCount != m_PageLabels.Count)
-            BuildPageLabels();
-        RefreshAll();
     }
 
     #endregion

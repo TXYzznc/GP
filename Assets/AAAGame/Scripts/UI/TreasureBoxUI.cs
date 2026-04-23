@@ -40,10 +40,7 @@ public partial class TreasureBoxUI : UIFormBase
     {
         base.OnInit(userData);
 
-        m_Container = GetComponent<TreasureBoxSlotContainerImpl>();
-        if (m_Container == null)
-            m_Container = gameObject.AddComponent<TreasureBoxSlotContainerImpl>();
-
+        // 容器由 OnOpen 时的参数传递，不使用默认容器
         BindButtonEvents();
         DebugEx.Success("TreasureBoxUI", "宝箱UI初始化完成");
     }
@@ -63,6 +60,10 @@ public partial class TreasureBoxUI : UIFormBase
         var treasureBoxName = Params?.Get("TreasureBoxName") as string ?? "宝箱";
         if (varTitleText != null)
             varTitleText.text = treasureBoxName;
+
+        // 取消前一个容器的订阅（防止事件混淆）
+        if (m_Container != null)
+            m_Container.OnSlotChanged -= OnTreasureBoxChangedArgs;
 
         // 异步等待容器准备好，然后初始化
         WaitForContainerAndInitializeAsync().Forget();
@@ -113,10 +114,14 @@ public partial class TreasureBoxUI : UIFormBase
 
         // 取消订阅事件
         if (m_Container != null)
-            m_Container.OnSlotChanged -= OnTreasureBoxChanged;
+            m_Container.OnSlotChanged -= OnTreasureBoxChangedArgs;
 
         // 清空格子显示（不销毁 GameObject，下次 OnOpen 复用）
         ResetSlots();
+
+        // 清空容器引用，防止下次打开不同宝箱时混淆
+        m_Container = null;
+
         SetPlayerInputEnabled(true);
 
         // 请求锁定鼠标（通过引用计数管理）
@@ -139,13 +144,22 @@ public partial class TreasureBoxUI : UIFormBase
             return;
 
         // 订阅容器变化事件（仓库模式）
-        m_Container.OnSlotChanged += OnTreasureBoxChanged;
+        m_Container.OnSlotChanged += OnTreasureBoxChangedArgs;
 
         // 首次打开时计算格子数（必须是6的倍数），后续保持不变
         if (m_InitialSlotCount < 0)
         {
             m_InitialSlotCount = CalculateSlotCount();
             DebugEx.Log("TreasureBoxUI", $"[InitializeTreasureBoxUI] 首次打开，确定格子数={m_InitialSlotCount}");
+        }
+        else
+        {
+            // 非首次打开，在复用格子前清理旧的事件订阅，防止事件累积
+            foreach (var slot in m_Slots)
+            {
+                if (slot != null)
+                    slot.ClearItemQuantitySubscription();
+            }
         }
 
         BuildSlots(m_InitialSlotCount);
@@ -232,8 +246,6 @@ public partial class TreasureBoxUI : UIFormBase
         // 继续等待动效完全播放完成（按钮已可用，但格子还在动画中）
         float totalAnimationTime = (m_Slots.Count - 1) * SLOT_ANIMATION_DELAY + SLOT_ANIMATION_DURATION;
         await UniTask.Delay((int)(totalAnimationTime * 1000), cancellationToken: this.GetCancellationTokenOnDestroy());
-
-        DebugEx.Log("TreasureBoxUI", "开箱动效播放完成");
     }
 
     /// <summary>
@@ -306,18 +318,20 @@ public partial class TreasureBoxUI : UIFormBase
             m_Slots.Add(slotUI);
         }
 
-        // 激活需要显示的格子（包括已存在但被禁用的格子）
+        // 激活需要显示的格子（包括已存在但被禁用的格子），并重新设置容器
         for (int i = 0; i < count; i++)
         {
-            if (i < m_Slots.Count && !m_Slots[i].gameObject.activeSelf)
-                m_Slots[i].gameObject.SetActive(true);
+            if (i < m_Slots.Count)
+            {
+                m_Slots[i].SetSlotContainer(m_Container);  // ⭐ 重新绑定容器
+                if (!m_Slots[i].gameObject.activeSelf)
+                    m_Slots[i].gameObject.SetActive(true);
+            }
         }
 
         // 隐藏超出数量的格子
         for (int i = count; i < m_Slots.Count; i++)
             m_Slots[i].gameObject.SetActive(false);
-
-        DebugEx.Log("TreasureBoxUI", $"格子构建完成: 共 {m_Slots.Count} 个，显示 {count} 个");
     }
 
     #endregion
@@ -343,14 +357,37 @@ public partial class TreasureBoxUI : UIFormBase
     #region 事件回调
 
     /// <summary>
-    /// 宝箱内容变化回调（仓库模式）
-    /// 格子数始终保持初始值不变，只刷新显示内容
+    /// 宝箱内容变化回调（增量刷新）
     /// </summary>
-    private void OnTreasureBoxChanged()
+    private void OnTreasureBoxChangedArgs(SlotChangeEventArgs args)
     {
-        // 格子数保持不变，只刷新内容显示
-        RefreshSlots();
-        DebugEx.Log("TreasureBoxUI", $"[OnTreasureBoxChanged] 刷新格子显示");
+        if (args.SlotIndex < 0)
+        {
+            // 全量刷新（初始化或全部拿走）
+            RefreshSlots();
+        }
+        else
+        {
+            // 增量刷新：只刷新变化的格子
+            RefreshSlot(args.SlotIndex);
+        }
+    }
+
+    /// <summary>
+    /// 刷新单个格子
+    /// </summary>
+    private void RefreshSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= m_Slots.Count)
+            return;
+
+        var slotUI = m_Slots[slotIndex];
+        if (slotUI == null || !slotUI.gameObject.activeSelf)
+            return;
+
+        var slot = m_Container.GetSlot(slotIndex);
+        var itemStack = (slot != null && !slot.IsEmpty) ? slot.ItemStack : null;
+        slotUI.SetData(itemStack);
     }
 
     /// <summary>
@@ -472,11 +509,29 @@ public partial class TreasureBoxUI : UIFormBase
 
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
-            var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
-            if (menuRect != null && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
-            {
-                m_CachedContextMenu.HideContextMenu();
-            }
+            CheckContextMenuClickOutsideDelayedAsync().Forget();
+        }
+    }
+
+    private async UniTask CheckContextMenuClickOutsideDelayedAsync()
+    {
+        await UniTask.Yield();
+
+        if (m_CachedContextMenu == null || !m_CachedContextMenu.gameObject.activeSelf)
+            return;
+
+        var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
+        if (menuRect == null)
+            return;
+
+        var parentCanvas = GetComponentInParent<Canvas>();
+        Camera cam = parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? parentCanvas.worldCamera
+            : null;
+
+        if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition, cam))
+        {
+            m_CachedContextMenu.HideContextMenu();
         }
     }
 
@@ -509,6 +564,8 @@ public partial class TreasureBoxUI : UIFormBase
         {
             if (slot != null)
             {
+                slot.ClearItemQuantitySubscription();
+                slot.SetSlotContainer(null);  // 清空容器引用
                 slot.SetData(null);
                 slot.gameObject.SetActive(false);
             }

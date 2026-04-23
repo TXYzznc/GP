@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,8 +32,7 @@ public partial class WarehouseUI : UIFormBase
         m_WarehouseManager = WarehouseManager.Instance;
         if (m_WarehouseManager != null)
         {
-            m_WarehouseManager.OnItemStored += OnWarehouseChanged;
-            m_WarehouseManager.OnItemRetrieved += OnWarehouseChanged;
+            m_WarehouseManager.OnSlotChanged += OnWarehouseSlotChanged;
             m_WarehouseManager.OnCapacityChanged += OnCapacityChanged;
         }
 
@@ -49,8 +49,7 @@ public partial class WarehouseUI : UIFormBase
     {
         if (m_WarehouseManager != null)
         {
-            m_WarehouseManager.OnItemStored -= OnWarehouseChanged;
-            m_WarehouseManager.OnItemRetrieved -= OnWarehouseChanged;
+            m_WarehouseManager.OnSlotChanged -= OnWarehouseSlotChanged;
             m_WarehouseManager.OnCapacityChanged -= OnCapacityChanged;
         }
 
@@ -75,21 +74,35 @@ public partial class WarehouseUI : UIFormBase
     /// </summary>
     private void CheckContextMenuClickOutside()
     {
-        // 如果菜单未显示，不需要检查
         if (m_CachedContextMenu == null || !m_CachedContextMenu.gameObject.activeSelf)
             return;
 
-        // 检查是否有鼠标点击
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
-            // 检查点击是否在菜单范围内
-            var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
-            if (menuRect != null && !RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
-            {
-                // 在菜单外，关闭菜单
-                m_CachedContextMenu.HideContextMenu();
-                DebugEx.Log("WarehouseUI", "菜单外部点击，关闭菜单");
-            }
+            CheckContextMenuClickOutsideDelayedAsync().Forget();
+        }
+    }
+
+    private async UniTask CheckContextMenuClickOutsideDelayedAsync()
+    {
+        await UniTask.Yield();
+
+        if (m_CachedContextMenu == null || !m_CachedContextMenu.gameObject.activeSelf)
+            return;
+
+        var menuRect = m_CachedContextMenu.GetComponent<RectTransform>();
+        if (menuRect == null)
+            return;
+
+        var parentCanvas = GetComponentInParent<Canvas>();
+        Camera cam = parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? parentCanvas.worldCamera
+            : null;
+
+        if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition, cam))
+        {
+            m_CachedContextMenu.HideContextMenu();
+            DebugEx.Log("WarehouseUI", "菜单外部点击，关闭菜单");
         }
     }
 
@@ -195,7 +208,7 @@ public partial class WarehouseUI : UIFormBase
 
     #region 事件回调
 
-    private void OnWarehouseChanged(InventoryItem _) => RefreshWarehouse();
+    private void OnWarehouseSlotChanged(SlotChangeEventArgs args) => RefreshWarehouse();
 
     private void OnCapacityChanged(int newCapacity)
     {

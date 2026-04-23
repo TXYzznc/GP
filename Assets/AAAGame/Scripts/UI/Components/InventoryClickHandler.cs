@@ -22,6 +22,11 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
         EnsureRaycastable();
     }
 
+    private void OnDisable()
+    {
+        m_SourceSlot = null;
+    }
+
     /// <summary>
     /// 确保当前物体能接收点击事件
     /// </summary>
