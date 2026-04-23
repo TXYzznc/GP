@@ -1,0 +1,8 @@
+#	EnemyEntityTable
+#	EnemyID		Name	IconId	Description	EnemyType	PurificationCardId	CanBroadcast	BroadcastDistance	RewardTier	PrefabId	BattleConfigId	PatrolRadius	PatrolSpeed	RestProbability	RestDuration	AlertDistance	VisionCircleRadius	VisionConeAngle	VisionConeDistance	AlertIncreaseRate	AlertDecreaseRate	AlertThreshold	AlertTime	DetectDistance	DetectTime	ChaseSpeed	ChaseDistance	CombatDistance	Difficulty
+#	int		string	int	string	int	int	bool	float	int	int	int	float	float	float	float	float	float	float	float	float	float	float	float	float	float	float	float	float	int
+#	敌人ID	备注	敌人名称	图标ID	描述	敌人类型	净化后获得的卡牌ID	是否会广播	广播距离	掉落奖励等级	预制体路径	关联的战斗配置ID（EnemyTable）	巡逻半径（米）	巡逻速度	休息概率（0-1）	休息时长（秒）	警戒距离（米）	周围圈检测半径	扇形视野角度	扇形检测距离	警觉度增长速率（/秒）	警觉度衰减速率（/秒）	触发警戒的阈值	警戒时长（秒，发现玩家前）	发现距离（米，近距离快速发现）	近距离发现时长（秒）	追击速度	追击距离（超过此距离放弃追击）	进入战斗距离（米）	难度系数（1-5）
+	1		后羿敌人测试	11001	测试	1	1	True	15	1	2601	1	10	2	0.3	10	15	1.5	60	8	0.3	0.5	1	1	8	0.2	4	20	3	1
+	2		普通敌人-容易	11001	容易难度	0	0	False	0	1	2601	1	8	1.8	0.4	8	20	1.5	60	8	0.3	0.5	1	1.5	10	0.3	3.5	25	4	1
+	3		普通敌人-普通	11001	普通难度	0	0	False	0	1	2601	1	10	2	0.3	10	15	1.5	60	8	0.3	0.5	1	1	8	0.2	4	20	3	2
+	4		精英敌人-困难	11001	困难难度	1	0	True	18	2	2601	1	12	2.5	0.2	12	12	1.5	60	8	0.3	0.5	1	0.5	5	0.1	5	18	2	3
