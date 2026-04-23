@@ -19,12 +19,12 @@ public class ReviveChessEffect : ItemEffectBase
         if (success)
         {
             LogSuccess("ReviveChessEffect", $"棋子 {chessId} 复活成功，HP={reviveHP}");
-            GF.UI.ShowToast($"棋子复活成功", ToastStyle.Green);
+            GF.UI.ShowToast($"棋子复活成功", UIExtension.ToastStyle.Green);
         }
         else
         {
             LogWarning("ReviveChessEffect", $"棋子 {chessId} 复活失败（未死亡或未注册）");
-            GF.UI.ShowToast("复活失败", ToastStyle.Yellow);
+            GF.UI.ShowToast("复活失败", UIExtension.ToastStyle.Yellow);
         }
 
         return success;

@@ -9,7 +9,7 @@ public class RandomEquipmentEffect : ItemEffectBase
         int qualityMax = context.GetParam<int>("qualityMax", 3);
 
         LogSuccess("RandomEquipmentEffect", $"随机装备品质范围: {qualityMin}-{qualityMax}");
-        GF.UI.ShowToast("获得随机装备", ToastStyle.Green);
+        GF.UI.ShowToast("获得随机装备", UIExtension.ToastStyle.Green);
 
         // TODO: 实现随机装备生成逻辑
         // 1. 从装备表中筛选符合品质范围的装备

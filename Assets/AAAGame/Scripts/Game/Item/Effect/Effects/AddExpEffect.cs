@@ -18,7 +18,7 @@ public class AddExpEffect : ItemEffectBase
         PlayerAccountDataManager.Instance.SaveCurrentSave();
 
         LogSuccess("AddExpEffect", $"经验值添加成功: +{value}");
-        GF.UI.ShowToast($"获得经验值：+{value}", ToastStyle.Green);
+        GF.UI.ShowToast($"获得经验值：+{value}", UIExtension.ToastStyle.Green);
 
         return true;
     }

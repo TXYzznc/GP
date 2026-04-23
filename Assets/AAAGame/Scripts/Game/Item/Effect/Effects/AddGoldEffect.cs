@@ -22,7 +22,7 @@ public class AddGoldEffect : ItemEffectBase
         PlayerAccountDataManager.Instance.SaveCurrentSave();
 
         LogSuccess("AddGoldEffect", $"金币添加成功: +{gold}");
-        GF.UI.ShowToast($"获得金币：+{gold}", ToastStyle.Green);
+        GF.UI.ShowToast($"获得金币：+{gold}", UIExtension.ToastStyle.Green);
 
         return true;
     }

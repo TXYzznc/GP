@@ -19,12 +19,12 @@ public class RecoverChessHPEffect : ItemEffectBase
         if (success)
         {
             LogSuccess("RecoverChessHPEffect", $"棋子 {chessId} 血量恢复 +{value}");
-            GF.UI.ShowToast($"棋子血量恢复：+{value}", ToastStyle.Green);
+            GF.UI.ShowToast($"棋子血量恢复：+{value}", UIExtension.ToastStyle.Green);
         }
         else
         {
             LogWarning("RecoverChessHPEffect", $"棋子 {chessId} 血量恢复失败（已死亡或血量已满）");
-            GF.UI.ShowToast("血量恢复失败", ToastStyle.Yellow);
+            GF.UI.ShowToast("血量恢复失败", UIExtension.ToastStyle.Yellow);
         }
 
         return success;

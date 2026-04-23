@@ -8,7 +8,7 @@ public class RestoreHPEffect : ItemEffectBase
         int value = context.GetParam<int>("value", 0);
 
         LogSuccess("RestoreHPEffect", $"生命值恢复成功: +{value}");
-        GF.UI.ShowToast($"生命值恢复：+{value}", ToastStyle.Green);
+        GF.UI.ShowToast($"生命值恢复：+{value}", UIExtension.ToastStyle.Green);
 
         return true;
     }

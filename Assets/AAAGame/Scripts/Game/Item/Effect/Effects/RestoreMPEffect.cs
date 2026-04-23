@@ -8,7 +8,7 @@ public class RestoreMPEffect : ItemEffectBase
         int value = context.GetParam<int>("value", 0);
 
         LogSuccess("RestoreMPEffect", $"魔法值恢复成功: +{value}");
-        GF.UI.ShowToast($"魔法值恢复：+{value}", ToastStyle.Green);
+        GF.UI.ShowToast($"魔法值恢复：+{value}", UIExtension.ToastStyle.Green);
 
         return true;
     }
