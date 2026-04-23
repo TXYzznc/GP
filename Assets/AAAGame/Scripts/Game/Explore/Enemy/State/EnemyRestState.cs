@@ -35,12 +35,16 @@ public class EnemyRestState : IEnemyState
         // 停止移动
         m_AI.Entity.NavAgent.isStopped = true;
 
+        // 播放休息动画
+        var animator = m_AI.Entity.GetComponent<EnemyAnimator>();
+        animator?.PlayAnimation(EnemyAnimationType.Rest);
+
         // 随机休息时长（配置值的 1.5-2.5 倍，深度休息更久）
         EnemyEntityTable config = m_AI.Entity.Config;
         m_RestDuration = Random.Range(config.RestDuration * 1.5f, config.RestDuration * 2.5f);
         m_RestTimer = 0f;
 
-        DebugEx.LogModule("EnemyRestState", 
+        DebugEx.LogModule("EnemyRestState",
             $"{m_AI.Entity.Config.Name} 进入深度休息，时长={m_RestDuration:F1}秒");
 
         // TODO: 显示睡眠条UI

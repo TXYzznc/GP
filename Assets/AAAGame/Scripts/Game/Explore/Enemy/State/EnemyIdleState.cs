@@ -37,12 +37,16 @@ public class EnemyIdleState : IEnemyState
         if (agent != null && agent.isOnNavMesh)
             agent.isStopped = true;
 
+        // 播放待机动画
+        var animator = m_AI.Entity.GetComponent<EnemyAnimator>();
+        animator?.PlayAnimation(EnemyAnimationType.Idle);
+
         // 随机休息时长
         EnemyEntityTable config = m_AI.Entity.Config;
         m_IdleDuration = Random.Range(config.RestDuration * 0.5f, config.RestDuration * 1.5f);
         m_IdleTimer = 0f;
 
-        DebugEx.LogModule("EnemyIdleState", 
+        DebugEx.LogModule("EnemyIdleState",
             $"{m_AI.Entity.Config.Name} 开始休息，时长={m_IdleDuration:F1}秒");
     }
 

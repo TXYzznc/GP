@@ -36,6 +36,10 @@ public class EnemyAlertedByBroadcastState : IEnemyState
         // 设置追击速度
         m_AI.Entity.NavAgent.speed = m_AI.Entity.Config.ChaseSpeed;
 
+        // 播放追击动画
+        var animator = m_AI.Entity.GetComponent<EnemyAnimator>();
+        animator?.PlayAnimation(EnemyAnimationType.Run, m_AI.Entity.Config.ChaseSpeed);
+
         m_UpdatePathTimer = 0f;
 
         // 立即更新路径

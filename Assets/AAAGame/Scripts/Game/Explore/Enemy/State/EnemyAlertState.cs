@@ -34,12 +34,15 @@ public class EnemyAlertState : IEnemyState
         // 停止移动，原地警戒
         m_AI.Entity.NavAgent.isStopped = true;
 
+        // 播放警戒动画
+        var animator = m_AI.Entity.GetComponent<EnemyAnimator>();
+        animator?.PlayAnimation(EnemyAnimationType.Alert);
+
         m_AlertTimer = 0f;
 
-        DebugEx.LogModule("EnemyAlertState", 
+        DebugEx.LogModule("EnemyAlertState",
             $"{m_AI.Entity.Config.Name} 进入警戒状态！");
 
-        // TODO: 播放警戒动画
         // TODO: 显示感叹号特效
     }
 

@@ -40,6 +40,10 @@ public class EnemyChaseState : IEnemyState
         // 设置追击速度
         m_AI.Entity.NavAgent.speed = m_AI.Entity.Config.ChaseSpeed;
 
+        // 播放追击动画
+        var animator = m_AI.Entity.GetComponent<EnemyAnimator>();
+        animator?.PlayAnimation(EnemyAnimationType.Run, m_AI.Entity.Config.ChaseSpeed);
+
         m_UpdatePathTimer = 0f;
         m_HasBroadcasted = false;  // 重置广播标志
 

@@ -216,6 +216,13 @@ public class EnemyEntity : MonoBehaviour
         m_AI = new EnemyEntityAI(this);
         m_AI.Initialize();
 
+        // 初始化动画控制器
+        var animator = GetComponent<EnemyAnimator>();
+        if (animator != null)
+        {
+            animator.Initialize(this);
+        }
+
         m_IsInitialized = true;
 
         // 从 EnemyTable 读取棋子列表并注册到 EnemyChessDataManager

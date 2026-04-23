@@ -41,13 +41,17 @@ public class EnemyPatrolState : IEnemyState
         // 设置巡逻速度
         m_AI.Entity.NavAgent.speed = m_AI.Entity.Config.PatrolSpeed;
 
+        // 播放巡逻动画
+        var animator = m_AI.Entity.GetComponent<EnemyAnimator>();
+        animator?.PlayAnimation(EnemyAnimationType.Walk, m_AI.Entity.Config.PatrolSpeed);
+
         // 选择新的巡逻目标
         SelectNewPatrolTarget();
 
         m_StuckTimer = 0f;
         m_LastPosition = m_AI.Entity.transform.position;
 
-        DebugEx.LogModule("EnemyPatrolState", 
+        DebugEx.LogModule("EnemyPatrolState",
             $"{m_AI.Entity.Config.Name} 开始巡逻");
     }
 
