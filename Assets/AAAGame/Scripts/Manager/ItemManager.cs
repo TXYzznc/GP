@@ -389,11 +389,16 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     private SpecialEffectData ConvertToEffectData(SpecialEffectTable row)
     {
-        // 构建JSON格式的效果参数
-        var buffIds = row.BuffIds ?? new int[0];
-        var selfBuffIds = row.SelfBuffIds ?? new int[0];
-        string effectParams =
-            $"{{\"BuffIds\":[{string.Join(",", buffIds)}],\"SelfBuffIds\":[{string.Join(",", selfBuffIds)}]}}";
+        string effectParams = row.EffectParams;
+
+        // 如果表中没有配置 EffectParams，则生成默认的 BuffIds 格式（向后兼容）
+        if (string.IsNullOrEmpty(effectParams))
+        {
+            var buffIds = row.BuffIds ?? new int[0];
+            var selfBuffIds = row.SelfBuffIds ?? new int[0];
+            effectParams =
+                $"{{\"BuffIds\":[{string.Join(",", buffIds)}],\"SelfBuffIds\":[{string.Join(",", selfBuffIds)}]}}";
+        }
 
         var effectData = new SpecialEffectData
         {

@@ -49,6 +49,9 @@ public class GameProcedure : ProcedureBase
         // GF.UI.OpenUIForm(UIViews.GameUIForm);
         // 建议：先生成后再加载，生成角色
 
+        // 0. 初始化物品效果工厂
+        ItemEffectFactory.RegisterAll();
+
         // 1. 先实例化技能管理器（在场景中）
         InitializeSkillManager();
 

@@ -46,6 +46,24 @@ public class ItemEffectExecutor : MonoBehaviour
 
         string effectType = effectData.GetParamValue<string>("type", "");
 
+        // 尝试新架构（工厂模式）
+        var effect = ItemEffectFactory.Create(effectType);
+        if (effect != null)
+        {
+            var context = new ItemEffectContext(effectData, 0, null, null);
+            return effect.Execute(context);
+        }
+
+        // 向后兼容：回退到旧逻辑
+        return ExecuteEffectLegacy(effectType, effectData);
+    }
+
+    /// <summary>
+    /// 旧版效果执行逻辑（向后兼容）
+    /// </summary>
+    [System.Obsolete("使用新的 ItemEffectFactory 架构代替")]
+    private bool ExecuteEffectLegacy(string effectType, SpecialEffectData effectData)
+    {
         switch (effectType)
         {
             case "AddGold":
