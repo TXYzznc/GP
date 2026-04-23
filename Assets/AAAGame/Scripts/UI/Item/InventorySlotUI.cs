@@ -2,18 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Cysharp.Threading.Tasks;
 
-/// <summary>
-/// 格子所属的容器类型
-/// </summary>
-public enum SlotContainerType
-{
-    Inventory,
-    Warehouse,
-    Equip,
-    FastBar,
-    Chess,
-    TreasureBox,
-}
 
 /// <summary>
 /// 背包/仓库格子UI
@@ -25,8 +13,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// <summary>缓存的 InventoryItemUI 组件</summary>
     private InventoryItemUI m_ItemUI;
 
-    /// <summary>当前物品ID（用于订阅数量变化事件）</summary>
-    private int m_CurrentItemId = -1;
 
     /// <summary>格子索引</summary>
     public int SlotIndex { get; private set; }
@@ -118,7 +104,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     public InventoryItemUI GetItemUI() => m_ItemUI;
 
     /// <summary>
-    /// 设置格子数据（一站式处理数据和UI刷新）
+    /// 设置格子数据（纯展示，不管理事件订阅）
     /// </summary>
     public void SetData(ItemStack itemStack)
     {
@@ -126,83 +112,18 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (itemUI == null)
             return;
 
-        // 更新物品ID并订阅数量变化事件
-        UpdateItemQuantitySubscription(itemStack?.ItemId ?? -1);
-
-        // 设置物品数据
         itemUI.SetData(itemStack);
 
-        // 自动设置背景颜色（根据物品品质）
         int quality = 0;
         if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
-        {
             quality = (int)itemStack.Item.Quality;
-        }
         SetRarity(quality);
     }
 
     /// <summary>
-    /// 更新物品数量变化事件的订阅
+    /// 清理（保留接口兼容性，不再有实际订阅需要清理）
     /// </summary>
-    private void UpdateItemQuantitySubscription(int newItemId)
-    {
-        var inventoryManager = InventoryManager.Instance;
-        if (inventoryManager == null)
-            return;
-
-        // 取消旧的订阅
-        if (m_CurrentItemId >= 0)
-        {
-            inventoryManager.OnItemQuantityChanged -= OnItemQuantityChanged;
-        }
-
-        // 订阅新的物品
-        m_CurrentItemId = newItemId;
-        if (m_CurrentItemId >= 0)
-        {
-            inventoryManager.OnItemQuantityChanged += OnItemQuantityChanged;
-        }
-    }
-
-    /// <summary>
-    /// 清理物品数量变化事件的订阅
-    /// </summary>
-    public void ClearItemQuantitySubscription()
-    {
-        var inventoryManager = InventoryManager.Instance;
-        if (inventoryManager != null && m_CurrentItemId >= 0)
-        {
-            inventoryManager.OnItemQuantityChanged -= OnItemQuantityChanged;
-        }
-        m_CurrentItemId = -1;
-    }
-
-    /// <summary>
-    /// 物品数量变化回调
-    /// </summary>
-    private void OnItemQuantityChanged(int itemId, int newCount)
-    {
-        if (itemId != m_CurrentItemId)
-            return;
-
-        var itemUI = GetItemUI();
-        if (itemUI == null)
-            return;
-
-        var itemStack = itemUI.GetItemStack();
-        if (itemStack == null)
-            return;
-
-        // 更新物品数量并刷新显示
-        itemStack.Count = newCount;
-        itemUI.SetData(itemStack);
-
-        // 如果物品数量为0，解除订阅
-        if (newCount <= 0)
-        {
-            UpdateItemQuantitySubscription(-1);
-        }
-    }
+    public void ClearItemQuantitySubscription() { }
 
     #region 鼠标交互
 
@@ -214,7 +135,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (varHighLightImg != null && varHighLightImg.gameObject.activeSelf == false)
         {
             varHighLightImg.gameObject.SetActive(true);
-            DebugEx.Log("InventorySlotUI", $"格子 {SlotIndex} 高亮显示");
         }
     }
 
@@ -226,7 +146,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (varHighLightImg != null && varHighLightImg.gameObject.activeSelf == true)
         {
             varHighLightImg.gameObject.SetActive(false);
-            DebugEx.Log("InventorySlotUI", $"格子 {SlotIndex} 高亮隐藏");
         }
     }
 

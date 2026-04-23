@@ -34,13 +34,20 @@ public class InventoryManager : SingletonBase<InventoryManager>
     private List<InventoryItemSaveData> m_SnapshotBeforeSession = null;
 
     /// <summary>
-    /// 背包内容变化事件
+    /// 格子变化事件（统一事件）
     /// </summary>
+    public event System.Action<SlotChangeEventArgs> OnSlotChanged;
+
+    /// <summary>
+    /// [Obsolete] 背包内容变化事件（已废弃，保留向后兼容）
+    /// </summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event System.Action OnInventoryChanged;
 
     /// <summary>
-    /// 特定物品数量变化事件（物品ID, 新数量）
+    /// [Obsolete] 特定物品数量变化事件（已废弃，保留向后兼容）
     /// </summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event System.Action<int, int> OnItemQuantityChanged;
 
     /// <summary>
@@ -158,16 +165,14 @@ public class InventoryManager : SingletonBase<InventoryManager>
             if (remaining <= 0)
             {
                 UpdateVirtualItemCache(itemId, count);
-                int stackedCount = GetItemCount(itemId);
-                OnItemQuantityChanged?.Invoke(itemId, stackedCount);
                 DebugEx.Success("InventoryManager", $"物品添加成功（堆叠）: {itemData.Name}");
-                OnInventoryChanged?.Invoke();
                 return true;
             }
             count = remaining;
         }
 
         // 创建新的物品实例并放入空格子
+        var newSlotIndices = new List<int>();
         while (count > 0)
         {
             var emptySlot = FindEmptySlot();
@@ -186,17 +191,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
 
             int addCount = Math.Min(count, item.MaxStackCount);
             emptySlot.SetItem(item, addCount);
+            newSlotIndices.Add(emptySlot.SlotIndex);
             count -= addCount;
         }
 
         UpdateVirtualItemCache(itemId, count);
         DebugEx.Success("InventoryManager", $"物品添加成功: {itemData.Name}");
 
-        int newCount = GetItemCount(itemId);
-        OnItemQuantityChanged?.Invoke(itemId, newCount);
-
-        // 触发背包变化事件
-        OnInventoryChanged?.Invoke();
+        foreach (var idx in newSlotIndices)
+        {
+            NotifySlotChanged(idx, SlotChangeType.Add, 0, GetSlotInternal(idx).Count);
+        }
 
         return true;
     }
@@ -219,12 +224,16 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         int remaining = count;
+        int removedSlotIndex = -1;
         foreach (var slot in m_Slots)
         {
             if (slot.ItemId == itemId)
             {
                 int removeCount = Math.Min(remaining, slot.Count);
+                int oldCount = slot.Count;
                 slot.RemoveItem(removeCount);
+                if (removedSlotIndex < 0)
+                    removedSlotIndex = slot.SlotIndex;
                 remaining -= removeCount;
 
                 if (remaining <= 0)
@@ -237,11 +246,11 @@ public class InventoryManager : SingletonBase<InventoryManager>
         UpdateVirtualItemCache(itemId, -count);
         DebugEx.Success("InventoryManager", $"物品移除成功 ID:{itemId}, 数量:{count}");
 
-        int newCount = GetItemCount(itemId);
-        OnItemQuantityChanged?.Invoke(itemId, newCount);
-
-        // 触发背包变化事件
-        OnInventoryChanged?.Invoke();
+        if (removedSlotIndex >= 0)
+        {
+            int newCount = GetItemCount(itemId);
+            NotifySlotChanged(removedSlotIndex, SlotChangeType.Remove, totalCount, newCount);
+        }
 
         return true;
     }
@@ -273,12 +282,15 @@ public class InventoryManager : SingletonBase<InventoryManager>
 
         DebugEx.Log("InventoryManager", $"使用物品: {item.Name}");
 
+        int oldCount = slot.Count;
         bool success = item.Use();
         if (success)
         {
             // 使用成功后减少数量
             slot.RemoveItem(1);
             DebugEx.Success("InventoryManager", $"物品使用成功: {item.Name}");
+
+            NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, slot.Count);
         }
 
         return success;
@@ -314,9 +326,10 @@ public class InventoryManager : SingletonBase<InventoryManager>
         var from = m_Slots[fromSlot];
         var to = m_Slots[toSlot];
 
+        int fromOldCount = from.Count;
+        int toOldCount = to.Count;
+
         // 交换格子内容
-        var tempStack = from.ItemStack;
-        int tempCount = from.Count;
 
         if (to.IsEmpty)
         {
@@ -349,7 +362,11 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         DebugEx.Log("InventoryManager", $"物品移动: {fromSlot} -> {toSlot}");
-        OnInventoryChanged?.Invoke();
+
+        // 通知两个格子的变化
+        NotifySlotChanged(fromSlot, SlotChangeType.Move, fromOldCount, from.Count);
+        NotifySlotChanged(toSlot, SlotChangeType.Move, toOldCount, to.Count);
+
         return true;
     }
 
@@ -362,9 +379,36 @@ public class InventoryManager : SingletonBase<InventoryManager>
     }
 
     /// <summary>
-    /// 获取格子
+    /// 获取格子（返回副本，防止外部修改内部状态）
     /// </summary>
     public InventorySlot GetSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= m_Slots.Count)
+        {
+            return null;
+        }
+
+        var originalSlot = m_Slots[slotIndex];
+
+        // 返回副本，防止外部修改影响内部状态
+        var copySlot = new InventorySlot(slotIndex);
+        if (!originalSlot.IsEmpty && originalSlot.ItemStack != null)
+        {
+            // 重新创建 ItemStack 和 ItemBase
+            var itemObj = ItemManager.Instance?.CreateItem(originalSlot.ItemId);
+            if (itemObj != null)
+            {
+                copySlot.SetItem(itemObj, originalSlot.Count);
+            }
+        }
+
+        return copySlot;
+    }
+
+    /// <summary>
+    /// 获取格子内部引用（仅供Manager内部逻辑使用，性能优化）
+    /// </summary>
+    internal InventorySlot GetSlotInternal(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= m_Slots.Count)
         {
@@ -374,7 +418,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     }
 
     /// <summary>
-    /// 获取所有格子
+    /// 获取所有格子（返回内部引用列表，仅供只读遍历）
     /// </summary>
     public List<InventorySlot> GetAllSlots()
     {
@@ -382,10 +426,54 @@ public class InventoryManager : SingletonBase<InventoryManager>
     }
 
     /// <summary>
+    /// 将物品写入指定格子（供跨容器拖拽使用，直接写入内部 slot）
+    /// </summary>
+    public bool SetItemToSlot(int slotIndex, ItemBase item, int count)
+    {
+        if (slotIndex < 0 || slotIndex >= m_Slots.Count)
+            return false;
+
+        var slot = m_Slots[slotIndex];
+        int oldCount = slot.Count;
+
+        slot.SetItem(item, count);
+
+        NotifySlotChanged(slotIndex, SlotChangeType.Add, oldCount, count);
+        return true;
+    }
+
+    /// <summary>
+    /// 向指定格子追加物品数量（格子已有同种物品时堆叠）
+    /// </summary>
+    public bool AddItemToSlot(int slotIndex, int count)
+    {
+        if (slotIndex < 0 || slotIndex >= m_Slots.Count)
+            return false;
+
+        var slot = m_Slots[slotIndex];
+        if (slot.IsEmpty)
+            return false;
+
+        int oldCount = slot.Count;
+        slot.AddItem(count);
+
+        NotifySlotChanged(slotIndex, SlotChangeType.Update, oldCount, slot.Count);
+        return true;
+    }
+
+    /// <summary>
     /// 一键整理：先堆叠同种物品，再按 ItemType 分组、Rarity 降序排列
     /// </summary>
     public void SortInventory()
     {
+        // 保存整理前的状态，用于对比
+        var oldStates = new Dictionary<int, (int itemId, int count)>();
+        for (int i = 0; i < m_Slots.Count; i++)
+        {
+            var slot = m_Slots[i];
+            oldStates[i] = (slot.ItemId, slot.Count);
+        }
+
         // 1. 收集所有非空堆叠
         var stacks = new List<ItemStack>();
         foreach (var slot in m_Slots)
@@ -438,7 +526,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         DebugEx.Success("InventoryManager", "背包整理完成");
-        OnInventoryChanged?.Invoke();
+
+        // 通知所有变化的格子
+        for (int i = 0; i < m_Slots.Count; i++)
+        {
+            var (oldItemId, oldCount) = oldStates[i];
+            var slot = m_Slots[i];
+            if (oldItemId != slot.ItemId || oldCount != slot.Count)
+            {
+                NotifySlotChanged(i, SlotChangeType.Update, oldCount, slot.Count);
+            }
+        }
     }
 
     /// <summary>
@@ -460,7 +558,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     #region 私有方法
 
     /// <summary>
-    /// 尝试堆叠物品到现有格子
+    /// 尝试堆叠物品到现有格子，返回剩余未堆叠数量，并通知所有变化的格子
     /// </summary>
     private int TryStackItem(int itemId, int count)
     {
@@ -468,8 +566,11 @@ public class InventoryManager : SingletonBase<InventoryManager>
         {
             if (slot.ItemId == itemId && !slot.ItemStack.IsFull)
             {
+                int oldCount = slot.Count;
                 int added = slot.AddItem(count);
                 count -= added;
+
+                NotifySlotChanged(slot.SlotIndex, SlotChangeType.Update, oldCount, slot.Count);
 
                 if (count <= 0)
                 {
@@ -543,6 +644,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
         if (saveDataList == null || saveDataList.Count == 0)
         {
             DebugEx.Log("InventoryManager", "存档中没有背包数据，背包已清空");
+            // 发送一个 slotIndex=-1 的全量通知，告知 UI 背包已清空
+            var clearArgs = new SlotChangeEventArgs
+            {
+                ContainerType = SlotContainerType.Inventory,
+                SlotIndex = -1,
+                ItemId = -1,
+                OldCount = 0,
+                NewCount = 0,
+                ChangeType = SlotChangeType.Clear
+            };
+            OnSlotChanged?.Invoke(clearArgs);
             OnInventoryChanged?.Invoke();
             return;
         }
@@ -579,8 +691,15 @@ public class InventoryManager : SingletonBase<InventoryManager>
             $"背包数据加载完成，成功加载 {successCount}/{saveDataList.Count} 个物品"
         );
 
-        // 触发背包变化事件，刷新UI
-        OnInventoryChanged?.Invoke();
+        // 通知所有加载的格子
+        for (int i = 0; i < successCount; i++)
+        {
+            var slot = m_Slots[i];
+            if (!slot.IsEmpty)
+            {
+                NotifySlotChanged(i, SlotChangeType.Add, 0, slot.Count);
+            }
+        }
     }
 
     /// <summary>
@@ -595,6 +714,34 @@ public class InventoryManager : SingletonBase<InventoryManager>
         m_CachedGold = 0;
         m_CachedSpiritStone = 0;
         DebugEx.Log("InventoryManager", "背包已清空");
+    }
+
+    /// <summary>
+    /// 通知格子变化事件
+    /// </summary>
+    private void NotifySlotChanged(int slotIndex, SlotChangeType changeType, int oldCount, int newCount)
+    {
+        var slot = GetSlotInternal(slotIndex);
+        var args = new SlotChangeEventArgs
+        {
+            ContainerType = SlotContainerType.Inventory,
+            SlotIndex = slotIndex,
+            ItemId = slot?.ItemId ?? -1,
+            OldCount = oldCount,
+            NewCount = newCount,
+            ChangeType = changeType
+        };
+
+        OnSlotChanged?.Invoke(args);
+
+        // 向后兼容：保留旧事件
+#pragma warning disable CS0618
+        OnInventoryChanged?.Invoke();
+        if (args.ItemId >= 0)
+        {
+            OnItemQuantityChanged?.Invoke(args.ItemId, args.NewCount);
+        }
+#pragma warning restore CS0618
     }
 
     /// <summary>

@@ -37,10 +37,15 @@ public class WarehouseManager
     /// <summary>仓库容量（格子数）</summary>
     private int m_WarehouseCapacity = 50;
 
-    /// <summary>物品存入事件</summary>
+    /// <summary>格子变化事件（统一事件）</summary>
+    public event Action<SlotChangeEventArgs> OnSlotChanged;
+
+    /// <summary>[Obsolete] 物品存入事件（已废弃，保留向后兼容）</summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event Action<InventoryItem> OnItemStored;
 
-    /// <summary>物品取出事件</summary>
+    /// <summary>[Obsolete] 物品取出事件（已废弃，保留向后兼容）</summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event Action<InventoryItem> OnItemRetrieved;
 
     /// <summary>仓库容量变化事件</summary>
@@ -99,6 +104,43 @@ public class WarehouseManager
         m_IsInitialized = false;
 
         DebugEx.Log("WarehouseManager", "仓库数据已清理");
+    }
+
+    #endregion
+
+    #region 事件通知
+
+    /// <summary>
+    /// 通知格子变化事件
+    /// </summary>
+    private void NotifySlotChanged(int slotIndex, SlotChangeType changeType, int oldCount, int newCount, int itemId = -1)
+    {
+        var args = new SlotChangeEventArgs
+        {
+            ContainerType = SlotContainerType.Warehouse,
+            SlotIndex = slotIndex,
+            ItemId = itemId,
+            OldCount = oldCount,
+            NewCount = newCount,
+            ChangeType = changeType
+        };
+
+        OnSlotChanged?.Invoke(args);
+
+        // 向后兼容：保留旧事件
+#pragma warning disable CS0618
+        if (changeType == SlotChangeType.Add || changeType == SlotChangeType.Update)
+        {
+            var item = GetItemBySlot(slotIndex);
+            if (item != null)
+                OnItemStored?.Invoke(item);
+        }
+        else if (changeType == SlotChangeType.Remove)
+        {
+            var item = GetItemBySlot(slotIndex);
+            OnItemRetrieved?.Invoke(item);
+        }
+#pragma warning restore CS0618
     }
 
     #endregion
@@ -183,7 +225,7 @@ public class WarehouseManager
                     $"物品堆叠: ID={itemId}, 数量 {oldCount} -> {existingItem.Count}"
                 );
 
-                OnItemStored?.Invoke(existingItem);
+                NotifySlotChanged(existingItem.SlotIndex, SlotChangeType.Update, oldCount, existingItem.Count, itemId);
 
                 // 如果还有剩余物品，继续存入
                 int remainCount = count - addCount;
@@ -213,7 +255,7 @@ public class WarehouseManager
             $"物品存入: ID={itemId}, 数量={count}, 格子={newSlotIndex}"
         );
 
-        OnItemStored?.Invoke(newItem);
+        NotifySlotChanged(newSlotIndex, SlotChangeType.Add, 0, count, itemId);
 
         return true;
     }
@@ -312,6 +354,10 @@ public class WarehouseManager
             return false;
         }
 
+        int oldCount = item.Count;
+        int slotIndex = item.SlotIndex;
+        int storedItemId = item.ItemId;
+
         // 从仓库移除
         item.Count -= count;
         if (item.Count <= 0)
@@ -321,7 +367,7 @@ public class WarehouseManager
 
         DebugEx.Log("WarehouseManager", $"物品取出: ID={itemId}, 数量={count}");
 
-        OnItemRetrieved?.Invoke(item);
+        NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, item.Count, storedItemId);
 
         return true;
     }
@@ -381,7 +427,7 @@ public class WarehouseManager
             var newItem = new InventoryItem(itemId, count, durability, targetSlotIndex);
             m_WarehouseItems.Add(newItem);
             DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 存入物品到格子 {targetSlotIndex}: ID={itemId}, 数量={count}");
-            OnItemStored?.Invoke(newItem);
+            NotifySlotChanged(targetSlotIndex, SlotChangeType.Add, 0, count, itemId);
             return true;
         }
 
@@ -396,9 +442,10 @@ public class WarehouseManager
         if (targetItem.ItemId == itemId && targetItem.Count < itemData.MaxStackCount)
         {
             int addCount = Mathf.Min(count, itemData.MaxStackCount - targetItem.Count);
+            int oldCount = targetItem.Count;
             targetItem.Count += addCount;
-            DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 堆叠物品到格子 {targetSlotIndex}: 数量 {targetItem.Count - addCount} -> {targetItem.Count}");
-            OnItemStored?.Invoke(targetItem);
+            DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 堆叠物品到格子 {targetSlotIndex}: 数量 {oldCount} -> {targetItem.Count}");
+            NotifySlotChanged(targetSlotIndex, SlotChangeType.Update, oldCount, targetItem.Count, itemId);
 
             // 如果还有剩余物品，存入下一个空格子
             int remainCount = count - addCount;
@@ -445,20 +492,23 @@ public class WarehouseManager
             return false;
         }
 
+        int fromOldItemId = fromItem.ItemId;
+        int fromOldCount = fromItem.Count;
+        int toOldItemId = toItem?.ItemId ?? -1;
+        int toOldCount = toItem?.Count ?? 0;
+
         // 交换 SlotIndex
         fromItem.SlotIndex = toSlotIndex;
         if (toItem != null)
         {
             toItem.SlotIndex = fromSlotIndex;
-            OnItemStored?.Invoke(toItem); // 通知 UI 更新
-        }
-        else
-        {
-            // 目标格子为空，fromItem 移到目标格子
-            OnItemStored?.Invoke(fromItem); // 通知 UI 更新
         }
 
         DebugEx.Log("WarehouseManager", $"[SwapSlots] 交换格子 {fromSlotIndex} <-> {toSlotIndex}");
+
+        NotifySlotChanged(fromSlotIndex, SlotChangeType.Move, fromOldCount, toOldCount, toOldItemId);
+        NotifySlotChanged(toSlotIndex, SlotChangeType.Move, toOldCount, fromOldCount, fromOldItemId);
+
         return true;
     }
 
@@ -491,6 +541,9 @@ public class WarehouseManager
             count = item.Count;
         }
 
+        int oldCount = item.Count;
+        int removedItemId = item.ItemId;
+
         item.Count -= count;
         if (item.Count <= 0)
         {
@@ -502,7 +555,7 @@ public class WarehouseManager
             DebugEx.Log("WarehouseManager", $"[RemoveItem] 物品部分移除: 格子={slotIndex}, 剩余数量={item.Count}");
         }
 
-        OnItemRetrieved?.Invoke(item);
+        NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, item.Count, removedItemId);
         return true;
     }
 

@@ -36,13 +36,19 @@ public class FastBarManager
     /// <summary>快捷栏容量（固定5格）</summary>
     private const int FASTBAR_CAPACITY = 5;
 
-    /// <summary>物品存入事件</summary>
+    /// <summary>格子变化事件（统一事件）</summary>
+    public event Action<SlotChangeEventArgs> OnSlotChanged;
+
+    /// <summary>[Obsolete] 物品存入事件（已废弃，保留向后兼容）</summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event Action<int, InventorySlot> OnItemStored;
 
-    /// <summary>物品取出事件</summary>
+    /// <summary>[Obsolete] 物品取出事件（已废弃，保留向后兼容）</summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event Action<int, InventorySlot> OnItemRetrieved;
 
-    /// <summary>物品清空事件</summary>
+    /// <summary>[Obsolete] 物品清空事件（已废弃，保留向后兼容）</summary>
+    [Obsolete("Use OnSlotChanged instead")]
     public event Action<int> OnSlotCleared;
 
     #endregion
@@ -91,6 +97,43 @@ public class FastBarManager
         m_FastBarSlots.Clear();
         m_IsInitialized = false;
         DebugEx.Log("FastBarManager", "快捷栏数据已清理");
+    }
+
+    #endregion
+
+    #region 事件通知
+
+    /// <summary>
+    /// 通知格子变化事件
+    /// </summary>
+    private void NotifySlotChanged(int slotIndex, SlotChangeType changeType, int oldCount, int newCount)
+    {
+        var slot = slotIndex >= 0 && slotIndex < m_FastBarSlots.Count ? m_FastBarSlots[slotIndex] : null;
+        var args = new SlotChangeEventArgs
+        {
+            ContainerType = SlotContainerType.FastBar,
+            SlotIndex = slotIndex,
+            ItemId = slot?.ItemId ?? -1,
+            OldCount = oldCount,
+            NewCount = newCount,
+            ChangeType = changeType
+        };
+
+        OnSlotChanged?.Invoke(args);
+
+        // 向后兼容：保留旧事件
+#pragma warning disable CS0618
+        if (changeType == SlotChangeType.Add || changeType == SlotChangeType.Update || changeType == SlotChangeType.Move)
+        {
+            OnItemStored?.Invoke(slotIndex, slot);
+        }
+        else if (changeType == SlotChangeType.Remove || changeType == SlotChangeType.Clear)
+        {
+            OnItemRetrieved?.Invoke(slotIndex, slot);
+            if (changeType == SlotChangeType.Clear)
+                OnSlotCleared?.Invoke(slotIndex);
+        }
+#pragma warning restore CS0618
     }
 
     #endregion
@@ -149,7 +192,7 @@ public class FastBarManager
         {
             targetSlot.SetItem(item, count);
             DebugEx.Log("FastBarManager", $"存入物品到快捷栏[{targetSlotIndex}]: {item.Name} x{count}");
-            OnItemStored?.Invoke(targetSlotIndex, targetSlot);
+            NotifySlotChanged(targetSlotIndex, SlotChangeType.Add, 0, count);
             return true;
         }
 
@@ -157,9 +200,10 @@ public class FastBarManager
         if (targetSlot.ItemId == item.ItemId && item.MaxStackCount > 1)
         {
             int addCount = Mathf.Min(count, item.MaxStackCount - targetSlot.Count);
+            int oldCount = targetSlot.Count;
             targetSlot.AddItem(addCount);
-            DebugEx.Log("FastBarManager", $"堆叠物品到快捷栏[{targetSlotIndex}]: 数量 {targetSlot.Count - addCount} -> {targetSlot.Count}");
-            OnItemStored?.Invoke(targetSlotIndex, targetSlot);
+            DebugEx.Log("FastBarManager", $"堆叠物品到快捷栏[{targetSlotIndex}]: 数量 {oldCount} -> {targetSlot.Count}");
+            NotifySlotChanged(targetSlotIndex, SlotChangeType.Update, oldCount, targetSlot.Count);
             return true;
         }
 
@@ -176,18 +220,12 @@ public class FastBarManager
             return;
 
         var slot = m_FastBarSlots[slotIndex];
-        var item = slot.ItemStack?.Item;
-        var count = slot.Count;
+        int oldCount = slot.Count;
 
         slot.Clear();
         DebugEx.Log("FastBarManager", $"快捷栏[{slotIndex}] 已清空");
 
-        OnSlotCleared?.Invoke(slotIndex);
-
-        if (item != null && count > 0)
-        {
-            OnItemRetrieved?.Invoke(slotIndex, new InventorySlot(slotIndex) { });
-        }
+        NotifySlotChanged(slotIndex, SlotChangeType.Clear, oldCount, 0);
     }
 
     /// <summary>
@@ -234,8 +272,8 @@ public class FastBarManager
         }
 
         DebugEx.Log("FastBarManager", $"交换快捷栏 {fromSlotIndex} <-> {toSlotIndex}");
-        OnItemStored?.Invoke(fromSlotIndex, fromSlot);
-        OnItemStored?.Invoke(toSlotIndex, toSlot);
+        NotifySlotChanged(fromSlotIndex, SlotChangeType.Move, fromSlot.Count, fromSlot.Count);
+        NotifySlotChanged(toSlotIndex, SlotChangeType.Move, toSlot.Count, toSlot.Count);
         return true;
     }
 

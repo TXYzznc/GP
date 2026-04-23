@@ -12,13 +12,48 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
     /// <summary>宝箱格子容量</summary>
     private const int TREASURE_BOX_CAPACITY = 50;
 
-    /// <summary>格子更新事件（宝箱内容变化时触发，用于通知UI刷新）</summary>
-    public event Action OnSlotChanged;
+    /// <summary>格子变化事件（统一事件）</summary>
+    public event Action<SlotChangeEventArgs> OnSlotChanged;
 
     /// <summary>格子数组（固定大小50，格子索引 = 数组索引）</summary>
     private readonly InventoryItem[] m_Slots = new InventoryItem[TREASURE_BOX_CAPACITY];
 
     public override SlotContainerType ContainerType => SlotContainerType.TreasureBox;
+
+    /// <summary>
+    /// 通知指定格子变化
+    /// </summary>
+    private void NotifySlotChanged(int slotIndex, SlotChangeType changeType, int oldCount, int newCount, int itemId = -1)
+    {
+        var args = new SlotChangeEventArgs
+        {
+            ContainerType = SlotContainerType.TreasureBox,
+            SlotIndex = slotIndex,
+            ItemId = itemId,
+            OldCount = oldCount,
+            NewCount = newCount,
+            ChangeType = changeType
+        };
+        OnSlotChanged?.Invoke(args);
+    }
+
+    /// <summary>
+    /// 通知全部格子刷新（初始化或全量变化）
+    /// </summary>
+    private void NotifyAllSlotsChanged()
+    {
+        // 用 slotIndex=-1 表示全量刷新
+        var args = new SlotChangeEventArgs
+        {
+            ContainerType = SlotContainerType.TreasureBox,
+            SlotIndex = -1,
+            ItemId = -1,
+            OldCount = 0,
+            NewCount = 0,
+            ChangeType = SlotChangeType.Update
+        };
+        OnSlotChanged?.Invoke(args);
+    }
 
     /// <summary>
     /// 用初始物品列表初始化宝箱（只在宝箱首次打开时调用）
@@ -42,7 +77,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         if (initialItems == null || initialItems.Count == 0)
         {
             DebugEx.Log("TreasureBoxContainer", "宝箱初始化为空");
-            OnSlotChanged?.Invoke();
+            NotifyAllSlotsChanged();
             return;
         }
 
@@ -59,7 +94,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         }
 
         DebugEx.Log("TreasureBoxContainer", $"宝箱初始化完成，物品数={itemCount}");
-        OnSlotChanged?.Invoke();
+        NotifyAllSlotsChanged();
     }
 
     public override InventorySlot GetSlot(int slotIndex)
@@ -109,12 +144,6 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         var targetSlot = targetContainer.GetSlot(targetSlotIndex);
         bool targetIsEmpty = targetSlot == null || targetSlot.IsEmpty;
 
-        string targetStatus = targetIsEmpty ? "为空" : "非空";
-        DebugEx.Log(
-            "TreasureBoxContainer",
-            $"[宝箱→{targetContainer.ContainerType}] {fromSlotIndex} → {targetSlotIndex} (目标{targetStatus})"
-        );
-
         bool success = targetContainer switch
         {
             InventorySlotContainerImpl inv => MoveToInventory(inv, itemId, count, targetSlotIndex),
@@ -147,8 +176,11 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
     )
     {
         var inv = InventoryManager.Instance;
-        var targetSlot = inv?.GetSlot(targetSlotIndex);
+        if (inv == null)
+            return false;
 
+        // 用副本检查目标格子当前状态
+        var targetSlot = inv.GetSlot(targetSlotIndex);
         if (targetSlot == null)
             return false;
 
@@ -158,19 +190,12 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
             if (item == null)
                 return false;
 
-            targetSlot.SetItem(item, count);
-
-            // 刷新背包UI（如果打开的话）
-            RefreshInventoryUIIfOpen();
-            return true;
+            // 写入实际 slot（不再操作副本）
+            return inv.SetItemToSlot(targetSlotIndex, item, count);
         }
         else if (targetSlot.ItemId == itemId && targetSlot.ItemStack?.Item?.MaxStackCount > 1)
         {
-            targetSlot.AddItem(count);
-
-            // 刷新背包UI（如果打开的话）
-            RefreshInventoryUIIfOpen();
-            return true;
+            return inv.AddItemToSlot(targetSlotIndex, count);
         }
 
         return false;
@@ -215,25 +240,13 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         if (success && !isSwap)
         {
             m_Slots[fromSlotIndex] = null;
-            OnSlotChanged?.Invoke();
+            NotifySlotChanged(fromSlotIndex, SlotChangeType.Clear, count, 0, itemId);
         }
 
         return success;
     }
 
-    /// <summary>
-    /// 如果背包UI打开，刷新它的显示
-    /// </summary>
-    private void RefreshInventoryUIIfOpen()
-    {
-        // 通过查找场景中的InventoryUI来刷新（如果打开的话）
-        var inventoryUI = UnityEngine.Object.FindObjectOfType<InventoryUI>();
-        if (inventoryUI != null)
-        {
-            inventoryUI.RefreshAll();
-            DebugEx.Log("TreasureBoxContainer", "[MoveToInventory] 已刷新背包UI");
-        }
-    }
+
 
     /// <summary>
     /// 宝箱间物品交换（仅限同一宝箱内或两个宝箱之间）
@@ -262,14 +275,17 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         if ((fromItem == null && targetItem == null) || (fromItem == null) != (targetItem == null))
             return false;
 
+        int fromItemId = fromItem?.ItemId ?? -1;
+        int fromItemCount = fromItem?.Count ?? 0;
+        int targetItemId = targetItem?.ItemId ?? -1;
+        int targetItemCount = targetItem?.Count ?? 0;
+
         // 交换物品
         m_Slots[fromSlotIndex] = targetItem;
         targetTb.m_Slots[targetSlotIndex] = fromItem;
 
-        DebugEx.Log("TreasureBoxContainer", $"[宝箱交换] 格子 {fromSlotIndex} ↔ {targetSlotIndex}");
-
-        OnSlotChanged?.Invoke();
-        targetTb.OnSlotChanged?.Invoke();
+        NotifySlotChanged(fromSlotIndex, SlotChangeType.Move, fromItemCount, targetItemCount, targetItemId);
+        targetTb.NotifySlotChanged(targetSlotIndex, SlotChangeType.Move, targetItemCount, fromItemCount, fromItemId);
         return true;
     }
 
@@ -290,11 +306,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
             {
                 // 目标格子为空，直接存入
                 m_Slots[targetSlotIndex] = new InventoryItem(itemId, count, 0, targetSlotIndex);
-                DebugEx.Log(
-                    "TreasureBoxContainer",
-                    $"[宝箱→宝箱] 物品直接存入格子: ID={itemId}, 数量={count}, 格子={targetSlotIndex}"
-                );
-                OnSlotChanged?.Invoke();
+                NotifySlotChanged(targetSlotIndex, SlotChangeType.Add, 0, count, itemId);
                 return true;
             }
             else if (targetItem.ItemId == itemId)
@@ -306,11 +318,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                     int addCount = Mathf.Min(count, itemData.MaxStackCount - targetItem.Count);
                     int oldCount = targetItem.Count;
                     targetItem.Count += addCount;
-                    DebugEx.Log(
-                        "TreasureBoxContainer",
-                        $"[宝箱→宝箱] 物品堆叠: ID={itemId}, 数量 {oldCount} -> {targetItem.Count}"
-                    );
-                    OnSlotChanged?.Invoke();
+                    NotifySlotChanged(targetSlotIndex, SlotChangeType.Update, oldCount, targetItem.Count, itemId);
 
                     // 如果还有剩余物品，存入新格子
                     int remainCount = count - addCount;
@@ -340,11 +348,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                     int addCount = Mathf.Min(count, itemData2.MaxStackCount - m_Slots[i].Count);
                     int oldCount = m_Slots[i].Count;
                     m_Slots[i].Count += addCount;
-                    DebugEx.Log(
-                        "TreasureBoxContainer",
-                        $"[宝箱→宝箱] 物品堆叠: ID={itemId}, 数量 {oldCount} -> {m_Slots[i].Count}"
-                    );
-                    OnSlotChanged?.Invoke();
+                    NotifySlotChanged(i, SlotChangeType.Update, oldCount, m_Slots[i].Count, itemId);
 
                     int remainCount = count - addCount;
                     if (remainCount > 0)
@@ -380,7 +384,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                     "TreasureBoxContainer",
                     $"物品直接存入格子: ID={itemId}, 数量={count}, 格子={targetSlotIndex}"
                 );
-                OnSlotChanged?.Invoke();
+                NotifySlotChanged(targetSlotIndex, SlotChangeType.Add, 0, count, itemId);
                 return true;
             }
             else if (targetItem.ItemId == itemId)
@@ -392,11 +396,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                     int addCount = Mathf.Min(count, itemData.MaxStackCount - targetItem.Count);
                     int oldCount = targetItem.Count;
                     targetItem.Count += addCount;
-                    DebugEx.Log(
-                        "TreasureBoxContainer",
-                        $"物品堆叠: ID={itemId}, 数量 {oldCount} -> {targetItem.Count}"
-                    );
-                    OnSlotChanged?.Invoke();
+                    NotifySlotChanged(targetSlotIndex, SlotChangeType.Update, oldCount, targetItem.Count, itemId);
 
                     // 如果还有剩余物品，存入新格子
                     int remainCount = count - addCount;
@@ -422,14 +422,10 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                 && itemData2.MaxStackCount > 1
             )
             {
+                int oldCount2 = m_Slots[i].Count;
                 int addCount = Mathf.Min(count, itemData2.MaxStackCount - m_Slots[i].Count);
-                int oldCount = m_Slots[i].Count;
                 m_Slots[i].Count += addCount;
-                DebugEx.Log(
-                    "TreasureBoxContainer",
-                    $"物品堆叠: ID={itemId}, 数量 {oldCount} -> {m_Slots[i].Count}"
-                );
-                OnSlotChanged?.Invoke();
+                NotifySlotChanged(i, SlotChangeType.Update, oldCount2, m_Slots[i].Count, itemId);
 
                 int remainCount = count - addCount;
                 if (remainCount > 0)
@@ -455,11 +451,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
             if (m_Slots[i] == null)
             {
                 m_Slots[i] = new InventoryItem(itemId, count, 0, i);
-                DebugEx.Log(
-                    "TreasureBoxContainer",
-                    $"物品存入: ID={itemId}, 数量={count}, 格子={i}"
-                );
-                OnSlotChanged?.Invoke();
+                NotifySlotChanged(i, SlotChangeType.Add, 0, count, itemId);
                 return true;
             }
         }
@@ -480,21 +472,16 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         if (item == null || item.Count <= 0)
             return false;
 
+        int oldCount = item.Count;
+        int removedItemId = item.ItemId;
+
         item.Count -= count;
         if (item.Count <= 0)
         {
             m_Slots[slotIndex] = null;
-            DebugEx.Log("TreasureBoxContainer", $"[RemoveItem] 物品已完全移除: 格子={slotIndex}");
-        }
-        else
-        {
-            DebugEx.Log(
-                "TreasureBoxContainer",
-                $"[RemoveItem] 物品部分移除: 格子={slotIndex}, 剩余数量={item.Count}"
-            );
         }
 
-        OnSlotChanged?.Invoke();
+        NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, item.Count, removedItemId);
         return true;
     }
 
@@ -564,7 +551,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
 
 EXIT_LOOP:
         DebugEx.Log("TreasureBoxContainer", $"全部拿走: 成功 {successCount} 件");
-        OnSlotChanged?.Invoke();
+        NotifyAllSlotsChanged();
         return successCount;
     }
 
