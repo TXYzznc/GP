@@ -221,8 +221,6 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
 
         // 应用配置
         ApplyConfig(popupItem, config, text, worldPosition);
-
-        DebugEx.Log("DamageFloatingTextManager", $"显示飘字: {config.Name} - {text}");
     }
 
     /// <summary>

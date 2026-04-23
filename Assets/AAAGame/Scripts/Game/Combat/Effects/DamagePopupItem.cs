@@ -122,7 +122,6 @@ public class DamagePopupItem : MonoBehaviour
         if (useBold)
         {
             m_Text.fontStyle = FontStyles.Bold;
-            DebugEx.Log("DamagePopupItem", "启用加粗文本");
         }
         else
         {
@@ -134,7 +133,6 @@ public class DamagePopupItem : MonoBehaviour
         {
             m_Text.outlineColor = outlineColor.Value;
             m_Text.outlineWidth = outlineWidth;
-            DebugEx.Log("DamagePopupItem", $"设置描边: 颜色={outlineColor.Value}, 宽度={outlineWidth}");
         }
 
         // 设置颜色渐变
@@ -151,13 +149,11 @@ public class DamagePopupItem : MonoBehaviour
                 gradientColors[2],  // 右上
                 gradientColors[3]   // 右下
             );
-            DebugEx.Log("DamagePopupItem", $"启用颜色渐变（基础色=白色）: 左下={gradientColors[0]}, 右上={gradientColors[2]}");
         }
         else
         {
             m_Text.enableVertexGradient = false;
             // 禁用渐变时，颜色由外部 SetColor 方法设置
-            DebugEx.Log("DamagePopupItem", "禁用颜色渐变");
         }
     }
 
@@ -209,7 +205,6 @@ public class DamagePopupItem : MonoBehaviour
         // ⭐ 初始化距离缩放缓存
         m_CachedDistanceScale = CalculateDistanceScale();
 
-        DebugEx.LogModule("DamagePopupItem", "开始播放飘字动画");
         PlayAnimationAsync().Forget();
     }
 

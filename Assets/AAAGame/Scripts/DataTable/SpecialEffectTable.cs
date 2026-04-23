@@ -38,7 +38,7 @@ public partial class SpecialEffectTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果分类：1=玩家先手,2=敌人先手,3=玩家偷袭
+        /// 效果分类：0=消耗品,1=玩家先手,2=敌人先手,3=玩家偷袭
         /// </summary>
         public int EffectCategory
         {
@@ -118,6 +118,15 @@ public partial class SpecialEffectTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 效果参数（JSON格式）
+        /// </summary>
+        public string EffectParams
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -140,6 +149,7 @@ public partial class SpecialEffectTable : DataRowBase
             IconId = int.Parse(columnStrings[index++]);
             Rarity = int.Parse(columnStrings[index++]);
             Weight = int.Parse(columnStrings[index++]);
+            EffectParams = columnStrings[index++];
 
             return true;
         }
@@ -161,6 +171,7 @@ public partial class SpecialEffectTable : DataRowBase
                     IconId = binaryReader.Read7BitEncodedInt32();
                     Rarity = binaryReader.Read7BitEncodedInt32();
                     Weight = binaryReader.Read7BitEncodedInt32();
+                    EffectParams = binaryReader.ReadString();
                 }
             }
 
