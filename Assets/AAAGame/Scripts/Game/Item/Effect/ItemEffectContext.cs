@@ -30,10 +30,10 @@ public class ItemEffectContext
     }
 
     /// <summary>
-    /// 获取玩家账号数据
+    /// 获取玩家存档数据
     /// </summary>
-    public PlayerAccountData GetPlayerData()
+    public PlayerSaveData GetPlayerData()
     {
-        return PlayerAccountDataManager.Instance?.CurrentAccountData;
+        return PlayerAccountDataManager.Instance?.CurrentSaveData;
     }
 }

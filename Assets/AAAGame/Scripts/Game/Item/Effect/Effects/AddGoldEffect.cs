@@ -11,14 +11,14 @@ public class AddGoldEffect : ItemEffectBase
         int max = context.GetParam<int>("max", 0);
         int gold = Random.Range(min, max + 1);
 
-        var playerData = context.GetPlayerData();
-        if (playerData == null)
+        var saveData = context.GetPlayerData();
+        if (saveData == null)
         {
             LogError("AddGoldEffect", "未加载存档");
             return false;
         }
 
-        playerData.Gold += gold;
+        saveData.Gold += gold;
         PlayerAccountDataManager.Instance.SaveCurrentSave();
 
         LogSuccess("AddGoldEffect", $"金币添加成功: +{gold}");
