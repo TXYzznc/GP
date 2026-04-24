@@ -77,9 +77,16 @@ public partial class FloatingBoxTip : UIFormBase
         if (m_RectTransform == null || targetRect == null) return;
 
         Canvas rootCanvas = FindRootCanvas(targetRect);
-        Camera targetCamera = (rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
-            ? rootCanvas.worldCamera
-            : null;
+        // WorldSpace Canvas 的坐标是 3D 世界坐标，必须用游戏主摄像机投影
+        // ScreenSpaceCamera 用 Canvas.worldCamera
+        // ScreenSpaceOverlay 传 null（Unity 直接按像素映射）
+        Camera targetCamera;
+        if (rootCanvas == null || rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            targetCamera = null;
+        else if (rootCanvas.renderMode == RenderMode.WorldSpace)
+            targetCamera = CameraRegistry.PlayerCamera ?? Camera.main;
+        else
+            targetCamera = rootCanvas.worldCamera;
 
         Vector3[] corners = new Vector3[4];
         targetRect.GetWorldCorners(corners);
@@ -87,7 +94,6 @@ public partial class FloatingBoxTip : UIFormBase
         Vector3 topCenter = (corners[1] + corners[2]) * 0.5f;
         Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(targetCamera, topCenter);
 
-        // Buff图标屏幕坐标（中心）
         Vector3 iconCenter = (corners[0] + corners[2]) * 0.5f;
         Vector2 iconScreenPos = RectTransformUtility.WorldToScreenPoint(targetCamera, iconCenter);
 
@@ -98,7 +104,6 @@ public partial class FloatingBoxTip : UIFormBase
         screenPos.y += offset.y;
         SetPosition(screenPos);
 
-        // 输出提示框最终的屏幕坐标
         var screenPoint = RectTransformUtility.WorldToScreenPoint(GetCanvasCamera(), m_RectTransform.position);
         DebugEx.LogModule("FloatingBoxTip", $"提示框最终屏幕坐标={screenPoint} | anchoredPos={m_RectTransform.anchoredPosition}");
     }
