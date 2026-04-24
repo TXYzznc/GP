@@ -23,6 +23,7 @@ MonoBehaviour:
   - EnemyEntityTable
   - EnemyTable
   - EscapeRuleTable
+  - ExpRuleTable
   - ItemGroupTable
   - ItemTable
   - LanguageTextTable
