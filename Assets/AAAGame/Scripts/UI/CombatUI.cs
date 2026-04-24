@@ -28,6 +28,7 @@ public partial class CombatUI : StateAwareUIForm
         DebugEx.LogModule("CombatUI", "订阅战斗状态事件");
         GF.Event.Subscribe(CombatEnterEventArgs.EventId, OnCombatEnter);
         GF.Event.Subscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
+        GF.Event.Subscribe(PlayerLevelUpEventArgs.EventId, OnPlayerLevelUp);
 
         // 订阅运行时数据变化事件
         SubscribeRuntimeDataEvents();
@@ -42,6 +43,7 @@ public partial class CombatUI : StateAwareUIForm
         DebugEx.LogModule("CombatUI", "取消订阅战斗状态事件");
         GF.Event.Unsubscribe(CombatEnterEventArgs.EventId, OnCombatEnter);
         GF.Event.Unsubscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
+        GF.Event.Unsubscribe(PlayerLevelUpEventArgs.EventId, OnPlayerLevelUp);
 
         // 取消订阅运行时数据变化事件
         UnsubscribeRuntimeDataEvents();
@@ -80,6 +82,11 @@ public partial class CombatUI : StateAwareUIForm
     #endregion
 
     #region 事件处理
+
+    private void OnPlayerLevelUp(object sender, GameEventArgs e)
+    {
+        RefreshPlayerInfo();
+    }
 
     private void OnCombatEnter(object sender, GameEventArgs e)
     {
@@ -324,10 +331,58 @@ public partial class CombatUI : StateAwareUIForm
     {
         RefreshEnemyInfo();
         RefreshPlayerStatus();
+        RefreshPlayerInfo();
         RefreshCardSlots();
         BindButtonEvents();
 
         DebugEx.LogModule("CombatUI", "战斗UI已刷新");
+    }
+
+    /// <summary>
+    /// 刷新玩家信息：头像、召唤师名+等级、经验条
+    /// </summary>
+    private void RefreshPlayerInfo()
+    {
+        var saveData = PlayerAccountDataManager.Instance?.CurrentSaveData;
+        if (saveData == null)
+            return;
+
+        int level = saveData.GlobalLevel;
+
+        // 召唤师名称 + 等级
+        if (varPlayerInfo != null)
+        {
+            var summonerTable = GF.DataTable.GetDataTable<SummonerTable>();
+            var summonerRow = summonerTable?.GetDataRow(saveData.CurrentSummonerId);
+            string summonerName = summonerRow != null ? summonerRow.Name : "召唤师";
+            varPlayerInfo.text = $"{summonerName}·{level}级";
+
+            // 加载头像（异步）
+            if (varPlayerImg != null && summonerRow != null && summonerRow.HeadImgId > 0)
+                RefreshSummonerAvatarAsync(summonerRow.HeadImgId).Forget();
+        }
+
+        // 经验条 + 经验文本
+        var levelTable = GF.DataTable.GetDataTable<PlayerDataTable>();
+        var levelRow = levelTable?.GetDataRow(level);
+        int currentExp = saveData.CurrentExp;
+        int requiredExp = levelRow != null ? levelRow.RequiredExp : 0;
+
+        if (varPlayerEXP != null)
+        {
+            // 满级（RequiredExp == 0）时填满
+            varPlayerEXP.fillAmount = requiredExp > 0 ? Mathf.Clamp01((float)currentExp / requiredExp) : 1f;
+        }
+
+        if (varPlayerEXPText != null)
+        {
+            varPlayerEXPText.text = requiredExp > 0 ? $"{currentExp}/{requiredExp}" : $"{currentExp}/--";
+        }
+    }
+
+    private async UniTaskVoid RefreshSummonerAvatarAsync(int headImgId)
+    {
+        await GameExtension.ResourceExtension.LoadSpriteAsync(headImgId, varPlayerImg, 1f, null);
     }
 
     /// <summary>
@@ -530,31 +585,6 @@ public partial class CombatUI : StateAwareUIForm
     }
 
     /// <summary>
-    /// 创建卡牌槽
-    /// </summary>
-    private async UniTask CreateCardSlot(CardData cardData, int index, CardSlotContainer container, bool isRefreshMode = false)
-    {
-        // 从对象池获取卡牌
-        CardSlotItem slotItem = CardSlotItemPool.Instance?.GetCard();
-        if (slotItem != null)
-        {
-            // 重新设置 parent（确保卡牌在正确的容器下）
-            slotItem.transform.SetParent(varCardSlots.transform, worldPositionStays: false);
-            slotItem.gameObject.name = $"CardSlot_{index}";
-
-            slotItem.SetData(cardData);
-            // 通过容器添加卡牌，播放进场动画
-            await container.AddCardAsync(slotItem, isRefreshMode);
-
-            DebugEx.LogModule("CombatUI", $"从对象池获取并创建卡牌槽 {index}");
-        }
-        else
-        {
-            DebugEx.ErrorModule("CombatUI", $"无法从对象池获取卡牌槽 {index}");
-        }
-    }
-
-    /// <summary>
     /// 获取卡牌容器
     /// </summary>
     private CardSlotContainer GetCardSlotContainer()
@@ -605,11 +635,6 @@ public partial class CombatUI : StateAwareUIForm
         {
             varConsumeNum_Refresh.text = "1";  // TODO: 从配置获取
         }
-
-        if (varComNumText != null)
-        {
-            varComNumText.text = "30";  // TODO: 从战斗数据获取
-        }
     }
 
     /// <summary>
@@ -622,12 +647,6 @@ public partial class CombatUI : StateAwareUIForm
             // 更新人口文本（如果有对应UI元素显示人口）
             // TODO: 根据实际UI元素更新
             // varPopulationText.text = $"{CombatSessionData.Instance.UsedPopulation}/{CombatSessionData.Instance.CurrentMaxDomination}";
-
-            // 更新金币文本
-            if (varComNumText != null)
-            {
-                varComNumText.text = CombatSessionData.Instance.Gold.ToString();
-            }
         }
     }
 
