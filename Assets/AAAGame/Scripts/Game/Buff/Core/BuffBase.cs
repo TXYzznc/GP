@@ -10,6 +10,9 @@ public abstract class BuffBase : IBuff
     public int StackCount { get; protected set; } = 1;
     public bool IsFinished { get; protected set; } = false;
 
+    /// <summary>激活条件，null 表示始终激活</summary>
+    public System.Func<bool> ActivationCondition { get; set; }
+
     protected BuffContext Ctx;
     protected BuffTable Config;
 

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -54,4 +55,10 @@ public interface IBuff
     /// </summary>
     /// <param name="count">要减少的层数</param>
     void ReduceStacks(int count);
+
+    /// <summary>
+    /// 激活条件。返回 true 时 Buff 处于激活状态；为 null 则视为始终激活。
+    /// 由 BuffManager 每帧检测，条件变化时自动在激活/休眠列表间迁移。
+    /// </summary>
+    Func<bool> ActivationCondition { get; set; }
 }

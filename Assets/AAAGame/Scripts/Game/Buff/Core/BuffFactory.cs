@@ -57,6 +57,7 @@ public static class BuffFactory
         Register(5019, () => new SilenceBuff());      // 沉默之符（禁用技能）
         Register(5020, () => new TauntBuff());        // 嘲讽之声（强制索敌）
         Register(5011, () => new ReflectDamageBuff()); // 反伤之盾（返还伤害30%）
+        Register(5014, () => new MaxHpBuff());         // 血源强化（MaxHP+30%）
         Register(5015, () => new LifestealBuff());    // 吸血之刃（吸血40%）
 
         DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
