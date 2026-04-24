@@ -190,6 +190,15 @@ public partial class SummonerTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 召唤师头像Id
+        /// </summary>
+        public int HeadImgId
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -220,6 +229,7 @@ public partial class SummonerTable : DataRowBase
             ShowSkills = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             PrefabId = int.Parse(columnStrings[index++]);
             PortraitId = int.Parse(columnStrings[index++]);
+            HeadImgId = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -249,6 +259,7 @@ public partial class SummonerTable : DataRowBase
                     ShowSkills = binaryReader.ReadArray<int>();
                     PrefabId = binaryReader.Read7BitEncodedInt32();
                     PortraitId = binaryReader.Read7BitEncodedInt32();
+                    HeadImgId = binaryReader.Read7BitEncodedInt32();
                 }
             }
 
