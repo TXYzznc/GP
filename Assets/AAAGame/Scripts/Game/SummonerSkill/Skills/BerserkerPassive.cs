@@ -3,64 +3,73 @@ using System.Collections.Generic;
 /// <summary>
 /// 狂怒之心——狂战士固定被动
 ///
-/// 条件：战场有任意友方棋子 HP &lt; Params[0] × 最大 HP
-///   → 按 InstantBuffs 施加（4003:3 → 全体友方含召唤师）
-/// 条件解除时移除所有已施加的 Buff
+/// 效果：给战场上所有友方棋子（含召唤师）挂上 ID=4002 的条件型 Buff。
+/// 条件：该棋子自身 HP &lt; Params[0]（默认 0.5）× MaxHP。
+/// 激活/休眠由每个棋子自身的 BuffManager 每帧检测，被动本身不再轮询全场。
 /// </summary>
 public class BerserkerPassive : SummonerPassiveBase
 {
+    private const int BUFF_ID    = 4002;
     private const int PLAYER_CAMP = 0;
-    private float m_HpThreshold;
-    private BuffTargetEntry[] m_InstantEntries;
+
+    // 记录已注册的 BuffManager，Dispose 时清理
+    private readonly List<BuffManager> m_RegisteredManagers = new();
 
     public override void Init(SummonerSkillContext ctx, SummonerSkillTable config)
     {
         base.Init(ctx, config);
-
-        float[] p = config?.Params;
-        m_HpThreshold = (p != null && p.Length >= 1) ? p[0] : 0.5f;
-        m_InstantEntries = BuffTargetEntry.ParseArray(config?.InstantBuffs);
     }
 
     protected override void OnTick(float dt)
     {
+        if (m_IsActive) return;  // 已完成注册，不再重复处理
+
         if (m_Ctx?.EntityTracker == null) return;
-        if (m_InstantEntries == null || m_InstantEntries.Length == 0) return;
 
-        bool anyAllyLow = CheckAnyAllyLowHP(m_HpThreshold);
-
-        if (anyAllyLow && !m_IsActive)
-        {
-            SummonerBuffHelper.ApplyBuffs(m_Ctx, m_InstantEntries);
-            m_IsActive = true;
-            DebugEx.Log("[BerserkerPassive] 激活：条件满足，已施加 InstantBuffs");
-        }
-        else if (!anyAllyLow && m_IsActive)
-        {
-            SummonerBuffHelper.RemoveBuffs(m_Ctx, m_InstantEntries);
-            m_IsActive = false;
-            DebugEx.Log("[BerserkerPassive] 解除：条件不满足，已移除 InstantBuffs");
-        }
+        // 首次（或战斗重置后）将条件 Buff 挂到当前所有友方
+        RegisterToAllAllies();
+        m_IsActive = true;
     }
 
     protected override void OnDispose()
     {
-        if (!m_IsActive || m_InstantEntries == null) return;
-        SummonerBuffHelper.RemoveBuffs(m_Ctx, m_InstantEntries);
+        // 彻底移除所有已注册目标上的 Buff（激活 + 休眠）
+        for (int i = 0; i < m_RegisteredManagers.Count; i++)
+        {
+            var bm = m_RegisteredManagers[i];
+            if (bm != null) bm.RemoveBuff(BUFF_ID);
+        }
+        m_RegisteredManagers.Clear();
         m_IsActive = false;
     }
 
-    private bool CheckAnyAllyLowHP(float threshold)
+    // ── 私有 ─────────────────────────────────────────────────────────
+    private void RegisterToAllAllies()
     {
         List<ChessEntity> allies = m_Ctx.EntityTracker.GetAllies(PLAYER_CAMP);
         for (int i = 0; i < allies.Count; i++)
         {
-            var chess = allies[i];
-            if (chess?.Attribute == null) continue;
-            if (chess.Attribute.MaxHp > 0 &&
-                chess.Attribute.CurrentHp < threshold * chess.Attribute.MaxHp)
-                return true;
+            var ally = allies[i];
+            if (ally == null) continue;
+            if (!ally.TryGetComponent<BuffManager>(out var bm)) continue;
+            RegisterToBM(bm, ally.Attribute);
         }
-        return false;
+
+        // 召唤师自身
+        var summonerBM = m_Ctx.SummonerBuffManager;
+        if (summonerBM != null)
+        {
+            if (summonerBM.TryGetComponent<ChessAttribute>(out var summonerAttr))
+                RegisterToBM(summonerBM, summonerAttr);
+        }
+    }
+
+    private void RegisterToBM(BuffManager bm, ChessAttribute attr)
+    {
+        if (m_RegisteredManagers.Contains(bm)) return;
+
+        // 条件由 BerserkerRageBuff.Init() 自己设置，这里只负责"挂上去"
+        bm.AddInactiveBuff(BUFF_ID);
+        m_RegisteredManagers.Add(bm);
     }
 }

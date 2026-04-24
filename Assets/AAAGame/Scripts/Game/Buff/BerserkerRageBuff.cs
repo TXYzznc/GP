@@ -7,9 +7,20 @@
 /// </summary>
 public class BerserkerRageBuff : StatModBuff
 {
+    // 条件：持有者自身 HP < 50%（由 BuffManager 每帧检测）
+    private const float HP_THRESHOLD = 0.5f;
+
     public override void Init(BuffContext ctx, BuffTable config)
     {
         base.Init(ctx, config);
+
+        // 激活条件：持有者自身 HP 低于阈值
+        var attr = ctx?.OwnerAttribute;
+        if (attr != null)
+        {
+            ActivationCondition = () => attr.MaxHp > 0 &&
+                                        attr.CurrentHp < HP_THRESHOLD * attr.MaxHp;
+        }
 
         // 检测目标是否为召唤师
         bool isSummoner = ctx.Owner != null &&

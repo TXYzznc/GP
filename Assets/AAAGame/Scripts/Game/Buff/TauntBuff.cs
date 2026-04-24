@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class TauntBuff : BuffBase
 {
+    public const int BUFF_ID = 5020;
+
     private bool m_Applied;
     private string m_StateKey;
     private ChessEntity m_Entity;
