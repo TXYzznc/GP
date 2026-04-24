@@ -30,6 +30,20 @@ public class ChessCombatController : MonoBehaviour
     /// <summary>当前使用的命中检测器（仅用于近战攻击结束回调）</summary>
     private IHitDetector m_CurrentHitDetector;
 
+    /// <summary>攻击目标修改器链：按顺序调用，每个修改器可替换目标（null = 本次攻击miss）</summary>
+    private readonly System.Collections.Generic.List<Func<ChessEntity, ChessEntity>> m_AttackTargetModifiers = new();
+
+    public void AddAttackTargetModifier(Func<ChessEntity, ChessEntity> modifier)
+    {
+        if (modifier != null && !m_AttackTargetModifiers.Contains(modifier))
+            m_AttackTargetModifiers.Add(modifier);
+    }
+
+    public void RemoveAttackTargetModifier(Func<ChessEntity, ChessEntity> modifier)
+    {
+        m_AttackTargetModifiers.Remove(modifier);
+    }
+
     #endregion
 
     #region 属性
@@ -249,8 +263,11 @@ public class ChessCombatController : MonoBehaviour
             return;
         }
 
-        // 缓存攻击目标
-        m_PendingAttackTarget = target;
+        // 缓存攻击目标，依次通过修改器链（混乱/失准等），null 表示 miss
+        ChessEntity resolved = target;
+        for (int i = 0; i < m_AttackTargetModifiers.Count; i++)
+            resolved = m_AttackTargetModifiers[i](resolved);
+        m_PendingAttackTarget = resolved;
 
         // ❌ 移除伤害计算逻辑（移到 OnAttackExecute）
         // 伤害将在动画执行帧、应用"执行时"Buff 之后计算
@@ -369,7 +386,7 @@ public class ChessCombatController : MonoBehaviour
     /// </summary>
     private void OnAttackExecute()
     {
-        if (m_Entity != null && m_Entity.HasSpecialState("Stun"))
+        if (m_Entity != null && m_Entity.IsIncapacitated)
         {
             EndAttack();
             return;
@@ -436,7 +453,7 @@ public class ChessCombatController : MonoBehaviour
     /// </summary>
     private void OnSkill1Execute()
     {
-        if (m_Entity != null && m_Entity.HasSpecialState("Stun"))
+        if (m_Entity != null && m_Entity.IsIncapacitated)
         {
             return;
         }
@@ -458,7 +475,7 @@ public class ChessCombatController : MonoBehaviour
     /// </summary>
     private void OnSkill2Execute()
     {
-        if (m_Entity != null && m_Entity.HasSpecialState("Stun"))
+        if (m_Entity != null && m_Entity.IsIncapacitated)
         {
             return;
         }

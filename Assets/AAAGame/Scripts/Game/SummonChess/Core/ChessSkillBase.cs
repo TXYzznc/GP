@@ -57,7 +57,7 @@ public abstract class ChessSkillBase : IChessSkill
         if (m_Ctx?.Entity == null)
             return false;
 
-        return m_Ctx.Entity.HasSpecialState("Silence");
+        return m_Ctx.Entity.IsSilenced;
     }
 
     public virtual bool TryCast()

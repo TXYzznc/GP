@@ -423,6 +423,17 @@ public class ChessEntity : MonoBehaviour
         return m_SpecialStateCounts.TryGetValue(key, out int count) && count > 0;
     }
 
+    // ── 行为约束聚合属性（第一层：影响整体行动） ──────────────────────
+    /// <summary>是否完全无法行动（Stun / Freeze）</summary>
+    public bool IsIncapacitated => HasSpecialState("Stun") || HasSpecialState("Freeze");
+
+    // ── AI 约束聚合属性（第二层：影响 AI 决策） ────────────────────────
+    /// <summary>是否被沉默（无法使用技能）</summary>
+    public bool IsSilenced => HasSpecialState("Silence");
+
+    /// <summary>是否被嘲讽（强制索敌来源）</summary>
+    public bool IsTaunted => HasSpecialState("Taunt");
+
     private void Update()
     {
         if (CurrentState == ChessState.Dead)
@@ -432,7 +443,7 @@ public class ChessEntity : MonoBehaviour
 
         float dt = Time.deltaTime;
 
-        if (HasSpecialState("Stun"))
+        if (IsIncapacitated)
         {
             if (Passives != null)
             {

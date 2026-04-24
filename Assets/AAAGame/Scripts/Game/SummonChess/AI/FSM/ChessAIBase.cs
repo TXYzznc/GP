@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -64,6 +64,9 @@ public abstract class ChessAIBase : IChessAI
 
     /// <summary>索敌策略</summary>
     protected ITargetSearchStrategy m_SearchStrategy;
+
+    /// <summary>索敌修改器列表（由 Buff 注册，影响最终目标选择）</summary>
+    private readonly List<ITargetSelectModifier> m_TargetModifiers = new();
 
     #endregion
 
@@ -592,6 +595,19 @@ public abstract class ChessAIBase : IChessAI
 
     #region 目标搜索
 
+    /// <summary>注册一个索敌修改器（Buff 在 OnEnter 时调用）</summary>
+    public void RegisterTargetModifier(ITargetSelectModifier modifier)
+    {
+        if (modifier != null && !m_TargetModifiers.Contains(modifier))
+            m_TargetModifiers.Add(modifier);
+    }
+
+    /// <summary>注销一个索敌修改器（Buff 在 OnExit 时调用）</summary>
+    public void UnregisterTargetModifier(ITargetSelectModifier modifier)
+    {
+        m_TargetModifiers.Remove(modifier);
+    }
+
     /// <summary>
     /// 寻找攻击目标（使用敌人信息缓存优化）
     /// </summary>
@@ -635,7 +651,15 @@ public abstract class ChessAIBase : IChessAI
             m_SearchStrategy = new DefaultTargetSearchStrategy(m_SearchConfig);
         }
 
-        return m_SearchStrategy.SelectBestTarget(m_Context.Entity, enemyCache);
+        ChessEntity selected = m_SearchStrategy.SelectBestTarget(m_Context.Entity, enemyCache);
+
+        // 依次应用索敌修改器（混乱、嘲讽扩展等）
+        for (int i = 0; i < m_TargetModifiers.Count; i++)
+        {
+            selected = m_TargetModifiers[i].ModifyTarget(selected, m_Context);
+        }
+
+        return selected;
     }
 
     /// <summary>
@@ -645,12 +669,12 @@ public abstract class ChessAIBase : IChessAI
     {
         if (m_Context?.Entity == null) return null;
 
-        var buffManager = m_Context.Entity.GetComponent<BuffManager>();
-        if (buffManager == null || !m_Context.Entity.HasSpecialState("Taunt"))
-            return null;
+        if (!m_Context.Entity.IsTaunted) return null;
 
-        // 获取嘲讽 Buff (ID: 5020)
-        var tauntBuff = buffManager.GetBuff(5020) as TauntBuff;
+        var buffManager = m_Context.Entity.BuffManager;
+        if (buffManager == null) return null;
+
+        var tauntBuff = buffManager.GetBuff(TauntBuff.BUFF_ID) as TauntBuff;
         if (tauntBuff == null)
             return null;
 
