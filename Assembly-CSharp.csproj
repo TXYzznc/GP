@@ -42,7 +42,7 @@
     <UnityVersion>2022.3.62f3c1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\WIN10\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.1\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\WIN10\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.2\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -79,6 +79,8 @@
     <None Include="Assets\AAAGame\DataTable\SynergyTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Fonts\chars.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260424_135713.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260424_152442.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260423_172555.txt" />
     <None Include="Assets\AAAGame\DataTable\SpecialEffectTable.txt" />
@@ -116,6 +118,7 @@
     <None Include="Assets\AAAGame\DataTable\TestTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles_Cutout.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260424_153211.txt" />
     <None Include="Assets\AAAGame\DataTable\BuffTable.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AdditiveMobile_Scroll01.shader" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Aura.shader" />
@@ -157,7 +160,9 @@
     <None Include="Assets\测试输出日志\unity_log_20260423_160330.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_Scroll01.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260423_101710.txt" />
+    <None Include="Assets\AAAGame\DataTable\ExpRuleTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260424_135534.txt" />
     <None Include="Assets\AAAGame\DataTable\EnemyEntityTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Blur.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerAccountTable.txt" />

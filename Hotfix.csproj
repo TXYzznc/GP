@@ -42,7 +42,7 @@
     <UnityVersion>2022.3.62f3c1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\WIN10\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.1\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\WIN10\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.2.2\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3c1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -89,6 +89,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CurrencyItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Animation\EnemyAnimator.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\Core\EntityBase.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\MaxHpBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\CombatPreparationUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\IInteractable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Component\ExtendedLayoutElement.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\EntityExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\MapItemSceneIdHolder.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\IItemEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\ExpRuleTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\CombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\SneakDebuffSelectionUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillFactory.cs" />
@@ -472,6 +474,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Utils\LayerHelper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\ItemEnums.cs" />
     <Compile Include="Assets\AAAGame\Scripts\TA\OuterGlow\OutlineConfig.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\Interface\ITargetSelectModifier.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\AffixTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\SynergyData.cs" />
@@ -574,7 +577,9 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamagePopupItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RestoreHPEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\StaticUIComponent.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\PlayerLevelUpEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PageLabelItem.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Manager\PlayerExpManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AAAGame\Scripts\link.xml" />
