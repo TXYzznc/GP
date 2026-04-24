@@ -447,12 +447,15 @@ public class ChessAttribute : MonoBehaviour
     /// <param name="isTrueDamage">是否为真实伤害（忽略护甲/魔抗）</param>
     /// <param name="isCritical">是否暴击</param>
     /// <param name="damageType">伤害类型（用于飘字显示）</param>
-    public void TakeDamage(double damage, bool isMagic = false, bool isTrueDamage = false, bool isCritical = false,
-        DamageFloatingTextManager.DamageType damageType = DamageFloatingTextManager.DamageType.普通伤害)
+    /// <param name="attacker">攻击来源属性组件，为 null 表示无来源（如 DOT）</param>
+    /// <returns>实际造成的伤害值（护盾/防御后）</returns>
+    public double TakeDamage(double damage, bool isMagic = false, bool isTrueDamage = false, bool isCritical = false,
+        DamageFloatingTextManager.DamageType damageType = DamageFloatingTextManager.DamageType.普通伤害,
+        ChessAttribute attacker = null)
     {
         if (damage <= 0)
         {
-            return;
+            return 0;
         }
 
         // 计算实际伤害
@@ -481,7 +484,8 @@ public class ChessAttribute : MonoBehaviour
             if (actualDamage <= 0)
             {
                 OnDamageTaken?.Invoke(0, isMagic);
-                return;
+                OnDamageTakenWithSource?.Invoke(0, isMagic, attacker);
+                return 0;
             }
         }
 
@@ -489,53 +493,34 @@ public class ChessAttribute : MonoBehaviour
         ModifyHp(-actualDamage);
 
         // 显示伤害飘字
-        // 如果指定了 damageType，使用指定类型；否则根据参数推断
         DamageFloatingTextManager.DamageType finalDamageType = damageType;
         if (damageType == DamageFloatingTextManager.DamageType.普通伤害 && (isMagic || isCritical || isTrueDamage))
         {
-            // 自动推断类型
             if (isCritical)
-            {
                 finalDamageType = DamageFloatingTextManager.DamageType.暴击伤害;
-            }
             else if (isMagic)
-            {
                 finalDamageType = DamageFloatingTextManager.DamageType.法术伤害;
-            }
             else if (isTrueDamage)
-            {
                 finalDamageType = DamageFloatingTextManager.DamageType.真实伤害;
-            }
-            else
-            {
-                finalDamageType = DamageFloatingTextManager.DamageType.普通伤害;
-            }
         }
 
-        // 获取摄像机
         Camera playerCamera = CameraRegistry.PlayerCamera;
         Vector3 basePosition = transform.position;
-
-        // 计算相对屏幕的偏移方向
-        Vector3 screenRight = Vector3.right;      // 屏幕右方向
-        Vector3 screenForward = Vector3.forward;  // 屏幕内侧方向
+        Vector3 screenRight = Vector3.right;
+        Vector3 screenForward = Vector3.forward;
         if (playerCamera != null)
         {
             screenRight = playerCamera.transform.right;
             screenForward = playerCamera.transform.forward;
         }
 
-        // 计算飘字位置：基础位置 + Y轴随机偏移 + 相对屏幕的左右偏移 + 相对屏幕的内外偏移
         float yOffset = 2f + UnityEngine.Random.Range(-0.8f, 0.8f);
-        float screenRightOffset = UnityEngine.Random.Range(-1f, 1f);     // 相对屏幕左右
-        float screenForwardOffset = UnityEngine.Random.Range(0f, 1f);    // 相对屏幕内侧
-
+        float screenRightOffset = UnityEngine.Random.Range(-1f, 1f);
+        float screenForwardOffset = UnityEngine.Random.Range(0f, 1f);
         Vector3 popupPosition = basePosition
             + Vector3.up * yOffset
             + screenRight * screenRightOffset
             + screenForward * screenForwardOffset;
-
-        // 向摄像机方向偏移 0.1 单位，避免被目标对象遮挡
         if (playerCamera != null)
         {
             Vector3 cameraDir = (playerCamera.transform.position - popupPosition).normalized;
@@ -544,11 +529,18 @@ public class ChessAttribute : MonoBehaviour
 
         DamageFloatingTextManager.Instance.ShowDamageText(finalDamageType, (float)actualDamage, popupPosition);
 
-        // 触发伤害事件
+        // 触发受伤事件
         OnDamageTaken?.Invoke(actualDamage, isMagic);
+        OnDamageTakenWithSource?.Invoke(actualDamage, isMagic, attacker);
+
+        // 通知攻击方已造成伤害
+        if (attacker != null)
+            attacker.OnDamageDealt?.Invoke(actualDamage, this);
 
         DebugEx.LogModule("ChessAttribute", $"TakeDamage: 受到{(isTrueDamage ? "真实" : isMagic ? "魔法" : "物理")}伤害 {actualDamage:F1} " +
                  $"(原始:{damage:F1}) HP: {m_CurrentHp:F1}/{m_MaxHp:F1} Shield: {m_Shield:F1}");
+
+        return actualDamage;
     }
 
     #endregion
@@ -568,10 +560,22 @@ public class ChessAttribute : MonoBehaviour
     public event Action<double, double> OnMpChanged;
 
     /// <summary>
-    /// 受到伤害事件
+    /// 受到伤害事件（无来源）
     /// 参数：(伤害值, 是否为魔法伤害)
     /// </summary>
     public event Action<double, bool> OnDamageTaken;
+
+    /// <summary>
+    /// 受到伤害事件（携带攻击来源，attacker 可为 null 表示 DOT）
+    /// 参数：(伤害值, 是否为魔法伤害, 攻击来源 ChessAttribute)
+    /// </summary>
+    public event Action<double, bool, ChessAttribute> OnDamageTakenWithSource;
+
+    /// <summary>
+    /// 造成伤害事件（在被攻击方身上触发后，由 TakeDamage 回调给攻击方）
+    /// 参数：(实际造成的伤害值, 被攻击方 ChessAttribute)
+    /// </summary>
+    public event Action<double, ChessAttribute> OnDamageDealt;
 
     /// <summary>
     /// 护盾值变化事件
@@ -589,6 +593,8 @@ public class ChessAttribute : MonoBehaviour
         OnHpChanged = null;
         OnMpChanged = null;
         OnDamageTaken = null;
+        OnDamageTakenWithSource = null;
+        OnDamageDealt = null;
         OnShieldChanged = null;
     }
 

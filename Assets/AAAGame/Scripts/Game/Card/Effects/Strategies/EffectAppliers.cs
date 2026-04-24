@@ -114,52 +114,9 @@ public class DamageWithCoefficientApplier : ICardEffectApplier
         {
             if (target != null)
             {
-                CardEffectHelper.DealDamage(target, damage, damageType);
-
-                // 处理反伤之盾：检查目标是否有反伤 Buff
-                HandleReflectDamage(target, damage, m_CasterChess);
-
-                // 处理吸血之刃：检查施法者是否有吸血 Buff
-                HandleLifesteal(m_CasterChess, damage);
+                CardEffectHelper.DealDamage(target, damage, damageType, m_CasterChess != null ? m_CasterChess.Attribute : null);
             }
         }
     }
 
-    private void HandleReflectDamage(ChessEntity target, float damage, ChessEntity caster)
-    {
-        if (target == null || caster == null) return;
-
-        var buffManager = target.GetComponent<BuffManager>();
-        if (buffManager == null) return;
-
-        // 检查目标是否有反伤之盾 Buff (ID: 5011)
-        var reflectBuff = buffManager.GetBuff(5011);
-        if (reflectBuff is ReflectDamageBuff reflect)
-        {
-            double reflectDamage = damage * reflect.GetReflectRatio();
-            if (reflectDamage > 0)
-            {
-                caster.Attribute.TakeDamage(reflectDamage, false, true, false, DamageFloatingTextManager.DamageType.反弹伤害);
-            }
-        }
-    }
-
-    private void HandleLifesteal(ChessEntity caster, float damage)
-    {
-        if (caster == null) return;
-
-        var buffManager = caster.GetComponent<BuffManager>();
-        if (buffManager == null) return;
-
-        // 检查施法者是否有吸血之刃 Buff (ID: 5015)
-        var lifestealBuff = buffManager.GetBuff(5015);
-        if (lifestealBuff is LifestealBuff lifesteal)
-        {
-            double healAmount = damage * lifesteal.GetLifestealRatio();
-            if (healAmount > 0)
-            {
-                caster.Attribute.ModifyHp(healAmount);
-            }
-        }
-    }
 }

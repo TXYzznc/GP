@@ -98,12 +98,14 @@ public abstract class HitDetectorBase : IHitDetector
             CombatVFXManager.PlayEffect(context.HitEffectId, target.transform.position);
         }
 
-        // 2. 造成伤害
+        // 2. 造成伤害（传入攻击方属性，用于反伤/吸血等事件链）
         target.Attribute.TakeDamage(
             context.BaseDamage,
             context.IsMagicDamage,
             context.IsTrueDamage,
-            context.IsCritical
+            context.IsCritical,
+            DamageFloatingTextManager.DamageType.普通伤害,
+            context.Attacker?.Attribute
         );
 
         // ⭐ 3. 应用"命中时"的 Buff（BuffTriggerType=1）
