@@ -87,6 +87,7 @@
     <None Include="Assets\AAAGame\DataTable\ItemTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260424_180933.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceConfigTable.txt" />
