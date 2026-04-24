@@ -493,6 +493,14 @@ public class PlayerAccountDataManager
             saveData.LastPlayTime = GetCurrentTimestamp();
             m_CurrentSaveData = saveData;
 
+            // 上次未正常结算（异常退出），回滚到快照状态
+            if (!string.IsNullOrEmpty(saveData.InGameSnapshot))
+            {
+                DebugEx.WarningModule("PlayerAccountDataManager",
+                    "检测到未结算的局内快照，自动回滚账号数据");
+                RestoreFromSnapshot();
+            }
+
             // 从配置表加载运行时配置
             LoadRuntimeData(saveData);
 
@@ -682,40 +690,45 @@ public class PlayerAccountDataManager
     #region 玩家数据操作
 
     /// <summary>
-    /// 添加经验
+    /// 添加经验（支持连续升级）
     /// </summary>
     public void AddExp(int exp)
     {
         if (m_CurrentSaveData == null)
             return;
 
-        // 应用经验倍率
         exp = Mathf.RoundToInt(exp * m_CurrentSaveData.ExpMultiplier);
         m_CurrentSaveData.CurrentExp += exp;
 
-        // 检查是否升级
         var levelTable = GF.DataTable.GetDataTable<PlayerDataTable>();
-        if (levelTable != null)
+        if (levelTable == null)
+            return;
+
+        // 循环检查升级（防止一次大量经验跨多级）
+        while (true)
         {
             var levelConfig = levelTable.GetDataRow(m_CurrentSaveData.GlobalLevel);
-            if (levelConfig != null && m_CurrentSaveData.CurrentExp >= levelConfig.RequiredExp)
-            {
-                PlayerLevelUp();
-            }
+            // RequiredExp == 0 表示满级
+            if (levelConfig == null || levelConfig.RequiredExp == 0)
+                break;
+            if (m_CurrentSaveData.CurrentExp < levelConfig.RequiredExp)
+                break;
+
+            m_CurrentSaveData.CurrentExp -= levelConfig.RequiredExp;
+            PlayerLevelUp();
         }
     }
 
     /// <summary>
-    /// 玩家升级
+    /// 玩家升级（由 AddExp 内部调用，不单独触发保存）
     /// </summary>
-    public void PlayerLevelUp()
+    private void PlayerLevelUp()
     {
         if (m_CurrentSaveData == null)
             return;
 
         int oldLevel = m_CurrentSaveData.GlobalLevel;
         m_CurrentSaveData.GlobalLevel++;
-        m_CurrentSaveData.CurrentExp = 0;
 
         var levelTable = GF.DataTable.GetDataTable<PlayerDataTable>();
         if (levelTable != null)
@@ -726,22 +739,15 @@ public class PlayerAccountDataManager
                 m_CurrentSaveData.InventoryCapacity = levelConfig.InventorySize;
 
                 if (!string.IsNullOrEmpty(levelConfig.UnlockFeature))
-                {
                     HandleUnlockFeature(levelConfig.UnlockFeature);
-                }
 
                 if (levelConfig.RewardItemId > 0)
-                {
                     AddItem(levelConfig.RewardItemId, levelConfig.RewardCount);
-                }
             }
         }
 
-        SaveCurrentSave();
-        DebugEx.LogModule(
-            "PlayerAccountDataManager",
-            $"玩家升级: {oldLevel} -> {m_CurrentSaveData.GlobalLevel}"
-        );
+        GF.Event.Fire(this, PlayerLevelUpEventArgs.Create(oldLevel, m_CurrentSaveData.GlobalLevel));
+        DebugEx.LogModule("PlayerAccountDataManager", $"玩家升级: {oldLevel} -> {m_CurrentSaveData.GlobalLevel}");
     }
 
     /// <summary>
@@ -1118,6 +1124,93 @@ public class PlayerAccountDataManager
             default:
                 DebugEx.LogModule("PlayerAccountDataManager", $"解锁功能: {featureName}");
                 break;
+        }
+    }
+
+    #endregion
+
+    #region 局内快照
+
+    /// <summary>
+    /// 进入局内前创建快照，保存当前账号数据到 InGameSnapshot 字段
+    /// </summary>
+    public void CreateInGameSnapshot()
+    {
+        if (m_CurrentSaveData == null)
+            return;
+
+        // 序列化当前关键数据为快照（排除快照字段本身，避免递归）
+        var snapshot = new PlayerSaveSnapshot
+        {
+            GlobalLevel = m_CurrentSaveData.GlobalLevel,
+            CurrentExp  = m_CurrentSaveData.CurrentExp,
+            Gold        = m_CurrentSaveData.Gold,
+            OriginStone = m_CurrentSaveData.OriginStone,
+            SpiritStone = m_CurrentSaveData.SpiritStone,
+            InventoryItems    = m_CurrentSaveData.InventoryItems,
+            InventoryCapacity = m_CurrentSaveData.InventoryCapacity,
+            CompletedQuestIds = m_CurrentSaveData.CompletedQuestIds != null
+                ? new List<int>(m_CurrentSaveData.CompletedQuestIds)
+                : new List<int>(),
+        };
+
+        m_CurrentSaveData.InGameSnapshot = JsonUtility.ToJson(snapshot);
+        SaveCurrentSave();
+
+        DebugEx.LogModule("PlayerAccountDataManager",
+            $"已创建局内快照: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}");
+    }
+
+    /// <summary>
+    /// 正常结算后清除快照（传送/死亡回基地时调用）
+    /// </summary>
+    public void ClearInGameSnapshot()
+    {
+        if (m_CurrentSaveData == null)
+            return;
+
+        m_CurrentSaveData.InGameSnapshot = null;
+        DebugEx.LogModule("PlayerAccountDataManager", "局内快照已清除");
+    }
+
+    /// <summary>
+    /// 检查是否存在未清除的快照（说明上次未正常结算）
+    /// </summary>
+    public bool HasInGameSnapshot()
+    {
+        return m_CurrentSaveData != null && !string.IsNullOrEmpty(m_CurrentSaveData.InGameSnapshot);
+    }
+
+    /// <summary>
+    /// 将账号数据回滚到快照状态（异常退出后重新进入游戏时调用）
+    /// </summary>
+    public void RestoreFromSnapshot()
+    {
+        if (m_CurrentSaveData == null || string.IsNullOrEmpty(m_CurrentSaveData.InGameSnapshot))
+            return;
+
+        try
+        {
+            var snapshot = JsonUtility.FromJson<PlayerSaveSnapshot>(m_CurrentSaveData.InGameSnapshot);
+
+            m_CurrentSaveData.GlobalLevel        = snapshot.GlobalLevel;
+            m_CurrentSaveData.CurrentExp         = snapshot.CurrentExp;
+            m_CurrentSaveData.Gold               = snapshot.Gold;
+            m_CurrentSaveData.OriginStone        = snapshot.OriginStone;
+            m_CurrentSaveData.SpiritStone        = snapshot.SpiritStone;
+            m_CurrentSaveData.InventoryItems     = snapshot.InventoryItems;
+            m_CurrentSaveData.InventoryCapacity  = snapshot.InventoryCapacity;
+            m_CurrentSaveData.CompletedQuestIds  = snapshot.CompletedQuestIds ?? new List<int>();
+            m_CurrentSaveData.InGameSnapshot     = null;
+
+            SaveCurrentSave();
+
+            DebugEx.LogModule("PlayerAccountDataManager",
+                $"已从快照恢复: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}");
+        }
+        catch (System.Exception e)
+        {
+            DebugEx.ErrorModule("PlayerAccountDataManager", $"快照恢复失败: {e.Message}");
         }
     }
 

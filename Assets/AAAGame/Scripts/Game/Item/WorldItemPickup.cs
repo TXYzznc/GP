@@ -50,6 +50,12 @@ public class WorldItemPickup : MonoBehaviour
         if (success)
         {
             DebugEx.Log("WorldItemPickup", $"拾取物品 ID={m_ItemId} x{m_Count}");
+
+            // 获取物品稀有度并给予对应经验
+            var itemData = ItemManager.Instance?.GetItemData(m_ItemId);
+            if (itemData != null)
+                PlayerExpManager.Instance.GainExpFromItem((int)itemData.Quality);
+
             Destroy(gameObject);
         }
         else

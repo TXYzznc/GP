@@ -7,15 +7,14 @@ public class AddExpEffect : ItemEffectBase
     {
         int value = context.GetParam<int>("value", 0);
 
-        var saveData = context.GetPlayerData();
-        if (saveData == null)
+        if (PlayerAccountDataManager.Instance.CurrentSaveData == null)
         {
             LogError("AddExpEffect", "未加载存档");
             return false;
         }
 
-        saveData.CurrentExp += value;
-        PlayerAccountDataManager.Instance.SaveCurrentSave();
+        // 走 AddExp 以触发升级检查和经验倍率
+        PlayerAccountDataManager.Instance.AddExp(value);
 
         LogSuccess("AddExpEffect", $"经验值添加成功: +{value}");
         GF.UI.ShowToast($"获得经验值：+{value}", UIExtension.ToastStyle.Green);

@@ -73,6 +73,9 @@ public class InGameState : FsmState<GameStateManager>
         InventoryManager.Instance?.CreateSnapshot();
         DebugEx.LogModule("InGameState", "已创建背包快照");
 
+        // ⭐ 创建账号数据快照（等级/经验/金币/背包等），用于异常退出时回滚
+        PlayerAccountDataManager.Instance.CreateInGameSnapshot();
+
         // 订阅战斗结束事件
         GF.Event.Subscribe(CombatEndEventArgs.EventId, OnCombatEnd);
 

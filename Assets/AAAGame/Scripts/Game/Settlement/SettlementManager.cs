@@ -293,9 +293,10 @@ public class SettlementManager
         // ⭐ 清理背包快照
         InventoryManager.Instance?.ClearSnapshot();
 
-        // 保存存档，确保数据持久化
-        // TODO: 调用游戏存档系统的保存方法
-        // 例如：GameEntry.SaveGame() 或类似的接口
+        // ⭐ 正常结算完成，清除局内快照（标记此次局内进度已合法提交）
+        accountManager.ClearInGameSnapshot();
+        accountManager.SaveCurrentSave();
+
         DebugEx.LogModule("SettlementManager", "奖励应用完成，存档已保存");
 
         await UniTask.CompletedTask;

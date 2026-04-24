@@ -162,6 +162,12 @@ public class PlayerSaveData
     /// </summary>
     public Vector3 PlayerPos;
 
+    // ========== 局内快照（进入局内时保存，未正常结算时用于回档）==========
+    /// <summary>
+    /// 进入局内时的账号数据快照（JSON），非空说明当前有未结算的局内进度
+    /// </summary>
+    public string InGameSnapshot;
+
     // ========== 运行时缓存数据，不存储到配置表中 ==========
     /// <summary>
     /// 经验倍率（从PlayerInitTable获取）
@@ -463,4 +469,20 @@ public class PlayerSetting
     public bool VibrateEnabled = true;
     public int LanguageId = 1;
     public int GraphicsQuality = 2;
+}
+
+/// <summary>
+/// 进入局内前的账号数据快照，用于异常退出时回滚
+/// </summary>
+[Serializable]
+public class PlayerSaveSnapshot
+{
+    public int GlobalLevel;
+    public int CurrentExp;
+    public int Gold;
+    public int OriginStone;
+    public int SpiritStone;
+    public string InventoryItems;
+    public int InventoryCapacity;
+    public List<int> CompletedQuestIds;
 }
