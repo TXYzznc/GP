@@ -759,35 +759,12 @@ public partial class NewGameUI : UIFormBase
             return;
         }
 
-        // 设置初始位置（从 PosTable 获取）
-        var posTable = GF.DataTable.GetDataTable<PosTable>();
-        if (posTable != null)
-        {
-            var initialPosData = posTable.GetDataRow(1); // ID=1 是初始出生点
-            if (initialPosData != null)
-            {
-                saveData.PlayerPos = initialPosData.Position;
-                Log.Info($"设置初始位置: {saveData.PlayerPos} - {initialPosData.Description}");
-            }
-            else
-            {
-                Log.Warning("找不到初始位置数据 (PosTable ID=1)，使用默认位置");
-                saveData.PlayerPos = Vector3.zero;
-            }
-        }
-        else
-        {
-            Log.Error("PosTable 未加载");
-            saveData.PlayerPos = Vector3.zero;
-        }
-
-        // 保存存档（确保位置被保存）
+        // 保存存档
         PlayerAccountDataManager.Instance.SaveCurrentSave();
 
         Log.Info($"玩家存档创建成功:");
         Log.Info($"  - 存档ID: {saveData.SaveId}");
         Log.Info($"  - 存档名称: {saveData.SaveName}");
-        Log.Info($"  - 初始位置: {saveData.PlayerPos}");
         Log.Info($"  - 等级: {saveData.GlobalLevel}");
         Log.Info($"  - 金币: {saveData.Gold}");
         Log.Info($"  - 召唤师: {selectedSummoner.Name}");

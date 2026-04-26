@@ -30,11 +30,13 @@ public class EnemyCombatState : IEnemyState
 
     public void OnEnter()
     {
-        DebugEx.LogModule("EnemyCombatState", 
-            $"{m_AI.Entity.Config.Name} 进入战斗状态");
+        DebugEx.LogModule("EnemyCombatState", $"{m_AI.Entity.Config.Name} 进入战斗状态");
 
         // 停止 NavMeshAgent
         m_AI.Entity.NavAgent.isStopped = true;
+
+        // 战斗状态不播放动画，因为此时玩家也已进入战斗状态
+        // 游戏直接进入战斗准备阶段，敌人的动画由战斗系统管理
     }
 
     public void OnUpdate(float deltaTime)
@@ -45,8 +47,7 @@ public class EnemyCombatState : IEnemyState
 
     public void OnExit()
     {
-        DebugEx.LogModule("EnemyCombatState",
-            $"{m_AI.Entity.Config.Name} 离开战斗状态");
+        DebugEx.LogModule("EnemyCombatState", $"{m_AI.Entity.Config.Name} 离开战斗状态");
 
         // 恢复 NavMeshAgent（需检查是否在 NavMesh 上，SetActive(false/true) 后可能未就绪）
         var agent = m_AI.Entity.NavAgent;

@@ -157,11 +157,6 @@ public class PlayerSaveData
     /// </summary>
     public string Statistics;
 
-    /// <summary>
-    /// 玩家坐标（用于记录玩家进入游戏时应该生成的位置信息）
-    /// </summary>
-    public Vector3 PlayerPos;
-
     // ========== 局内快照（进入局内时保存，未正常结算时用于回档）==========
     /// <summary>
     /// 进入局内时的账号数据快照（JSON），非空说明当前有未结算的局内进度

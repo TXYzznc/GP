@@ -286,7 +286,6 @@ public class AccountDataEditorPanel : IToolHubPanel
     {
         var data = save.SaveData;
         EditorGUILayout.LabelField("位置信息", EditorStyles.boldLabel);
-        data.PlayerPos = EditorGUILayout.Vector3Field("玩家位置", data.PlayerPos);
         data.CurrentSceneId = EditorGUILayout.IntField("当前场景ID", data.CurrentSceneId);
     }
 

@@ -39,7 +39,7 @@ public partial class MapItemUI : UIItemBase
 
         if (m_SceneData == null)
         {
-            Log.Error($"MapItemUI: 场景ID {sceneId} 不存在于 SceneTable");
+            DebugEx.Error("MapItemUI", $"场景ID {sceneId} 不存在于 SceneTable");
             return;
         }
 
@@ -63,7 +63,19 @@ public partial class MapItemUI : UIItemBase
         // 更新场景名称
         if (varMapName != null)
         {
-            varMapName.text = m_SceneData.DisplayName;
+            if (m_IsUnlocked)
+            {
+                // 已解锁：显示本地化的场景名称
+                string localizedName = GF.Localization.GetText(m_SceneData.DisplayName);
+                varMapName.text = localizedName;
+                DebugEx.Log("MapItemUI", $"场景 {m_SceneId} 已解锁，显示名称: {localizedName}");
+            }
+            else
+            {
+                // 未解锁：显示"未解锁"
+                varMapName.text = "未解锁";
+                DebugEx.Warning("MapItemUI", $"场景 {m_SceneId} 未解锁");
+            }
         }
 
         // 显示/隐藏 Mask（场景未解锁时显示遮罩）
@@ -103,8 +115,10 @@ public partial class MapItemUI : UIItemBase
             if (!m_IsUnlocked && m_SceneData != null)
             {
                 string conditionMsg = m_SceneData.GetConditionNotMetMessage();
-                // 可以在 InteractUI 中显示条件文本
-                Log.Info($"场景 {m_SceneData.DisplayName} 解锁条件：{conditionMsg}");
+                DebugEx.Log(
+                    "MapItemUI",
+                    $"场景 {m_SceneData.DisplayName} 解锁条件：{conditionMsg}"
+                );
             }
         }
     }
@@ -127,16 +141,15 @@ public partial class MapItemUI : UIItemBase
     {
         if (!m_IsUnlocked)
         {
-            Log.Warning($"场景 {m_SceneId} 未解锁");
+            DebugEx.Warning("MapItemUI", $"场景 {m_SceneId} 未解锁，无法进入");
             return;
         }
 
         if (m_SceneData == null)
             return;
 
-        // 加载场景
         string sceneName = m_SceneData.SceneName;
-        Log.Info($"传送到场景: {sceneName}");
+        DebugEx.Success("MapItemUI", $"传送到场景: {sceneName}");
 
         // 关闭 OverworldUI（获取父UI）
         UIFormBase parentUI = GetComponentInParent<UIFormBase>();
@@ -145,7 +158,7 @@ public partial class MapItemUI : UIItemBase
             GF.UI.CloseUIForm(parentUI.UIForm);
         }
 
-        // 加载场景
-        GF.Scene.LoadScene(sceneName);
+        // 通过 GameProcedure 请求场景切换（完整流程）
+        GameProcedure.RequestChangeScene(sceneName);
     }
 }

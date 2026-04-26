@@ -186,7 +186,8 @@
 	2502		2	Game/Interact/精致的宝箱	精致的宝箱
 	2503		2	Game/Interact/华丽的宝箱	华丽的宝箱
 	2504		2	Game/Interact/神秘的宝箱	神秘的宝箱
-	2601		2	Enemy/后羿(敌人测试)	敌人测试预制体
+	2600		2	Enemy/后羿(敌人测试)	敌人-测试预制体
+	2601		2	Enemy/邪灵	敌人-邪灵预制体
 	1155		1	Summoner/召唤师头像/狂战士.png	狂战士头像
 	1156		1	Summoner/召唤师头像/术士.png	术士头像
 	1157		1	Summoner/召唤师头像/混沌.png	混沌头像

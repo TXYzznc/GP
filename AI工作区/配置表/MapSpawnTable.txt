@@ -1,0 +1,10 @@
+#	MapSpawnTable						
+#	Id		MapId	SpawnType	SpawnTargets	Level
+#	int		int	int	string	int
+#	主键	备注	地图ID：（对应 SceneTable.Id）	生成类型：0=敌人 / 1=宝箱	生成目标JSON：{"targets":[{"id":目标ID,"weight":权重},...]}	等级
+	1		2	0	{"targets":[{"id":1,"weight":3}]}	0
+	2		2	0	{"targets":[{"id":1,"weight":2}]}	0
+	3		2	1	{"targets":[{"id":1,"weight":50}]}	1
+	4		3	0	{"targets":[{"id":1,"weight":2}]}	0
+	5		3	0	{"targets":[{"id":1,"weight":1}]}	0
+	6		3	1	{"targets":[{"id":1,"weight":30}]}	1

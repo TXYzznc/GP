@@ -14,7 +14,7 @@ public class EnemyEntity : MonoBehaviour
     [Header("配置")]
     [SerializeField]
     [Tooltip("敌人实体配置ID（对应 EnemyEntityTable）")]
-    private int m_EntityConfigId = 1001;
+    private int m_EntityConfigId = 0;
 
     [Header("调试")]
     [SerializeField]
@@ -126,7 +126,8 @@ public class EnemyEntity : MonoBehaviour
 
     private void Update()
     {
-        if (!m_IsInitialized || m_IsInCombat) return;
+        if (!m_IsInitialized || m_IsInCombat)
+            return;
 
         // 更新AI
         m_AI?.Tick(Time.deltaTime);
@@ -134,7 +135,8 @@ public class EnemyEntity : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (!m_ShowDebug || m_Config == null) return;
+        if (!m_ShowDebug || m_Config == null)
+            return;
 
         Vector3 center = Application.isPlaying ? m_SpawnPosition : transform.position;
 
@@ -157,7 +159,8 @@ public class EnemyEntity : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (!m_ShowDebug || !Application.isPlaying || m_AI == null) return;
+        if (!m_ShowDebug || !Application.isPlaying || m_AI == null)
+            return;
 
         // 显示当前状态
         Vector3 textPos = transform.position + Vector3.up * 3f;
@@ -228,8 +231,10 @@ public class EnemyEntity : MonoBehaviour
         // 从 EnemyTable 读取棋子列表并注册到 EnemyChessDataManager
         RegisterChessData();
 
-        DebugEx.LogModule("EnemyEntity",
-            $"初始化完成: {m_Config.Name}, 类型={m_EnemyType}, 可广播={m_Config.CanBroadcast}, 奖励等级={m_Config.RewardTier}");
+        DebugEx.LogModule(
+            "EnemyEntity",
+            $"初始化完成: {m_Config.Name}, 类型={m_EnemyType}, 可广播={m_Config.CanBroadcast}, 奖励等级={m_Config.RewardTier}"
+        );
     }
 
     /// <summary>
@@ -237,7 +242,8 @@ public class EnemyEntity : MonoBehaviour
     /// </summary>
     public void EnterCombat()
     {
-        if (m_IsInCombat) return;
+        if (m_IsInCombat)
+            return;
 
         m_IsInCombat = true;
         m_NavAgent.isStopped = true;
@@ -250,7 +256,8 @@ public class EnemyEntity : MonoBehaviour
     /// </summary>
     public void ExitCombat()
     {
-        if (!m_IsInCombat) return;
+        if (!m_IsInCombat)
+            return;
 
         m_IsInCombat = false;
 
@@ -269,13 +276,13 @@ public class EnemyEntity : MonoBehaviour
     /// </summary>
     public void SetStatus(EnemyStatus status)
     {
-        if (m_Status == status) return;
+        if (m_Status == status)
+            return;
 
         EnemyStatus oldStatus = m_Status;
         m_Status = status;
 
-        DebugEx.LogModule("EnemyEntity", 
-            $"{m_Config.Name} 状态变更: {oldStatus} → {status}");
+        DebugEx.LogModule("EnemyEntity", $"{m_Config.Name} 状态变更: {oldStatus} → {status}");
 
         // 根据状态执行相应逻辑
         OnStatusChanged(oldStatus, status);
@@ -320,8 +327,10 @@ public class EnemyEntity : MonoBehaviour
         var enemyData = enemyTable.GetDataRow(m_Config.BattleConfigId);
         if (enemyData == null || enemyData.ChessIds == null || enemyData.ChessIds.Length == 0)
         {
-            DebugEx.WarningModule("EnemyEntity",
-                $"EnemyTable 中未找到棋子数据: BattleConfigId={m_Config.BattleConfigId}");
+            DebugEx.WarningModule(
+                "EnemyEntity",
+                $"EnemyTable 中未找到棋子数据: BattleConfigId={m_Config.BattleConfigId}"
+            );
             return;
         }
 
@@ -344,8 +353,10 @@ public class EnemyEntity : MonoBehaviour
             EnemyChessDataManager.Instance.Register(m_EntityGuid, i, chessId, maxHp);
         }
 
-        DebugEx.LogModule("EnemyEntity",
-            $"已注册 {enemyData.ChessIds.Length} 个棋子到 EnemyChessDataManager (guid={m_EntityGuid})");
+        DebugEx.LogModule(
+            "EnemyEntity",
+            $"已注册 {enemyData.ChessIds.Length} 个棋子到 EnemyChessDataManager (guid={m_EntityGuid})"
+        );
     }
 
     /// <summary>
@@ -375,7 +386,8 @@ public class EnemyEntity : MonoBehaviour
     /// </summary>
     private void ConfigureNavAgent()
     {
-        if (m_NavAgent == null) return;
+        if (m_NavAgent == null)
+            return;
 
         m_NavAgent.speed = m_Config.PatrolSpeed;
         m_NavAgent.angularSpeed = 120f;
@@ -395,11 +407,8 @@ public class EnemyEntity : MonoBehaviour
         for (int i = 1; i <= segments; i++)
         {
             float angle = angleStep * i * Mathf.Deg2Rad;
-            Vector3 newPoint = center + new Vector3(
-                Mathf.Cos(angle) * radius,
-                0,
-                Mathf.Sin(angle) * radius
-            );
+            Vector3 newPoint =
+                center + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius);
 
             Gizmos.DrawLine(prevPoint, newPoint);
             prevPoint = newPoint;

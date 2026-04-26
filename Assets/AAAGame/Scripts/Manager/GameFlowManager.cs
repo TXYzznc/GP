@@ -23,7 +23,6 @@ public static class GameFlowManager
             Log.Info($"金币: {currentSave.Gold}");
             Log.Info($"灵石: {currentSave.OriginStone}");
             Log.Info($"召唤师ID: {currentSave.CurrentSummonerId}");
-            Log.Info($"玩家位置: {currentSave.PlayerPos}");
             Log.Info($"是否完成引导: {currentSave.HasCompletedTutorial}");
             Log.Info($"当前场景ID: {currentSave.CurrentSceneId}");
         }

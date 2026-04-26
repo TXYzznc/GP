@@ -7,8 +7,6 @@ using UnityGameFramework.Runtime;
 #endif
 public partial class OverworldUI : UIFormBase
 {
-    private const string MapItemUIName = "MapItemUI";
-
     protected override void OnOpen(object userData)
     {
         base.OnOpen(userData);
@@ -38,39 +36,56 @@ public partial class OverworldUI : UIFormBase
 
     /// <summary>
     /// 初始化所有地图项
-    /// 遍历 varMapItemUI 容器中的所有 MapItemUI 子对象，初始化它们
+    /// 遍历所有 varMapItemUI 引用，初始化它们
     /// </summary>
     private void InitializeMapItems()
     {
-        if (varMapItemUI == null)
+        // 收集所有地图项
+        GameObject[] mapItemGameObjects = new GameObject[]
         {
-            Log.Error("OverworldUI: varMapItemUI 未设置");
-            return;
-        }
+            varMapItemUI1,
+            varMapItemUI2,
+            varMapItemUI3,
+            varMapItemUI4,
+            varMapItemUI5,
+            varMapItemUI6,
+            varMapItemUI7,
+        };
 
-        // 获取所有 MapItemUI 子对象
-        MapItemUI[] mapItems = varMapItemUI.GetComponentsInChildren<MapItemUI>(includeInactive: false);
-
-        if (mapItems.Length == 0)
+        int validCount = 0;
+        foreach (var mapItemGO in mapItemGameObjects)
         {
-            Log.Warning("OverworldUI: 未找到任何 MapItemUI 子对象");
-            return;
-        }
+            if (mapItemGO == null)
+                continue;
 
-        // 初始化每个地图项
-        foreach (var mapItem in mapItems)
-        {
-            // 从 Inspector 中读取 SceneId（需要在 MapItemUI 上添加字段）
-            var sceneIdComponent = mapItem.GetComponent<MapItemSceneIdHolder>();
+            validCount++;
+            MapItemUI mapItem = mapItemGO.GetComponent<MapItemUI>();
+            if (mapItem == null)
+            {
+                DebugEx.Warning("OverworldUI", $"GameObject {mapItemGO.name} 缺少 MapItemUI 组件");
+                continue;
+            }
+
+            // 从 Inspector 中读取 SceneId
+            var sceneIdComponent = mapItemGO.GetComponent<MapItemSceneIdHolder>();
             if (sceneIdComponent != null)
             {
                 mapItem.Initialize(sceneIdComponent.SceneId);
+                DebugEx.Success(
+                    "OverworldUI",
+                    $"地图项初始化完成，SceneId: {sceneIdComponent.SceneId}"
+                );
             }
             else
             {
-                Log.Warning($"OverworldUI: MapItemUI 缺少 MapItemSceneIdHolder 组件");
+                DebugEx.Warning(
+                    "OverworldUI",
+                    $"MapItemUI {mapItemGO.name} 缺少 MapItemSceneIdHolder 组件"
+                );
             }
         }
+
+        DebugEx.Log("OverworldUI", $"初始化完成，共 {validCount} 个地图项");
     }
 
     private void OnCloseButtonClicked()
