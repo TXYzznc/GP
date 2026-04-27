@@ -38,6 +38,8 @@ public class SummonChessManager : MonoBehaviour
 
         // 挂载生命周期处理器（负责 HP 归零 → 死亡流程）
         gameObject.AddComponent<ChessLifecycleHandler>();
+        // 挂载经验值管理器
+        gameObject.AddComponent<ChessEXPManager>();
     }
 
     private void OnDestroy()

@@ -633,6 +633,8 @@ public class ChessEntity : MonoBehaviour
             ChangeState(ChessState.Dead);
             DebugEx.LogModule("ChessEntity", $"棋子死亡 [{Config?.Name}]");
 
+            ChessStateEvents.FireChessDied(this);
+
             // ✅ 通知AI切换到死亡状态
             if (AI is ChessAIBase aiBase)
             {

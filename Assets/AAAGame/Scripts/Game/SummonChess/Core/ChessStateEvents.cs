@@ -37,6 +37,12 @@ public static class ChessStateEvents
     #region 战斗状态事件（战斗内临时数据变化）
 
     /// <summary>
+    /// 棋子死亡事件
+    /// 参数：死亡的 ChessEntity
+    /// </summary>
+    public static event Action<ChessEntity> OnChessDied;
+
+    /// <summary>
     /// 战斗棋子数据变化（HP 或 Buff 列表变化时触发）
     /// 参数：chessId
     /// </summary>
@@ -81,6 +87,12 @@ public static class ChessStateEvents
         OnAllChessHPRestored?.Invoke();
     }
 
+    internal static void FireChessDied(ChessEntity chess)
+    {
+        DebugEx.LogModule("ChessStateEvents", $"棋子死亡 [{chess?.ChessId}] Camp={chess?.Camp}");
+        OnChessDied?.Invoke(chess);
+    }
+
     internal static void FireBattleChessDataChanged(int chessId)
     {
         OnBattleChessDataChanged?.Invoke(chessId);
@@ -116,6 +128,7 @@ public static class ChessStateEvents
         OnGlobalChessStateChanged = null;
         OnGlobalChessHPChanged = null;
         OnAllChessHPRestored = null;
+        OnChessDied = null;
         OnBattleChessDataChanged = null;
         OnBuffAdded = null;
         OnBuffRemoved = null;
