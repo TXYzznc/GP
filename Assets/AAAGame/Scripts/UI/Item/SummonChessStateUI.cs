@@ -41,6 +41,10 @@ public partial class SummonChessStateUI : UIItemBase
     private Material m_ShieldMatInst;
     private Camera m_Cam;
 
+    private ChessEXPComponent m_EXPComp;
+
+    private static readonly string[] RankNames = { "", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十" };
+
     // Buff管理
     private Dictionary<int, BuffItem> m_BuffItems = new Dictionary<int, BuffItem>();
 
@@ -56,6 +60,7 @@ public partial class SummonChessStateUI : UIItemBase
         if (m_HpImg != null) { m_HpImg.type = Image.Type.Filled; m_HpImg.fillMethod = Image.FillMethod.Horizontal; }
         if (m_MpImg != null) { m_MpImg.type = Image.Type.Filled; m_MpImg.fillMethod = Image.FillMethod.Horizontal; }
         if (m_ShieldImg != null) { m_ShieldImg.type = Image.Type.Filled; m_ShieldImg.fillMethod = Image.FillMethod.Horizontal; }
+        if (varChessEXP != null) { varChessEXP.type = Image.Type.Filled; varChessEXP.fillMethod = Image.FillMethod.Horizontal; }
 
         SetupHpMaterial();
         TryBindOwner();
@@ -209,8 +214,14 @@ public partial class SummonChessStateUI : UIItemBase
         // 订阅Buff事件
         BindBuffManager();
 
+        // 订阅EXP事件
+        m_EXPComp = owner.GetComponent<ChessEXPComponent>();
+        if (m_EXPComp != null)
+            m_EXPComp.OnEXPChanged += OnEXPChanged;
+
         UpdateHpGridParams();
         RefreshAll();
+        UpdateEXPDisplay();
     }
 
     public void Unbind()
@@ -225,6 +236,13 @@ public partial class SummonChessStateUI : UIItemBase
         // 取消订阅Buff事件
         UnbindBuffManager();
         ClearAllBuffItems();
+
+        // 取消订阅EXP事件
+        if (m_EXPComp != null)
+        {
+            m_EXPComp.OnEXPChanged -= OnEXPChanged;
+            m_EXPComp = null;
+        }
 
         m_Owner = null;
         m_Attr = null;
@@ -249,6 +267,41 @@ public partial class SummonChessStateUI : UIItemBase
     {
         m_Billboard = billboard;
     }
+
+    #region EXP显示
+
+    private void OnEXPChanged(int _, int __)
+    {
+        UpdateEXPDisplay();
+    }
+
+    private void UpdateEXPDisplay()
+    {
+        if (m_Owner == null) return;
+
+        var dt = GF.DataTable.GetDataTable<ChessAdvanceTable>();
+        var dr = dt?.GetDataRow(m_Owner.ChessId);
+
+        if (varChessName != null)
+        {
+            string chessName = m_Owner.Config?.Name ?? string.Empty;
+            if (dr != null && dr.Rank > 0 && dr.Rank < RankNames.Length)
+                varChessName.text = $"{chessName}·{RankNames[dr.Rank]}阶";
+            else
+                varChessName.text = chessName;
+        }
+
+        int currentEXP = m_EXPComp?.CurrentEXP ?? 0;
+        int requiredEXP = dr?.RequiredEXP ?? 0;
+
+        if (varChessEXP != null)
+            varChessEXP.fillAmount = requiredEXP > 0 ? Mathf.Clamp01((float)currentEXP / requiredEXP) : 1f;
+
+        if (varChessEXPText != null)
+            varChessEXPText.text = requiredEXP > 0 ? $"{currentEXP}/{requiredEXP}" : $"{currentEXP}/--";
+    }
+
+    #endregion
 
     #region Buff管理
 

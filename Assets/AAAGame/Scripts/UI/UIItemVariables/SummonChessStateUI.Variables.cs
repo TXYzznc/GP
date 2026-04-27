@@ -4,6 +4,7 @@
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public partial class SummonChessStateUI
 {
 	[Space(10)]
@@ -14,7 +15,10 @@ public partial class SummonChessStateUI
 	[SerializeField] private GameObject varHPBarImage = null;
 	[SerializeField] private GameObject varMPBarImage = null;
 	[SerializeField] private GameObject varOtherBarImage = null;
-	[SerializeField] private HorizontalLayoutGroup varBuffPanel = null;
+	[SerializeField] private GridLayoutGroup varBuffPanel = null;
 	[SerializeField] private GameObject varBuffItem = null;
 	[SerializeField] private GameObject varShieldBarImage = null;
+	[SerializeField] private Image varChessEXP = null;
+	[SerializeField] private TextMeshProUGUI varChessName = null;
+	[SerializeField] private TextMeshProUGUI varChessEXPText = null;
 }
