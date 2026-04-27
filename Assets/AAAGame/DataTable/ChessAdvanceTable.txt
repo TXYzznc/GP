@@ -1,0 +1,7 @@
+﻿#	ChessAdvanceTable						
+#	Id		Rank	AdvancedChessId	RequiredEXP	ConditionEventId	AdvanceEffectId
+#	int		int	int	int	int	int
+#	棋子ID（等于进阶前棋子ID，直接按棋子ID查询）	备注	当前阶级（1=一阶）	进阶后棋子ID（0=已是最高阶）	进阶所需经验值（0=无法进阶）	进阶条件事件ID（0=无附加条件，后续接事件系统）	进阶特效资源ID（0=无特效）
+	1001		1	1002	500	0	0
+	1002		2	1003	1500	0	0
+	1003		3	0	0	0	0

@@ -1,0 +1,8 @@
+﻿#	ChessEXPRuleTable					
+#	Id		RuleType	EnemyRank	EXPReward	Description
+#	int		int	int	int	string
+#	配置ID	备注	规则类型（1=使用道具 2=击败敌方棋子）	目标阶级（RuleType=2时有效，0=无效）	经验奖励（RuleType=1时为0由道具自身决定）	规则描述
+	1		1	0	0	使用经验道具，经验值由道具属性决定
+	2		2	1	10	击败一阶敌方棋子
+	3		2	2	25	击败二阶敌方棋子
+	4		2	3	60	击败三阶敌方棋子
