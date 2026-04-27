@@ -171,12 +171,45 @@ public class SettlementManager
         if (m_CurrentSettlementData == null)
             return;
 
-        // TODO: 从 CombatManager 查询战斗奖励数据
-        // 暂时使用默认值（仅用于调试，实际应该从战斗系统读取）
-        m_CurrentSettlementData.Experience = 100;
+        m_CurrentSettlementData.Experience = CalculateRunExpGain();
         m_CurrentSettlementData.EnemiesDefeated = 0;
 
         await UniTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// 计算本次局内的经验收益：
+    /// 当前经验 + 从起始等级到当前等级之间每一级的 RequiredExp 累加
+    /// </summary>
+    private int CalculateRunExpGain()
+    {
+        var accountManager = PlayerAccountDataManager.Instance;
+        var saveData = accountManager?.CurrentSaveData;
+        var snapshot = accountManager?.GetInGameSnapshotData();
+
+        if (saveData == null || snapshot == null)
+        {
+            DebugEx.WarningModule("SettlementManager", "无法获取存档或快照，经验收益设为0");
+            return 0;
+        }
+
+        int startLevel  = snapshot.GlobalLevel;
+        int currentLevel = saveData.GlobalLevel;
+        int currentExp  = saveData.CurrentExp;
+
+        var levelTable = GF.DataTable.GetDataTable<PlayerDataTable>();
+        int levelExpSum = 0;
+        for (int lv = startLevel; lv < currentLevel; lv++)
+        {
+            var row = levelTable?.GetDataRow(lv);
+            if (row != null)
+                levelExpSum += row.RequiredExp;
+        }
+
+        int total = currentExp + levelExpSum - snapshot.CurrentExp;
+        DebugEx.LogModule("SettlementManager",
+            $"经验收益: 起始Lv={startLevel}(Exp={snapshot.CurrentExp}), 当前Lv={currentLevel}(Exp={currentExp}), 等级累计Exp={levelExpSum}, 合计={total}");
+        return Mathf.Max(0, total);
     }
 
     /// <summary>打开结算UI</summary>

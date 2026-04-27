@@ -1182,6 +1182,23 @@ public class PlayerAccountDataManager
     }
 
     /// <summary>
+    /// 获取局内快照数据（用于结算计算）
+    /// </summary>
+    public PlayerSaveSnapshot GetInGameSnapshotData()
+    {
+        if (m_CurrentSaveData == null || string.IsNullOrEmpty(m_CurrentSaveData.InGameSnapshot))
+            return null;
+        try
+        {
+            return JsonUtility.FromJson<PlayerSaveSnapshot>(m_CurrentSaveData.InGameSnapshot);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
     /// 将账号数据回滚到快照状态（异常退出后重新进入游戏时调用）
     /// </summary>
     public void RestoreFromSnapshot()
