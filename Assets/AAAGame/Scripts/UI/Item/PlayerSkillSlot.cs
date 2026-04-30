@@ -63,8 +63,8 @@ public partial class PlayerSkillSlot : UIItemBase
                 );
         }
 
-        // 加载并设置图标（使用Rank 1）
-        await LoadIconAsync(config.GetIconId(1));
+        // 加载并设置图标
+        await LoadIconAsync(config.IconId);
 
         // 刷新显示
         RefreshDisplay();

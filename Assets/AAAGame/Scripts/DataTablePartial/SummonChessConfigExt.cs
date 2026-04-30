@@ -71,6 +71,16 @@ public static class SummonChessConfigHelper
     public static int[] GetPassiveIds(this SummonChessConfig config)
         => config.PassiveIds ?? System.Array.Empty<int>();
 
+    /// <summary>获取特定等级的描述</summary>
+    public static string GetDescription(this SummonChessConfig config, int rank)
+    {
+        if (config.Description == null || config.Description.Length == 0)
+            return string.Empty;
+        if (rank <= 0 || rank > config.Description.Length)
+            return config.Description[0] ?? string.Empty;
+        return config.Description[rank - 1] ?? string.Empty;
+    }
+
     /// <summary>获取特定等级的普攻技能ID</summary>
     public static int GetNormalAtkId(this SummonChessConfig config, int rank)
         => GetByRank(config.NormalAtkId, rank);
