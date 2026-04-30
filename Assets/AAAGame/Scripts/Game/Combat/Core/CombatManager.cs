@@ -87,7 +87,8 @@ public class CombatManager : SingletonBase<CombatManager>
                     var chessTableRow = GF.DataTable.GetDataTable<SummonChessTable>()?.GetDataRow(summonChessId);
                     if (chessTableRow != null)
                     {
-                        // 直接构造，跳过 Validate（召唤师行的 AIType/StarLevel/MaxHp 等字段不适用棋子规则）
+                        // 直接构造，跳过 Validate（召唤师无等级，所有数组字段只取第一个元素）
+                        // HP/灵力不从这里读，由 InitializeAsSummoner 用 SummonerRuntimeDataManager 覆盖
                         summonChessConfig = new SummonChessConfig
                         {
                             Id = chessTableRow.Id,
@@ -98,25 +99,26 @@ public class CombatManager : SingletonBase<CombatManager>
                             Classes = chessTableRow.Classes ?? System.Array.Empty<int>(),
                             PrefabId = chessTableRow.PrefabId,
                             IconId = chessTableRow.IconId,
-                            // HP/MP 不从这里读，由 InitializeAsSummoner 用 SummonerRuntimeDataManager 覆盖
+                            // 占位符（HP由 SummonerRuntimeDataManager 提供）
                             MaxHp = new double[] { 1 },
                             MaxMp = new double[] { 0 },
                             InitialMp = new double[] { 0 },
-                            AtkDamage = new double[] { 0 },
-                            AtkSpeed = new double[] { 0.01 },
-                            AtkRange = new double[] { chessTableRow.AtkRange != null && chessTableRow.AtkRange.Length > 0 ? chessTableRow.AtkRange[0] : 1.0 },
-                            Armor = new double[] { chessTableRow.Armor != null && chessTableRow.Armor.Length > 0 ? chessTableRow.Armor[0] : 0.0 },
-                            MagicResist = new double[] { chessTableRow.MagicResist != null && chessTableRow.MagicResist.Length > 0 ? chessTableRow.MagicResist[0] : 0.0 },
+                            // 召唤师战斗属性（取数组第一个元素）
+                            AtkDamage = chessTableRow.AtkDamage ?? new double[] { 0 },
+                            AtkSpeed = chessTableRow.AtkSpeed ?? new double[] { 0.01 },
+                            AtkRange = chessTableRow.AtkRange ?? new double[] { 1.0 },
+                            Armor = chessTableRow.Armor ?? new double[] { 0.0 },
+                            MagicResist = chessTableRow.MagicResist ?? new double[] { 0.0 },
                             MoveSpeed = chessTableRow.MoveSpeed,
-                            CritRate = new double[] { 0 },
-                            CritDamage = new double[] { 1.5 },
-                            SpellPower = new double[] { 0 },
+                            CritRate = chessTableRow.CritRate ?? new double[] { 0 },
+                            CritDamage = chessTableRow.CritDamage ?? new double[] { 1.5 },
+                            SpellPower = chessTableRow.SpellPower ?? new double[] { 0 },
                             Shield = 0,
                             CooldownReduce = 0,
-                            PassiveIds = System.Array.Empty<int>(),
-                            NormalAtkId = new int[] { 0 },
-                            Skill1Id = new int[] { 0 },
-                            Skill2Id = new int[] { 0 },
+                            PassiveIds = chessTableRow.PassiveIds ?? System.Array.Empty<int>(),
+                            NormalAtkId = chessTableRow.NormalAtkId ?? new int[] { 0 },
+                            Skill1Id = chessTableRow.Skill1Id ?? new int[] { 0 },
+                            Skill2Id = chessTableRow.Skill2Id ?? new int[] { 0 },
                             AIType = 0,
                         };
                     }

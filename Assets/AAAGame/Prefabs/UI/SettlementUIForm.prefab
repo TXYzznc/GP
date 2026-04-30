@@ -945,7 +945,7 @@ MonoBehaviour:
     VarPrefix: 0
   - VarName: varAwardItemUI
     Targets:
-    - {fileID: 0}
+    - {fileID: 4933195408301566021, guid: 4b60c4f4ba09c13438fdbdd710f840f2, type: 3}
     VarType: UnityEngine.GameObject
     VarPrefix: 0
   m_UIAnimationType: 0
@@ -958,6 +958,8 @@ MonoBehaviour:
   varExperienceText: {fileID: 6821989425722868938}
   varCurrencyText: {fileID: 37509417996086273}
   varCloseButton: {fileID: 8216270762170983826}
+  varContent: {fileID: 5743814633365047244}
+  varAwardItemUI: {fileID: 4933195408301566021, guid: 4b60c4f4ba09c13438fdbdd710f840f2, type: 3}
 --- !u!1 &4058360156602142297
 GameObject:
   m_ObjectHideFlags: 0

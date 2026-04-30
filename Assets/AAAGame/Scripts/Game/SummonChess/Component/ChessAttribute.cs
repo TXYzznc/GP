@@ -113,18 +113,18 @@ public class ChessAttribute : MonoBehaviour
         m_MaxMp = 0;
         m_CurrentMp = 0;
 
-        // 防御 / 受击属性从配置读取（使用等级1）
+        // 防御 / 受击属性从配置读取（召唤师无等级，取数组第一个元素）
         m_Armor = config != null ? config.GetArmor(1) : 0;
         m_MagicResist = config != null ? config.GetMagicResist(1) : 0;
         m_AtkRange = config != null ? config.GetAtkRange(1) : 0;  // 受击检测范围复用此字段
         m_MoveSpeed = config?.MoveSpeed ?? 0; // 实际移动由玩家控制器负责
 
-        // 召唤师不攻击
-        m_AtkDamage = 0;
-        m_AtkSpeed = 0;
-        m_CritRate = 0;
-        m_CritDamage = 1.0;
-        m_SpellPower = 0;
+        // 召唤师有战斗属性，但不分等级（都取数组第一个元素）
+        m_AtkDamage = config != null ? config.GetAtkDamage(1) : 0;
+        m_AtkSpeed = config != null ? config.GetAtkSpeed(1) : 0;
+        m_CritRate = config != null ? config.GetCritRate(1) : 0;
+        m_CritDamage = config != null ? config.GetCritDamage(1) : 1.0;
+        m_SpellPower = config != null ? config.GetSpellPower(1) : 0;
         m_Shield = 0;
         m_CooldownReduce = 0;
         m_DamageTakenMultiplier = 1.0;
