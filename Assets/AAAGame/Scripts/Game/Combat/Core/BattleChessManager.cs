@@ -237,6 +237,7 @@ public class BattleChessManager
     /// <summary>
     /// 战斗结束处理
     /// - 将所有棋子的当前 HP 回写到 GlobalChessManager
+    /// - 将所有棋子的经验值回写到 GlobalChessManager
     /// - 清除所有临时 Buff（状态效果不跨战斗保留）
     /// - 清理战斗数据
     /// </summary>
@@ -269,15 +270,30 @@ public class BattleChessManager
             // 1. 获取战斗结束时的血量
             double finalHp = entity.Attribute.CurrentHp;
 
-            // 2. 清除所有 Buff（状态效果不保留到下次战斗）
+            // 2. 获取战斗结束时的经验值（仅针对玩家阵营）
+            int finalExp = 0;
+            if (entity.Camp == 0)
+            {
+                var expComp = entity.GetComponent<ChessEXPComponent>();
+                if (expComp != null)
+                {
+                    finalExp = expComp.CurrentEXP;
+                }
+            }
+
+            // 3. 清除所有 Buff（状态效果不保留到下次战斗）
             entity.BuffManager.ClearAll();
 
-            // 3. 按 camp 分支回写血量
+            // 4. 按 camp 分支回写血量和经验值
             WriteBackHp(chessId, finalHp, entity.Camp);
+            if (entity.Camp == 0)
+            {
+                WriteBackExp(chessId, finalExp);
+            }
 
             DebugEx.Log(
                 "BattleChessManager",
-                $"棋子 {chessId}(camp={entity.Camp}) 回写：HP={finalHp:F0}，Buff已清除"
+                $"棋子 {chessId}(camp={entity.Camp}) 回写：HP={finalHp:F0} Exp={finalExp}，Buff已清除"
             );
         }
 
@@ -313,6 +329,24 @@ public class BattleChessManager
         else
         {
             GlobalChessManager.Instance.UpdateChessHP(chessId, hp);
+        }
+    }
+
+    /// <summary>
+    /// 回写玩家棋子的经验值到全局状态
+    /// </summary>
+    private void WriteBackExp(int chessId, int exp)
+    {
+        var globalState = GlobalChessManager.Instance.GetChessState(chessId);
+        if (globalState != null)
+        {
+            // 保留等级，只更新经验值
+            GlobalChessManager.Instance.UpdateChessLevelAndExp(chessId, globalState.Level, exp);
+            DebugEx.Log("BattleChessManager", $"棋子 {chessId} 经验值回写: {exp}");
+        }
+        else
+        {
+            DebugEx.Warning("BattleChessManager", $"无法回写棋子 {chessId} 的经验值：全局状态不存在");
         }
     }
 

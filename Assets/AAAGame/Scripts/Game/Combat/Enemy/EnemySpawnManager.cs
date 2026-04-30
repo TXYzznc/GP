@@ -48,6 +48,7 @@ public class EnemySpawnManager
 
     /// <summary>
     /// 从 EnemyTable 加载战斗配置
+    /// 根据 MinPopulation/MaxPopulation 随机确定敌人数量，并扩展 ChessIds 列表
     /// </summary>
     /// <param name="enemyTableId">EnemyTable 配置ID</param>
     /// <param name="enemyGuid">对应 EnemyEntity 的 GUID（用于读取历史 HP）</param>
@@ -74,13 +75,23 @@ public class EnemySpawnManager
             return;
         }
 
-        // 转换为 List
-        List<int> chessIds = new List<int>(enemyData.ChessIds);
+        // 根据 MinPopulation/MaxPopulation 随机确定敌人数量（范围内完全随机）
+        int minPopulation = Mathf.Max(1, enemyData.MinPopulation);
+        int maxPopulation = Mathf.Max(minPopulation, enemyData.MaxPopulation);
+        int targetCount = Random.Range(minPopulation, maxPopulation + 1);
+
+        // 从 ChessIds 中完全随机生成目标数量的敌人（可能重复）
+        List<int> randomizedChessIds = new List<int>();
+        for (int i = 0; i < targetCount; i++)
+        {
+            int randomIndex = Random.Range(0, enemyData.ChessIds.Length);
+            randomizedChessIds.Add(enemyData.ChessIds[randomIndex]);
+        }
 
         m_CurrentWave = new EnemyWaveConfig
         {
             WaveId = enemyTableId,
-            EnemyChessIds = chessIds,
+            EnemyChessIds = randomizedChessIds,
             FormationType = enemyData.FormationType,
             Spacing = enemyData.Spacing
         };
@@ -89,8 +100,10 @@ public class EnemySpawnManager
 
         DebugEx.Log("EnemySpawnManager",
             $"从 EnemyTable 加载配置: ID={enemyTableId}, Name={enemyData.EnemyName}, " +
-            $"棋子数量={m_CurrentWave.EnemyChessIds.Count}, 阵型={m_CurrentWave.FormationType}, " +
-            $"间距={m_CurrentWave.Spacing}");
+            $"敌人数量={targetCount} (范围 {minPopulation}-{maxPopulation}), " +
+            $"棋子库大小={enemyData.ChessIds.Length}, 阵型={m_CurrentWave.FormationType}, 间距={m_CurrentWave.Spacing}");
+
+        // TODO: 后续根据敌人难度系数调整生成的棋子数量
     }
 
     /// <summary>

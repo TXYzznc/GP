@@ -74,6 +74,7 @@
     <Compile Include="Assets\特效\子弹特效\Scripts\UniqueProjectiles\CameraShakeSimpleScript.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\测试输出日志\unity_log_20260430_145555.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\AAAGame\DataTable\Core\LanguagesTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SynergyTable.txt" />
@@ -89,10 +90,13 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260430_152408.txt" />
     <None Include="Assets\测试输出日志\snapshot_20260430_111746.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260430_152700.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceConfigTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
+    <None Include="Assets\测试输出日志\unity_log_20260430_144721.txt" />
     <None Include="Assets\AAAGame\DataTable\AffixTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\EnvironmentResources\实验室和基地\Origin\Tools\Self_illum_reflective.shader" />
@@ -106,6 +110,7 @@
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260430_143027.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260430_111700.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatRuleTable.txt" />
     <None Include="Assets\AAAGame\DataTable\TreasureBoxTable.txt" />
@@ -152,6 +157,7 @@
     <None Include="Assets\AAAGame\DataTable\MapSpawnTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles.shader" />
     <None Include="Assets\TA\Cartoon\OilPaintingToon.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260430_145054.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_back.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerDataTable.txt" />

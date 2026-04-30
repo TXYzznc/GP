@@ -17,7 +17,6 @@ public enum PlayerState
 /// 移动方向基于相机视角，角色模型平滑转向移动方向
 /// </summary>
 [RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(BuffManager))]
 public class PlayerController : MonoBehaviour
 {
     #region 配置参数

@@ -128,9 +128,16 @@ public class ChessEntity : MonoBehaviour
             expComp = gameObject.AddComponent<ChessEXPComponent>();
             DebugEx.Log("ChessEntity", $"✅ 为棋子 {config.Name} 创建 ChessEXPComponent");
         }
-        // 重置经验值（防止跨战斗数据污染）
-        expComp.SetEXP(0);
-        DebugEx.Log("ChessEntity", $"✅ 棋子 {config.Name} 经验值已重置为0");
+
+        // 从全局状态读取经验值（保留跨战斗的经验数据）
+        int initialExp = 0;
+        var globalState = GlobalChessManager.Instance?.GetChessState(config.Id);
+        if (globalState != null)
+        {
+            initialExp = globalState.Experience;
+            DebugEx.Log("ChessEntity", $"✅ 棋子 {config.Name} 从全局状态加载经验值: {initialExp}");
+        }
+        expComp.SetEXP(initialExp);
 
         // 1.5 初始化Buff管理组件（清理可能残留的Buff数据）
         BuffManager = gameObject.GetComponent<BuffManager>();
@@ -765,6 +772,85 @@ public class ChessEntity : MonoBehaviour
 
         return position;
     }
+
+    #region 升阶系统
+
+    /// <summary>升阶事件（参数为升阶前的阶级）</summary>
+    public event Action<int> OnRankAdvanced;
+
+    /// <summary>
+    /// 升阶
+    /// </summary>
+    public void AdvanceRank()
+    {
+        if (Rank >= 3)
+        {
+            DebugEx.Warning(nameof(ChessEntity), $"棋子 {Config?.Name} 已是最高阶（{Rank}），不能继续升阶");
+            return;
+        }
+
+        int oldRank = Rank;
+        Rank++;
+
+        // 更新属性（根据新等级）
+        if (Attribute != null)
+        {
+            Attribute.Initialize(this, Config, Rank);
+        }
+
+        // 更新技能配置
+        var skillTable = GF.DataTable.GetDataTable<SummonChessSkillTable>();
+
+        // 更新普攻
+        int normalAtkId = Config.GetNormalAtkId(Rank);
+        if (normalAtkId != 0)
+        {
+            NormalAttackConfig = skillTable?.GetDataRow(normalAtkId);
+            if (NormalAttackConfig != null)
+            {
+                NormalAttack = ChessFactory.CreateNormalAttack(normalAtkId);
+                if (NormalAttack != null)
+                {
+                    NormalAttack.Init(m_Context, NormalAttackConfig);
+                }
+            }
+        }
+
+        // 更新技能1
+        int skill1Id = Config.GetSkill1Id(Rank);
+        if (skill1Id != 0)
+        {
+            Skill1Config = skillTable?.GetDataRow(skill1Id);
+            if (Skill1Config != null)
+            {
+                Skill1 = ChessFactory.CreateSkill(skill1Id);
+                if (Skill1 != null)
+                {
+                    Skill1.Init(m_Context, Skill1Config);
+                }
+            }
+        }
+
+        // 更新技能2
+        int skill2Id = Config.GetSkill2Id(Rank);
+        if (skill2Id != 0)
+        {
+            Skill2Config = skillTable?.GetDataRow(skill2Id);
+            if (Skill2Config != null)
+            {
+                Skill2 = ChessFactory.CreateSkill(skill2Id);
+                if (Skill2 != null)
+                {
+                    Skill2.Init(m_Context, Skill2Config);
+                }
+            }
+        }
+
+        DebugEx.Log(nameof(ChessEntity), $"棋子 {Config?.Name} 升阶成功：{oldRank} → {Rank}");
+        OnRankAdvanced?.Invoke(oldRank);
+    }
+
+    #endregion
 
     #endregion
 }

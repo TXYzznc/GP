@@ -21,4 +21,5 @@ public partial class SummonChessStateUI
 	[SerializeField] private Image varChessEXP = null;
 	[SerializeField] private TextMeshProUGUI varChessName = null;
 	[SerializeField] private TextMeshProUGUI varChessEXPText = null;
+	[SerializeField] private Button varLevelUpBtn = null;
 }

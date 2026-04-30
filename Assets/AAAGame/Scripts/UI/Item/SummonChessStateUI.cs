@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityGameFramework.Runtime;
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 #endif
@@ -48,6 +49,10 @@ public partial class SummonChessStateUI : UIItemBase
     // Buff管理
     private Dictionary<int, BuffItem> m_BuffItems = new Dictionary<int, BuffItem>();
 
+    // 升阶动画
+    private DG.Tweening.Tween m_LevelUpBtnPulseTween;
+    private CanvasGroup m_LevelUpBtnCanvasGroup;
+
     protected override void OnInit()
     {
         base.OnInit();
@@ -63,6 +68,17 @@ public partial class SummonChessStateUI : UIItemBase
         if (varChessEXP != null) { varChessEXP.type = Image.Type.Filled; varChessEXP.fillMethod = Image.FillMethod.Horizontal; }
 
         SetupHpMaterial();
+
+        // 升阶按钮初始化（默认隐藏）
+        if (varLevelUpBtn != null)
+        {
+            varLevelUpBtn.onClick.AddListener(OnLevelUpBtnClicked);
+            m_LevelUpBtnCanvasGroup = varLevelUpBtn.GetComponent<CanvasGroup>();
+            if (m_LevelUpBtnCanvasGroup == null)
+                m_LevelUpBtnCanvasGroup = varLevelUpBtn.gameObject.AddComponent<CanvasGroup>();
+            varLevelUpBtn.gameObject.SetActive(false);
+        }
+
         TryBindOwner();
         RefreshAll();
     }
@@ -113,6 +129,9 @@ public partial class SummonChessStateUI : UIItemBase
             Destroy(m_ShieldMatInst);
             m_ShieldMatInst = null;
         }
+
+        // 清除升阶按钮脉冲动画
+        m_LevelUpBtnPulseTween?.Kill();
     }
 
     private void LateUpdate()
@@ -226,6 +245,9 @@ public partial class SummonChessStateUI : UIItemBase
             DebugEx.Error("SummonChessStateUI", $"[Bind] ❌ 棋子 {owner.Config.Name} 没有 ChessEXPComponent");
         }
 
+        // 订阅升阶事件
+        owner.OnRankAdvanced += OnRankAdvanced;
+
         UpdateHpGridParams();
         RefreshAll();
         UpdateEXPDisplay();
@@ -249,6 +271,12 @@ public partial class SummonChessStateUI : UIItemBase
         {
             m_EXPComp.OnEXPChanged -= OnEXPChanged;
             m_EXPComp = null;
+        }
+
+        // 取消订阅升阶事件
+        if (m_Owner != null)
+        {
+            m_Owner.OnRankAdvanced -= OnRankAdvanced;
         }
 
         m_Owner = null;
@@ -314,6 +342,75 @@ public partial class SummonChessStateUI : UIItemBase
 
         if (varChessEXPText != null)
             varChessEXPText.text = requiredEXP > 0 ? $"{currentEXP}/{requiredEXP}" : $"{currentEXP}/--";
+
+        // 检查是否可以升阶
+        UpdateLevelUpBtnState(currentEXP, requiredEXP);
+    }
+
+    /// <summary>
+    /// 检查升阶按钮状态：经验足够且不是最高阶时显示并闪烁
+    /// </summary>
+    private void UpdateLevelUpBtnState(int currentExp, int requiredExp)
+    {
+        if (varLevelUpBtn == null || m_Owner == null)
+            return;
+
+        bool canAdvance = m_Owner.Rank < 3 && requiredExp > 0 && currentExp >= requiredExp;
+
+        if (canAdvance && !varLevelUpBtn.gameObject.activeSelf)
+        {
+            varLevelUpBtn.gameObject.SetActive(true);
+            PlayLevelUpPulse();
+        }
+        else if (!canAdvance && varLevelUpBtn.gameObject.activeSelf)
+        {
+            varLevelUpBtn.gameObject.SetActive(false);
+            m_LevelUpBtnPulseTween?.Kill();
+        }
+    }
+
+    /// <summary>
+    /// 升阶按钮的脉冲动画（alpha 闪烁）
+    /// </summary>
+    private void PlayLevelUpPulse()
+    {
+        if (varLevelUpBtn == null)
+            return;
+
+        m_LevelUpBtnPulseTween?.Kill();
+
+        CanvasGroup canvasGroup = varLevelUpBtn.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = varLevelUpBtn.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        canvasGroup.alpha = 1f;
+        m_LevelUpBtnPulseTween = canvasGroup
+            .DOFade(0.5f, 0.5f)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutQuad);
+    }
+
+    /// <summary>
+    /// 升阶按钮点击处理
+    /// </summary>
+    private void OnLevelUpBtnClicked()
+    {
+        if (m_Owner == null)
+            return;
+
+        m_Owner.AdvanceRank();
+        DebugEx.Log("SummonChessStateUI", $"✅ 棋子 {m_Owner.Config.Name} 完成升阶");
+    }
+
+    /// <summary>
+    /// 升阶事件回调
+    /// </summary>
+    private void OnRankAdvanced(int oldRank)
+    {
+        // 刷新经验显示（会自动更新按钮状态）
+        UpdateEXPDisplay();
     }
 
     #endregion
