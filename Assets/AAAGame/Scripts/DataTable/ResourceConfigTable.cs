@@ -29,7 +29,7 @@ public partial class ResourceConfigTable : DataRowBase
     }
 
         /// <summary>
-        /// 资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）
+        /// 资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）7 = Audio（音频）
         /// </summary>
         public int Type
         {

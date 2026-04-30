@@ -1,7 +1,7 @@
 ﻿#	ResourceConfigTable				
 #	ID		Type	Path	Name
 #	int		int	string	string
-#	资源ID	1：Assets/AAAGame/Sprites/2：Assets/AAAGame/Prefabs/3：Assets/AAAGame/Prefabs/Entity/4：Assets/AAAGame/Materials/5：Assets/AAAGame/Textures/6：Assets/AAAGame/Config/	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）	资源路径	资源名称
+#	资源ID	1：Assets/AAAGame/Sprites/2：Assets/AAAGame/Prefabs/3：Assets/AAAGame/Prefabs/Entity/4：Assets/AAAGame/Materials/5：Assets/AAAGame/Textures/6：Assets/AAAGame/Config/7：Assets/AAAGame/Audio/	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）7 = Audio（音频）	资源路径	资源名称
 	1001		1	UI/StartMenuUI/开始游戏界面-背景.png	开始游戏界面背景
 	1002		1	UI/StartMenuUI/诸神对决.png	游戏名称
 	1003		1	UI/StartMenuUI/Clash Of Gods.png	游戏名称-英文
@@ -192,3 +192,86 @@
 	1156		1	Summoner/召唤师头像/术士.png	术士头像
 	1157		1	Summoner/召唤师头像/混沌.png	混沌头像
 	1158		1	Summoner/召唤师头像/德鲁伊.png	德鲁伊头像
+	60001		7	BGM/游戏启动主菜单BGM	游戏启动/主菜单
+	60002		7	BGM/基地场景BGM	基地场景
+	60003		7	BGM/大世界探索BGM	大世界探索
+	60004		7	BGM/教程场景BGM	教程场景
+	60005		7	BGM/天宫副本BGM	天宫副本
+	60006		7	BGM/赫尔海姆副本BGM	赫尔海姆副本
+	60007		7	BGM/高天原副本BGM	高天原副本
+	60008		7	BGM/奥林匹斯副本BGM	奥林匹斯副本
+	60009		7	BGM/巴比伦副本BGM	巴比伦副本
+	60010		7	BGM/阿瓦隆副本BGM	阿瓦隆副本
+	60011		7	BGM/深渊副本BGM	深渊副本
+	60012		7	BGM/普通敌人战斗BGM	普通敌人战斗
+	60013		7	BGM/精英敌人战斗BGM	精英敌人战斗
+	60014		7	BGM/Boss战斗BGM	Boss战斗
+	60015		7	BGM/战斗结算BGM	战斗结算
+	60016		7	BGM/出战预设BGM	出战预设
+	60017		7	BGM/背包界面BGM	背包界面
+	60018		7	BGM/商城界面BGM	商城界面
+	60019		7	BGM/升级界面BGM	升级界面
+	60020		7	SFX/UI/按钮点击音效	按钮点击
+	60021		7	SFX/UI/界面打开音效	界面打开
+	60022		7	SFX/UI/界面关闭音效	界面关闭
+	60023		7	SFX/UI/按钮悬停音效	按钮悬停
+	60024		7	SFX/UI/标签页切换音效	标签页切换
+	60025		7	SFX/UI/确认按钮音效	确认按钮
+	60026		7	SFX/UI/取消按钮音效	取消按钮
+	60027		7	SFX/UI/错误音效	错误音效
+	60028		7	SFX/UI/成功音效	成功音效
+	60029		7	SFX/UI/解锁音效	解锁音效
+	60030		7	SFX/UI/通知提示音音效	通知提示音
+	60031		7	SFX/UI/货币获得音效	货币获得
+	60032		7	SFX/Combat/棋子选中音效	棋子选中
+	60033		7	SFX/Combat/移动开始音效	移动开始
+	60034		7	SFX/Combat/移动停止音效	移动停止
+	60035		7	SFX/Combat/攻击蓄力音效	攻击蓄力
+	60036		7	SFX/Combat/攻击释放音效	攻击释放
+	60037		7	SFX/Combat/攻击破风音效	攻击破风
+	60038		7	SFX/Combat/技能施放音效	技能施放
+	60039		7	SFX/Combat/Buff应用音效	Buff应用
+	60040		7	SFX/Combat/Debuff应用音效	Debuff应用
+	60041		7	SFX/Combat/轻度伤害音效	轻度伤害
+	60042		7	SFX/Combat/普通伤害音效	普通伤害
+	60043		7	SFX/Combat/重度伤害音效	重度伤害
+	60044		7	SFX/Combat/暴击伤害音效	暴击伤害
+	60045		7	SFX/Combat/闪避格挡音效	闪避/格挡
+	60046		7	SFX/Combat/治疗音效	治疗
+	60047		7	SFX/Combat/护盾获得音效	护盾获得
+	60048		7	SFX/Combat/死亡音效	死亡
+	60049		7	SFX/Combat/回合开始音效	回合开始
+	60050		7	SFX/Combat/回合结束音效	回合结束
+	60051		7	SFX/Combat/战斗开始音效	战斗开始
+	60052		7	SFX/Combat/Boss出现音效	Boss出现
+	60053		7	SFX/Combat/Boss技能警告音效	Boss技能警告
+	60054		7	SFX/Combat/战斗胜利音效	战斗胜利
+	60055		7	SFX/Combat/战斗失败音效	战斗失败
+	60056		7	SFX/Explore/脚步声音效	脚步声
+	60057		7	SFX/Explore/物品捡起音效	物品捡起
+	60058		7	SFX/Explore/宝箱打开音效	宝箱打开
+	60059		7	SFX/Explore/门打开音效	门打开
+	60060		7	SFX/Explore/门关闭音效	门关闭
+	60061		7	SFX/Explore/NPC对话音效	NPC对话
+	60062		7	SFX/Explore/任务接受音效	任务接受
+	60063		7	SFX/Explore/任务完成音效	任务完成
+	60064		7	SFX/Ambient/风声音效	风声
+	60065		7	SFX/Ambient/雷声音效	雷声
+	60066		7	SFX/Ambient/流水声音效	流水声
+	60067		7	SFX/Ambient/火焰声音效	火焰声
+	60068		7	SFX/Ambient/阴冷氛围音效	阴冷氛围
+	60069		7	SFX/Ambient/诡异低语音效	诡异低语
+	60070		7	SFX/Explore/传送进入音效	传送进入
+	60071		7	SFX/Explore/传送离开音效	传送离开
+	60072		7	SFX/UI/场景加载音效	场景加载
+	60073		7	SFX/Explore/传送准备音效	传送准备
+	60074		7	SFX/Reward/成就解锁音效	成就解锁
+	60075		7	SFX/Reward/等级提升音效	等级提升
+	60076		7	SFX/Reward/品质提升音效	品质提升
+	60077		7	SFX/Reward/额外奖励音效	额外奖励
+	60078		7	SFX/Reward/传说物品音效	传说物品
+	60079		7	SFX/UI/金币捡起音效	金币捡起
+	60080		7	SFX/UI/宝石捡起音效	宝石捡起
+	60081		7	SFX/UI/金币消耗音效	金币消耗
+	60082		7	SFX/UI/宝石消耗音效	宝石消耗
+	60083		7	SFX/UI/交易音效	交易音效

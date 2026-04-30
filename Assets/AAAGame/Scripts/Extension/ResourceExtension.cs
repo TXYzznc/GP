@@ -19,6 +19,7 @@ namespace GameExtension
         Material = 4, // 材质
         Texture = 5, // 纹理 需要扩展名：.png, .jpg, .tga
         ScriptableObject = 6, // ScriptableObject配置
+        Audio = 7, // 音频 需要扩展名：.mp3, .wav, .ogg
     }
 
     /// <summary>
@@ -280,6 +281,14 @@ namespace GameExtension
             return await LoadAssetByConfigAsync<T>(configId);
         }
 
+        /// <summary>
+        /// 根据配置表ID异步加载AudioClip（UniTask方式）
+        /// </summary>
+        public static async UniTask<AudioClip> LoadAudioClipAsync(int configId)
+        {
+            return await LoadAssetByConfigAsync<AudioClip>(configId);
+        }
+
         #endregion
 
         #region 直接路径加载（不依赖配置表）
@@ -491,8 +500,11 @@ namespace GameExtension
                 case ResourceType.Texture:
                     return UtilityBuiltin.AssetsPath.GetTexturePath(relativePath);
 
-                case ResourceType.ScriptableObject: // 新增
+                case ResourceType.ScriptableObject:
                     return UtilityBuiltin.AssetsPath.GetScriptObjectPath(relativePath);
+
+                case ResourceType.Audio:
+                    return UtilityBuiltin.AssetsPath.GetSoundPath(relativePath);
 
                 default:
                     Log.Warning($"未知的资源类型: {type}, 使用相对路径: {relativePath}");
