@@ -4,6 +4,7 @@ using UnityEngine;
 using GameFramework.Fsm;
 using GameFramework.Procedure;
 using UnityGameFramework.Runtime;
+using AAAGame.Audio;
 
 /// <summary>
 /// 游戏开始流程 - 主菜单游戏逻辑处理
@@ -23,22 +24,15 @@ public class StartGameProcedure : ProcedureBase
         // 输出启动性能诊断信息
         StartupPerformanceProfiler.OnGameReady();
 
+        // 初始化音乐系统
+        InitializeAudioSystem();
+
         // 初始化游戏状态管理器，切换到主菜单状态
         GameStateManager.Instance.SwitchToMenu();
         Log.Info("StartGameProcedure: 已切换到主菜单状态");
 
-        // TODO: 这里可以添加其他游戏开始的逻辑
-        // 例如：
-        // - 打开游戏 UI
-        // - 播放音乐
-        // - 开始游戏动画
-        // - 加载背景音乐
-
-        // 示例：打开一个游戏 UI（根据项目的话）
-        // GF.UI.OpenUIForm(UIViews.GameUI);
-
-        // 示例：播放背景音乐
-        // GF.Sound.PlayMusic("bgm/game_music.mp3");
+        // 播放主菜单 BGM
+        AudioEventListener.Instance?.PlayBGMForProcedure("StartGameProcedure");
 
         GF.UI.OpenUIForm(UIViews.StartMenuUI);
     }
@@ -81,16 +75,30 @@ public class StartGameProcedure : ProcedureBase
 
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
     {
-        // TODO: 离开游戏流程时的清理工作
-        // 例如：
-        // - 关闭游戏 UI
-        // - 清理游戏数据
-        // - 停止音乐
-
         GF.Log("离开游戏流程 - StartGame");
-
         s_ProcedureOwner = null;
-
         base.OnLeave(procedureOwner, isShutdown);
+    }
+
+    /// <summary>
+    /// 初始化音乐系统
+    /// </summary>
+    private void InitializeAudioSystem()
+    {
+        if (AudioManager.Instance != null)
+        {
+            Log.Info("StartGameProcedure: AudioManager 已初始化");
+            return;
+        }
+
+        var audioManagerGo = new GameObject("AudioManager");
+        var audioManager = audioManagerGo.AddComponent<AudioManager>();
+        Object.DontDestroyOnLoad(audioManagerGo);
+
+        var audioListenerGo = new GameObject("AudioEventListener");
+        audioListenerGo.transform.SetParent(audioManagerGo.transform);
+        audioListenerGo.AddComponent<AudioEventListener>();
+
+        Log.Info("StartGameProcedure: 音乐系统已初始化");
     }
 }

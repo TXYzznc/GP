@@ -4,6 +4,7 @@ using UnityGameFramework.Runtime;
 using GameFramework.Event;
 using UnityEngine;
 using System.Collections.Generic;
+using AAAGame.Audio;
 
 /// <summary>
 /// 游戏流程 - 处理游戏场景中进行的游戏
@@ -53,6 +54,9 @@ public class GameProcedure : ProcedureBase
 #if UNITY_EDITOR
         LoadLogConfig();
 #endif
+
+        // 0.5. 初始化音乐系统
+        InitializeAudioSystem();
 
         // 1. 初始化物品效果工厂
         ItemEffectFactory.RegisterAll();
@@ -526,6 +530,38 @@ public class GameProcedure : ProcedureBase
             // 在状态切换时，它们会根据订阅的事件自动显示/隐藏
         }
     }
+
+    #region 音乐系统初始化
+
+    /// <summary>
+    /// 初始化音乐系统
+    /// </summary>
+    private void InitializeAudioSystem()
+    {
+        // 检查 AudioManager 是否已存在
+        if (AudioManager.Instance != null)
+        {
+            Log.Info("GameProcedure: AudioManager 已初始化");
+            return;
+        }
+
+        // 创建 AudioManager GameObject
+        var audioManagerGo = new GameObject("AudioManager");
+        var audioManager = audioManagerGo.AddComponent<AudioManager>();
+        Object.DontDestroyOnLoad(audioManagerGo);
+
+        // 创建 AudioEventListener 用于流程事件响应
+        var audioListenerGo = new GameObject("AudioEventListener");
+        audioListenerGo.transform.SetParent(audioManagerGo.transform);
+        audioListenerGo.AddComponent<AudioEventListener>();
+
+        Log.Info("GameProcedure: 音乐系统已初始化");
+
+        // 播放游戏流程 BGM
+        AudioEventListener.Instance?.PlayBGMForProcedure("GameProcedure");
+    }
+
+    #endregion
 
     /// <summary>
     /// 加载日志配置并应用到 DebugEx（仅编辑器模式）
