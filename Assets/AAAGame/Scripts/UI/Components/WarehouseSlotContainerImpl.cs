@@ -70,6 +70,7 @@ public class WarehouseSlotContainerImpl : SlotContainerBase
         {
             m_WarehouseManager.RemoveItem(fromSlotIndex, count);
         }
+        // 注：WarehouseManager 的 RemoveItem(slotIndex, count) 已经是按格子索引移除，符合需求
 
         return success;
     }

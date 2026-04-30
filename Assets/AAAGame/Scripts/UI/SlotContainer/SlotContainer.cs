@@ -71,6 +71,15 @@ public abstract class SlotContainerBase : MonoBehaviour, ISlotContainer
             return false;
         }
 
+        // 检查目标格子是否可用（对于背包的未解锁格子，应拒绝）
+        var targetSlotUI = GetSlotUIFromContainer(targetContainer, targetSlotIndex);
+        if (targetSlotUI != null && !targetSlotUI.IsAvailable)
+        {
+            DebugEx.Warning(nameof(SlotContainerBase),
+                $"[{targetContainer.ContainerType}] 目标格子 {targetSlotIndex} 已锁定，禁止操作");
+            return false;
+        }
+
         return ExecuteMove(fromSlotIndex, targetContainer, targetSlotIndex);
     }
 
@@ -80,5 +89,23 @@ public abstract class SlotContainerBase : MonoBehaviour, ISlotContainer
     {
         return targetContainer is SlotContainerBase baseContainer &&
                baseContainer.CanInteractWith(this.ContainerType);
+    }
+
+    /// <summary>
+    /// 从容器中获取指定索引的 InventorySlotUI（用于检查格子锁定状态）
+    /// </summary>
+    private InventorySlotUI GetSlotUIFromContainer(ISlotContainer container, int slotIndex)
+    {
+        if (container is not SlotContainerBase baseContainer)
+            return null;
+
+        // 遍历容器的所有子对象查找 InventorySlotUI
+        var allSlotUIs = baseContainer.GetComponentsInChildren<InventorySlotUI>();
+        foreach (var slotUI in allSlotUIs)
+        {
+            if (slotUI.SlotIndex == slotIndex)
+                return slotUI;
+        }
+        return null;
     }
 }

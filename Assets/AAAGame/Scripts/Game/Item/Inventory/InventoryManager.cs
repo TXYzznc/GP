@@ -212,7 +212,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     }
 
     /// <summary>
-    /// 移除物品
+    /// 移除物品（按物品ID，从第一个匹配的格子开始）
     /// </summary>
     public bool RemoveItem(int itemId, int count = 1)
     {
@@ -257,6 +257,40 @@ public class InventoryManager : SingletonBase<InventoryManager>
             NotifySlotChanged(removedSlotIndex, SlotChangeType.Remove, totalCount, newCount);
         }
 
+        return true;
+    }
+
+    /// <summary>
+    /// 按格子索引移除物品（用于跨容器拖拽，确保移除的是指定格子的物品）
+    /// </summary>
+    public bool RemoveItemFromSlot(int slotIndex, int count = 1)
+    {
+        if (slotIndex < 0 || slotIndex >= m_Slots.Count)
+        {
+            DebugEx.Warning(nameof(InventoryManager), $"[RemoveItemFromSlot] 格子索引越界: {slotIndex}");
+            return false;
+        }
+
+        var slot = m_Slots[slotIndex];
+        if (slot.IsEmpty)
+        {
+            DebugEx.Warning(nameof(InventoryManager), $"[RemoveItemFromSlot] 格子 {slotIndex} 为空");
+            return false;
+        }
+
+        if (count <= 0 || count > slot.Count)
+        {
+            count = slot.Count;
+        }
+
+        int itemId = slot.ItemId;
+        int oldCount = slot.Count;
+        slot.RemoveItem(count);
+
+        UpdateVirtualItemCache(itemId, -count);
+        DebugEx.Log(nameof(InventoryManager), $"[RemoveItemFromSlot] 从格子 {slotIndex} 移除物品 ID:{itemId}, 数量:{count}");
+
+        NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, slot.Count);
         return true;
     }
 

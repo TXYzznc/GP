@@ -60,7 +60,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
         {
             if (targetIsEmpty || targetSlot.ItemId == itemId)
             {
-                m_InventoryManager.RemoveItem(itemId, count);
+                m_InventoryManager.RemoveItemFromSlot(fromSlotIndex, count);
             }
         }
 
