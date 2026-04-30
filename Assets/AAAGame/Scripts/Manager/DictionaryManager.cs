@@ -303,7 +303,7 @@ public class DictionaryManager
                 {
                     foreach (var row in table.GetAllDataRows())
                     {
-                        if (row.Type == (int)ItemType.Equipment)
+                        if (row.IsOnlyInGame)
                             ids.Add(row.Id);
                     }
                 }

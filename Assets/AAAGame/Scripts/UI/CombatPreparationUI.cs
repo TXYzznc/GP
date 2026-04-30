@@ -317,7 +317,7 @@ public partial class CombatPreparationUI : UIFormBase
                 continue;
 
             var row = itemTable?.GetDataRow(slot.ItemStack.Item.ItemId);
-            if (row == null || row.Type != (int)ItemType.Equipment)
+            if (row == null || !row.IsOnlyInGame)
                 continue;
 
             if (displayIndex >= m_EquipSlots.Count)

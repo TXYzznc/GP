@@ -573,7 +573,7 @@ public partial class InventoryUI : UIFormBase
                 continue;
 
             var row = itemTable?.GetDataRow(slot.ItemStack.Item.ItemId);
-            if (row != null && row.Type == (int)ItemType.Equipment)
+            if (row != null && row.IsOnlyInGame)
             {
                 equipmentCount++;
                 DebugEx.Log(
@@ -597,7 +597,7 @@ public partial class InventoryUI : UIFormBase
                 continue;
 
             var row = itemTable?.GetDataRow(slot.ItemStack.Item.ItemId);
-            if (row == null || row.Type != (int)ItemType.Equipment)
+            if (row == null || !row.IsOnlyInGame)
                 continue;
 
             // 显示装备

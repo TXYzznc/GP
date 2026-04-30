@@ -56,6 +56,15 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
+        /// 是否只在局内使用
+        /// </summary>
+        public bool IsOnlyInGame
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 物品描述
         /// </summary>
         public string Description
@@ -232,6 +241,7 @@ public partial class ItemTable : DataRowBase
             Name = columnStrings[index++];
             Type = int.Parse(columnStrings[index++]);
             Quality = int.Parse(columnStrings[index++]);
+            IsOnlyInGame = bool.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
             IconId = int.Parse(columnStrings[index++]);
             DetailIconId = int.Parse(columnStrings[index++]);
@@ -264,6 +274,7 @@ public partial class ItemTable : DataRowBase
                     Name = binaryReader.ReadString();
                     Type = binaryReader.Read7BitEncodedInt32();
                     Quality = binaryReader.Read7BitEncodedInt32();
+                    IsOnlyInGame = binaryReader.ReadBoolean();
                     Description = binaryReader.ReadString();
                     IconId = binaryReader.Read7BitEncodedInt32();
                     DetailIconId = binaryReader.Read7BitEncodedInt32();
