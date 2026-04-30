@@ -17,6 +17,13 @@ Shader "Custom/PlayerCartoon"
         _SColor("阴影颜色", Color) = (0.2, 0.2, 0.2, 1.0)
         _AmbientStrength("环境光强度", Range(0, 5)) = 0.3
 
+        [Header(Oil Painting Effect)]
+        [Toggle(USE_OIL_PAINTING)] _UseOilPainting("启用油画效果", Float) = 0
+        _OilPaintingRadius("笔触半径(越大越卡)", Range(1, 10)) = 3
+        _OilPaintingHardness("边缘硬度", Range(1, 20)) = 8
+        _OilPaintingSharpness("细节锐度", Range(0, 1)) = 0.5
+        _OilPaintingBrushScale("油画效果强度", Range(1, 5)) = 2
+
         [Header(Outline Settings)]
         _OutlineWidth("描边宽度", Range(0, 0.1)) = 0.01
         _OutlineColor("描边颜色", Color) = (0, 0, 0, 1)
@@ -37,13 +44,12 @@ Shader "Custom/PlayerCartoon"
         [Toggle(USE_LOCAL_DEPTH_OUTLINE)] _UseLocalDepthOutline("近距离启用局部近粗远细(视空间)", Float) = 0
         _OutlineLocalEnableDistance("启用距离阈值(视空间深度<该值才生效)", Range(0, 50)) = 5
 
-        // 新增：局部描边专用参数（完全独立）
-        _LocalOutlineWidthNear("局部描边-近处宽度", Range(0, 0.2)) = 0.03
-        _LocalOutlineWidthFar("局部描边-远处宽度", Range(0, 0.2)) = 0.005
+        // 局部描边专用参数（基于整体描边宽度的倍率）
+        _LocalOutlineWidthNearRate("局部描边-最近处倍率(最粗)", Range(0.5, 3.0)) = 1.2
+        _LocalOutlineWidthFarRate("局部描边-最远处倍率(最细)", Range(0.1, 1.0)) = 0.2
         _LocalOutlineDepthNear("局部深度-开始(近)", Range(0, 50)) = 0.5
         _LocalOutlineDepthFar("局部深度-结束(远)", Range(0, 50)) = 5.0
         _LocalOutlineCurve("局部变化曲线", Range(0.1, 5)) = 1.0
-        _LocalOutlineRate("局部变化率(倍速)", Range(0.1, 5)) = 1.0
 
         // ========================================
         // Dissolve
@@ -92,6 +98,7 @@ Shader "Custom/PlayerCartoon"
             #pragma shader_feature USE_SMOOTH_NORMAL
             #pragma shader_feature USE_DISTANCE_OUTLINE
             #pragma shader_feature USE_LOCAL_DEPTH_OUTLINE
+            #pragma shader_feature USE_OIL_PAINTING
             #pragma shader_feature _DISSOLVE_ON
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -115,16 +122,15 @@ Shader "Custom/PlayerCartoon"
                     float _OutlineDistanceCurve;
                 #endif
 
-                // 局部近粗远细参数（独立一套）
+                // 局部近粗远细参数（基于整体宽度的倍率）
                 #ifdef USE_LOCAL_DEPTH_OUTLINE
                     float _OutlineLocalEnableDistance;
 
-                    float _LocalOutlineWidthNear;
-                    float _LocalOutlineWidthFar;
+                    float _LocalOutlineWidthNearRate;
+                    float _LocalOutlineWidthFarRate;
                     float _LocalOutlineDepthNear;
                     float _LocalOutlineDepthFar;
                     float _LocalOutlineCurve;
-                    float _LocalOutlineRate;
                 #endif
 
                 #ifdef _DISSOLVE_ON
@@ -180,7 +186,7 @@ Shader "Custom/PlayerCartoon"
                 }
                 #endif
 
-                // 2) 局部近粗远细：仅当物体中心“足够近”才启用；启用时覆盖 finalOutlineWidth
+                // 2) 局部近粗远细：仅当物体中心”足够近”才启用；基于整体宽度应用倍率
                 #ifdef USE_LOCAL_DEPTH_OUTLINE
                 {
                     float3 objectCenterWS = TransformObjectToWorld(float3(0, 0, 0));
@@ -197,12 +203,13 @@ Shader "Custom/PlayerCartoon"
                         float denomLocal = max(1e-5, (_LocalOutlineDepthFar - _LocalOutlineDepthNear));
                         float t = saturate((vertexDepthVS - _LocalOutlineDepthNear) / denomLocal);
 
-                        // 曲线 + 变化率（变化率用作“加速”，>1 更快到达远处细描边）
+                        // 应用变化曲线
                         t = pow(t, _LocalOutlineCurve);
-                        t = saturate(t * _LocalOutlineRate);
 
-                        // 覆盖：近处宽 -> 远处窄
-                        finalOutlineWidth = lerp(_LocalOutlineWidthNear, _LocalOutlineWidthFar, t);
+                        // 基于当前 finalOutlineWidth 应用倍率
+                        // 近处：倍率为 _LocalOutlineWidthNearRate，远处：倍率为 _LocalOutlineWidthFarRate
+                        float localRate = lerp(_LocalOutlineWidthNearRate, _LocalOutlineWidthFarRate, t);
+                        finalOutlineWidth = finalOutlineWidth * localRate;
                     }
                 }
                 #endif
@@ -257,6 +264,7 @@ Shader "Custom/PlayerCartoon"
             #pragma multi_compile _ _SHADOWS_SOFT
             #pragma shader_feature _DISSOLVE_ON
             #pragma shader_feature _DISSOLVE_MODE_SINGLE _DISSOLVE_MODE_TWOCOLOR _DISSOLVE_MODE_THREECOLOR _DISSOLVE_MODE_RAINBOW
+            #pragma shader_feature USE_OIL_PAINTING
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -267,6 +275,7 @@ Shader "Custom/PlayerCartoon"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
+            float4 _MainTex_TexelSize;
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
@@ -278,6 +287,13 @@ Shader "Custom/PlayerCartoon"
                 float4 _SColor;
                 float _AmbientStrength;
                 float _StealthAlpha;
+
+                #ifdef USE_OIL_PAINTING
+                    float _OilPaintingRadius;
+                    float _OilPaintingHardness;
+                    float _OilPaintingSharpness;
+                    float _OilPaintingBrushScale;
+                #endif
 
                 #ifdef _DISSOLVE_ON
                     float _DissolveThreshold;
@@ -320,6 +336,52 @@ Shader "Custom/PlayerCartoon"
 
                 return output;
             }
+
+            #ifdef USE_OIL_PAINTING
+            float3 CalculateOilPaintColor(float2 uv)
+            {
+                float2 texelSize = _MainTex_TexelSize.xy;
+                int radius = int(ceil(_OilPaintingRadius));
+
+                float3 m[4] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} };
+                float3 s[4] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} };
+                float w[4] = { 0, 0, 0, 0 };
+
+                [loop]
+                for (int y = -radius; y <= radius; y++)
+                {
+                    for (int x = -radius; x <= radius; x++)
+                    {
+                        float2 offset = float2(x, y) * texelSize * _OilPaintingBrushScale;
+                        float3 c = SAMPLE_TEXTURE2D_LOD(_MainTex, sampler_MainTex, uv + offset, 0).rgb;
+
+                        float weight = exp(-(x*x + y*y) / (2.0 * (_OilPaintingRadius * 0.35) * (_OilPaintingRadius * 0.35)));
+
+                        if (x <= 0 && y <= 0) { m[0] += c * weight; s[0] += c * c * weight; w[0] += weight; }
+                        if (x >= 0 && y <= 0) { m[1] += c * weight; s[1] += c * c * weight; w[1] += weight; }
+                        if (x <= 0 && y >= 0) { m[2] += c * weight; s[2] += c * c * weight; w[2] += weight; }
+                        if (x >= 0 && y >= 0) { m[3] += c * weight; s[3] += c * c * weight; w[3] += weight; }
+                    }
+                }
+
+                float3 finalColor = 0;
+                float sumWeights = 0;
+
+                for (int k = 0; k < 4; k++)
+                {
+                    m[k] /= w[k];
+                    s[k] = abs(s[k] / w[k] - m[k] * m[k]);
+
+                    float sigma2 = s[k].r + s[k].g + s[k].b;
+                    float targetWeight = 1.0 / (1.0 + pow(sigma2 * 1000.0, _OilPaintingSharpness));
+                    float w_final = pow(targetWeight, _OilPaintingHardness);
+
+                    finalColor.rgb += m[k] * w_final;
+                    sumWeights += w_final;
+                }
+                return finalColor / sumWeights;
+            }
+            #endif
 
             half4 frag(Varyings input) : SV_Target
             {
@@ -383,7 +445,11 @@ Shader "Custom/PlayerCartoon"
                 half3 ambient = SampleSH(normalWS) * _AmbientStrength;
                 ambient *= rampColor;
 
-                half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).rgb * _Color.rgb;
+                #ifdef USE_OIL_PAINTING
+                    half3 albedo = CalculateOilPaintColor(input.uv) * _Color.rgb;
+                #else
+                    half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).rgb * _Color.rgb;
+                #endif
 
                 half3 directLight = albedo * mainLight.color * rampColor;
                 half3 ambientLight = albedo * ambient;

@@ -25,6 +25,9 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - USE_DISTANCE_OUTLINE
+  - USE_LOCAL_DEPTH_OUTLINE
+  - USE_OIL_PAINTING
   - USE_SMOOTH_NORMAL
   - _DISSOLVE_MODE_SINGLE
   - _DISSOLVE_ON
@@ -106,7 +109,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AmbientStrength: 1.2
+    - _AmbientStrength: 2
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BrushScale: 2
@@ -133,23 +136,29 @@ Material:
     - _LocalOutlineDepthNear: 0.5
     - _LocalOutlineRate: 1
     - _LocalOutlineWidthFar: 0.005
+    - _LocalOutlineWidthFarRate: 0.2
     - _LocalOutlineWidthNear: 0.03
+    - _LocalOutlineWidthNearRate: 1.2
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OilPaintingBrushScale: 4
+    - _OilPaintingHardness: 20
+    - _OilPaintingRadius: 3
+    - _OilPaintingSharpness: 1
     - _OutlineDistanceCurve: 1
     - _OutlineDistanceMax: 2
     - _OutlineDistanceMin: 20
     - _OutlineLocalEnableDistance: 5
     - _OutlineWidth: 0.003
-    - _OutlineWidthMax: 0.03
-    - _OutlineWidthMin: 0.005
+    - _OutlineWidthMax: 0.008
+    - _OutlineWidthMin: 0.001
     - _OutlineZOffset: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _Radius: 3
     - _RainbowIntensity: 2
     - _RampSmooth: 0
-    - _RampThreshold: 0.6
+    - _RampThreshold: 0.2
     - _ReceiveShadows: 1
     - _Sharpness: 0.5
     - _Smoothness: 0.5
@@ -159,9 +168,10 @@ Material:
     - _SrcBlendAlpha: 1
     - _StealthAlpha: 1
     - _Surface: 0
-    - _ToonSteps: 6
-    - _UseDistanceOutline: 0
-    - _UseLocalDepthOutline: 0
+    - _ToonSteps: 5
+    - _UseDistanceOutline: 1
+    - _UseLocalDepthOutline: 1
+    - _UseOilPainting: 1
     - _UseSmoothNormal: 1
     - _WorkflowMode: 1
     - _ZWrite: 1

@@ -66,6 +66,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Arena\BattleArenaManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\CombatVFXUpdater.cs" />
     <Compile Include="Assets\AAAGame\Scripts\EventArgs\GFEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioResourceManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\InventoryItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\CardPresetItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Manager\SummonChessManager.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\TreasureBoxTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeSkill1.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IPlayerInputSource.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\BGMManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventoryDragHandler.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\FunctionItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\StartMenuUI.cs" />
@@ -291,6 +293,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Skills\BerserkerActiveSkill.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\BuffTargetEntry.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\OutOfGameState.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\SFXManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemyFormationManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PresetItems\CardPresetItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextAnimationLibrary.cs" />
@@ -384,6 +387,8 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PlayerSkillSlot.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\GameTestManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\ChessSlotContainerImpl.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioSourcePool.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioUIExtensions.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\WorldItemPickup.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interface\IBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\SceneType.cs" />
@@ -467,6 +472,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\BerserkCardEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\FunctionItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\SettingExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioClipIds.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\SummonerSkillTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Data\SummonChessConfig.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\ChessTestInput.cs" />
@@ -534,8 +540,10 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\BattlePresetUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\StartMenuUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSMRangedAI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\AudioClipTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\SynergyTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\BurnBuff.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\VolumeManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeMagicCircle.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Spawn\SpawnPoint.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessStateEvents.cs" />
@@ -584,8 +592,10 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\TauntBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamagePopupItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RestoreHPEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\StaticUIComponent.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\PlayerLevelUpEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioEventListener.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PageLabelItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\PlayerExpManager.cs" />
   </ItemGroup>
