@@ -521,21 +521,21 @@ public class ChessSkillTestPanel : IToolHubPanel
         if (m_TargetChess.NormalAttackConfig != null)
         {
             m_NormalAttackParams.LoadFromConfig(m_TargetChess.NormalAttackConfig);
-            m_InputNormalAttackId = m_TargetChess.Config.NormalAtkId;
+            m_InputNormalAttackId = m_TargetChess.Config.GetNormalAtkId(m_TargetChess.Rank);
         }
 
         // 加载技能1配置
         if (m_TargetChess.Skill1Config != null)
         {
             m_Skill1Params.LoadFromConfig(m_TargetChess.Skill1Config);
-            m_InputSkill1Id = m_TargetChess.Config.Skill1Id;
+            m_InputSkill1Id = m_TargetChess.Config.GetSkill1Id(m_TargetChess.Rank);
         }
 
         // 加载大招配置
         if (m_TargetChess.Skill2Config != null)
         {
             m_Skill2Params.LoadFromConfig(m_TargetChess.Skill2Config);
-            m_InputSkill2Id = m_TargetChess.Config.Skill2Id;
+            m_InputSkill2Id = m_TargetChess.Config.GetSkill2Id(m_TargetChess.Rank);
         }
 
         Debug.Log($"ChessSkillTestPanel: 已加载棋子 {m_TargetChess.Config?.Name} 的技能配置");
