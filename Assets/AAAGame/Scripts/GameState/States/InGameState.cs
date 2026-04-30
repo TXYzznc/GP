@@ -73,6 +73,10 @@ public class InGameState : FsmState<GameStateManager>
         InventoryManager.Instance?.CreateSnapshot();
         DebugEx.Log("InGameState", "已创建背包快照");
 
+        // ⭐ 启动本局物品追踪（记录本局所有获取的物品）
+        InventoryManager.Instance?.StartSessionTracking();
+        DebugEx.Log("InGameState", "已启动本局物品追踪");
+
         // ⭐ 创建账号数据快照（等级/经验/金币/背包等），用于异常退出时回滚
         PlayerAccountDataManager.Instance.CreateInGameSnapshot();
 
@@ -110,6 +114,10 @@ public class InGameState : FsmState<GameStateManager>
 
         // 清理仓库数据（WarehouseManager 是纯 C# 单例，需手动清理）
         WarehouseManager.Instance.Cleanup();
+
+        // ⭐ 结束本局物品追踪
+        InventoryManager.Instance?.EndSessionTracking();
+        DebugEx.Log("InGameState", "已结束本局物品追踪");
 
         // 回到基地（局外）：恢复所有棋子血量到满值（含已死亡棋子）
         GlobalChessManager.Instance.RestoreAllChessHP();

@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using GameFramework;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
@@ -323,6 +324,9 @@ public class SettlementManager
             DebugEx.Log(nameof(SettlementManager), $"获得物品: {itemId}");
         }
 
+        // ⭐ 清理装备类物品（装备只能局内使用，无法带出）
+        await ClearEquipmentItemsAsync();
+
         // ⭐ 清理背包快照
         InventoryManager.Instance?.ClearSnapshot();
 
@@ -331,6 +335,45 @@ public class SettlementManager
         accountManager.SaveCurrentSave();
 
         DebugEx.Log(nameof(SettlementManager), "奖励应用完成，存档已保存");
+
+        await UniTask.CompletedTask;
+    }
+
+    /// <summary>清理背包中的装备类物品（结算后且保存前调用）</summary>
+    private async UniTask ClearEquipmentItemsAsync()
+    {
+        var inventory = InventoryManager.Instance;
+        if (inventory == null)
+            return;
+
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        if (itemTable == null)
+            return;
+
+        var equipmentItemIds = new List<int>();
+
+        foreach (var slot in inventory.GetAllSlots())
+        {
+            if (slot != null && !slot.IsEmpty)
+            {
+                var row = itemTable.GetDataRow(slot.ItemId);
+                if (row != null && row.IsOnlyInGame)
+                {
+                    equipmentItemIds.Add(slot.ItemId);
+                }
+            }
+        }
+
+        foreach (var itemId in equipmentItemIds)
+        {
+            int qty = inventory.GetItemCount(itemId);
+            inventory.RemoveItem(itemId, qty);
+        }
+
+        if (equipmentItemIds.Count > 0)
+        {
+            DebugEx.Log(nameof(SettlementManager), $"已清理 {equipmentItemIds.Count} 件装备");
+        }
 
         await UniTask.CompletedTask;
     }

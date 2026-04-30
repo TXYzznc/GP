@@ -33,6 +33,9 @@ public class InventoryManager : SingletonBase<InventoryManager>
     // 背包快照数据（进入局内时保存）
     private List<InventoryItemSaveData> m_SnapshotBeforeSession = null;
 
+    // 本局获取物品记录（局内追踪）
+    private Dictionary<int, int> m_SessionAcquiredItems = null;
+
     /// <summary>
     /// 格子变化事件（统一事件）
     /// </summary>
@@ -165,6 +168,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             if (remaining <= 0)
             {
                 UpdateVirtualItemCache(itemId, count);
+                TrackSessionAcquiredItem(itemId, count);
                 DebugEx.Success(nameof(InventoryManager), $"物品添加成功（堆叠）: {itemData.Name}");
                 return true;
             }
@@ -196,6 +200,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         UpdateVirtualItemCache(itemId, count);
+        TrackSessionAcquiredItem(itemId, count);
         DebugEx.Success(nameof(InventoryManager), $"物品添加成功: {itemData.Name}");
 
         foreach (var idx in newSlotIndices)
@@ -810,6 +815,92 @@ public class InventoryManager : SingletonBase<InventoryManager>
     {
         m_SnapshotBeforeSession = null;
         DebugEx.Log(nameof(InventoryManager), "背包快照已清除");
+    }
+
+    /// <summary>
+    /// 启动本局物品追踪（进入战斗场景时调用）
+    /// </summary>
+    public void StartSessionTracking()
+    {
+        m_SessionAcquiredItems = new Dictionary<int, int>();
+        DebugEx.Log(nameof(InventoryManager), "本局物品追踪已启动");
+    }
+
+    /// <summary>
+    /// 结束本局物品追踪（离开战斗场景时调用）
+    /// </summary>
+    public void EndSessionTracking()
+    {
+        m_SessionAcquiredItems = null;
+        DebugEx.Log(nameof(InventoryManager), "本局物品追踪已结束");
+    }
+
+    /// <summary>
+    /// 获取本局获取的物品列表（按品质排序，排除装备类物品）
+    /// </summary>
+    public List<(int itemId, int quantity)> GetSessionAcquiredItems()
+    {
+        var result = new List<(int itemId, int quantity)>();
+
+        if (m_SessionAcquiredItems == null || m_SessionAcquiredItems.Count == 0)
+        {
+            return result;
+        }
+
+        var itemTable = GF.DataTable.GetDataTable<ItemTable>();
+        if (itemTable == null)
+        {
+            DebugEx.Warning(nameof(InventoryManager), "ItemTable 未加载，无法获取本局物品列表");
+            return result;
+        }
+
+        // 收集所有物品
+        foreach (var kvp in m_SessionAcquiredItems)
+        {
+            int itemId = kvp.Key;
+            int quantity = kvp.Value;
+
+            // 过滤虚拟物品和局内物品
+            if (itemTable.HasDataRow(itemId))
+            {
+                var row = itemTable.GetDataRow(itemId);
+                if (!row.IsOnlyInGame && row.Type != (int)ItemType.Virtual)
+                {
+                    result.Add((itemId, quantity));
+                }
+            }
+        }
+
+        // 按品质降序排序
+        result.Sort((a, b) =>
+        {
+            var rowA = itemTable.GetDataRow(a.itemId);
+            var rowB = itemTable.GetDataRow(b.itemId);
+            int qualityCompare = rowB.Quality.CompareTo(rowA.Quality);
+            if (qualityCompare != 0)
+                return qualityCompare;
+            return a.itemId.CompareTo(b.itemId);
+        });
+
+        return result;
+    }
+
+    /// <summary>
+    /// 追踪本局获取的物品（仅在本局追踪状态下记录）
+    /// </summary>
+    private void TrackSessionAcquiredItem(int itemId, int count)
+    {
+        if (m_SessionAcquiredItems == null)
+            return;
+
+        if (m_SessionAcquiredItems.ContainsKey(itemId))
+        {
+            m_SessionAcquiredItems[itemId] += count;
+        }
+        else
+        {
+            m_SessionAcquiredItems[itemId] = count;
+        }
     }
 
     /// <summary>
