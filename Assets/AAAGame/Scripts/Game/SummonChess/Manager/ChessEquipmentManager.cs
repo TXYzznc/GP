@@ -63,13 +63,13 @@ public class ChessEquipmentManager
     {
         if (item == null)
         {
-            DebugEx.WarningModule("ChessEquipMgr", "EquipItem: item is null");
+            DebugEx.Warning(nameof(ChessEquipmentManager), "EquipItem: item is null");
             return null;
         }
 
         if (slotIndex < 0 || slotIndex >= EQUIP_SLOT_COUNT)
         {
-            DebugEx.WarningModule("ChessEquipMgr", $"EquipItem: slotIndex {slotIndex} 越界");
+            DebugEx.Warning(nameof(ChessEquipmentManager), $"EquipItem: slotIndex {slotIndex} 越界");
             return null;
         }
 
@@ -86,7 +86,7 @@ public class ChessEquipmentManager
         {
             oldItem.IsEquipped = false;
             RemoveEquipmentStats(chessId, oldItem);
-            DebugEx.LogModule("ChessEquipMgr", $"棋子 {chessId} 槽位 {slotIndex} 卸下旧装备: {oldItem.Name}");
+            DebugEx.Log(nameof(ChessEquipmentManager), $"棋子 {chessId} 槽位 {slotIndex} 卸下旧装备: {oldItem.Name}");
         }
 
         // 穿戴新装备
@@ -94,7 +94,7 @@ public class ChessEquipmentManager
         item.IsEquipped = true;
         ApplyEquipmentStats(chessId, item);
 
-        DebugEx.LogModule("ChessEquipMgr", $"棋子 {chessId} 槽位 {slotIndex} 穿戴装备: {item.Name}");
+        DebugEx.Log(nameof(ChessEquipmentManager), $"棋子 {chessId} 槽位 {slotIndex} 穿戴装备: {item.Name}");
 
         // 触发事件
         ChessStateEvents.FireEquipmentChanged(chessId, slotIndex);
@@ -112,7 +112,7 @@ public class ChessEquipmentManager
     {
         if (slotIndex < 0 || slotIndex >= EQUIP_SLOT_COUNT)
         {
-            DebugEx.WarningModule("ChessEquipMgr", $"UnequipItem: slotIndex {slotIndex} 越界");
+            DebugEx.Warning(nameof(ChessEquipmentManager), $"UnequipItem: slotIndex {slotIndex} 越界");
             return null;
         }
 
@@ -124,7 +124,7 @@ public class ChessEquipmentManager
         EquipmentItem item = slots[slotIndex];
         if (item == null)
         {
-            DebugEx.LogModule("ChessEquipMgr", $"棋子 {chessId} 槽位 {slotIndex} 无装备");
+            DebugEx.Log(nameof(ChessEquipmentManager), $"棋子 {chessId} 槽位 {slotIndex} 无装备");
             return null;
         }
 
@@ -133,7 +133,7 @@ public class ChessEquipmentManager
         item.IsEquipped = false;
         RemoveEquipmentStats(chessId, item);
 
-        DebugEx.LogModule("ChessEquipMgr", $"棋子 {chessId} 槽位 {slotIndex} 卸下装备: {item.Name}");
+        DebugEx.Log(nameof(ChessEquipmentManager), $"棋子 {chessId} 槽位 {slotIndex} 卸下装备: {item.Name}");
 
         // 触发事件
         ChessStateEvents.FireEquipmentChanged(chessId, slotIndex);
@@ -213,7 +213,7 @@ public class ChessEquipmentManager
             ApplyAttributeModifier(entity.Attribute, attr.Key, attr.Value);
         }
 
-        DebugEx.LogModule("ChessEquipMgr", $"已应用装备属性: {item.Name} → 棋子 {chessId}");
+        DebugEx.Log(nameof(ChessEquipmentManager), $"已应用装备属性: {item.Name} → 棋子 {chessId}");
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public class ChessEquipmentManager
             ApplyAttributeModifier(entity.Attribute, attr.Key, -attr.Value);
         }
 
-        DebugEx.LogModule("ChessEquipMgr", $"已移除装备属性: {item.Name} ← 棋子 {chessId}");
+        DebugEx.Log(nameof(ChessEquipmentManager), $"已移除装备属性: {item.Name} ← 棋子 {chessId}");
     }
 
     /// <summary>
@@ -279,7 +279,7 @@ public class ChessEquipmentManager
                 attribute.ModifySpellPower(value);
                 break;
             default:
-                DebugEx.WarningModule("ChessEquipMgr", $"未处理的 AttributeType: {type}");
+                DebugEx.Warning(nameof(ChessEquipmentManager), $"未处理的 AttributeType: {type}");
                 break;
         }
     }
@@ -344,7 +344,7 @@ public class ChessEquipmentManager
             }
         }
 
-        DebugEx.LogModule("ChessEquipMgr", $"装备数据保存完成，共 {saveList.Count} 件装备");
+        DebugEx.Log(nameof(ChessEquipmentManager), $"装备数据保存完成，共 {saveList.Count} 件装备");
         return saveList;
     }
 
@@ -357,7 +357,7 @@ public class ChessEquipmentManager
 
         if (saveList == null || saveList.Count == 0)
         {
-            DebugEx.LogModule("ChessEquipMgr", "无装备存档数据");
+            DebugEx.Log(nameof(ChessEquipmentManager), "无装备存档数据");
             return;
         }
 
@@ -366,7 +366,7 @@ public class ChessEquipmentManager
             var item = ItemManager.Instance?.CreateItem(data.ItemId) as EquipmentItem;
             if (item == null)
             {
-                DebugEx.WarningModule("ChessEquipMgr", $"加载装备失败 ItemId={data.ItemId}");
+                DebugEx.Warning(nameof(ChessEquipmentManager), $"加载装备失败 ItemId={data.ItemId}");
                 continue;
             }
 
@@ -383,7 +383,7 @@ public class ChessEquipmentManager
             }
         }
 
-        DebugEx.LogModule("ChessEquipMgr", $"装备数据加载完成，共 {saveList.Count} 件");
+        DebugEx.Log(nameof(ChessEquipmentManager), $"装备数据加载完成，共 {saveList.Count} 件");
     }
 
     #endregion
@@ -397,7 +397,7 @@ public class ChessEquipmentManager
     {
         if (m_ChessEquipments.Remove(chessId))
         {
-            DebugEx.LogModule("ChessEquipMgr", $"注销棋子 {chessId} 的所有装备");
+            DebugEx.Log(nameof(ChessEquipmentManager), $"注销棋子 {chessId} 的所有装备");
         }
     }
 
@@ -407,7 +407,7 @@ public class ChessEquipmentManager
     public void Clear()
     {
         m_ChessEquipments.Clear();
-        DebugEx.LogModule("ChessEquipMgr", "所有装备数据已清空");
+        DebugEx.Log(nameof(ChessEquipmentManager), "所有装备数据已清空");
     }
 
     #endregion

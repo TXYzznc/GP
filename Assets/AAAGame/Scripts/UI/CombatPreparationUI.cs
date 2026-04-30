@@ -92,20 +92,20 @@ public partial class CombatPreparationUI : UIFormBase
             m_ChessSlotContainer = varChessPanel.GetComponent<ChessSlotContainer>();
             if (m_ChessSlotContainer == null)
             {
-                DebugEx.ErrorModule(
-                    "CombatPreparationUI",
+                DebugEx.Error(
+                    nameof(CombatPreparationUI),
                     "ChessPanel 上未找到 ChessSlotContainer 组件"
                 );
             }
             else
             {
-                DebugEx.LogModule("CombatPreparationUI", "ChessSlotContainer 初始化成功");
+                DebugEx.Log(nameof(CombatPreparationUI), "ChessSlotContainer 初始化成功");
             }
         }
         else
         {
-            DebugEx.ErrorModule(
-                "CombatPreparationUI",
+            DebugEx.Error(
+                nameof(CombatPreparationUI),
                 "varChessPanel 为空，无法获取 ChessSlotContainer"
             );
         }
@@ -287,7 +287,7 @@ public partial class CombatPreparationUI : UIFormBase
             m_EquipSlots.Add(slotUI);
         }
 
-        DebugEx.LogModule("CombatPreparationUI", $"装备栏初始化完成，共 {m_EquipSlots.Count} 个装备槽");
+        DebugEx.Log(nameof(CombatPreparationUI), $"装备栏初始化完成，共 {m_EquipSlots.Count} 个装备槽");
     }
 
     /// <summary>
@@ -301,7 +301,7 @@ public partial class CombatPreparationUI : UIFormBase
         var inventoryManager = InventoryManager.Instance;
         if (inventoryManager == null)
         {
-            DebugEx.WarningModule("CombatPreparationUI", "InventoryManager 未初始化");
+            DebugEx.Warning(nameof(CombatPreparationUI), "InventoryManager 未初始化");
             return;
         }
 
@@ -334,7 +334,7 @@ public partial class CombatPreparationUI : UIFormBase
             m_EquipSlots[i].SetData(null);
         }
 
-        DebugEx.LogModule("CombatPreparationUI", $"装备面板已刷新，显示 {displayIndex} 个装备");
+        DebugEx.Log(nameof(CombatPreparationUI), $"装备面板已刷新，显示 {displayIndex} 个装备");
     }
 
     /// <summary>
@@ -393,7 +393,7 @@ public partial class CombatPreparationUI : UIFormBase
     {
         if (m_ChessSlotContainer == null)
         {
-            DebugEx.ErrorModule("CombatPreparationUI", "ChessSlotContainer 未初始化");
+            DebugEx.Error(nameof(CombatPreparationUI), "ChessSlotContainer 未初始化");
             return;
         }
 
@@ -451,7 +451,7 @@ public partial class CombatPreparationUI : UIFormBase
         var instance = ChessDeploymentTracker.Instance.GetInstance(instanceId);
         if (instance == null)
         {
-            DebugEx.ErrorModule("CombatPreparationUI", $"无法找到棋子实例: {instanceId}");
+            DebugEx.Error(nameof(CombatPreparationUI), $"无法找到棋子实例: {instanceId}");
             return;
         }
 
@@ -515,7 +515,7 @@ public partial class CombatPreparationUI : UIFormBase
         var instance = ChessDeploymentTracker.Instance.GetInstance(instanceId);
         if (instance == null)
         {
-            DebugEx.ErrorModule("CombatPreparationUI", $"无法找到棋子实例: {instanceId}");
+            DebugEx.Error(nameof(CombatPreparationUI), $"无法找到棋子实例: {instanceId}");
             m_SelectedChessInstanceId = string.Empty;
             return;
         }
@@ -542,8 +542,8 @@ public partial class CombatPreparationUI : UIFormBase
                     else
                     {
                         // 不应该出现这个情况（如果出现说明InGameState初始化有问题）
-                        DebugEx.ErrorModule(
-                            "CombatPreparationUI",
+                        DebugEx.Error(
+                            nameof(CombatPreparationUI),
                             $"棋子 {config.Name} (ID={instance.ChessId}) 全局状态未初始化"
                         );
                     }
@@ -619,7 +619,7 @@ public partial class CombatPreparationUI : UIFormBase
                 .SetEase(Ease.InQuad)
         );
 
-        DebugEx.LogModule("CombatPreparationUI", $"播放选中动效: instanceId={instanceId}");
+        DebugEx.Log(nameof(CombatPreparationUI), $"播放选中动效: instanceId={instanceId}");
     }
 
     /// <summary>
@@ -647,7 +647,7 @@ public partial class CombatPreparationUI : UIFormBase
         var btnTransform = varBtn.transform;
         btnTransform.DOScale(Vector3.one, SELECTED_ANIMATION_DURATION).SetEase(Ease.OutQuad);
 
-        DebugEx.LogModule("CombatPreparationUI", $"播放取消选中动效: instanceId={instanceId}");
+        DebugEx.Log(nameof(CombatPreparationUI), $"播放取消选中动效: instanceId={instanceId}");
     }
 
     /// <summary>
@@ -824,14 +824,14 @@ public partial class CombatPreparationUI : UIFormBase
     {
         if (m_AvailableBuffIds == null || m_AvailableBuffIds.Count == 0)
         {
-            DebugEx.WarningModule("CombatPreparationUI", "没有可用的效果");
+            DebugEx.Warning(nameof(CombatPreparationUI), "没有可用的效果");
             return;
         }
 
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatPreparationUI", "SpecialEffectTable未加载");
+            DebugEx.Warning(nameof(CombatPreparationUI), "SpecialEffectTable未加载");
             return;
         }
 
@@ -840,7 +840,7 @@ public partial class CombatPreparationUI : UIFormBase
 
         if (varBuffChooseItem == null || varPanel == null)
         {
-            DebugEx.ErrorModule("CombatPreparationUI", "varBuffChooseItem 或 varPanel 为空");
+            DebugEx.Error(nameof(CombatPreparationUI), "varBuffChooseItem 或 varPanel 为空");
             return;
         }
 
@@ -860,7 +860,7 @@ public partial class CombatPreparationUI : UIFormBase
 
             if (effect == null)
             {
-                DebugEx.WarningModule("CombatPreparationUI", $"特殊效果配置未找到: ID={effectId}");
+                DebugEx.Warning(nameof(CombatPreparationUI), $"特殊效果配置未找到: ID={effectId}");
                 continue;
             }
 
@@ -890,7 +890,7 @@ public partial class CombatPreparationUI : UIFormBase
             itemGo.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack).SetDelay(delay);
         }
 
-        Log.Info($"CombatPreparationUI: {title} - 已生成 {m_BuffChooseItems.Count} 个选项，位置已设置，进场动效已启动");
+        DebugEx.Log(nameof(CombatPreparationUI), $"{title} - 已生成 {m_BuffChooseItems.Count} 个选项，位置已设置，进场动效已启动");
     }
 
     /// <summary>
@@ -922,7 +922,7 @@ public partial class CombatPreparationUI : UIFormBase
             if (m_AvailableBuffIds != null && m_AvailableBuffIds.Count > 0 && m_BuffSelectionMode != BuffSelectionMode.None)
             {
                 int firstBuffId = m_AvailableBuffIds[0];
-                DebugEx.LogModule("CombatPreparationUI", $"选择超时，自动选择第一个Buff: {firstBuffId}");
+                DebugEx.Log(nameof(CombatPreparationUI), $"选择超时，自动选择第一个Buff: {firstBuffId}");
                 OnBuffItemSelected(firstBuffId);
             }
         }
@@ -985,7 +985,7 @@ public partial class CombatPreparationUI : UIFormBase
             if (selectedGo == null)
             {
                 // 如果按索引未找到，尝试逐个比对（较费时但保险）
-                DebugEx.WarningModule("CombatPreparationUI", $"未找到选中的Buff GO: {selectedBuffId}，尝试暴力查找");
+                DebugEx.Warning(nameof(CombatPreparationUI), $"未找到选中的Buff GO: {selectedBuffId}，尝试暴力查找");
             }
 
             // ⭐ 1. 选中项播放脉冲动效（1 -> 1.15 -> 1）
@@ -1032,11 +1032,11 @@ public partial class CombatPreparationUI : UIFormBase
             // ⭐ 5. 面板淡出隐藏
             await HideBuffSelectionPanelAsync();
 
-            DebugEx.LogModule("CombatPreparationUI", $"Buff选择确认动效完成: {selectedBuffId}");
+            DebugEx.Log(nameof(CombatPreparationUI), $"Buff选择确认动效完成: {selectedBuffId}");
         }
         catch (System.OperationCanceledException)
         {
-            DebugEx.LogModule("CombatPreparationUI", "Buff选择动效被取消（UI已关闭）");
+            DebugEx.Log(nameof(CombatPreparationUI), "Buff选择动效被取消（UI已关闭）");
         }
     }
 
@@ -1054,12 +1054,12 @@ public partial class CombatPreparationUI : UIFormBase
         if (context != null)
         {
             context.SelectedEffectId = m_SelectedBuffId;
-            DebugEx.LogModule("CombatPreparationUI",
+            DebugEx.Log(nameof(CombatPreparationUI),
                 $"已存储选中效果到战斗上下文: EffectId={m_SelectedBuffId}, 模式={m_BuffSelectionMode}, 将在棋子就绪后应用");
         }
         else
         {
-            DebugEx.WarningModule("CombatPreparationUI",
+            DebugEx.Warning(nameof(CombatPreparationUI),
                 $"战斗上下文为空，无法存储选中效果: EffectId={m_SelectedBuffId}");
         }
     }

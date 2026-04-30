@@ -54,32 +54,32 @@ public class DashParamSO : SkillParamSO
         // 验证资源ID
         if (itemResourceId == 0)
         {
-            DebugEx.Warning($"[DashParamSO] 道具资源ID未配置，请在ResourceConfigTable中配置道具预制体并填入ID", this);
+            DebugEx.Warning(nameof(DashParamSO), $"道具资源ID未配置，请在ResourceConfigTable中配置道具预制体并填入ID");
         }
 
         // 验证投掷参数
         if (throwForce <= 0f)
         {
-            DebugEx.Warning($"[DashParamSO] 投掷力度必须大于0", this);
+            DebugEx.Warning(nameof(DashParamSO), $"投掷力度必须大于0");
             throwForce = 15f;
         }
 
         if (throwAngle < 0f || throwAngle > 90f)
         {
-            DebugEx.Warning($"[DashParamSO] 投掷角度应在0-90度之间", this);
+            DebugEx.Warning(nameof(DashParamSO), $"投掷角度应在0-90度之间");
             throwAngle = Mathf.Clamp(throwAngle, 0f, 90f);
         }
 
         // 验证时间参数
         if (waitingDuration <= 0f)
         {
-            DebugEx.Warning($"[DashParamSO] 等待时间必须大于0", this);
+            DebugEx.Warning(nameof(DashParamSO), $"等待时间必须大于0");
             waitingDuration = 3f;
         }
 
         if (flyingDuration <= 0f)
         {
-            DebugEx.Warning($"[DashParamSO] 飞行时间必须大于0", this);
+            DebugEx.Warning(nameof(DashParamSO), $"飞行时间必须大于0");
             flyingDuration = 3f;
         }
     }

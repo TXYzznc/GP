@@ -112,10 +112,10 @@ public class InventoryManager : SingletonBase<InventoryManager>
         // 初始化
         if (!m_IsInitialized)
         {
-            DebugEx.Log("InventoryManager", "背包管理器初始化开始");
+            DebugEx.Log(nameof(InventoryManager), "背包管理器初始化开始");
             InitializeSlots();
             m_IsInitialized = true;
-            DebugEx.Success("InventoryManager", $"背包管理器初始化完成，格子数量:{m_MaxSlotCount}");
+            DebugEx.Success(nameof(InventoryManager), $"背包管理器初始化完成，格子数量:{m_MaxSlotCount}");
         }
     }
 
@@ -149,12 +149,12 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public bool AddItem(int itemId, int count = 1)
     {
-        DebugEx.Log("InventoryManager", $"尝试添加物品 ID:{itemId}, 数量:{count}");
+        DebugEx.Log(nameof(InventoryManager), $"尝试添加物品 ID:{itemId}, 数量:{count}");
 
         var itemData = ItemManager.Instance?.GetItemData(itemId);
         if (itemData == null)
         {
-            DebugEx.Error("InventoryManager", $"物品数据不存在 ID:{itemId}");
+            DebugEx.Error(nameof(InventoryManager), $"物品数据不存在 ID:{itemId}");
             return false;
         }
 
@@ -165,7 +165,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             if (remaining <= 0)
             {
                 UpdateVirtualItemCache(itemId, count);
-                DebugEx.Success("InventoryManager", $"物品添加成功（堆叠）: {itemData.Name}");
+                DebugEx.Success(nameof(InventoryManager), $"物品添加成功（堆叠）: {itemData.Name}");
                 return true;
             }
             count = remaining;
@@ -178,14 +178,14 @@ public class InventoryManager : SingletonBase<InventoryManager>
             var emptySlot = FindEmptySlot();
             if (emptySlot == null)
             {
-                DebugEx.Warning("InventoryManager", "背包已满");
+                DebugEx.Warning(nameof(InventoryManager), "背包已满");
                 return false;
             }
 
             var item = ItemManager.Instance.CreateItem(itemId);
             if (item == null)
             {
-                DebugEx.Error("InventoryManager", $"创建物品失败 ID:{itemId}");
+                DebugEx.Error(nameof(InventoryManager), $"创建物品失败 ID:{itemId}");
                 return false;
             }
 
@@ -196,7 +196,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         UpdateVirtualItemCache(itemId, count);
-        DebugEx.Success("InventoryManager", $"物品添加成功: {itemData.Name}");
+        DebugEx.Success(nameof(InventoryManager), $"物品添加成功: {itemData.Name}");
 
         foreach (var idx in newSlotIndices)
         {
@@ -211,13 +211,13 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public bool RemoveItem(int itemId, int count = 1)
     {
-        DebugEx.Log("InventoryManager", $"尝试移除物品 ID:{itemId}, 数量:{count}");
+        DebugEx.Log(nameof(InventoryManager), $"尝试移除物品 ID:{itemId}, 数量:{count}");
 
         int totalCount = GetItemCount(itemId);
         if (totalCount < count)
         {
             DebugEx.Warning(
-                "InventoryManager",
+                nameof(InventoryManager),
                 $"物品数量不足 ID:{itemId}, 需要:{count}, 拥有:{totalCount}"
             );
             return false;
@@ -244,7 +244,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         UpdateVirtualItemCache(itemId, -count);
-        DebugEx.Success("InventoryManager", $"物品移除成功 ID:{itemId}, 数量:{count}");
+        DebugEx.Success(nameof(InventoryManager), $"物品移除成功 ID:{itemId}, 数量:{count}");
 
         if (removedSlotIndex >= 0)
         {
@@ -262,25 +262,25 @@ public class InventoryManager : SingletonBase<InventoryManager>
     {
         if (slotIndex < 0 || slotIndex >= m_Slots.Count)
         {
-            DebugEx.Error("InventoryManager", $"格子索引越界: {slotIndex}");
+            DebugEx.Error(nameof(InventoryManager), $"格子索引越界: {slotIndex}");
             return false;
         }
 
         var slot = m_Slots[slotIndex];
         if (slot.IsEmpty)
         {
-            DebugEx.Warning("InventoryManager", $"格子为空: {slotIndex}");
+            DebugEx.Warning(nameof(InventoryManager), $"格子为空: {slotIndex}");
             return false;
         }
 
         var item = slot.ItemStack.Item;
         if (!item.CanUse)
         {
-            DebugEx.Warning("InventoryManager", $"物品不可使用: {item.Name}");
+            DebugEx.Warning(nameof(InventoryManager), $"物品不可使用: {item.Name}");
             return false;
         }
 
-        DebugEx.Log("InventoryManager", $"使用物品: {item.Name}");
+        DebugEx.Log(nameof(InventoryManager), $"使用物品: {item.Name}");
 
         int oldCount = slot.Count;
         bool success = item.Use();
@@ -288,7 +288,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         {
             // 使用成功后减少数量
             slot.RemoveItem(1);
-            DebugEx.Success("InventoryManager", $"物品使用成功: {item.Name}");
+            DebugEx.Success(nameof(InventoryManager), $"物品使用成功: {item.Name}");
 
             NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, slot.Count);
         }
@@ -319,7 +319,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     {
         if (fromSlot < 0 || fromSlot >= m_Slots.Count || toSlot < 0 || toSlot >= m_Slots.Count)
         {
-            DebugEx.Error("InventoryManager", $"MoveItem 格子索引越界: {fromSlot} -> {toSlot}");
+            DebugEx.Error(nameof(InventoryManager), $"MoveItem 格子索引越界: {fromSlot} -> {toSlot}");
             return false;
         }
 
@@ -361,7 +361,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             }
         }
 
-        DebugEx.Log("InventoryManager", $"物品移动: {fromSlot} -> {toSlot}");
+        DebugEx.Log(nameof(InventoryManager), $"物品移动: {fromSlot} -> {toSlot}");
 
         // 通知两个格子的变化
         NotifySlotChanged(fromSlot, SlotChangeType.Move, fromOldCount, from.Count);
@@ -525,7 +525,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
                 m_Slots[i].Clear();
         }
 
-        DebugEx.Success("InventoryManager", "背包整理完成");
+        DebugEx.Success(nameof(InventoryManager), "背包整理完成");
 
         // 通知所有变化的格子
         for (int i = 0; i < m_Slots.Count; i++)
@@ -605,7 +605,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public List<InventoryItemSaveData> SaveInventory()
     {
-        DebugEx.Log("InventoryManager", "开始保存背包数据");
+        DebugEx.Log(nameof(InventoryManager), "开始保存背包数据");
 
         var saveDataList = new List<InventoryItemSaveData>();
 
@@ -629,7 +629,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             saveDataList.Add(saveData);
         }
 
-        DebugEx.Success("InventoryManager", $"背包数据保存完成，共 {saveDataList.Count} 个物品");
+        DebugEx.Success(nameof(InventoryManager), $"背包数据保存完成，共 {saveDataList.Count} 个物品");
         return saveDataList;
     }
 
@@ -643,7 +643,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
 
         if (saveDataList == null || saveDataList.Count == 0)
         {
-            DebugEx.Log("InventoryManager", "存档中没有背包数据，背包已清空");
+            DebugEx.Log(nameof(InventoryManager), "存档中没有背包数据，背包已清空");
             // 发送一个 slotIndex=-1 的全量通知，告知 UI 背包已清空
             var clearArgs = new SlotChangeEventArgs
             {
@@ -659,7 +659,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             return;
         }
 
-        DebugEx.Log("InventoryManager", $"开始加载背包数据，共 {saveDataList.Count} 个物品");
+        DebugEx.Log(nameof(InventoryManager), $"开始加载背包数据，共 {saveDataList.Count} 个物品");
 
         // 加载每个物品
         int successCount = 0;
@@ -669,7 +669,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             var item = ItemManager.Instance?.CreateItem(saveData.ItemId);
             if (item == null)
             {
-                DebugEx.Warning("InventoryManager", $"创建物品失败，跳过 ItemId:{saveData.ItemId}");
+                DebugEx.Warning(nameof(InventoryManager), $"创建物品失败，跳过 ItemId:{saveData.ItemId}");
                 continue;
             }
 
@@ -677,7 +677,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
             var emptySlot = FindEmptySlot();
             if (emptySlot == null)
             {
-                DebugEx.Warning("InventoryManager", "背包已满，无法加载更多物品");
+                DebugEx.Warning(nameof(InventoryManager), "背包已满，无法加载更多物品");
                 break;
             }
 
@@ -687,7 +687,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         DebugEx.Success(
-            "InventoryManager",
+            nameof(InventoryManager),
             $"背包数据加载完成，成功加载 {successCount}/{saveDataList.Count} 个物品"
         );
 
@@ -713,7 +713,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
         m_CachedGold = 0;
         m_CachedSpiritStone = 0;
-        DebugEx.Log("InventoryManager", "背包已清空");
+        DebugEx.Log(nameof(InventoryManager), "背包已清空");
     }
 
     /// <summary>
@@ -757,7 +757,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
                 if (m_CachedGold != oldGold)
                 {
                     OnGoldChanged?.Invoke(m_CachedGold);
-                    DebugEx.Log("InventoryManager", $"金币更新: {oldGold} → {m_CachedGold}");
+                    DebugEx.Log(nameof(InventoryManager), $"金币更新: {oldGold} → {m_CachedGold}");
                 }
                 break;
 
@@ -767,7 +767,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
                 if (m_CachedSpiritStone != oldStone)
                 {
                     OnSpiritStoneChanged?.Invoke(m_CachedSpiritStone);
-                    DebugEx.Log("InventoryManager", $"灵石更新: {oldStone} → {m_CachedSpiritStone}");
+                    DebugEx.Log(nameof(InventoryManager), $"灵石更新: {oldStone} → {m_CachedSpiritStone}");
                 }
                 break;
         }
@@ -792,7 +792,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     public void CreateSnapshot()
     {
         m_SnapshotBeforeSession = SaveInventory();
-        DebugEx.Log("InventoryManager", $"背包快照已保存，物品数={m_SnapshotBeforeSession.Count}");
+        DebugEx.Log(nameof(InventoryManager), $"背包快照已保存，物品数={m_SnapshotBeforeSession.Count}");
     }
 
     /// <summary>
@@ -809,7 +809,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
     public void ClearSnapshot()
     {
         m_SnapshotBeforeSession = null;
-        DebugEx.Log("InventoryManager", "背包快照已清除");
+        DebugEx.Log(nameof(InventoryManager), "背包快照已清除");
     }
 
     /// <summary>
@@ -821,7 +821,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         var itemTable = GF.DataTable.GetDataTable<ItemTable>();
         if (itemTable == null)
         {
-            DebugEx.Warning("InventoryManager", "ItemTable 未加载，无法计算背包价值");
+            DebugEx.Warning(nameof(InventoryManager), "ItemTable 未加载，无法计算背包价值");
             return 0;
         }
 
@@ -850,7 +850,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         var itemTable = GF.DataTable.GetDataTable<ItemTable>();
         if (itemTable == null)
         {
-            DebugEx.Warning("InventoryManager", "ItemTable 未加载，无法计算背包价值");
+            DebugEx.Warning(nameof(InventoryManager), "ItemTable 未加载，无法计算背包价值");
             return 0;
         }
 
@@ -901,17 +901,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
         if (goldCount > 0)
         {
             RemoveItem(VIRTUAL_ITEM_GOLD, goldCount);
-            DebugEx.Log("InventoryManager", $"虚拟物品清理: 金币 x{goldCount} → 账号资源");
+            DebugEx.Log(nameof(InventoryManager), $"虚拟物品清理: 金币 x{goldCount} → 账号资源");
         }
         if (originStoneCount > 0)
         {
             RemoveItem(VIRTUAL_ITEM_ORIGIN_STONE, originStoneCount);
-            DebugEx.Log("InventoryManager", $"虚拟物品清理: 起源石 x{originStoneCount} → 账号资源");
+            DebugEx.Log(nameof(InventoryManager), $"虚拟物品清理: 起源石 x{originStoneCount} → 账号资源");
         }
         if (spiritStoneCount > 0)
         {
             RemoveItem(VIRTUAL_ITEM_SPIRIT_STONE, spiritStoneCount);
-            DebugEx.Log("InventoryManager", $"虚拟物品清理: 灵石 x{spiritStoneCount} → 删除（局内货币）");
+            DebugEx.Log(nameof(InventoryManager), $"虚拟物品清理: 灵石 x{spiritStoneCount} → 删除（局内货币）");
         }
 
         return (goldCount, originStoneCount, spiritStoneCount);

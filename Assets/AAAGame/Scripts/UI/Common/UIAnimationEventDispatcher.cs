@@ -9,13 +9,13 @@ public class UIAnimationEventDispatcher : MonoBehaviour
 
     public void TriggerAnimationEvent(string eventName)
     {
-        DebugEx.LogModule("UIAnimEvt", $"TriggerAnimationEvent name={eventName} go={gameObject.name} t={Time.time:F3} f={Time.frameCount}");
+        DebugEx.Log(nameof(UIAnimationEventDispatcher), $"TriggerAnimationEvent name={eventName} go={gameObject.name} t={Time.time:F3} f={Time.frameCount}");
         OnAnimationEventTriggered?.Invoke(eventName);
     }
 
     public void TriggerAnimationComplete(string animName)
     {
-        DebugEx.LogModule("UIAnimEvt", $"TriggerAnimationComplete name={animName} go={gameObject.name} t={Time.time:F3} f={Time.frameCount}");
+        DebugEx.Log(nameof(UIAnimationEventDispatcher), $"TriggerAnimationComplete name={animName} go={gameObject.name} t={Time.time:F3} f={Time.frameCount}");
         OnAnimationComplete?.Invoke(animName);
     }
 }

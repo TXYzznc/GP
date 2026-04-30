@@ -155,7 +155,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
 
         if (varSkillSlotContainer == null || varSkillSlot == null)
         {
-            DebugEx.Error("[PlayerSkillUI] 槽位容器或槽位预制体未配置！");
+            DebugEx.Error("PlayerSkillUI", "槽位容器或槽位预制体未配置！");
             return;
         }
 
@@ -168,14 +168,14 @@ public partial class PlayerSkillUI : StateAwareUIForm
             PlayerSkillSlot slot = slotObj.GetComponent<PlayerSkillSlot>();
             if (slot == null)
             {
-                DebugEx.Error($"[PlayerSkillUI] 槽位{i}没有PlayerSkillSlot组件！");
+                DebugEx.Error("PlayerSkillUI", $"槽位{i}没有PlayerSkillSlot组件！");
                 continue;
             }
 
             m_SlotList.Add(slot);
         }
 
-        DebugEx.Log($"[PlayerSkillUI] 初始化了 {m_SlotList.Count} 个槽位");
+        DebugEx.Log("PlayerSkillUI", $"初始化了 {m_SlotList.Count} 个槽位");
     }
 
     #endregion
@@ -189,7 +189,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
     {
         try
         {
-            DebugEx.Log("[PlayerSkillUI] 开始等待技能管理器...");
+            DebugEx.Log("PlayerSkillUI", "开始等待技能管理器...");
 
             // 等待技能管理器出现（最多等待10秒）
             var cts = new System.Threading.CancellationTokenSource();
@@ -201,7 +201,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
             );
 
             m_SkillManager = FindObjectOfType<PlayerSkillManager>();
-            DebugEx.Log("[PlayerSkillUI] ✓ 找到技能管理器");
+            DebugEx.Log("PlayerSkillUI", "✓ 找到技能管理器");
 
             // 等待技能加载完成（最多等待5秒）
             cts = new System.Threading.CancellationTokenSource();
@@ -212,18 +212,18 @@ public partial class PlayerSkillUI : StateAwareUIForm
                 cancellationToken: cts.Token
             );
 
-            DebugEx.Log($"[PlayerSkillUI] ✓ 技能加载完成，共 {m_SkillManager.Skills.Count} 个技能");
+            DebugEx.Log("PlayerSkillUI", $"✓ 技能加载完成，共 {m_SkillManager.Skills.Count} 个技能");
 
             // 绑定技能
             BindSkills();
         }
         catch (OperationCanceledException)
         {
-            DebugEx.Error("[PlayerSkillUI] ✗✗ 等待技能超时！检查角色是否正确生成");
+            DebugEx.Error("PlayerSkillUI", "✗✗ 等待技能超时！检查角色是否正确生成");
         }
         catch (System.Exception ex)
         {
-            DebugEx.Error($"[PlayerSkillUI] ✗ 绑定技能时发生错误: {ex.Message}");
+            DebugEx.Error("PlayerSkillUI", $"✗ 绑定技能时发生错误: {ex.Message}");
         }
     }
 
@@ -234,7 +234,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
     {
         if (m_SkillManager == null || m_SkillManager.Skills == null)
         {
-            DebugEx.Warning("[PlayerSkillUI] 技能管理器或技能列表为空");
+            DebugEx.Warning("PlayerSkillUI", "技能管理器或技能列表为空");
             return;
         }
 
@@ -245,7 +245,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
         var dataTable = GF.DataTable.GetDataTable<PlayerSkillTable>();
         if (dataTable == null)
         {
-            DebugEx.Error("[PlayerSkillUI] PlayerSkillTable 数据表未加载！");
+            DebugEx.Error("PlayerSkillUI", "PlayerSkillTable 数据表未加载！");
             return;
         }
 
@@ -256,7 +256,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
             var skillRow = dataTable.GetDataRow(skill.SkillId);
             if (skillRow == null)
             {
-                DebugEx.Warning($"[PlayerSkillUI] 找不到技能配置: SkillId={skill.SkillId}");
+                DebugEx.Warning("PlayerSkillUI", $"找不到技能配置: SkillId={skill.SkillId}");
                 continue;
             }
 
@@ -276,7 +276,8 @@ public partial class PlayerSkillUI : StateAwareUIForm
             if (config.SlotIndex < 1 || config.SlotIndex > 3)
             {
                 DebugEx.Warning(
-                    $"[PlayerSkillUI] 技能{config.Name}的SlotIndex={config.SlotIndex}无效！"
+                    "PlayerSkillUI",
+                    $"技能{config.Name}的SlotIndex={config.SlotIndex}无效！"
                 );
                 continue;
             }
@@ -290,7 +291,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
                 // 初始化冷却状态
                 m_LastCooldownState[arrayIndex] = 0f;
 
-                DebugEx.Log($"[PlayerSkillUI] 绑定技能: {config.Name} 到槽位{config.SlotIndex}");
+                DebugEx.Log("PlayerSkillUI", $"绑定技能: {config.Name} 到槽位{config.SlotIndex}");
             }
         }
     }
@@ -401,7 +402,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
         }
         catch (System.Exception ex)
         {
-            DebugEx.Error($"[PlayerSkillUI] 获取技能冷却时间失败: {ex.Message}");
+            DebugEx.Error("PlayerSkillUI", $"获取技能冷却时间失败: {ex.Message}");
         }
 
         return 0f;
@@ -415,7 +416,7 @@ public partial class PlayerSkillUI : StateAwareUIForm
         // 播放冷却完成音效（可选）
         // GF.Sound.PlayEffect("ui/cooldown_complete.wav");
 
-        DebugEx.Log($"[PlayerSkillUI] 槽位{slotIndex + 1}冷却完成");
+        DebugEx.Log("PlayerSkillUI", $"槽位{slotIndex + 1}冷却完成");
     }
 
     #endregion
@@ -470,11 +471,11 @@ public partial class PlayerSkillUI : StateAwareUIForm
     {
         if (!Application.isPlaying)
         {
-            DebugEx.Log("请在运行时使用此功能");
+            DebugEx.Log("PlayerSkillUI", "请在运行时使用此功能");
             return;
         }
 
-        DebugEx.Log("=== 技能槽位信息 ===");
+        DebugEx.Log("PlayerSkillUI", "=== 技能槽位信息 ===");
         for (int i = 0; i < m_SlotList.Count; i++)
         {
             var slot = m_SlotList[i];
@@ -482,12 +483,13 @@ public partial class PlayerSkillUI : StateAwareUIForm
             {
                 var config = slot.GetSkillConfig();
                 DebugEx.Log(
+                    "PlayerSkillUI",
                     $"槽位{i + 1}: {config.Name} (ID:{config.Id}, 冷却:{config.Cooldown}s, 消耗:{config.Cost})"
                 );
             }
             else
             {
-                DebugEx.Log($"槽位{i + 1}: 空");
+                DebugEx.Log("PlayerSkillUI", $"槽位{i + 1}: 空");
             }
         }
     }

@@ -49,7 +49,7 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
     private void Awake()
     {
         base.Awake();
-        DebugEx.LogModule("EnemyAlertUIManager", "初始化完成");
+        DebugEx.Log(nameof(EnemyAlertUIManager), "初始化完成");
     }
 
     private void Update()
@@ -92,8 +92,8 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
             m_PlayerTransform = playerObj.transform;
         }
 
-        DebugEx.LogModule(
-            "EnemyAlertUIManager",
+        DebugEx.Log(
+            nameof(EnemyAlertUIManager),
             $"管理器已初始化，容器: {indicatorContainer.name}"
         );
     }
@@ -124,7 +124,7 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
         indicator = GetFromPool();
         if (indicator == null)
         {
-            DebugEx.WarningModule("EnemyAlertUIManager", "无法获取指示器（池为空且无法实例化）");
+            DebugEx.Warning(nameof(EnemyAlertUIManager), "无法获取指示器（池为空且无法实例化）");
             return;
         }
 
@@ -136,7 +136,7 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
         // 添加到映射
         m_ActiveIndicators[enemy] = indicator;
 
-        DebugEx.LogModule("EnemyAlertUIManager", $"显示警示: {enemy.Config.Name}");
+        DebugEx.Log(nameof(EnemyAlertUIManager), $"显示警示: {enemy.Config.Name}");
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
             m_ActiveIndicators.Remove(enemy);
             ReturnToPool(indicator);
 
-            DebugEx.LogModule("EnemyAlertUIManager", $"隐藏警示: {enemy.Config.Name}");
+            DebugEx.Log(nameof(EnemyAlertUIManager), $"隐藏警示: {enemy.Config.Name}");
         }
     }
 
@@ -180,7 +180,7 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
     {
         if (m_IndicatorPrefab == null)
         {
-            DebugEx.WarningModule("EnemyAlertUIManager", "指示器预制体未设置");
+            DebugEx.Warning(nameof(EnemyAlertUIManager), "指示器预制体未设置");
             return;
         }
 
@@ -191,8 +191,8 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
             ReturnToPool(indicator);
         }
 
-        DebugEx.LogModule(
-            "EnemyAlertUIManager",
+        DebugEx.Log(
+            nameof(EnemyAlertUIManager),
             $"对象池初始化完成，预热{POOL_INITIAL_SIZE}个对象"
         );
     }

@@ -17,7 +17,7 @@ public class FireBallSkill : IPlayerSkill
 
         param = _param as FireBallParamSO;
         if (param == null)
-            DebugEx.Error($"FireBallSkill missing FireBallParamSO for skillId={common.Id}");
+            DebugEx.Error("FireBallSkill", $"missing FireBallParamSO for skillId={common.Id}");
     }
 
     public void Tick(float dt)
@@ -30,7 +30,7 @@ public class FireBallSkill : IPlayerSkill
         if (cdRemain > 0f) return false;
 
         // 输出使用技能日志
-        DebugEx.Log($"使用技能：{common.Name}");
+        DebugEx.Log("FireBallSkill", $"使用技能：{common.Name}");
 
         // 执行火球逻辑
         ExecuteFireBall();
@@ -47,7 +47,7 @@ public class FireBallSkill : IPlayerSkill
     {
         if (ctx == null || ctx.Transform == null)
         {
-            DebugEx.Warning("[FireBallSkill] 上下文为空，无法执行火球");
+            DebugEx.Warning("FireBallSkill", "上下文为空，无法执行火球");
             return;
         }
 
@@ -56,6 +56,6 @@ public class FireBallSkill : IPlayerSkill
         // 2. 设置火球飞行速度
         // 3. 处理碰撞和伤害逻辑
 
-        DebugEx.Log($"[FireBallSkill] 发射火球，位置: {ctx.Transform.position}");
+        DebugEx.Log("FireBallSkill", $"发射火球，位置: {ctx.Transform.position}");
     }
 }

@@ -1,0 +1,492 @@
+{
+    "entries": [
+        {
+            "scriptName": "PlayerInputManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ItemManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ItemTable",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "BuffFactory",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessDataManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessFactory",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SceneStateManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "GameStateManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "OutOfGameState",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InGameState",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "MenuState",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "PlayerAccountDataManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ResourceExtension",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "StartMenuUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventoryManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessUnlockManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventorySlot",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DictionaryManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "GameTestManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventoryTester",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatTestController",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "PlayerRuntimeDataManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessDeploymentTracker",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "GlobalChessManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "WarehouseManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ExplorationState",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatPreparationState",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatState",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "PlayerCharacterManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ItemEffectFactory",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SceneSpawnManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "PlayerSkillManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "GamePlayInfoUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardSlotContainer",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventoryClickHandler",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventoryItemUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DetailInfoUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "PlayerSkillUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "GameProcedure",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DashSkill",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "TreasureChestInteractable",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "StarPhoneUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EnemyAlertUIManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ThirdPersonCamera",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EnterCombatTip",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatOpportunityDetector",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SceneTransitionManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatTickDriver",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatEntityTracker",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "BattleArenaManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessStateUIWorldManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DissolveTransitionManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatPreparationUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessItemUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessSlotContainer",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EnemyEntityManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EnemySpawnManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SummonChessManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessEntity",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessAttribute",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DefaultSkillReleaseStrategy",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "FSMRangedAI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "StatModBuff",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "BuffManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "HouyiPassive",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "HouyiNormalAttack",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "HouyiSkill1",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "HouyiUltimate",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessAnimator",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessCombatController",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "BattleChessManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChangePassive",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChangeNormalAttack",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChangeSkill1",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChangeUltimate",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SummonerRuntimeDataManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EnemyFormationManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatTriggerManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DamageFloatingTextManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CombatVFXUpdater",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SummonerSkillManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DamagePopupItem",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardPreviewDisplayShader",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "AwaitExtension",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardSlotItemPool",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardSlotItem",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessStateEvents",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessAnimationEventReceiver",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChangeMagicCircle",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessProjectile",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DamageFloatingTextAnimationLibrary",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "SimpleChessMovement",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ProjectileHitDetector",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardSlotItemEventDispatcher",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardEffectExecutor",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "CardEffectHelper",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "HitDetectorBase",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "FrostBuff",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "MeltBuff",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "BurnBuff",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EffectExecutor",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ChessLifecycleHandler",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "EndCombatUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "UIAnimationEventDispatcher",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "AwardItemUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "FloatingBoxTip",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ItemBase",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ConsumableItem",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "ItemStack",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "TreasureItem",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "PostCombatStealth",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "FastBarManager",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventoryUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "RarityColorHelper",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InventorySlotUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "DashItemController",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "InteractionDetector",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "MapItemUI",
+            "isEnabled": true
+        },
+        {
+            "scriptName": "OverworldUI",
+            "isEnabled": true
+        }
+    ]
+}

@@ -46,7 +46,7 @@ public class EnemyIdleState : IEnemyState
         m_IdleDuration = Random.Range(config.RestDuration * 0.5f, config.RestDuration * 1.5f);
         m_IdleTimer = 0f;
 
-        DebugEx.LogModule("EnemyIdleState",
+        DebugEx.Log("EnemyIdleState",
             $"{m_AI.Entity.Config.Name} 开始休息，时长={m_IdleDuration:F1}秒");
     }
 
@@ -69,7 +69,7 @@ public class EnemyIdleState : IEnemyState
             EnemyEntityTable config = m_AI.Entity.Config;
             if (Random.value < config.RestProbability)
             {
-                DebugEx.LogModule("EnemyIdleState", 
+                DebugEx.Log("EnemyIdleState",
                     $"{m_AI.Entity.Config.Name} 进入深度休息状态");
                 m_AI.ChangeState(EnemyAIState.Rest);
             }

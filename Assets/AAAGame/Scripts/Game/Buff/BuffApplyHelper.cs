@@ -17,7 +17,7 @@ public static class BuffApplyHelper
     {
         if (target == null)
         {
-            DebugEx.WarningModule("BuffApplyHelper", "目标为空，无法应用 Buff");
+            DebugEx.Warning(nameof(BuffApplyHelper), "目标为空，无法应用 Buff");
             return;
         }
 
@@ -39,12 +39,12 @@ public static class BuffApplyHelper
         var buffManager = target.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            DebugEx.WarningModule("BuffApplyHelper", $"目标 {target.name} 没有 BuffManager 组件");
+            DebugEx.Warning(nameof(BuffApplyHelper), $"目标 {target.name} 没有 BuffManager 组件");
             return;
         }
 
         buffManager.AddBuff(buffId, caster);
-        DebugEx.LogModule("BuffApplyHelper", $"应用 Buff {buffId} 到单体: {target.name}");
+        DebugEx.Log(nameof(BuffApplyHelper), $"应用 Buff {buffId} 到单体: {target.name}");
     }
 
     /// <summary>
@@ -64,11 +64,11 @@ public static class BuffApplyHelper
         var buffManager = targetRepresentative.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            DebugEx.WarningModule("BuffApplyHelper", $"目标 {targetRepresentative.name} 没有 BuffManager 组件");
+            DebugEx.Warning(nameof(BuffApplyHelper), $"目标 {targetRepresentative.name} 没有 BuffManager 组件");
             return;
         }
 
         buffManager.AddBuff(buffId, caster);
-        DebugEx.LogModule("BuffApplyHelper", $"应用 Buff {buffId} 到全体（当前仅代表目标）: {targetRepresentative.name}");
+        DebugEx.Log(nameof(BuffApplyHelper), $"应用 Buff {buffId} 到全体（当前仅代表目标）: {targetRepresentative.name}");
     }
 }

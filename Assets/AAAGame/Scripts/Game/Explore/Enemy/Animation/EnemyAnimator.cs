@@ -47,11 +47,11 @@ public class EnemyAnimator : MonoBehaviour
         if (m_Animator != null)
         {
             m_Animator.SetInteger(PARAM_ANIM_TYPE, (int)EnemyAnimationType.Idle);
-            DebugEx.LogModule("EnemyAnimator", $"{m_Entity.Config.Name} 动画控制器初始化完成");
+            DebugEx.Log("EnemyAnimator", $"{m_Entity.Config.Name} 动画控制器初始化完成");
         }
         else
         {
-            DebugEx.WarningModule("EnemyAnimator",
+            DebugEx.Warning("EnemyAnimator",
                 $"{m_Entity.Config.Name} 未找到 Animator 组件，动画功能不可用");
         }
     }
@@ -72,7 +72,7 @@ public class EnemyAnimator : MonoBehaviour
         m_Animator.SetInteger(PARAM_ANIM_TYPE, (int)animType);
         m_Animator.SetFloat(PARAM_MOVE_SPEED, moveSpeed);
 
-        DebugEx.LogModule("EnemyAnimator",
+        DebugEx.Log("EnemyAnimator",
             $"{m_Entity.Config.Name} 播放动画: {animType} (速度: {moveSpeed:F2})");
     }
 

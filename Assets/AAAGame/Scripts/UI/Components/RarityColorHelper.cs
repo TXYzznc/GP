@@ -30,25 +30,25 @@ public static class RarityColorHelper
         var colorTable = GF.DataTable.GetDataTable<ColorTable>();
         if (colorTable == null)
         {
-            DebugEx.Warning("RarityColorHelper", "ColorTable 未加载");
+            DebugEx.Warning(nameof(RarityColorHelper), "ColorTable 未加载");
             return DefaultBg;
         }
 
         var colorRow = colorTable.GetDataRow(rarity);
         if (colorRow == null)
         {
-            DebugEx.Warning("RarityColorHelper", $"ColorTable 中不存在 ID={rarity} 的颜色配置");
+            DebugEx.Warning(nameof(RarityColorHelper), $"ColorTable 中不存在 ID={rarity} 的颜色配置");
             return DefaultBg;
         }
 
         // 解析十六进制色值
         Color color = HexToColor(colorRow.ColorHex);
-        
+
         // 缓存结果
         s_ColorCache[rarity] = color;
-        
-        DebugEx.Log("RarityColorHelper", $"加载颜色: ID={rarity}, Name={colorRow.ColorName}, Hex={colorRow.ColorHex}");
-        
+
+        DebugEx.Log(nameof(RarityColorHelper), $"加载颜色: ID={rarity}, Name={colorRow.ColorName}, Hex={colorRow.ColorHex}");
+
         return color;
     }
 
@@ -67,7 +67,7 @@ public static class RarityColorHelper
         // 验证长度
         if (hex.Length != 6)
         {
-            DebugEx.Error("RarityColorHelper", $"无效的十六进制色值: {hex}");
+            DebugEx.Error(nameof(RarityColorHelper), $"无效的十六进制色值: {hex}");
             return Color.white;
         }
 
@@ -76,7 +76,7 @@ public static class RarityColorHelper
             !int.TryParse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber, null, out int g) ||
             !int.TryParse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber, null, out int b))
         {
-            DebugEx.Error("RarityColorHelper", $"十六进制色值解析失败: {hex}");
+            DebugEx.Error(nameof(RarityColorHelper), $"十六进制色值解析失败: {hex}");
             return Color.white;
         }
 
@@ -90,6 +90,6 @@ public static class RarityColorHelper
     public static void ClearCache()
     {
         s_ColorCache.Clear();
-        DebugEx.Log("RarityColorHelper", "颜色缓存已清空");
+        DebugEx.Log(nameof(RarityColorHelper), "颜色缓存已清空");
     }
 }

@@ -313,7 +313,7 @@ public class GameTestWindow : EditorWindow
             {
                 var report = BuffDiagnoser.Instance.GenerateReport(m_SelectedBuffTarget);
                 var message = report.ToString();
-                DebugEx.LogModule("BuffDiagnoser", message);
+                DebugEx.Log("BuffDiagnoser", message);
                 EditorUtility.DisplayDialog("诊断报告", message, "关闭");
             }
 

@@ -38,20 +38,20 @@ public abstract class SlotContainerBase : MonoBehaviour, ISlotContainer
     {
         if (targetContainer == null)
         {
-            DebugEx.Error("SlotContainer", $"[{ContainerType}] 目标容器为 null");
+            DebugEx.Error(nameof(SlotContainerBase), $"[{ContainerType}] 目标容器为 null");
             return false;
         }
 
         if (!CanInteractWith(targetContainer.ContainerType))
         {
-            DebugEx.Warning("SlotContainer",
+            DebugEx.Warning(nameof(SlotContainerBase),
                 $"[{ContainerType}] 不允许与 [{targetContainer.ContainerType}] 交互（单向检查失败）");
             return false;
         }
 
         if (!targetContainer.CanInteractWith(this.ContainerType))
         {
-            DebugEx.Warning("SlotContainer",
+            DebugEx.Warning(nameof(SlotContainerBase),
                 $"[{targetContainer.ContainerType}] 不允许与 [{ContainerType}] 交互（双向检查失败）");
             return false;
         }
@@ -59,14 +59,14 @@ public abstract class SlotContainerBase : MonoBehaviour, ISlotContainer
         var fromSlot = GetSlot(fromSlotIndex);
         if (fromSlot == null || fromSlot.IsEmpty)
         {
-            DebugEx.Warning("SlotContainer", $"[{ContainerType}] 源格子 {fromSlotIndex} 为空或不存在");
+            DebugEx.Warning(nameof(SlotContainerBase), $"[{ContainerType}] 源格子 {fromSlotIndex} 为空或不存在");
             return false;
         }
 
         var targetSlot = targetContainer.GetSlot(targetSlotIndex);
         if (targetSlot == null)
         {
-            DebugEx.Warning("SlotContainer",
+            DebugEx.Warning(nameof(SlotContainerBase),
                 $"[{targetContainer.ContainerType}] 目标格子 {targetSlotIndex} 不存在");
             return false;
         }

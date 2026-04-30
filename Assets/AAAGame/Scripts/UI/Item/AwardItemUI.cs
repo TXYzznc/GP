@@ -49,7 +49,7 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
         SetQualityColor();
 
         int iconId = m_Row != null ? m_Row.IconId : 0;
-        DebugEx.LogModule("AwardItemUI", $"SetData itemId={itemId} iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
+        DebugEx.Log("AwardItemUI", $"SetData itemId={itemId} iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
         LoadIconAsync(iconId).Forget();
     }
 
@@ -88,7 +88,7 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
         {
             varAwardImg.sprite = null;
             varAwardImg.color = new Color(1f, 1f, 1f, 0f);
-            DebugEx.LogModule("AwardItemUI", $"LoadIcon skip iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
+            DebugEx.Log("AwardItemUI", $"LoadIcon skip iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
             return;
         }
 
@@ -96,17 +96,17 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
         {
             float startTime = Time.time;
             int startFrame = Time.frameCount;
-            DebugEx.LogModule("AwardItemUI", $"LoadIcon start iconId={iconId} t={startTime:F3} f={startFrame}");
+            DebugEx.Log("AwardItemUI", $"LoadIcon start iconId={iconId} t={startTime:F3} f={startFrame}");
 
             if (varAwardImg != null)
             {
                 await ResourceExtension.LoadSpriteAsync(iconId, varAwardImg, 1f, null);
                 varAwardImg.color = Color.white;
-                DebugEx.LogModule("AwardItemUI", $"LoadIcon done iconId={iconId} t={Time.time:F3} f={Time.frameCount} dt={(Time.time - startTime):F3} df={(Time.frameCount - startFrame)}");
+                DebugEx.Log("AwardItemUI", $"LoadIcon done iconId={iconId} t={Time.time:F3} f={Time.frameCount} dt={(Time.time - startTime):F3} df={(Time.frameCount - startFrame)}");
             }
             else
             {
-                DebugEx.WarningModule("AwardItemUI", $"LoadIcon failed: Image为null, iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
+                DebugEx.Warning("AwardItemUI", $"LoadIcon failed: Image为null, iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
             }
         }
         catch (Exception)
@@ -116,7 +116,7 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
                 varAwardImg.sprite = null;
                 varAwardImg.color = new Color(1f, 1f, 1f, 0f);
             }
-            DebugEx.WarningModule("AwardItemUI", $"LoadIcon exception iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
+            DebugEx.Warning("AwardItemUI", $"LoadIcon exception iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
         }
     }
 

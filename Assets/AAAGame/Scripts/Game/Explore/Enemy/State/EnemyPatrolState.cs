@@ -51,7 +51,7 @@ public class EnemyPatrolState : IEnemyState
         m_StuckTimer = 0f;
         m_LastPosition = m_AI.Entity.transform.position;
 
-        DebugEx.LogModule("EnemyPatrolState",
+        DebugEx.Log("EnemyPatrolState",
             $"{m_AI.Entity.Config.Name} 开始巡逻");
     }
 
@@ -111,7 +111,7 @@ public class EnemyPatrolState : IEnemyState
             m_AI.Entity.NavAgent.SetDestination(m_PatrolTarget);
             m_HasTarget = true;
 
-            DebugEx.LogModule("EnemyPatrolState", 
+            DebugEx.Log("EnemyPatrolState",
                 $"{m_AI.Entity.Config.Name} 选择新巡逻点: {m_PatrolTarget}");
         }
         else
@@ -153,7 +153,7 @@ public class EnemyPatrolState : IEnemyState
     {
         m_HasTarget = false;
 
-        DebugEx.LogModule("EnemyPatrolState", 
+        DebugEx.Log("EnemyPatrolState",
             $"{m_AI.Entity.Config.Name} 到达巡逻点");
 
         // 随机决定是否休息
@@ -182,7 +182,7 @@ public class EnemyPatrolState : IEnemyState
 
             if (movedDistance < STUCK_DISTANCE_THRESHOLD)
             {
-                DebugEx.WarningModule("EnemyPatrolState", 
+                DebugEx.Warning("EnemyPatrolState",
                     $"{m_AI.Entity.Config.Name} 可能卡住了，重新选择目标");
                 SelectNewPatrolTarget();
             }

@@ -180,14 +180,14 @@ public partial class StartMenuUI : UIFormBase
             () =>
             {
                 Interactable = true;
-                DebugEx.Log("StartMenuUI", "动画进行到一半，已启用交互");
+                DebugEx.Log(nameof(StartMenuUI), "动画进行到一半，已启用交互");
             }
         );
 
         // 动画完成后的回调（可选）
         sequence.OnComplete(() =>
         {
-            DebugEx.Success("StartMenuUI", "入场动画完成");
+            DebugEx.Success(nameof(StartMenuUI), "入场动画完成");
         });
     }
 

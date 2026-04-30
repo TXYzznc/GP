@@ -100,7 +100,7 @@ public class BattlePresetManager
         saveData.CurrentDeckIndex.Add(index);
         SaveToFile();
 
-        DebugEx.LogModule("BattlePresetManager", $"设置默认预设索引: {index}");
+        DebugEx.Log(nameof(BattlePresetManager), $"设置默认预设索引: {index}");
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class BattlePresetManager
         var presets = GetAllPresets();
         if (presets.Count >= MAX_PRESET_COUNT)
         {
-            DebugEx.WarningModule("BattlePresetManager", "预设数量已达上限");
+            DebugEx.Warning(nameof(BattlePresetManager), "预设数量已达上限");
             return -1;
         }
 
@@ -123,7 +123,7 @@ public class BattlePresetManager
         presets.Add(deck);
         SavePresets(presets);
 
-        DebugEx.LogModule("BattlePresetManager", $"创建新预设: {deck.DeckName}, index={presets.Count - 1}");
+        DebugEx.Log(nameof(BattlePresetManager), $"创建新预设: {deck.DeckName}, index={presets.Count - 1}");
         return presets.Count - 1;
     }
 
@@ -135,14 +135,14 @@ public class BattlePresetManager
         var presets = GetAllPresets();
         if (index < 0 || index >= presets.Count)
         {
-            DebugEx.WarningModule("BattlePresetManager", $"无效的预设索引: {index}");
+            DebugEx.Warning(nameof(BattlePresetManager), $"无效的预设索引: {index}");
             return;
         }
 
         presets[index] = data;
         SavePresets(presets);
 
-        DebugEx.LogModule("BattlePresetManager", $"保存预设: index={index}, name={data.DeckName}");
+        DebugEx.Log(nameof(BattlePresetManager), $"保存预设: index={index}, name={data.DeckName}");
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ public class BattlePresetManager
         else if (defaultIndex > index)
             SetDefaultPresetIndex(defaultIndex - 1);
 
-        DebugEx.LogModule("BattlePresetManager", $"删除预设: index={index}");
+        DebugEx.Log(nameof(BattlePresetManager), $"删除预设: index={index}");
     }
 
     /// <summary>

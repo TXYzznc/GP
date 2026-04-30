@@ -208,7 +208,7 @@ public class EnemyTestController : MonoBehaviour
             DestroyCurrentEnemy();
         }
 
-        DebugEx.LogModule("EnemyTestController", $"生成敌人 ID={m_EnemyChessId}");
+        DebugEx.Log("EnemyTestController", $"生成敌人 ID={m_EnemyChessId}");
 
         // 使用 EnemySpawnManager 生成
         m_CurrentEnemy = await EnemySpawnManager.Instance.SpawnEnemyAsync(
@@ -225,7 +225,7 @@ public class EnemyTestController : MonoBehaviour
         }
         else
         {
-            DebugEx.ErrorModule("EnemyTestController", $"敌人生成失败 ID={m_EnemyChessId}");
+            DebugEx.Error("EnemyTestController", $"敌人生成失败 ID={m_EnemyChessId}");
         }
     }
 
@@ -245,7 +245,7 @@ public class EnemyTestController : MonoBehaviour
         // 清理旧的敌人
         DestroyAllEnemies();
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyTestController",
             $"批量生成敌人 ID={m_EnemyChessId}, 数量={m_SpawnCount}, 排列={m_Arrangement}"
         );
@@ -269,7 +269,7 @@ public class EnemyTestController : MonoBehaviour
             }
             else
             {
-                DebugEx.WarningModule("EnemyTestController", $"第 {i + 1} 个敌人生成失败");
+                DebugEx.Warning("EnemyTestController", $"第 {i + 1} 个敌人生成失败");
             }
         }
 
@@ -441,7 +441,7 @@ public class EnemyTestController : MonoBehaviour
     public void ToggleLockHealth()
     {
         m_LockHealth = !m_LockHealth;
-        DebugEx.LogModule("EnemyTestController", $"锁血功能: {(m_LockHealth ? "开启" : "关闭")}");
+        DebugEx.Log("EnemyTestController", $"锁血功能: {(m_LockHealth ? "开启" : "关闭")}");
     }
 
     /// <summary>
@@ -454,7 +454,7 @@ public class EnemyTestController : MonoBehaviour
             return;
 
         m_CurrentEnemy.Attribute.TakeDamage(m_TestDamageAmount, false, false);
-        DebugEx.LogModule("EnemyTestController", $"测试受伤 {m_TestDamageAmount}");
+        DebugEx.Log("EnemyTestController", $"测试受伤 {m_TestDamageAmount}");
     }
 
     /// <summary>
@@ -509,7 +509,7 @@ public class EnemyTestController : MonoBehaviour
         }
 
         m_SpawnedEnemies.Clear();
-        DebugEx.LogModule("EnemyTestController", "已清理所有测试敌人");
+        DebugEx.Log("EnemyTestController", "已清理所有测试敌人");
     }
 
     /// <summary>
@@ -535,7 +535,7 @@ public class EnemyTestController : MonoBehaviour
         if (m_CurrentEnemy != null && m_CurrentEnemy.Attribute != null && m_LockHealth)
         {
             m_CurrentEnemy.Attribute.SetHp(m_CurrentEnemy.Attribute.MaxHp);
-            DebugEx.LogModule("EnemyTestController", "锁血功能：血量值已恢复");
+            DebugEx.Log("EnemyTestController", "锁血功能：血量值已恢复");
         }
     }
 

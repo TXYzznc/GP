@@ -66,20 +66,21 @@ public class SummonChessManager : MonoBehaviour
         // 1. 获取配置
         if (!ChessDataManager.Instance.TryGetConfig(chessId, out var config))
         {
-            DebugEx.ErrorModule(
-                "SummonChessManager",
+            DebugEx.Error(
+                nameof(SummonChessManager),
                 $"SpawnChess failed: config not found for chessId={chessId}"
             );
             return null;
         }
 
-        // 2. 加载预制体
-        GameObject prefab = await LoadPrefabAsync(config.PrefabId);
+        // 2. 加载预制体（使用Rank 1）
+        int prefabId = config.GetPrefabId(1);
+        GameObject prefab = await LoadPrefabAsync(prefabId);
         if (prefab == null)
         {
-            DebugEx.ErrorModule(
-                "SummonChessManager",
-                $"SpawnChess failed: prefab not found for chessId={chessId}, prefabId={config.PrefabId}"
+            DebugEx.Error(
+                nameof(SummonChessManager),
+                $"SpawnChess failed: prefab not found for chessId={chessId}, prefabId={prefabId}"
             );
             return null;
         }
@@ -96,8 +97,8 @@ public class SummonChessManager : MonoBehaviour
             position.z
         );
 
-        DebugEx.LogModule(
-            "SummonChessManager",
+        DebugEx.Log(
+            nameof(SummonChessManager),
             $"棋子底部对齐: {config.Name}, 目标Y={position.y}, 底部偏移={bottomOffset:F3}, 最终Y={chessObj.transform.position.y:F3}"
         );
 
@@ -122,8 +123,8 @@ public class SummonChessManager : MonoBehaviour
         // 7. 触发生成事件（ChessLifecycleHandler 订阅此事件，负责 HP 归零后的死亡处理）
         OnChessSpawned?.Invoke(entity);
 
-        DebugEx.LogModule(
-            "SummonChessManager",
+        DebugEx.Log(
+            nameof(SummonChessManager),
             $"SpawnChess success: chessId={chessId}, name={config.Name}, camp={camp}"
         );
 
@@ -147,12 +148,12 @@ public class SummonChessManager : MonoBehaviour
         if (prefab != null)
         {
             m_PrefabCache[resourceId] = prefab;
-            DebugEx.LogModule("SummonChessManager", $"LoadPrefab success: resourceId={resourceId}");
+            DebugEx.Log(nameof(SummonChessManager), $"LoadPrefab success: resourceId={resourceId}");
         }
         else
         {
-            DebugEx.WarningModule(
-                "SummonChessManager",
+            DebugEx.Warning(
+                nameof(SummonChessManager),
                 $"LoadPrefab failed: resourceId={resourceId}"
             );
         }
@@ -182,8 +183,8 @@ public class SummonChessManager : MonoBehaviour
         // 3. 销毁GameObject
         Destroy(entity.gameObject);
 
-        DebugEx.LogModule(
-            "SummonChessManager",
+        DebugEx.Log(
+            nameof(SummonChessManager),
             $"DestroyChess: chessId={entity.ChessId}, name={entity.Config.Name}"
         );
     }
@@ -207,7 +208,7 @@ public class SummonChessManager : MonoBehaviour
         m_AllChess.Clear();
         m_ChessDict.Clear();
 
-        DebugEx.LogModule("SummonChessManager", "DestroyAllChess: 已销毁所有棋子");
+        DebugEx.Log(nameof(SummonChessManager), "DestroyAllChess: 已销毁所有棋子");
     }
 
     #endregion
@@ -327,85 +328,6 @@ public class SummonChessManager : MonoBehaviour
 
     #endregion
 
-    #region 星级进化系统
-
-    /// <summary>
-    /// 棋子进阶（占位实现）
-    /// </summary>
-    /// <param name="entity">要进阶的棋子</param>
-    /// <returns>进阶后的棋子，失败返回null</returns>
-    public async UniTask<ChessEntity> EvolveChess(ChessEntity entity)
-    {
-        if (entity == null)
-        {
-            DebugEx.ErrorModule("SummonChessManager", "EvolveChess failed: entity is null");
-            return null;
-        }
-
-        var config = entity.Config;
-
-        // 1. 检查是否可以进阶
-        if (config.StarLevel >= 3)
-        {
-            DebugEx.WarningModule(
-                "SummonChessManager",
-                $"EvolveChess failed: {config.Name} is already 3-star"
-            );
-            return null;
-        }
-
-        if (config.NextStarId == 0)
-        {
-            DebugEx.WarningModule(
-                "SummonChessManager",
-                $"EvolveChess failed: {config.Name} has no next star config"
-            );
-            return null;
-        }
-
-        // 2. TODO: 验证材料消耗（未实现）
-        // 这里暂时跳过材料检查
-
-        // 3. 获取下一星级配置
-        if (!ChessDataManager.Instance.TryGetConfig(config.NextStarId, out var nextConfig))
-        {
-            DebugEx.ErrorModule(
-                "SummonChessManager",
-                $"EvolveChess failed: next star config not found, nextStarId={config.NextStarId}"
-            );
-            return null;
-        }
-
-        // 4. 保存当前生命值和法力值比例
-        double hpRatio = entity.Attribute.CurrentHp / entity.Attribute.MaxHp;
-        double mpRatio = entity.Attribute.CurrentMp / entity.Attribute.MaxMp;
-
-        // 5. 记录位置和阵营
-        Vector3 position = entity.transform.position;
-        int camp = entity.Camp;
-
-        // 6. 销毁旧棋子
-        DestroyChess(entity);
-
-        // 7. 生成新星级棋子
-        var newEntity = await SpawnChessAsync(config.NextStarId, position, camp);
-
-        if (newEntity != null)
-        {
-            // 8. 恢复生命值和法力值比例
-            newEntity.Attribute.SetHp(newEntity.Attribute.MaxHp * hpRatio);
-            newEntity.Attribute.SetMp(newEntity.Attribute.MaxMp * mpRatio);
-
-            DebugEx.LogModule(
-                "SummonChessManager",
-                $"EvolveChess success: {config.Name} ({config.StarLevel}星) -> {nextConfig.Name} ({nextConfig.StarLevel}星)"
-            );
-        }
-
-        return newEntity;
-    }
-
-    #endregion
 
     #region 资源管理
 
@@ -415,7 +337,7 @@ public class SummonChessManager : MonoBehaviour
     public void ClearPrefabCache()
     {
         m_PrefabCache.Clear();
-        DebugEx.LogModule("SummonChessManager", "ClearPrefabCache");
+        DebugEx.Log(nameof(SummonChessManager), "ClearPrefabCache");
     }
 
     #endregion

@@ -68,7 +68,7 @@ public class BattleChessManager
     {
         if (entity == null)
         {
-            DebugEx.WarningModule("BattleChessManager", "RegisterChessEntity: entity 为 null");
+            DebugEx.Warning("BattleChessManager", "RegisterChessEntity: entity 为 null");
             return;
         }
 
@@ -87,7 +87,7 @@ public class BattleChessManager
             // 将全局血量同步到 ChessAttribute（覆盖 Initialize 时设置的满血值）
             entity.Attribute.SetHp(globalState.CurrentHp);
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "BattleChessManager",
                 $"棋子 {chessId} HP 从全局状态加载：{globalState.CurrentHp:F0}/{globalState.MaxHp:F0}"
             );
@@ -99,7 +99,7 @@ public class BattleChessManager
 
             GlobalChessManager.Instance.RegisterChess(chessId, entity.Attribute.MaxHp);
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "BattleChessManager",
                 $"棋子 {chessId} 无全局记录，使用满血值 {entity.Attribute.MaxHp:F0} 并注册"
             );
@@ -148,7 +148,7 @@ public class BattleChessManager
             ChessStateEvents.FireBattleChessDataChanged(chessId);
         };
 
-        DebugEx.LogModule("BattleChessManager",
+        DebugEx.Log("BattleChessManager",
             $"棋子 {chessId} 事件监听已注册（HP/Buff 自动同步，无论通过何种路径触发）");
     }
 
@@ -160,12 +160,12 @@ public class BattleChessManager
         if (m_BattleDataDict.TryGetValue(chessId, out var data))
         {
             data.EnemyKey = enemyKey;
-            DebugEx.LogModule("BattleChessManager",
+            DebugEx.Log("BattleChessManager",
                 $"记录敌方棋子 {chessId} → EnemyKey={enemyKey}");
         }
         else
         {
-            DebugEx.WarningModule("BattleChessManager",
+            DebugEx.Warning("BattleChessManager",
                 $"SetEnemyKeyForChess: 找不到棋子 {chessId}");
         }
     }
@@ -184,7 +184,7 @@ public class BattleChessManager
             return data;
         }
 
-        DebugEx.WarningModule("BattleChessManager", $"GetBattleChessData: 找不到棋子 {chessId}");
+        DebugEx.Warning("BattleChessManager", $"GetBattleChessData: 找不到棋子 {chessId}");
         return null;
     }
 
@@ -219,7 +219,7 @@ public class BattleChessManager
     {
         if (!m_EntityDict.TryGetValue(chessId, out var entity))
         {
-            DebugEx.WarningModule("BattleChessManager", $"DamageChess: 找不到棋子实体 {chessId}");
+            DebugEx.Warning("BattleChessManager", $"DamageChess: 找不到棋子实体 {chessId}");
             return;
         }
 
@@ -242,7 +242,7 @@ public class BattleChessManager
     /// </summary>
     public void OnBattleEnd()
     {
-        DebugEx.LogModule("BattleChessManager", $"=== 战斗结束，开始数据回写 ({m_EntityDict.Count} 个棋子) ===");
+        DebugEx.Log("BattleChessManager", $"=== 战斗结束，开始数据回写 ({m_EntityDict.Count} 个棋子) ===");
 
         foreach (var kvp in m_EntityDict)
         {
@@ -255,12 +255,12 @@ public class BattleChessManager
                 if (m_BattleDataDict.TryGetValue(chessId, out var deadData))
                 {
                     WriteBackHp(chessId, deadData.CurrentHp, deadData.Camp);
-                    DebugEx.WarningModule("BattleChessManager",
+                    DebugEx.Warning("BattleChessManager",
                         $"棋子 {chessId}(camp={deadData.Camp}) 实体已销毁（死亡），使用缓存 HP={deadData.CurrentHp:F0} 回写");
                 }
                 else
                 {
-                    DebugEx.WarningModule("BattleChessManager",
+                    DebugEx.Warning("BattleChessManager",
                         $"棋子 {chessId} 实体已销毁且无缓存数据，跳过");
                 }
                 continue;
@@ -275,13 +275,13 @@ public class BattleChessManager
             // 3. 按 camp 分支回写血量
             WriteBackHp(chessId, finalHp, entity.Camp);
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "BattleChessManager",
                 $"棋子 {chessId}(camp={entity.Camp}) 回写：HP={finalHp:F0}，Buff已清除"
             );
         }
 
-        DebugEx.LogModule("BattleChessManager", "=== 数据回写完成 ===");
+        DebugEx.Log("BattleChessManager", "=== 数据回写完成 ===");
 
         // 清理战斗数据
         Clear();
@@ -306,7 +306,7 @@ public class BattleChessManager
             }
             else
             {
-                DebugEx.WarningModule("BattleChessManager",
+                DebugEx.Warning("BattleChessManager",
                     $"敌方棋子 {chessId} 缺少 EnemyKey，无法回写 EnemyChessDataManager");
             }
         }
@@ -341,7 +341,7 @@ public class BattleChessManager
         m_EntityDict.Clear();
         OnBattleChessDataChanged = null;
 
-        DebugEx.LogModule("BattleChessManager", "战斗数据已清理");
+        DebugEx.Log("BattleChessManager", "战斗数据已清理");
     }
 
     #endregion
@@ -350,12 +350,12 @@ public class BattleChessManager
 
     public void DebugPrintAll()
     {
-        DebugEx.LogModule("BattleChessManager", $"=== 战斗棋子数据 ({m_BattleDataDict.Count} 个) ===");
+        DebugEx.Log("BattleChessManager", $"=== 战斗棋子数据 ({m_BattleDataDict.Count} 个) ===");
         foreach (var data in m_BattleDataDict.Values)
         {
-            DebugEx.LogModule("BattleChessManager", data.ToString());
+            DebugEx.Log("BattleChessManager", data.ToString());
         }
-        DebugEx.LogModule("BattleChessManager", "==============================");
+        DebugEx.Log("BattleChessManager", "==============================");
     }
 
     public string GetDebugInfo()

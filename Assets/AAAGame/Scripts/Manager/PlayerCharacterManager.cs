@@ -52,7 +52,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     /// <param name="onComplete">生成完成回调</param>
     public void SpawnPlayerCharacterFromSave(Action<GameObject> onComplete = null)
     {
-        DebugEx.LogModule("PlayerCharacterManager", "========== 开始生成玩家角色流程 ==========");
+        DebugEx.Log("PlayerCharacterManager", "========== 开始生成玩家角色流程 ==========");
 
         // 获取当前存档数据（只需要召唤师ID）
         var saveData = PlayerAccountDataManager.Instance.CurrentSaveData;
@@ -99,7 +99,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     private Vector3 GetDefaultSpawnPositionForCurrentScene()
     {
         string currentSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        DebugEx.LogModule("PlayerCharacterManager", $"查询场景 '{currentSceneName}' 的默认出生点");
+        DebugEx.Log("PlayerCharacterManager", $"查询场景 '{currentSceneName}' 的默认出生点");
 
         // 从 SceneTable 获取当前场景配置
         var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
@@ -117,7 +117,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
         }
 
         int defaultSpawnPosId = sceneRow.DefaultSpawnPosId;
-        DebugEx.LogModule("PlayerCharacterManager", $"场景默认出生点ID: {defaultSpawnPosId}");
+        DebugEx.Log("PlayerCharacterManager", $"场景默认出生点ID: {defaultSpawnPosId}");
 
         // 从 PosTable 获取坐标
         var posTable = GF.DataTable.GetDataTable<PosTable>();
@@ -135,7 +135,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
         }
 
         Vector3 spawnPos = posRow.Position;
-        DebugEx.LogModule("PlayerCharacterManager",
+        DebugEx.Log("PlayerCharacterManager",
             $"✅ 读取出生点: ID={defaultSpawnPosId}, 位置={spawnPos}, 描述={posRow.Description}");
 
         return spawnPos;
@@ -152,15 +152,12 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     {
         try
         {
-            DebugEx.LogModule("PlayerCharacterManager", "===== SpawnCharacter 开始 =====");
+            DebugEx.Log("PlayerCharacterManager", "===== SpawnCharacter 开始 =====");
 
             // 清理旧角色
             if (CurrentPlayerCharacter != null)
             {
-                DebugEx.LogModule(
-                    "PlayerCharacterManager",
-                    $"清理旧角色: {CurrentPlayerCharacter.name}"
-                );
+                DebugEx.Log("PlayerCharacterManager", $"清理旧角色: {CurrentPlayerCharacter.name}");
                 Destroy(CurrentPlayerCharacter);
                 CurrentPlayerCharacter = null;
             }
@@ -179,39 +176,30 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
                 return;
             }
 
-            DebugEx.LogModule(
-                "PlayerCharacterManager",
-                $"✅ 角色预制体加载成功: {prefabAsset.name}"
-            );
+            DebugEx.Log("PlayerCharacterManager", $"✅ 角色预制体加载成功: {prefabAsset.name}");
 
             // 实例化角色
             CurrentPlayerCharacter = Instantiate(prefabAsset, position, Quaternion.identity);
             CurrentPlayerCharacter.name = "PlayerCharacter";
 
-            DebugEx.LogModule(
-                "PlayerCharacterManager",
-                $"✅ 角色实例化成功: {CurrentPlayerCharacter.name}, 位置={position}"
-            );
+            DebugEx.Log("PlayerCharacterManager", $"✅ 角色实例化成功: {CurrentPlayerCharacter.name}, 位置={position}");
 
             // 获取或添加角色控制脚本
             PlayerController controller = CurrentPlayerCharacter.GetComponent<PlayerController>();
             if (controller == null)
             {
-                DebugEx.LogModule("PlayerCharacterManager", "未找到 PlayerController，正在添加...");
+                DebugEx.Log("PlayerCharacterManager", "未找到 PlayerController，正在添加...");
                 controller = CurrentPlayerCharacter.AddComponent<PlayerController>();
                 Log.Info("[PlayerCharacterManager] ✅ 已添加 PlayerController 组件");
             }
             else
             {
-                DebugEx.LogModule("PlayerCharacterManager", "✅ 找到现有的 PlayerController 组件");
+                DebugEx.Log("PlayerCharacterManager", "✅ 找到现有的 PlayerController 组件");
             }
 
             // 激活角色控制器（从存档生成的角色需要启用控制）
             controller.enabled = true;
-            DebugEx.LogModule(
-                "PlayerCharacterManager",
-                $"✅ PlayerController 已激活: enabled={controller.enabled}"
-            );
+            DebugEx.Log("PlayerCharacterManager", $"✅ PlayerController 已激活: enabled={controller.enabled}");
 
             // 确保战后隐身组件存在
             if (CurrentPlayerCharacter.GetComponent<PostCombatStealth>() == null)
@@ -222,11 +210,11 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
                 CurrentPlayerCharacter.AddComponent<SummonerCombatProxy>();
 
             // 创建并配置摄像机装备
-            DebugEx.LogModule("PlayerCharacterManager", "开始配置摄像机装备...");
+            DebugEx.Log("PlayerCharacterManager", "开始配置摄像机装备...");
             SetupCameraRig(CurrentPlayerCharacter);
 
             Log.Info($"[PlayerCharacterManager] ✅ 角色生成成功: 位置={position}");
-            DebugEx.LogModule("PlayerCharacterManager", "========== 角色生成流程完成 ==========");
+            DebugEx.Log("PlayerCharacterManager", "========== 角色生成流程完成 ==========");
 
             // 调用完成回调
             onComplete?.Invoke(CurrentPlayerCharacter);
@@ -269,94 +257,85 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     /// </summary>
     private void SetupCameraRig(GameObject character)
     {
-        DebugEx.LogModule("PlayerCharacterManager", "===== SetupCameraRig 开始 =====");
+        DebugEx.Log("PlayerCharacterManager", "===== SetupCameraRig 开始 =====");
 
         if (character == null)
         {
-            DebugEx.ErrorModule("PlayerCharacterManager", "❌ 角色对象为空，无法配置摄像机");
+            DebugEx.Error("PlayerCharacterManager", "❌ 角色对象为空，无法配置摄像机");
             return;
         }
 
-        DebugEx.LogModule("PlayerCharacterManager", $"为角色配置摄像机: {character.name}");
+        DebugEx.Log("PlayerCharacterManager", $"为角色配置摄像机: {character.name}");
 
         // 清理旧的摄像机装备
         if (CurrentCameraRig != null)
         {
-            DebugEx.LogModule(
-                "PlayerCharacterManager",
-                $"清理旧的摄像机装备: {CurrentCameraRig.name}"
-            );
+            DebugEx.Log("PlayerCharacterManager", $"清理旧的摄像机装备: {CurrentCameraRig.name}");
             Destroy(CurrentCameraRig);
         }
 
         // 创建摄像机装备
         CurrentCameraRig = new("ThirdPersonCamera");
-        DebugEx.LogModule("PlayerCharacterManager", $"✅ 创建摄像机装备: {CurrentCameraRig.name}");
+        DebugEx.Log("PlayerCharacterManager", $"✅ 创建摄像机装备: {CurrentCameraRig.name}");
 
         // 创建摄像机对象（作为子对象）
         GameObject cameraObj = new("Camera");
         cameraObj.transform.SetParent(CurrentCameraRig.transform);
         cameraObj.transform.localPosition = Vector3.zero;
-        DebugEx.LogModule("PlayerCharacterManager", $"✅ 创建摄像机对象: {cameraObj.name}");
+        DebugEx.Log("PlayerCharacterManager", $"✅ 创建摄像机对象: {cameraObj.name}");
 
         Camera camera = cameraObj.AddComponent<Camera>();
         camera.tag = "MainCamera";
-        DebugEx.LogModule(
-            "PlayerCharacterManager",
-            $"✅ 添加 Camera 组件: Tag={camera.tag}, Active={camera.gameObject.activeInHierarchy}, Enabled={camera.enabled}"
-        );
+        DebugEx.Log("PlayerCharacterManager", $"✅ 添加 Camera 组件: Tag={camera.tag}, Active={camera.gameObject.activeInHierarchy}, Enabled={camera.enabled}");
 
         // 添加新的 ThirdPersonCamera 组件
         ThirdPersonCamera cameraRig = CurrentCameraRig.AddComponent<ThirdPersonCamera>();
         cameraRig.SetTarget(character.transform);
-        DebugEx.LogModule(
-            "PlayerCharacterManager",
-            $"✅ 添加 ThirdPersonCamera 组件并设置目标: {character.name}"
-        );
+        DebugEx.Log("PlayerCharacterManager", $"✅ 添加 ThirdPersonCamera 组件并设置目标: {character.name}");
 
         // ⭐ 注册到摄像机注册表
-        DebugEx.LogModule("PlayerCharacterManager", "开始注册摄像机到 CameraRegistry...");
+        DebugEx.Log("PlayerCharacterManager", "开始注册摄像机到 CameraRegistry...");
         CameraRegistry.RegisterPlayerCamera(camera, cameraRig);
 
         // ✅ 验证注册结果
         if (CameraRegistry.HasPlayerCamera)
         {
-            DebugEx.LogModule("PlayerCharacterManager", "✅ 摄像机注册验证成功");
+            DebugEx.Log("PlayerCharacterManager", "✅ 摄像机注册验证成功");
         }
         else
         {
-            DebugEx.ErrorModule("PlayerCharacterManager", "❌ 摄像机注册验证失败！");
+            DebugEx.Error("PlayerCharacterManager", "❌ 摄像机注册验证失败！");
         }
 
         // 获取角色控制器并设置摄像机引用
         PlayerController controller = character.GetComponent<PlayerController>();
         if (controller != null)
         {
-            DebugEx.LogModule("PlayerCharacterManager", $"找到 PlayerController，设置摄像机引用");
+            DebugEx.Log("PlayerCharacterManager", $"找到 PlayerController，设置摄像机引用");
             controller.SetCameraRig(cameraRig);
-            DebugEx.LogModule("PlayerCharacterManager", "✅ PlayerController 摄像机引用已设置");
+            DebugEx.Log("PlayerCharacterManager", "✅ PlayerController 摄像机引用已设置");
         }
         else
         {
-            DebugEx.WarningModule("PlayerCharacterManager", "⚠️ 未找到 PlayerController 组件");
+            DebugEx.Warning("PlayerCharacterManager", "⚠️ 未找到 PlayerController 组件");
         }
 
         // ⭐ 优化：使用静态缓存管理 AudioListener，避免 FindObjectsOfType
-        DebugEx.LogModule("PlayerCharacterManager", "配置 AudioListener...");
+        DebugEx.Log("PlayerCharacterManager", "配置 AudioListener...");
 
         // 添加新的音频监听器
         if (cameraObj.GetComponent<AudioListener>() == null)
         {
             cameraObj.AddComponent<AudioListener>();
-            DebugEx.LogModule("PlayerCharacterManager", "✅ 添加 AudioListener 组件");
+            DebugEx.Log("PlayerCharacterManager", "✅ 添加 AudioListener 组件");
         }
         else
         {
-            DebugEx.LogModule("PlayerCharacterManager", "AudioListener 已存在");
+            DebugEx.Log("PlayerCharacterManager", "AudioListener 已存在");
         }
 
         Log.Info("[PlayerCharacterManager] ✅ 新版摄像机装备已创建并配置完成");
-        DebugEx.LogModule("PlayerCharacterManager", "========== SetupCameraRig 完成 ==========");
+        DebugEx.Log("PlayerCharacterManager", "========== SetupCameraRig 完成 ==========");
     }
 
     /// <summary>
@@ -378,7 +357,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     {
         if (CurrentPlayerCharacter == null)
         {
-            DebugEx.WarningModule("PlayerCharacterManager", "无法记录位置：玩家角色不存在");
+            DebugEx.Warning("PlayerCharacterManager", "无法记录位置：玩家角色不存在");
             return;
         }
 
@@ -386,10 +365,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
         m_RotationBeforeCombat = CurrentPlayerCharacter.transform.rotation;
         m_HasRecordedPosition = true;
 
-        DebugEx.LogModule(
-            "PlayerCharacterManager",
-            $"记录战斗前位置: Pos={m_PositionBeforeCombat}, Rot={m_RotationBeforeCombat.eulerAngles}"
-        );
+        DebugEx.Log("PlayerCharacterManager", $"记录战斗前位置: Pos={m_PositionBeforeCombat}, Rot={m_RotationBeforeCombat.eulerAngles}");
     }
 
     /// <summary>
@@ -399,13 +375,13 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     {
         if (!m_HasRecordedPosition)
         {
-            DebugEx.WarningModule("PlayerCharacterManager", "没有记录的位置，跳过恢复");
+            DebugEx.Warning("PlayerCharacterManager", "没有记录的位置，跳过恢复");
             return;
         }
 
         if (CurrentPlayerCharacter == null)
         {
-            DebugEx.WarningModule("PlayerCharacterManager", "无法恢复位置：玩家角色不存在");
+            DebugEx.Warning("PlayerCharacterManager", "无法恢复位置：玩家角色不存在");
             return;
         }
 
@@ -416,26 +392,17 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
             // 计算朝向向量
             Vector3 forward = m_RotationBeforeCombat * Vector3.forward;
 
-            DebugEx.LogModule(
-                "PlayerCharacterManager",
-                $"准备恢复位置: Pos={m_PositionBeforeCombat}, Rot={m_RotationBeforeCombat.eulerAngles}"
-            );
+            DebugEx.Log("PlayerCharacterManager", $"准备恢复位置: Pos={m_PositionBeforeCombat}, Rot={m_RotationBeforeCombat.eulerAngles}");
 
             // 使用 TeleportTo 方法（会正确处理 CharacterController）
             controller.TeleportTo(m_PositionBeforeCombat, forward);
 
-            DebugEx.LogModule(
-                "PlayerCharacterManager",
-                $"位置恢复完成: 实际位置={CurrentPlayerCharacter.transform.position}, 实际旋转={CurrentPlayerCharacter.transform.rotation.eulerAngles}"
-            );
+            DebugEx.Log("PlayerCharacterManager", $"位置恢复完成: 实际位置={CurrentPlayerCharacter.transform.position}, 实际旋转={CurrentPlayerCharacter.transform.rotation.eulerAngles}");
         }
         else
         {
             // 如果没有 PlayerController，使用传统方式（不应该发生）
-            DebugEx.WarningModule(
-                "PlayerCharacterManager",
-                "未找到 PlayerController，使用传统方式恢复位置"
-            );
+            DebugEx.Warning("PlayerCharacterManager", "未找到 PlayerController，使用传统方式恢复位置");
             CurrentPlayerCharacter.transform.position = m_PositionBeforeCombat;
             CurrentPlayerCharacter.transform.rotation = m_RotationBeforeCombat;
         }

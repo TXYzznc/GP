@@ -23,7 +23,7 @@ public class PurificationSystem : SingletonBase<PurificationSystem>
     protected override void Awake()
     {
         base.Awake();
-        DebugEx.LogModule("PurificationSystem", "初始化完成");
+        DebugEx.Log("PurificationSystem", "初始化完成");
     }
 
     protected override void OnDestroy()

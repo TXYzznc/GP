@@ -43,7 +43,7 @@ public class ResurrectionCardEffect : ICardEffect
             float reviveHp = (float)(closestDead.Attribute.MaxHp * reviveHpRatio);
             CardEffectHelper.HealTarget(closestDead, reviveHp);
             closestDead.ChangeState(ChessState.Idle);
-            DebugEx.LogModule("ResurrectionCardEffect", $"复活 {closestDead.Config?.Name}，恢复 {reviveHpRatio * 100}% HP");
+            DebugEx.Log("ResurrectionCardEffect", $"复活 {closestDead.Config?.Name}，恢复 {reviveHpRatio * 100}% HP");
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);

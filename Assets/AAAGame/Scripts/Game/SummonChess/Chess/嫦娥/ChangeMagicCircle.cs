@@ -52,7 +52,7 @@ public class ChangeMagicCircle : MonoBehaviour
     /// <param name="targetPosition">目标位置</param>
     public void Initialize(SummonChessSkillTable config, ChessEntity caster, Vector3 targetPosition)
     {
-        DebugEx.LogModule("ChangeMagicCircle", "→ 开始初始化法阵组件...");
+        DebugEx.Log("ChangeMagicCircle", "→ 开始初始化法阵组件...");
 
         m_Config = config;
         m_Caster = caster;
@@ -69,7 +69,7 @@ public class ChangeMagicCircle : MonoBehaviour
         double scalingStat = selfAttr.SpellPower > 0 ? selfAttr.SpellPower : selfAttr.AtkDamage;
         m_ProjectileDamage = scalingStat * config.DamageCoeff + config.BaseDamage;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ChangeMagicCircle",
             $"  ├─ 伤害计算: {scalingStat:F1}×{config.DamageCoeff}+{config.BaseDamage}={m_ProjectileDamage:F1}"
         );
@@ -78,34 +78,34 @@ public class ChangeMagicCircle : MonoBehaviour
         m_CustomData = ParseCustomData(config.CustomData);
         if (m_CustomData != null && m_CustomData.ProjectilePrefabId > 0)
         {
-            DebugEx.LogModule("ChangeMagicCircle", $"  ├─ ✓ 从 CustomData 读取配置: ProjectilePrefabId={m_CustomData.ProjectilePrefabId}, SpawnHeight={m_CustomData.SpawnHeight:F2}");
+            DebugEx.Log("ChangeMagicCircle", $"  ├─ ✓ 从 CustomData 读取配置: ProjectilePrefabId={m_CustomData.ProjectilePrefabId}, SpawnHeight={m_CustomData.SpawnHeight:F2}");
         }
         else
         {
-            DebugEx.LogModule("ChangeMagicCircle", $"  ├─ ⚠ CustomData 为空或无效，无法加载子弹预制体");
+            DebugEx.Log("ChangeMagicCircle", $"  ├─ ⚠ CustomData 为空或无效，无法加载子弹预制体");
         }
 
         // 设置法阵位置（根据 SpawnHeight 调整相对于目标的垂直位置）
         float spawnHeightOffset = m_CustomData != null ? m_CustomData.SpawnHeight : 0f;
         Vector3 magicCirclePos = targetPosition + Vector3.up * spawnHeightOffset;
         transform.position = magicCirclePos;
-        DebugEx.LogModule("ChangeMagicCircle", $"  ├─ 法阵位置: {magicCirclePos} (目标位置相对高度: {spawnHeightOffset:F2})");
+        DebugEx.Log("ChangeMagicCircle", $"  ├─ 法阵位置: {magicCirclePos} (目标位置相对高度: {spawnHeightOffset:F2})");
 
         // 获取子弹生成平面
         m_SpawnPlane = GetComponentInChildren<Collider>();
         if (m_SpawnPlane != null)
         {
-            DebugEx.LogModule("ChangeMagicCircle", $"  ├─ ✓ 获取子弹生成平面: {m_SpawnPlane.gameObject.name}");
+            DebugEx.Log("ChangeMagicCircle", $"  ├─ ✓ 获取子弹生成平面: {m_SpawnPlane.gameObject.name}");
         }
         else
         {
-            DebugEx.WarningModule("ChangeMagicCircle", $"  ├─ ⚠ 未找到子弹生成平面，请在预制体中添加平面 Collider");
+            DebugEx.Warning("ChangeMagicCircle", $"  ├─ ⚠ 未找到子弹生成平面，请在预制体中添加平面 Collider");
         }
 
         // ⭐ 在法阵位置播放特效
         if (m_Config.EffectId > 0)
         {
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "ChangeMagicCircle",
                 $"  ├─ 播放法阵特效: ID={m_Config.EffectId}, 高度={m_Config.EffectSpawnHeight}"
             );
@@ -113,12 +113,12 @@ public class ChangeMagicCircle : MonoBehaviour
         }
         else
         {
-            DebugEx.WarningModule("ChangeMagicCircle", "  ├─ ⚠ 未配置法阵特效 (EffectId=0)");
+            DebugEx.Warning("ChangeMagicCircle", "  ├─ ⚠ 未配置法阵特效 (EffectId=0)");
         }
 
         m_IsInitialized = true;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ChangeMagicCircle",
             $"✓ 法阵初始化完成:\n" +
             $"  ├─ 持续时间: {config.Duration}s\n" +
@@ -129,7 +129,7 @@ public class ChangeMagicCircle : MonoBehaviour
             $"  └─ AOE半径: {config.AreaRadius}米"
         );
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ChangeMagicCircle",
             $"→ 法阵开始运作: 将在 {config.Duration}s 内发射 {config.HitCount} 枚子弹，首发延迟 0.1s"
         );
@@ -195,7 +195,7 @@ public class ChangeMagicCircle : MonoBehaviour
         // ⭐ 检查施法者是否仍然有效
         if (m_Caster == null || m_Caster.CurrentState == ChessState.Dead)
         {
-            DebugEx.WarningModule("ChangeMagicCircle", "施法者已死亡或无效，停止发射子弹");
+            DebugEx.Warning("ChangeMagicCircle", "施法者已死亡或无效，停止发射子弹");
             OnComplete();
             return;
         }
@@ -221,7 +221,7 @@ public class ChangeMagicCircle : MonoBehaviour
         else
         {
             // 降级处理：如果未配置平面，子弹无法生成
-            DebugEx.WarningModule("ChangeMagicCircle", "  └─ ✗ 子弹生成平面未设置，无法发射子弹");
+            DebugEx.Warning("ChangeMagicCircle", "  └─ ✗ 子弹生成平面未设置，无法发射子弹");
             return;
         }
 
@@ -237,7 +237,7 @@ public class ChangeMagicCircle : MonoBehaviour
         LoadAndFireProjectileAsync(startPosition, targetPosition, damage, isCritical).Forget();
 
         string directionDesc = m_SpawnPlane != null ? "竖直向下" : "指向法阵中心";
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ChangeMagicCircle",
             $"→ 子弹 {m_ProjectilesFired + 1}/{m_Config.HitCount} 发射:\n" +
             $"  ├─ 发射位置: {startPosition}\n" +
@@ -256,7 +256,7 @@ public class ChangeMagicCircle : MonoBehaviour
         // 从 CustomData 读取子弹预制体 ID
         if (m_CustomData == null || m_CustomData.ProjectilePrefabId <= 0)
         {
-            DebugEx.WarningModule("ChangeMagicCircle", "  └─ ⚠ 未配置投射物预制体 (ProjectilePrefabId)");
+            DebugEx.Warning("ChangeMagicCircle", "  └─ ⚠ 未配置投射物预制体 (ProjectilePrefabId)");
             return;
         }
 
@@ -264,14 +264,14 @@ public class ChangeMagicCircle : MonoBehaviour
         GameObject bulletPrefab = await ResourceExtension.LoadPrefabAsync(m_CustomData.ProjectilePrefabId);
         if (bulletPrefab == null)
         {
-            DebugEx.WarningModule("ChangeMagicCircle", $"  └─ ✗ 子弹预制体加载失败 (ID={m_CustomData.ProjectilePrefabId})");
+            DebugEx.Warning("ChangeMagicCircle", $"  └─ ✗ 子弹预制体加载失败 (ID={m_CustomData.ProjectilePrefabId})");
             return;
         }
 
         // ⭐ 调试：打印预制体的详细信息
         Component[] allComponents = bulletPrefab.GetComponents<Component>();
         string componentList = string.Join(", ", System.Array.ConvertAll(allComponents, c => c.GetType().Name));
-        DebugEx.LogModule("ChangeMagicCircle", $"  ├─ 加载的预制体信息: ID={m_CustomData.ProjectilePrefabId}, Name={bulletPrefab.name}, Components=[{componentList}]");
+        DebugEx.Log("ChangeMagicCircle", $"  ├─ 加载的预制体信息: ID={m_CustomData.ProjectilePrefabId}, Name={bulletPrefab.name}, Components=[{componentList}]");
 
         // 实例化子弹
         GameObject bulletObj = Object.Instantiate(bulletPrefab, startPos, Quaternion.identity);
@@ -284,7 +284,7 @@ public class ChangeMagicCircle : MonoBehaviour
             ? "⚠ 无 Collider！碰撞检测将失效"
             : string.Join(", ", System.Array.ConvertAll(bulletColliders, c =>
                 $"{c.gameObject.name}.{c.GetType().Name}(trigger={c.isTrigger},enabled={c.enabled})"));
-        DebugEx.LogModule("ChangeMagicCircle",
+        DebugEx.Log("ChangeMagicCircle",
             $"  ├─ [子弹诊断] 实例化完成:\n" +
             $"     ├─ 位置: {bulletObj.transform.position}\n" +
             $"     ├─ Layer: {LayerMask.LayerToName(bulletObj.layer)}({bulletObj.layer})\n" +
@@ -296,14 +296,14 @@ public class ChangeMagicCircle : MonoBehaviour
         var projectile = bulletObj.AddComponent<ChessProjectile>();
         if (projectile == null)
         {
-            DebugEx.WarningModule("ChangeMagicCircle", $"  └─ ✗ 添加 ChessProjectile 组件失败");
+            DebugEx.Warning("ChangeMagicCircle", $"  └─ ✗ 添加 ChessProjectile 组件失败");
             Object.Destroy(bulletObj);
             return;
         }
 
         // 初始化子弹（竖直向下模式）
         Vector3 projectileDirection = m_SpawnPlane != null ? Vector3.down : (targetPos - startPos).normalized;
-        DebugEx.LogModule("ChangeMagicCircle",
+        DebugEx.Log("ChangeMagicCircle",
             $"  ├─ [子弹初始化] camp={m_Caster.Camp}, dir={projectileDirection}, speed={m_Config.ProjectileSpeed}, damage={damage:F1}{(isCritical ? " 暴击" : "")}");
 
         projectile.Initialize(
@@ -316,7 +316,7 @@ public class ChangeMagicCircle : MonoBehaviour
             (target) => OnProjectileHit(target, damage, isCritical)
         );
 
-        DebugEx.LogModule("ChangeMagicCircle", $"  └─ ✓ 子弹 {m_ProjectilesFired} 已实例化并发射");
+        DebugEx.Log("ChangeMagicCircle", $"  └─ ✓ 子弹 {m_ProjectilesFired} 已实例化并发射");
     }
 
     /// <summary>
@@ -344,7 +344,7 @@ public class ChangeMagicCircle : MonoBehaviour
         // 3. 应用命中 Buff
         EffectExecutor.ApplyBuffsOnHit(m_Config, m_Caster, target);
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ChangeMagicCircle",
             $"→ 子弹命中:\n" +
             $"  ├─ 目标: {target.Config?.Name} (camp={target.Camp})\n" +
@@ -370,7 +370,7 @@ public class ChangeMagicCircle : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            DebugEx.WarningModule("ChangeMagicCircle", $"  ├─ ⚠ 解析 CustomData 失败: {ex.Message}");
+            DebugEx.Warning("ChangeMagicCircle", $"  ├─ ⚠ 解析 CustomData 失败: {ex.Message}");
             return null;
         }
     }
@@ -380,7 +380,7 @@ public class ChangeMagicCircle : MonoBehaviour
     /// </summary>
     private void OnComplete()
     {
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ChangeMagicCircle",
             $"✓ 法阵效果结束:\n" +
             $"  ├─ 计划发射: {m_Config.HitCount}发\n" +

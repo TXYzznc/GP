@@ -142,7 +142,7 @@ public class ProjectileTestController : MonoBehaviour
 
     private void Awake()
     {
-        DebugEx.LogModule("ProjectileTestController", "投射物测试控制器已启动");
+        DebugEx.Log(nameof(ProjectileTestController), "投射物测试控制器已启动");
         LoadProjectilePrefabs();
 
         // 自动检测追踪目标是否为 ChessEntity
@@ -151,7 +151,7 @@ public class ProjectileTestController : MonoBehaviour
             m_HomingTargetEntity = m_HomingTarget.GetComponent<ChessEntity>();
             if (m_HomingTargetEntity != null)
             {
-                DebugEx.LogModule("ProjectileTestController",
+                DebugEx.Log(nameof(ProjectileTestController),
                     $"自动检测到追踪目标为 ChessEntity: {m_HomingTargetEntity.Config?.Name}");
             }
         }
@@ -162,7 +162,7 @@ public class ProjectileTestController : MonoBehaviour
         // 验证配置
         if (m_ProjectilePrefabs.Count == 0)
         {
-            DebugEx.ErrorModule("ProjectileTestController",
+            DebugEx.Error(nameof(ProjectileTestController),
                 $"未找到任何投射物预制体！请检查文件夹路径: {m_ProjectileFolderPath}");
             enabled = false;
             return;
@@ -177,13 +177,13 @@ public class ProjectileTestController : MonoBehaviour
 
         m_IsAutoFiring = m_AutoFireOnStart;
 
-        DebugEx.Success("ProjectileTestController",
+        DebugEx.Success(nameof(ProjectileTestController),
             $"已加载 {m_ProjectilePrefabs.Count} 个投射物预制体");
-        DebugEx.LogModule("ProjectileTestController", "按 H 键显示/隐藏快捷键说明");
+        DebugEx.Log(nameof(ProjectileTestController), "按 H 键显示/隐藏快捷键说明");
 
         if (m_IsAutoFiring)
         {
-            DebugEx.Success("ProjectileTestController", "自动发射模式已启动");
+            DebugEx.Success(nameof(ProjectileTestController), "自动发射模式已启动");
         }
     }
 
@@ -280,7 +280,7 @@ public class ProjectileTestController : MonoBehaviour
         // 检查文件夹是否存在
         if (!AssetDatabase.IsValidFolder(searchPath))
         {
-            DebugEx.ErrorModule("ProjectileTestController",
+            DebugEx.Error(nameof(ProjectileTestController),
                 $"文件夹不存在: {searchPath}");
             m_IsProjectilesLoaded = true;
             return;
@@ -288,7 +288,7 @@ public class ProjectileTestController : MonoBehaviour
 
         string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { searchPath });
 
-        DebugEx.LogModule("ProjectileTestController",
+        DebugEx.Log(nameof(ProjectileTestController),
             $"开始扫描文件夹: {searchPath}，找到 {guids.Length} 个预制体");
 
         foreach (string guid in guids)
@@ -304,20 +304,20 @@ public class ProjectileTestController : MonoBehaviour
                 m_ProjectilePrefabs.Add(prefab);
 
                 string componentInfo = projectileComponent != null ? "✓" : "✗";
-                DebugEx.LogModule("ProjectileTestController",
+                DebugEx.Log(nameof(ProjectileTestController),
                     $"加载预制体: {prefab.name} [ChessProjectile: {componentInfo}]");
             }
         }
 #else
     // 运行时模式：需要预制体在 Resources 文件夹中
-    DebugEx.WarningModule("ProjectileTestController", 
+    DebugEx.Warning(nameof(ProjectileTestController),
         "运行时模式下，预制体必须放在 Resources 文件夹中才能加载");
-    
+
     // 尝试从 Resources 加载（需要用户手动将预制体放入 Resources）
     string resourcePath = m_ProjectileFolderPath.Replace("Assets/", "").Replace("Resources/", "");
     GameObject[] prefabs = Resources.LoadAll<GameObject>(resourcePath);
-    
-    DebugEx.LogModule("ProjectileTestController", 
+
+    DebugEx.Log(nameof(ProjectileTestController),
         $"从 Resources/{resourcePath} 加载了 {prefabs.Length} 个预制体");
 
     foreach (GameObject prefab in prefabs)
@@ -330,12 +330,12 @@ public class ProjectileTestController : MonoBehaviour
 
         if (m_ProjectilePrefabs.Count > 0)
         {
-            DebugEx.Success("ProjectileTestController",
+            DebugEx.Success(nameof(ProjectileTestController),
                 $"成功加载 {m_ProjectilePrefabs.Count} 个投射物预制体");
         }
         else
         {
-            DebugEx.WarningModule("ProjectileTestController",
+            DebugEx.Warning(nameof(ProjectileTestController),
                 "未找到任何投射物预制体，请检查文件夹路径配置");
         }
     }
@@ -368,7 +368,7 @@ public class ProjectileTestController : MonoBehaviour
 
         m_CurrentProjectilePrefab = m_ProjectilePrefabs[m_CurrentProjectileIndex];
 
-        DebugEx.Success("ProjectileTestController",
+        DebugEx.Success(nameof(ProjectileTestController),
             $"切换投射物: [{m_CurrentProjectileIndex + 1}/{m_ProjectilePrefabs.Count}] {m_CurrentProjectilePrefab.name}");
 
         // 重置统计
@@ -393,12 +393,12 @@ public class ProjectileTestController : MonoBehaviour
             }
             else
             {
-                DebugEx.WarningModule("ProjectileTestController",
+                DebugEx.Warning(nameof(ProjectileTestController),
                     "追踪模式已开启，但未设置追踪目标！");
             }
         }
 
-        DebugEx.LogModule("ProjectileTestController",
+        DebugEx.Log(nameof(ProjectileTestController),
             $"追踪模式: {status}{targetInfo}");
     }
 
@@ -412,7 +412,7 @@ public class ProjectileTestController : MonoBehaviour
         m_CurrentProjectileIndex = index;
         m_CurrentProjectilePrefab = m_ProjectilePrefabs[index];
 
-        DebugEx.Success("ProjectileTestController",
+        DebugEx.Success(nameof(ProjectileTestController),
             $"选择投射物: [{index + 1}/{m_ProjectilePrefabs.Count}] {m_CurrentProjectilePrefab.name}");
 
         // 重置统计
@@ -519,7 +519,7 @@ public class ProjectileTestController : MonoBehaviour
     {
         if (target == null)
         {
-            DebugEx.WarningModule("ProjectileTestController", "目标为空，返回零向量");
+            DebugEx.Warning(nameof(ProjectileTestController), "目标为空，返回零向量");
             return Vector3.zero;
         }
 
@@ -560,7 +560,7 @@ public class ProjectileTestController : MonoBehaviour
                 }
                 else
                 {
-                    DebugEx.WarningModule("ProjectileTestController",
+                    DebugEx.Warning(nameof(ProjectileTestController),
                         $"目标 {target.name} 没有 Renderer 组件，使用固定偏移");
                     centerPosition = target.position + Vector3.up * m_TargetHeightOffset;
                     method = $"Offset (fallback)";
@@ -576,7 +576,7 @@ public class ProjectileTestController : MonoBehaviour
                 }
                 else
                 {
-                    DebugEx.WarningModule("ProjectileTestController",
+                    DebugEx.Warning(nameof(ProjectileTestController),
                         $"目标 {target.name} 没有 Collider 组件，使用固定偏移");
                     centerPosition = target.position + Vector3.up * m_TargetHeightOffset;
                     method = $"Offset (fallback)";
@@ -589,7 +589,7 @@ public class ProjectileTestController : MonoBehaviour
                 break;
         }
 
-        DebugEx.LogModule("ProjectileTestController",
+        DebugEx.Log(nameof(ProjectileTestController),
             $"目标中心位置: {centerPosition:F2} (方法: {method})");
 
         return centerPosition;
@@ -606,7 +606,7 @@ public class ProjectileTestController : MonoBehaviour
     {
         m_TotalHitCount++;
 
-        DebugEx.Success("ProjectileTestController",
+        DebugEx.Success(nameof(ProjectileTestController),
             $"投射物命中目标: {target.Config?.Name ?? "未知"} (总命中: {m_TotalHitCount})");
     }
 
@@ -615,7 +615,7 @@ public class ProjectileTestController : MonoBehaviour
     /// </summary>
     private void OnProjectileDestroyed()
     {
-        DebugEx.LogModule("ProjectileTestController", "投射物已销毁");
+        DebugEx.Log(nameof(ProjectileTestController), "投射物已销毁");
         m_LastProjectile = null;
     }
 
@@ -637,7 +637,7 @@ public class ProjectileTestController : MonoBehaviour
         m_TotalHitCount = 0;
         m_LastTargetPosition = Vector3.zero;
 
-        DebugEx.LogModule("ProjectileTestController", "统计数据已重置");
+        DebugEx.Log(nameof(ProjectileTestController), "统计数据已重置");
     }
 
     /// <summary>

@@ -30,7 +30,7 @@ public class EnemyCombatState : IEnemyState
 
     public void OnEnter()
     {
-        DebugEx.LogModule("EnemyCombatState", $"{m_AI.Entity.Config.Name} 进入战斗状态");
+        DebugEx.Log(nameof(EnemyCombatState), $"{m_AI.Entity.Config.Name} 进入战斗状态");
 
         // 停止 NavMeshAgent
         m_AI.Entity.NavAgent.isStopped = true;
@@ -47,7 +47,7 @@ public class EnemyCombatState : IEnemyState
 
     public void OnExit()
     {
-        DebugEx.LogModule("EnemyCombatState", $"{m_AI.Entity.Config.Name} 离开战斗状态");
+        DebugEx.Log(nameof(EnemyCombatState), $"{m_AI.Entity.Config.Name} 离开战斗状态");
 
         // 恢复 NavMeshAgent（需检查是否在 NavMesh 上，SetActive(false/true) 后可能未就绪）
         var agent = m_AI.Entity.NavAgent;

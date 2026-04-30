@@ -20,7 +20,7 @@ public class DummyAI : IChessAI
     public void Init(ChessContext ctx)
     {
         m_Context = ctx;
-        DebugEx.LogModule("DummyAI", $"初始化完成: {ctx.Config.Name} - 假人不会执行任何行动");
+        DebugEx.Log(nameof(DummyAI), $"初始化完成: {ctx.Config.Name} - 假人不会执行任何行动");
     }
 
     /// <summary>

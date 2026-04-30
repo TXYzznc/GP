@@ -42,7 +42,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
         bool targetIsEmpty = targetSlot == null || targetSlot.IsEmpty;
 
         string targetStatus = targetIsEmpty ? "为空" : "非空";
-        DebugEx.Log("InventorySlotContainer",
+        DebugEx.Log(nameof(InventorySlotContainerImpl),
             $"[背包→{targetContainer.ContainerType}] {fromSlotIndex} → {targetSlotIndex} (目标{targetStatus})");
 
         bool success = targetContainer switch
@@ -71,7 +71,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
     {
         // MoveItem 内部已处理：清空源格子、设置目标格子或交换
         bool ok = m_InventoryManager.MoveItem(fromIndex, toIndex);
-        DebugEx.Log("InventorySlotContainer", $"[背包→背包] MoveItem {ok}");
+        DebugEx.Log(nameof(InventorySlotContainerImpl), $"[背包→背包] MoveItem {ok}");
         return ok;
     }
 
@@ -79,14 +79,14 @@ public class InventorySlotContainerImpl : SlotContainerBase
     {
         var wh = WarehouseManager.Instance;
         bool ok = wh != null && wh.StoreItemToSlot(itemId, count, targetSlotIndex, 0);
-        DebugEx.Log("InventorySlotContainer", $"[背包→仓库] StoreItemToSlot {ok}");
+        DebugEx.Log(nameof(InventorySlotContainerImpl), $"[背包→仓库] StoreItemToSlot {ok}");
         return ok;
     }
 
     private bool MoveToTreasureBox(TreasureBoxSlotContainerImpl targetTb, int itemId, int count, int targetSlotIndex)
     {
         bool ok = targetTb != null && targetTb.ReceiveItemFromInventory(itemId, count, targetSlotIndex);
-        DebugEx.Log("InventorySlotContainer", $"[背包→宝箱] ReceiveItemFromInventory {ok} targetSlot={targetSlotIndex}");
+        DebugEx.Log(nameof(InventorySlotContainerImpl), $"[背包→宝箱] ReceiveItemFromInventory {ok} targetSlot={targetSlotIndex}");
         return ok;
     }
 
@@ -100,7 +100,7 @@ public class InventorySlotContainerImpl : SlotContainerBase
 
         var fastBar = FastBarManager.Instance;
         bool ok = fastBar != null && fastBar.StoreItemToSlot(item, count, targetSlotIndex);
-        DebugEx.Log("InventorySlotContainer", $"[背包→快捷栏] StoreItemToSlot {ok}");
+        DebugEx.Log(nameof(InventorySlotContainerImpl), $"[背包→快捷栏] StoreItemToSlot {ok}");
         return ok;
     }
 

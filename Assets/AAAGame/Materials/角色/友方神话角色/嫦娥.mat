@@ -118,7 +118,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DissolveEdgeWidth: 0.059
     - _DissolveEnabled: 1
-    - _DissolveThreshold: 0.012
+    - _DissolveThreshold: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1

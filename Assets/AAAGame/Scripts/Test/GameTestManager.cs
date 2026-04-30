@@ -31,7 +31,7 @@ public class GameTestManager : SingletonBase<GameTestManager>
         // 缓存单例引用，避免每帧访问
         m_GameStateManager = GameStateManager.Instance;
 
-        DebugEx.LogModule("GameTestManager", "测试管理器初始化完成");
+        DebugEx.Log(nameof(GameTestManager), "测试管理器初始化完成");
     }
 
     protected override void OnDestroy()
@@ -116,116 +116,116 @@ public class GameTestManager : SingletonBase<GameTestManager>
     /// </summary>
     private void TestRuntimeDataSystem()
     {
-        DebugEx.LogModule("GameTestManager", "========== 运行时数据管理系统测试开始 ==========");
+        DebugEx.Log(nameof(GameTestManager), "========== 运行时数据管理系统测试开始 ==========");
 
         // 测试1：PlayerRuntimeDataManager
         if (PlayerRuntimeDataManager.Instance != null)
         {
-            DebugEx.LogModule("GameTestManager", "✓ PlayerRuntimeDataManager 实例存在");
+            DebugEx.Log(nameof(GameTestManager), "✓ PlayerRuntimeDataManager 实例存在");
 
             if (PlayerRuntimeDataManager.Instance.IsInitialized)
             {
-                DebugEx.LogModule("GameTestManager", $"✓ PlayerRuntimeDataManager 已初始化");
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(nameof(GameTestManager), $"✓ PlayerRuntimeDataManager 已初始化");
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 当前污染值: {PlayerRuntimeDataManager.Instance.CurrentCorruption:F1}/{PlayerRuntimeDataManager.Instance.MaxCorruption:F1}"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 污染值百分比: {PlayerRuntimeDataManager.Instance.CorruptionPercent:P1}"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 污染值增长速度: {PlayerRuntimeDataManager.Instance.CorruptionGrowthRate:F1}/秒"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 当前移速: {PlayerRuntimeDataManager.Instance.CurrentMoveSpeed:F1}"
                 );
 
                 // 测试污染值操作
-                DebugEx.LogModule("GameTestManager", "  测试污染值操作...");
+                DebugEx.Log(nameof(GameTestManager), "  测试污染值操作...");
                 float oldCorruption = PlayerRuntimeDataManager.Instance.CurrentCorruption;
                 PlayerRuntimeDataManager.Instance.AddCorruption(10f);
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 增加10点污染值: {oldCorruption:F1} -> {PlayerRuntimeDataManager.Instance.CurrentCorruption:F1}"
                 );
 
                 // 测试战斗失败
                 PlayerRuntimeDataManager.Instance.OnCombatDefeat();
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 战斗失败后污染值: {PlayerRuntimeDataManager.Instance.CurrentCorruption:F1}"
                 );
             }
             else
             {
-                DebugEx.WarningModule(
-                    "GameTestManager",
+                DebugEx.Warning(
+                    nameof(GameTestManager),
                     "✗ PlayerRuntimeDataManager 未初始化（需要进入局内状态）"
                 );
             }
         }
         else
         {
-            DebugEx.ErrorModule("GameTestManager", "✗ PlayerRuntimeDataManager 实例不存在");
+            DebugEx.Error(nameof(GameTestManager), "✗ PlayerRuntimeDataManager 实例不存在");
         }
 
         // 测试2：SummonerRuntimeDataManager
         if (SummonerRuntimeDataManager.Instance != null)
         {
-            DebugEx.LogModule("GameTestManager", "✓ SummonerRuntimeDataManager 实例存在");
+            DebugEx.Log(nameof(GameTestManager), "✓ SummonerRuntimeDataManager 实例存在");
 
             if (SummonerRuntimeDataManager.Instance.IsInitialized)
             {
-                DebugEx.LogModule("GameTestManager", $"✓ SummonerRuntimeDataManager 已初始化");
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(nameof(GameTestManager), $"✓ SummonerRuntimeDataManager 已初始化");
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 当前HP: {SummonerRuntimeDataManager.Instance.CurrentHP:F1}/{SummonerRuntimeDataManager.Instance.MaxHP:F1}"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - HP百分比: {SummonerRuntimeDataManager.Instance.HPPercent:P1}"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 当前MP: {SummonerRuntimeDataManager.Instance.CurrentMP:F1}/{SummonerRuntimeDataManager.Instance.MaxMP:F1}"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - MP百分比: {SummonerRuntimeDataManager.Instance.MPPercent:P1}"
                 );
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - MP恢复速度: {SummonerRuntimeDataManager.Instance.MPRegen:F1}/秒"
                 );
 
                 // 测试HP/MP操作
-                DebugEx.LogModule("GameTestManager", "  测试HP/MP操作...");
+                DebugEx.Log(nameof(GameTestManager), "  测试HP/MP操作...");
                 SummonerRuntimeDataManager.Instance.ReduceHP(20f);
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 减少20点HP后: {SummonerRuntimeDataManager.Instance.CurrentHP:F1}/{SummonerRuntimeDataManager.Instance.MaxHP:F1}"
                 );
 
                 bool mpConsumed = SummonerRuntimeDataManager.Instance.ConsumeMP(10f);
-                DebugEx.LogModule(
-                    "GameTestManager",
+                DebugEx.Log(
+                    nameof(GameTestManager),
                     $"  - 消耗10点MP: {(mpConsumed ? "成功" : "失败")} - 当前MP: {SummonerRuntimeDataManager.Instance.CurrentMP:F1}"
                 );
             }
             else
             {
-                DebugEx.WarningModule(
-                    "GameTestManager",
+                DebugEx.Warning(
+                    nameof(GameTestManager),
                     "✗ SummonerRuntimeDataManager 未初始化（需要进入战斗状态）"
                 );
             }
         }
         else
         {
-            DebugEx.ErrorModule("GameTestManager", "✗ SummonerRuntimeDataManager 实例不存在");
+            DebugEx.Error(nameof(GameTestManager), "✗ SummonerRuntimeDataManager 实例不存在");
         }
 
         // 测试3：数据表配置
@@ -234,23 +234,23 @@ public class GameTestManager : SingletonBase<GameTestManager>
             var summonerConfig = PlayerAccountDataManager.Instance.GetCurrentSummonerConfig();
             if (summonerConfig != null)
             {
-                DebugEx.LogModule("GameTestManager", "✓ 召唤师配置读取成功");
-                DebugEx.LogModule("GameTestManager", $"  - 召唤师名称: {summonerConfig.Name}");
-                DebugEx.LogModule("GameTestManager", $"  - 基础HP: {summonerConfig.BaseHP}");
-                DebugEx.LogModule("GameTestManager", $"  - 基础MP: {summonerConfig.BaseMP}");
-                DebugEx.LogModule("GameTestManager", $"  - MP恢复: {summonerConfig.MPRegen}");
-                DebugEx.LogModule("GameTestManager", $"  - 移动速度: {summonerConfig.MoveSpeed}");
+                DebugEx.Log(nameof(GameTestManager), "✓ 召唤师配置读取成功");
+                DebugEx.Log(nameof(GameTestManager), $"  - 召唤师名称: {summonerConfig.Name}");
+                DebugEx.Log(nameof(GameTestManager), $"  - 基础HP: {summonerConfig.BaseHP}");
+                DebugEx.Log(nameof(GameTestManager), $"  - 基础MP: {summonerConfig.BaseMP}");
+                DebugEx.Log(nameof(GameTestManager), $"  - MP恢复: {summonerConfig.MPRegen}");
+                DebugEx.Log(nameof(GameTestManager), $"  - 移动速度: {summonerConfig.MoveSpeed}");
             }
             else
             {
-                DebugEx.WarningModule(
-                    "GameTestManager",
+                DebugEx.Warning(
+                    nameof(GameTestManager),
                     "✗ 召唤师配置读取失败（可能没有当前存档）"
                 );
             }
         }
 
-        DebugEx.LogModule("GameTestManager", "========== 运行时数据管理系统测试结束 ==========");
+        DebugEx.Log(nameof(GameTestManager), "========== 运行时数据管理系统测试结束 ==========");
     }
 
     #endregion
@@ -289,7 +289,7 @@ public class GameTestManager : SingletonBase<GameTestManager>
     /// </summary>
     public void TestTriggerSettlementTeleport()
     {
-        DebugEx.LogModule("GameTestManager", "[测试] 触发结算 - 传送方式");
+        DebugEx.Log(nameof(GameTestManager), "[测试] 触发结算 - 传送方式");
         SettlementManager.Instance.TriggerSettlementAsync("BaseScene", SettlementTriggerSource.Teleport).Forget();
     }
 
@@ -298,7 +298,7 @@ public class GameTestManager : SingletonBase<GameTestManager>
     /// </summary>
     public void TestTriggerSettlementCorruptionDeath()
     {
-        DebugEx.LogModule("GameTestManager", "[测试] 触发结算 - 污染过高死亡");
+        DebugEx.Log(nameof(GameTestManager), "[测试] 触发结算 - 污染过高死亡");
         SettlementManager.Instance.TriggerSettlementAsync("BaseScene", SettlementTriggerSource.Death).Forget();
     }
 

@@ -19,7 +19,7 @@ public class AOEHitDetector : HitDetectorBase
 
         if (radius <= 0)
         {
-            DebugEx.Warning("[AOEHitDetector] 检测半径为 0");
+            DebugEx.Warning("AOEHitDetector", "检测半径为 0");
             Complete();
             return;
         }
@@ -27,7 +27,7 @@ public class AOEHitDetector : HitDetectorBase
         // 执行范围检测
         int hitCount = Physics.OverlapSphereNonAlloc(center, radius, s_HitBuffer, context.EnemyLayerMask);
 
-        DebugEx.LogModule("AOEHitDetector", $"检测位置: {center}, 半径: {radius}, 检测到数量: {hitCount}");
+        DebugEx.Log("AOEHitDetector", $"检测位置: {center}, 半径: {radius}, 检测到数量: {hitCount}");
 
         int actualHitCount = 0;
         int maxHits = context.MaxHitCount > 0 ? context.MaxHitCount : int.MaxValue;
@@ -60,7 +60,7 @@ public class AOEHitDetector : HitDetectorBase
             actualHitCount++;
         }
 
-        DebugEx.LogModule("AOEHitDetector", $"实际命中: {actualHitCount} 个目标");
+        DebugEx.Log("AOEHitDetector", $"实际命中: {actualHitCount} 个目标");
 
         // 完成检测
         Complete();

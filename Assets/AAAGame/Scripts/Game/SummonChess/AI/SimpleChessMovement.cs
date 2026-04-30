@@ -47,7 +47,7 @@ public class SimpleChessMovement : MonoBehaviour, IChessMovement
         m_TargetPosition = targetPosition;
         m_IsMoving = true;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "SimpleChessMovement",
             $"{gameObject.name} 开始移动到目标位置: {targetPosition}, 当前位置: {transform.position}"
         );
@@ -87,7 +87,7 @@ public class SimpleChessMovement : MonoBehaviour, IChessMovement
         {
             m_IsMoving = false;
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "SimpleChessMovement",
                 $"{gameObject.name} 到达目标位置，距离={distance:F3}, 阈值={ARRIVE_THRESHOLD}"
             );

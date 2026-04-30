@@ -50,7 +50,7 @@ public abstract class HitDetectorBase : IHitDetector
     {
         if (context == null)
         {
-            DebugEx.ErrorModule("HitDetector", "Execute: context is null");
+            DebugEx.Error(nameof(HitDetectorBase), "Execute: context is null");
             return;
         }
 
@@ -87,8 +87,8 @@ public abstract class HitDetectorBase : IHitDetector
         if (target == null || target.CurrentState == ChessState.Dead)
             return;
 
-        DebugEx.LogModule(
-            "HitDetector",
+        DebugEx.Log(
+            nameof(HitDetectorBase),
             $"[命中] {context.Attacker.Config?.Name} → {target.Config?.Name}"
         );
 

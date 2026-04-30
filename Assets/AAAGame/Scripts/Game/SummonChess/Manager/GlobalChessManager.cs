@@ -67,14 +67,14 @@ public class GlobalChessManager
     {
         if (m_ChessStates.ContainsKey(chessId))
         {
-            DebugEx.LogModule("GlobalChessManager", $"棋子 {chessId} 已注册，保留现有状态");
+            DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 已注册，保留现有状态");
             return;
         }
 
         var state = new GlobalChessState(chessId, maxHp);
         m_ChessStates[chessId] = state;
 
-        DebugEx.LogModule("GlobalChessManager", $"注册棋子 {chessId}，MaxHP={maxHp:F0}");
+        DebugEx.Log(nameof(GlobalChessManager), $"注册棋子 {chessId}，MaxHP={maxHp:F0}");
         OnGlobalChessStateChanged?.Invoke(chessId, state);
     }
 
@@ -97,7 +97,7 @@ public class GlobalChessManager
         };
         m_ChessStates[chessId] = state;
 
-        DebugEx.LogModule("GlobalChessManager", $"重新注册棋子 {chessId}，MaxHP={newMaxHp:F0}，HP比例={hpRatio:P0}");
+        DebugEx.Log(nameof(GlobalChessManager), $"重新注册棋子 {chessId}，MaxHP={newMaxHp:F0}，HP比例={hpRatio:P0}");
         OnGlobalChessStateChanged?.Invoke(chessId, state);
     }
 
@@ -108,7 +108,7 @@ public class GlobalChessManager
     {
         if (m_ChessStates.Remove(chessId))
         {
-            DebugEx.LogModule("GlobalChessManager", $"注销棋子 {chessId}");
+            DebugEx.Log(nameof(GlobalChessManager), $"注销棋子 {chessId}");
         }
     }
 
@@ -126,7 +126,7 @@ public class GlobalChessManager
             return state;
         }
 
-        DebugEx.WarningModule("GlobalChessManager", $"找不到棋子状态 ChessId={chessId}");
+        DebugEx.Warning(nameof(GlobalChessManager), $"找不到棋子状态 ChessId={chessId}");
         return null;
     }
 
@@ -165,15 +165,15 @@ public class GlobalChessManager
     {
         if (!m_ChessStates.TryGetValue(chessId, out var state))
         {
-            DebugEx.WarningModule("GlobalChessManager", $"UpdateChessHP: 找不到棋子 {chessId}");
+            DebugEx.Warning(nameof(GlobalChessManager), $"UpdateChessHP: 找不到棋子 {chessId}");
             return;
         }
 
         double oldHp = state.CurrentHp;
         state.CurrentHp = Math.Clamp(newHP, 0, state.MaxHp);
 
-        DebugEx.LogModule(
-            "GlobalChessManager",
+        DebugEx.Log(
+            nameof(GlobalChessManager),
             $"更新血量 ChessId={chessId}：{oldHp:F0} → {state.CurrentHp:F0}/{state.MaxHp:F0}"
         );
 
@@ -203,7 +203,7 @@ public class GlobalChessManager
             }
         }
 
-        DebugEx.LogModule("GlobalChessManager", $"基地恢复：{count} 个棋子血量恢复到满值");
+        DebugEx.Log(nameof(GlobalChessManager), $"基地恢复：{count} 个棋子血量恢复到满值");
         OnAllChessHPRestored?.Invoke();
         ChessStateEvents.FireAllChessHPRestored();
     }
@@ -218,14 +218,14 @@ public class GlobalChessManager
     {
         if (!m_ChessStates.TryGetValue(chessId, out var state))
         {
-            DebugEx.WarningModule("GlobalChessManager", $"TryRecoverChessHP: 找不到棋子 {chessId}");
+            DebugEx.Warning(nameof(GlobalChessManager), $"TryRecoverChessHP: 找不到棋子 {chessId}");
             return false;
         }
 
         if (state.IsDead)
         {
-            DebugEx.LogModule(
-                "GlobalChessManager",
+            DebugEx.Log(
+                nameof(GlobalChessManager),
                 $"棋子 {chessId} 已死亡，无法通过道具恢复血量（需回到基地自动恢复）"
             );
             return false;
@@ -233,15 +233,15 @@ public class GlobalChessManager
 
         if (state.IsFullHp)
         {
-            DebugEx.LogModule("GlobalChessManager", $"棋子 {chessId} 血量已满，无需恢复");
+            DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 血量已满，无需恢复");
             return false;
         }
 
         double oldHp = state.CurrentHp;
         state.CurrentHp = Math.Min(state.MaxHp, state.CurrentHp + recoverAmount);
 
-        DebugEx.LogModule(
-            "GlobalChessManager",
+        DebugEx.Log(
+            nameof(GlobalChessManager),
             $"道具恢复：ChessId={chessId} {oldHp:F0} → {state.CurrentHp:F0}/{state.MaxHp:F0}"
         );
 
@@ -260,13 +260,13 @@ public class GlobalChessManager
     {
         if (!m_ChessStates.TryGetValue(chessId, out var state))
         {
-            DebugEx.WarningModule("GlobalChessManager", $"TryReviveChess: 找不到棋子 {chessId}");
+            DebugEx.Warning(nameof(GlobalChessManager), $"TryReviveChess: 找不到棋子 {chessId}");
             return false;
         }
 
         if (!state.IsDead)
         {
-            DebugEx.LogModule("GlobalChessManager", $"棋子 {chessId} 未死亡，无需复活");
+            DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 未死亡，无需复活");
             return false;
         }
 
@@ -274,8 +274,8 @@ public class GlobalChessManager
         double targetHp = reviveHP > 0 ? reviveHP : state.MaxHp * 0.5;
         state.CurrentHp = Math.Clamp(targetHp, 1, state.MaxHp);
 
-        DebugEx.LogModule(
-            "GlobalChessManager",
+        DebugEx.Log(
+            nameof(GlobalChessManager),
             $"复活棋子 {chessId}，HP恢复至 {state.CurrentHp:F0}/{state.MaxHp:F0}"
         );
 
@@ -299,7 +299,7 @@ public class GlobalChessManager
             state.Experience = 0;
         }
 
-        DebugEx.LogModule("GlobalChessManager", "所有棋子局内等级和经验已重置");
+        DebugEx.Log(nameof(GlobalChessManager), "所有棋子局内等级和经验已重置");
     }
 
     /// <summary>
@@ -309,14 +309,14 @@ public class GlobalChessManager
     {
         if (!m_ChessStates.TryGetValue(chessId, out var state))
         {
-            DebugEx.WarningModule("GlobalChessManager", $"UpdateChessLevelAndExp: 找不到棋子 {chessId}");
+            DebugEx.Warning(nameof(GlobalChessManager), $"UpdateChessLevelAndExp: 找不到棋子 {chessId}");
             return;
         }
 
         state.Level = level;
         state.Experience = experience;
 
-        DebugEx.LogModule("GlobalChessManager", $"棋子 {chessId} 等级更新：Lv{level} Exp={experience}");
+        DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 等级更新：Lv{level} Exp={experience}");
         OnGlobalChessStateChanged?.Invoke(chessId, state);
     }
 
@@ -335,7 +335,7 @@ public class GlobalChessManager
         OnChessHPChanged = null;
         OnAllChessHPRestored = null;
 
-        DebugEx.LogModule("GlobalChessManager", "所有全局棋子状态已清空");
+        DebugEx.Log(nameof(GlobalChessManager), "所有全局棋子状态已清空");
     }
 
     #endregion
@@ -344,14 +344,14 @@ public class GlobalChessManager
 
     public void DebugPrintAll()
     {
-        DebugEx.LogModule("GlobalChessManager", $"=== 全局棋子状态 ({m_ChessStates.Count} 个) ===");
+        DebugEx.Log(nameof(GlobalChessManager), $"=== 全局棋子状态 ({m_ChessStates.Count} 个) ===");
 
         foreach (var state in m_ChessStates.Values)
         {
-            DebugEx.LogModule("GlobalChessManager", state.ToString());
+            DebugEx.Log(nameof(GlobalChessManager), state.ToString());
         }
 
-        DebugEx.LogModule("GlobalChessManager", "================================");
+        DebugEx.Log(nameof(GlobalChessManager), "================================");
     }
 
     public string GetDebugInfo()

@@ -50,7 +50,7 @@ public class TreasureItem : ItemBase
         m_Affixes = new List<AffixEffect>();
         m_IsEquipped = false;
 
-        DebugEx.Log("TreasureItem", $"创建宝物: {Name}");
+        DebugEx.Log(nameof(TreasureItem), $"创建宝物: {Name}");
 
         // 生成随机词条
         GenerateRandomAffixes();
@@ -68,7 +68,7 @@ public class TreasureItem : ItemBase
 
     protected override bool OnUse()
     {
-        DebugEx.Warning("TreasureItem", $"宝物不可使用: {Name}");
+        DebugEx.Warning(nameof(TreasureItem), $"宝物不可使用: {Name}");
         return false;
     }
 
@@ -124,7 +124,7 @@ public class TreasureItem : ItemBase
     {
         if (ItemData.AffixPoolIds == null || ItemData.AffixPoolIds.Count == 0)
         {
-            DebugEx.Log("TreasureItem", $"宝物没有配置词条池: {Name}");
+            DebugEx.Log(nameof(TreasureItem), $"宝物没有配置词条池: {Name}");
             return;
         }
 
@@ -133,7 +133,7 @@ public class TreasureItem : ItemBase
             ItemData.AffixMinCount,
             ItemData.AffixMaxCount + 1
         );
-        DebugEx.Log("TreasureItem", $"生成 {affixCount} 个词条");
+        DebugEx.Log(nameof(TreasureItem), $"生成 {affixCount} 个词条");
 
         // 获取词条池
         var affixPool = new List<AffixData>();
@@ -148,7 +148,7 @@ public class TreasureItem : ItemBase
 
         if (affixPool.Count == 0)
         {
-            DebugEx.Warning("TreasureItem", $"词条池为空: {Name}");
+            DebugEx.Warning(nameof(TreasureItem), $"词条池为空: {Name}");
             return;
         }
 
@@ -167,7 +167,7 @@ public class TreasureItem : ItemBase
             }
         }
 
-        DebugEx.Success("TreasureItem", $"宝物词条生成完成: {Name}, 共 {m_Affixes.Count} 个词条");
+        DebugEx.Success(nameof(TreasureItem), $"宝物词条生成完成: {Name}, 共 {m_Affixes.Count} 个词条");
     }
 
     /// <summary>

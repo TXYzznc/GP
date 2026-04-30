@@ -427,7 +427,7 @@ public partial class InventoryUI : UIFormBase
             }
         }
         sb.AppendLine($"物品总数: {totalItems}");
-        DebugEx.LogModule("InventoryUI", sb.ToString());
+        DebugEx.Log("InventoryUI", sb.ToString());
     }
 
     private void RefreshInventory()

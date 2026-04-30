@@ -34,12 +34,12 @@ public class CombatManager : SingletonBase<CombatManager>
 
     private void OnEnable()
     {
-        DebugEx.Log("CombatManager", "已启用");
+        DebugEx.Log(this.GetType().Name, "已启用");
     }
 
     private void OnDisable()
     {
-        DebugEx.Log("CombatManager", "已禁用");
+        DebugEx.Log(this.GetType().Name, "已禁用");
     }
 
     #endregion
@@ -53,12 +53,12 @@ public class CombatManager : SingletonBase<CombatManager>
     {
         if (m_IsInCombat)
         {
-            DebugEx.Warning("CombatManager", "已经在战斗中");
+            DebugEx.Warning(this.GetType().Name, "已经在战斗中");
             return;
         }
 
         m_IsInCombat = true;
-        DebugEx.Log("CombatManager", "战斗开始");
+        DebugEx.Log(this.GetType().Name, "战斗开始");
 
         // ⭐ 构建敌人信息缓存（AI重构新增）
         if (CombatEntityTracker.Instance != null)
@@ -96,35 +96,33 @@ public class CombatManager : SingletonBase<CombatManager>
                             PopCost = 0,
                             Races = chessTableRow.Races ?? System.Array.Empty<int>(),
                             Classes = chessTableRow.Classes ?? System.Array.Empty<int>(),
-                            StarLevel = 1,
-                            NextStarId = 0,
                             PrefabId = chessTableRow.PrefabId,
                             IconId = chessTableRow.IconId,
                             // HP/MP 不从这里读，由 InitializeAsSummoner 用 SummonerRuntimeDataManager 覆盖
-                            MaxHp = 1,
-                            MaxMp = 0,
-                            InitialMp = 0,
-                            AtkDamage = 0,
-                            AtkSpeed = 0.01,
-                            AtkRange = chessTableRow.AtkRange,
-                            Armor = chessTableRow.Armor,
-                            MagicResist = chessTableRow.MagicResist,
+                            MaxHp = new double[] { 1 },
+                            MaxMp = new double[] { 0 },
+                            InitialMp = new double[] { 0 },
+                            AtkDamage = new double[] { 0 },
+                            AtkSpeed = new double[] { 0.01 },
+                            AtkRange = new double[] { chessTableRow.AtkRange != null && chessTableRow.AtkRange.Length > 0 ? chessTableRow.AtkRange[0] : 1.0 },
+                            Armor = new double[] { chessTableRow.Armor != null && chessTableRow.Armor.Length > 0 ? chessTableRow.Armor[0] : 0.0 },
+                            MagicResist = new double[] { chessTableRow.MagicResist != null && chessTableRow.MagicResist.Length > 0 ? chessTableRow.MagicResist[0] : 0.0 },
                             MoveSpeed = chessTableRow.MoveSpeed,
-                            CritRate = 0,
-                            CritDamage = 1.5,
-                            SpellPower = 0,
+                            CritRate = new double[] { 0 },
+                            CritDamage = new double[] { 1.5 },
+                            SpellPower = new double[] { 0 },
                             Shield = 0,
                             CooldownReduce = 0,
                             PassiveIds = System.Array.Empty<int>(),
-                            NormalAtkId = 0,
-                            Skill1Id = 0,
-                            Skill2Id = 0,
+                            NormalAtkId = new int[] { 0 },
+                            Skill1Id = new int[] { 0 },
+                            Skill2Id = new int[] { 0 },
                             AIType = 0,
                         };
                     }
                     else
                     {
-                        DebugEx.WarningModule("CombatManager",
+                        DebugEx.Warning(this.GetType().Name,
                             $"SummonChessTable 中未找到召唤师行 ID={summonChessId}，使用空配置");
                     }
                 }
@@ -153,12 +151,12 @@ public class CombatManager : SingletonBase<CombatManager>
                 playerCharacter.layer = (int)LayerHelper.Layer.Chess;
 
                 CombatEntityTracker.Instance?.RegisterSummoner(summonerProxy);
-                DebugEx.LogModule("CombatManager",
+                DebugEx.Log(this.GetType().Name,
                     $"召唤师战斗组件已就绪，ChessId={summonChessId}，HP={SummonerRuntimeDataManager.Instance?.MaxHP}");
             }
             else
             {
-                DebugEx.WarningModule("CombatManager", "玩家角色上未找到 SummonerCombatProxy");
+                DebugEx.Warning(this.GetType().Name, "玩家角色上未找到 SummonerCombatProxy");
             }
         }
 
@@ -182,7 +180,7 @@ public class CombatManager : SingletonBase<CombatManager>
         var summonerConfig = PlayerAccountDataManager.Instance?.GetCurrentSummonerConfig();
         if (summonerConfig == null)
         {
-            DebugEx.WarningModule("CombatManager", "未找到召唤师配置，跳过技能系统初始化");
+            DebugEx.Warning(this.GetType().Name, "未找到召唤师配置，跳过技能系统初始化");
             return;
         }
 
@@ -211,7 +209,7 @@ public class CombatManager : SingletonBase<CombatManager>
         skillManager.UpdateSkillsFromData(allSkillIds);
         skillManager.SetActive(true);
 
-        DebugEx.LogModule("CombatManager", $"召唤师技能系统已启动，共 {allSkillIds.Count} 个技能");
+        DebugEx.Log(this.GetType().Name, $"召唤师技能系统已启动，共 {allSkillIds.Count} 个技能");
     }
 
     /// <summary>
@@ -222,12 +220,12 @@ public class CombatManager : SingletonBase<CombatManager>
     {
         if (!m_IsInCombat)
         {
-            DebugEx.WarningModule("CombatManager", "当前不在战斗中");
+            DebugEx.Warning(this.GetType().Name, "当前不在战斗中");
             return;
         }
 
         m_IsInCombat = false;
-        DebugEx.LogModule("CombatManager", $"战斗结束 - {(isVictory ? "胜利" : "失败")}");
+        DebugEx.Log(this.GetType().Name, $"战斗结束 - {(isVictory ? "胜利" : "失败")}");
 
         // 0. 停用召唤师技能系统（Dispose 所有被动 Buff）
         var playerCharacterForSkill = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
@@ -274,7 +272,7 @@ public class CombatManager : SingletonBase<CombatManager>
             var buffManager = playerCharacterEnd.GetComponent<BuffManager>();
             if (buffManager != null) Destroy(buffManager);
 
-            DebugEx.LogModule("CombatManager", "召唤师战斗组件已移除");
+            DebugEx.Log(this.GetType().Name, "召唤师战斗组件已移除");
         }
 
         // 4. 清理战斗管理器状态

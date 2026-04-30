@@ -23,7 +23,7 @@ public static class SkillFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"SkillFactory.Register creator is null, id={skillId}");
+            DebugEx.Error("SkillFactory", $"Register creator is null, id={skillId}");
             return;
         }
         s_Creators[skillId] = creator;

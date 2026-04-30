@@ -171,7 +171,7 @@ public static class AwaitExtension
         mUIFormTask.TryGetValue(ne.SerialId, out UniTaskCompletionSource<UIFormLogic> tcs);
         if (tcs != null)
         {
-            DebugEx.ErrorModule("AwaitExtension", ne.ErrorMessage);
+            DebugEx.Error(nameof(AwaitExtension), ne.ErrorMessage);
             tcs.TrySetException(new GameFrameworkException(ne.ErrorMessage));
             mUIFormTask.Remove(ne.SerialId);
         }
@@ -210,7 +210,7 @@ public static class AwaitExtension
         mEntityTask.TryGetValue(ne.EntityId, out var tcs);
         if (tcs != null)
         {
-            DebugEx.ErrorModule("AwaitExtension", ne.ErrorMessage);
+            DebugEx.Error(nameof(AwaitExtension), ne.ErrorMessage);
             tcs.TrySetException(new GameFrameworkException(ne.ErrorMessage));
             mEntityTask.Remove(ne.EntityId);
         }
@@ -239,7 +239,7 @@ public static class AwaitExtension
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule("AwaitExtension", e.ToString());
+            DebugEx.Error(nameof(AwaitExtension), e.ToString());
             tcs.TrySetException(e);
             mLoadSceneTask.Remove(sceneAssetName);
         }
@@ -263,7 +263,7 @@ public static class AwaitExtension
         mLoadSceneTask.TryGetValue(ne.SceneAssetName, out var tcs);
         if (tcs != null)
         {
-            DebugEx.ErrorModule("AwaitExtension", ne.ErrorMessage);
+            DebugEx.Error(nameof(AwaitExtension), ne.ErrorMessage);
             tcs.TrySetException(new GameFrameworkException(ne.ErrorMessage));
             mLoadSceneTask.Remove(ne.SceneAssetName);
         }
@@ -281,7 +281,7 @@ public static class AwaitExtension
         var isLoadSceneTcs = mLoadSceneTask.TryGetValue(sceneAssetName, out var loadSceneTcs);
         if (isLoadSceneTcs)
         {
-            DebugEx.LogModule("AwaitExtension", "Unload  loading scene");
+            DebugEx.Log(nameof(AwaitExtension), "Unload  loading scene");
             await loadSceneTcs.Task;
         }
         mUnLoadSceneTask.Add(sceneAssetName, tcs);
@@ -291,7 +291,7 @@ public static class AwaitExtension
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule("AwaitExtension", e.ToString());
+            DebugEx.Error(nameof(AwaitExtension), e.ToString());
             tcs.TrySetException(e);
             mUnLoadSceneTask.Remove(sceneAssetName);
         }
@@ -314,7 +314,7 @@ public static class AwaitExtension
         mUnLoadSceneTask.TryGetValue(ne.SceneAssetName, out var tcs);
         if (tcs != null)
         {
-            DebugEx.ErrorModule("AwaitExtension", $"Unload scene {ne.SceneAssetName} failure.");
+            DebugEx.Error(nameof(AwaitExtension), $"Unload scene {ne.SceneAssetName} failure.");
             tcs.TrySetException(new GameFrameworkException($"Unload scene {ne.SceneAssetName} failure."));
             mUnLoadSceneTask.Remove(ne.SceneAssetName);
         }
@@ -342,14 +342,14 @@ public static class AwaitExtension
                 }
                 else
                 {
-                    DebugEx.ErrorModule("AwaitExtension", $"Load asset failure load type is {asset.GetType()} but asset type is {typeof(T)}.");
+                    DebugEx.Error(nameof(AwaitExtension), $"Load asset failure load type is {asset.GetType()} but asset type is {typeof(T)}.");
                     source.TrySetException(new GameFrameworkException(
                         $"Load asset failure load type is {asset.GetType()} but asset type is {typeof(T)}."));
                 }
             },
             (tempAssetName, status, errorMessage, userdata) =>
             {
-                DebugEx.ErrorModule("AwaitExtension", errorMessage);
+                DebugEx.Error(nameof(AwaitExtension), errorMessage);
                 loadAssetTcs.TrySetException(new GameFrameworkException(errorMessage));
             }
         ));

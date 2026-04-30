@@ -46,12 +46,12 @@ public class EnemyChessDataManager
         string key = BuildKey(entityGuid, slotIndex);
         if (m_StateDict.ContainsKey(key))
         {
-            DebugEx.LogModule("EnemyChessDataManager", $"棋子 {key} 已存在，跳过注册（保留当前HP）");
+            DebugEx.Log("EnemyChessDataManager", $"棋子 {key} 已存在，跳过注册（保留当前HP）");
             return;
         }
 
         m_StateDict[key] = new EnemyChessState(chessId, maxHp);
-        DebugEx.LogModule("EnemyChessDataManager",
+        DebugEx.Log("EnemyChessDataManager",
             $"注册棋子 {key}: chessId={chessId}, maxHp={maxHp:F0}");
     }
 
@@ -80,11 +80,11 @@ public class EnemyChessDataManager
         if (m_StateDict.TryGetValue(key, out var state))
         {
             state.CurrentHp = hp;
-            DebugEx.LogModule("EnemyChessDataManager", $"更新棋子 {key} HP={hp:F0}");
+            DebugEx.Log("EnemyChessDataManager", $"更新棋子 {key} HP={hp:F0}");
         }
         else
         {
-            DebugEx.WarningModule("EnemyChessDataManager", $"UpdateHp: 找不到棋子 {key}");
+            DebugEx.Warning("EnemyChessDataManager", $"UpdateHp: 找不到棋子 {key}");
         }
     }
 
@@ -109,7 +109,7 @@ public class EnemyChessDataManager
             m_StateDict.Remove(key);
         }
 
-        DebugEx.LogModule("EnemyChessDataManager",
+        DebugEx.Log("EnemyChessDataManager",
             $"已清理敌人 {entityGuid} 的所有棋子数据（共 {keysToRemove.Count} 条）");
     }
 

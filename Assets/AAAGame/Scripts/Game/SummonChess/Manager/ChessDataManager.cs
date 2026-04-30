@@ -59,7 +59,7 @@ public class ChessDataManager
     {
         if (m_IsLoaded)
         {
-            DebugEx.WarningModule("ChessDataManager", "配置已加载，跳过重复加载");
+            DebugEx.Warning(nameof(ChessDataManager), "配置已加载，跳过重复加载");
             return;
         }
 
@@ -69,7 +69,7 @@ public class ChessDataManager
         var dataTable = GF.DataTable.GetDataTable<SummonChessTable>();
         if (dataTable == null)
         {
-            DebugEx.ErrorModule("ChessDataManager", "无法获取 SummonChessTable 配置表");
+            DebugEx.Error(nameof(ChessDataManager), "无法获取 SummonChessTable 配置表");
             return;
         }
 
@@ -79,7 +79,7 @@ public class ChessDataManager
         // 遍历所有数据行
         foreach (var row in dataTable.GetAllDataRows())
         {
-            // 构建配置对象
+            // 构建配置对象（保存完整数组，稍后根据等级读取）
             var config = new SummonChessConfig
             {
                 Id = row.Id,
@@ -89,8 +89,6 @@ public class ChessDataManager
                 Description = row.Description,
                 Races = row.Races,
                 Classes = row.Classes,
-                StarLevel = row.StarLevel,
-                NextStarId = row.NextStarId,
                 PrefabId = row.PrefabId,
                 IconId = row.IconId,
                 MaxHp = row.MaxHp,
@@ -128,8 +126,8 @@ public class ChessDataManager
 
         m_IsLoaded = true;
 
-        DebugEx.LogModule(
-            "ChessDataManager",
+        DebugEx.Log(
+            nameof(ChessDataManager),
             $"配置加载完成：成功: {loadedCount}, 失败: {errorCount}"
         );
     }
@@ -156,7 +154,7 @@ public class ChessDataManager
     {
         if (!m_IsLoaded)
         {
-            DebugEx.WarningModule("ChessDataManager", "配置尚未加载");
+            DebugEx.Warning(nameof(ChessDataManager), "配置尚未加载");
             return null;
         }
 
@@ -165,7 +163,7 @@ public class ChessDataManager
             return config;
         }
 
-        DebugEx.WarningModule("ChessDataManager", $"找不到棋子配置 Id={chessId}");
+        DebugEx.Warning(nameof(ChessDataManager), $"找不到棋子配置 Id={chessId}");
         return null;
     }
 
@@ -241,30 +239,6 @@ public class ChessDataManager
         return result;
     }
 
-    /// <summary>
-    /// 获取指定星级的棋子配置ID
-    /// </summary>
-    /// <param name="starLevel">星级（1-3）</param>
-    /// <returns>棋子ID列表</returns>
-    public List<int> GetConfigIdsByStarLevel(int starLevel)
-    {
-        var result = new List<int>();
-
-        if (!m_IsLoaded)
-        {
-            return result;
-        }
-
-        foreach (var kvp in m_ConfigDict)
-        {
-            if (kvp.Value.StarLevel == starLevel)
-            {
-                result.Add(kvp.Key);
-            }
-        }
-
-        return result;
-    }
 
     /// <summary>
     /// 获取指定种族的棋子配置ID
@@ -345,21 +319,21 @@ public class ChessDataManager
     {
         if (config == null)
         {
-            DebugEx.ErrorModule("ChessDataManager", "配置对象为null");
+            DebugEx.Error(nameof(ChessDataManager), "配置对象为null");
             return false;
         }
 
         // 使用配置类自带的验证方法
         if (!config.Validate(out string errorMsg))
         {
-            DebugEx.ErrorModule("ChessDataManager", $"配置验证失败 - {errorMsg}");
+            DebugEx.Error(nameof(ChessDataManager), $"配置验证失败 - {errorMsg}");
             return false;
         }
 
         // 检查重复ID
         if (m_ConfigDict.ContainsKey(config.Id))
         {
-            DebugEx.ErrorModule("ChessDataManager", $"重复的棋子ID {config.Id}");
+            DebugEx.Error(nameof(ChessDataManager), $"重复的棋子ID {config.Id}");
             return false;
         }
 
@@ -377,26 +351,26 @@ public class ChessDataManager
     {
         if (!m_IsLoaded)
         {
-            DebugEx.WarningModule("ChessDataManager", "配置尚未加载");
+            DebugEx.Warning(nameof(ChessDataManager), "配置尚未加载");
             return;
         }
 
-        DebugEx.LogModule(
-            "ChessDataManager",
+        DebugEx.Log(
+            nameof(ChessDataManager),
             $"=== ChessDataManager 配置列表 (共{m_ConfigDict.Count}个) ==="
         );
 
         foreach (var kvp in m_ConfigDict)
         {
             var config = kvp.Value;
-            DebugEx.LogModule(
-                "ChessDataManager",
-                $"[{config.Id}] {config.Name} - 品质:{config.Quality} 星级:{config.StarLevel} "
-                    + $"生命:{config.MaxHp} 攻击:{config.AtkDamage} AI:{config.AIType}"
+            DebugEx.Log(
+                nameof(ChessDataManager),
+                $"[{config.Id}] {config.Name} - 品质:{config.Quality} "
+                    + $"生命:{config.GetMaxHp(1)} 攻击:{config.GetAtkDamage(1)} AI:{config.AIType}"
             );
         }
 
-        DebugEx.LogModule("ChessDataManager", "===========================================");
+        DebugEx.Log(nameof(ChessDataManager), "===========================================");
     }
 
     /// <summary>

@@ -30,13 +30,13 @@ public class BerserkerActiveSkill : SummonerSkillBase
     {
         if (m_InstantEntries == null || m_InstantEntries.Length == 0)
         {
-            DebugEx.Error("[BerserkerActiveSkill] 配置 InstantBuffs 不完整");
+            DebugEx.Error(nameof(BerserkerActiveSkill), "配置 InstantBuffs 不完整");
             return;
         }
 
         m_Ctx.RuntimeData.ReduceHP(m_HpCost);
         SummonerBuffHelper.ApplyBuffs(m_Ctx, m_InstantEntries);
 
-        DebugEx.Log($"[BerserkerActiveSkill] 战意激昂触发：扣 HP {m_HpCost}，施加 InstantBuffs 到全体友方（含召唤师）");
+        DebugEx.Log(nameof(BerserkerActiveSkill), $"战意激昂触发：扣 HP {m_HpCost}，施加 InstantBuffs 到全体友方（含召唤师）");
     }
 }

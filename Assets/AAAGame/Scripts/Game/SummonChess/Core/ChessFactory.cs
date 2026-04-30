@@ -33,7 +33,7 @@ public static class ChessFactory
         // RegisterAI(13, () => new FSMTankAI());
         // RegisterAI(14, () => new FSMSupportAI());
 
-        DebugEx.LogModule("ChessFactory", $"已注册 {s_AICreators.Count} 个AI类型");
+        DebugEx.Log("ChessFactory", $"已注册 {s_AICreators.Count} 个AI类型");
     }
 
     /// <summary>
@@ -45,13 +45,13 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"ChessFactory.RegisterAI: creator is null, aiType={aiType}");
+            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterAI: creator is null, aiType={aiType}");
             return;
         }
 
         if (s_AICreators.ContainsKey(aiType))
         {
-            DebugEx.Warning($"ChessFactory.RegisterAI: AI类型 {aiType} 已注册，将被覆盖");
+            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterAI: AI类型 {aiType} 已注册，将被覆盖");
         }
 
         s_AICreators[aiType] = creator;
@@ -71,23 +71,23 @@ public static class ChessFactory
                 var ai = creator();
                 if (ai != null)
                 {
-                    DebugEx.Log($"ChessFactory: 创建AI成功 (Type={aiType})");
+                    DebugEx.Log("ChessFactory", $"ChessFactory: 创建AI成功 (Type={aiType})");
                     return ai;
                 }
                 else
                 {
-                    DebugEx.Error($"ChessFactory: AI创建器返回null (Type={aiType})");
+                    DebugEx.Error("ChessFactory", $"ChessFactory: AI创建器返回null (Type={aiType})");
                     return null;
                 }
             }
             catch (Exception e)
             {
-                DebugEx.Error($"ChessFactory: 创建AI失败 (Type={aiType}): {e.Message}\n{e.StackTrace}");
+                DebugEx.Error("ChessFactory", $"ChessFactory: 创建AI失败 (Type={aiType}): {e.Message}\n{e.StackTrace}");
                 return null;
             }
         }
 
-        DebugEx.Warning($"ChessFactory: AI类型 {aiType} 未注册");
+        DebugEx.Warning("ChessFactory", $"ChessFactory: AI类型 {aiType} 未注册");
         return null;
     }
 
@@ -133,7 +133,7 @@ public static class ChessFactory
         RegisterSkill(23, () => new ChangeSkill1());
         RegisterSkill(24, () => new ChangeUltimate());
 
-        DebugEx.Log($"ChessFactory: 已注册 {s_SkillCreators.Count} 个棋子技能");
+        DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_SkillCreators.Count} 个棋子技能");
     }
 
     /// <summary>
@@ -145,13 +145,13 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"ChessFactory.RegisterSkill: creator is null, skillId={skillId}");
+            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterSkill: creator is null, skillId={skillId}");
             return;
         }
 
         if (s_SkillCreators.ContainsKey(skillId))
         {
-            DebugEx.Warning($"ChessFactory.RegisterSkill: 技能 {skillId} 已注册，将被覆盖");
+            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterSkill: 技能 {skillId} 已注册，将被覆盖");
         }
 
         s_SkillCreators[skillId] = creator;
@@ -177,23 +177,23 @@ public static class ChessFactory
                 var skill = creator();
                 if (skill != null)
                 {
-                    DebugEx.Log($"ChessFactory: 创建技能成功 (Id={skillId})");
+                    DebugEx.Log("ChessFactory", $"ChessFactory: 创建技能成功 (Id={skillId})");
                     return skill;
                 }
                 else
                 {
-                    DebugEx.Error($"ChessFactory: 技能创建器返回null (Id={skillId})");
+                    DebugEx.Error("ChessFactory", $"ChessFactory: 技能创建器返回null (Id={skillId})");
                     return null;
                 }
             }
             catch (Exception e)
             {
-                DebugEx.Error($"ChessFactory: 创建技能失败 (Id={skillId}): {e.Message}\n{e.StackTrace}");
+                DebugEx.Error("ChessFactory", $"ChessFactory: 创建技能失败 (Id={skillId}): {e.Message}\n{e.StackTrace}");
                 return null;
             }
         }
 
-        DebugEx.Warning($"ChessFactory: 技能 {skillId} 未注册");
+        DebugEx.Warning("ChessFactory", $"ChessFactory: 技能 {skillId} 未注册");
         return null;
     }
 
@@ -239,7 +239,7 @@ public static class ChessFactory
 
         // 其他棋子使用默认策略（不需要注册）
 
-        DebugEx.LogModule("ChessFactory",
+        DebugEx.Log("ChessFactory",
             $"已注册 {s_SkillStrategyRegistry.Count} 个技能策略");
     }
 
@@ -250,13 +250,13 @@ public static class ChessFactory
     {
         if (!typeof(ISkillReleaseStrategy).IsAssignableFrom(strategyType))
         {
-            DebugEx.ErrorModule("ChessFactory",
+            DebugEx.Error("ChessFactory",
                 $"策略类型 {strategyType.Name} 必须实现 ISkillReleaseStrategy 接口");
             return;
         }
 
         s_SkillStrategyRegistry[chessId] = strategyType;
-        DebugEx.LogModule("ChessFactory",
+        DebugEx.Log("ChessFactory",
             $"注册技能策略: ChessId={chessId}, Strategy={strategyType.Name}");
     }
 
@@ -301,7 +301,7 @@ public static class ChessFactory
         // 嫦娥被动
         RegisterPassive(21, () => new ChangePassive());
 
-        DebugEx.Log($"ChessFactory: 已注册 {s_PassiveCreators.Count} 个被动技能");
+        DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_PassiveCreators.Count} 个被动技能");
     }
 
     /// <summary>
@@ -311,13 +311,13 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"ChessFactory.RegisterPassive: creator is null, passiveId={passiveId}");
+            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterPassive: creator is null, passiveId={passiveId}");
             return;
         }
 
         if (s_PassiveCreators.ContainsKey(passiveId))
         {
-            DebugEx.Warning($"ChessFactory.RegisterPassive: 被动 {passiveId} 已注册，将被覆盖");
+            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterPassive: 被动 {passiveId} 已注册，将被覆盖");
         }
 
         s_PassiveCreators[passiveId] = creator;
@@ -337,17 +337,17 @@ public static class ChessFactory
                 var passive = creator();
                 if (passive != null)
                 {
-                    DebugEx.Log($"ChessFactory: 创建被动成功 (Id={passiveId})");
+                    DebugEx.Log("ChessFactory", $"ChessFactory: 创建被动成功 (Id={passiveId})");
                     return passive;
                 }
             }
             catch (Exception e)
             {
-                DebugEx.Error($"ChessFactory: 创建被动失败 (Id={passiveId}): {e.Message}");
+                DebugEx.Error("ChessFactory", $"ChessFactory: 创建被动失败 (Id={passiveId}): {e.Message}");
             }
         }
 
-        DebugEx.Warning($"ChessFactory: 被动 {passiveId} 未注册");
+        DebugEx.Warning("ChessFactory", $"ChessFactory: 被动 {passiveId} 未注册");
         return null;
     }
 
@@ -371,7 +371,7 @@ public static class ChessFactory
         // 嫦娥普攻
         RegisterNormalAttack(22, () => new ChangeNormalAttack());
 
-        DebugEx.Log($"ChessFactory: 已注册 {s_NormalAtkCreators.Count} 个普攻效果");
+        DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_NormalAtkCreators.Count} 个普攻效果");
     }
 
     /// <summary>
@@ -381,13 +381,13 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"ChessFactory.RegisterNormalAttack: creator is null, attackId={attackId}");
+            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterNormalAttack: creator is null, attackId={attackId}");
             return;
         }
 
         if (s_NormalAtkCreators.ContainsKey(attackId))
         {
-            DebugEx.Warning($"ChessFactory.RegisterNormalAttack: 普攻 {attackId} 已注册，将被覆盖");
+            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterNormalAttack: 普攻 {attackId} 已注册，将被覆盖");
         }
 
         s_NormalAtkCreators[attackId] = creator;
@@ -407,17 +407,17 @@ public static class ChessFactory
                 var attack = creator();
                 if (attack != null)
                 {
-                    DebugEx.Log($"ChessFactory: 创建普攻效果成功 (Id={attackId})");
+                    DebugEx.Log("ChessFactory", $"ChessFactory: 创建普攻效果成功 (Id={attackId})");
                     return attack;
                 }
             }
             catch (Exception e)
             {
-                DebugEx.Error($"ChessFactory: 创建普攻效果失败 (Id={attackId}): {e.Message}");
+                DebugEx.Error("ChessFactory", $"ChessFactory: 创建普攻效果失败 (Id={attackId}): {e.Message}");
             }
         }
 
-        DebugEx.Warning($"ChessFactory: 普攻效果 {attackId} 未注册");
+        DebugEx.Warning("ChessFactory", $"ChessFactory: 普攻效果 {attackId} 未注册");
         return null;
     }
 
@@ -430,12 +430,12 @@ public static class ChessFactory
     /// </summary>
     public static void DebugPrintAllAI()
     {
-        DebugEx.Log($"=== ChessFactory 已注册AI类型 (共{s_AICreators.Count}个) ===");
+        DebugEx.Log("ChessFactory", $"=== ChessFactory 已注册AI类型 (共{s_AICreators.Count}个) ===");
         foreach (var kvp in s_AICreators)
         {
-            DebugEx.Log($"AI Type: {kvp.Key}");
+            DebugEx.Log("ChessFactory", $"AI Type: {kvp.Key}");
         }
-        DebugEx.Log("==========================================");
+        DebugEx.Log("ChessFactory", "==========================================");
     }
 
     /// <summary>
@@ -443,12 +443,12 @@ public static class ChessFactory
     /// </summary>
     public static void DebugPrintAllSkills()
     {
-        DebugEx.Log($"=== ChessFactory 已注册技能 (共{s_SkillCreators.Count}个) ===");
+        DebugEx.Log("ChessFactory", $"=== ChessFactory 已注册技能 (共{s_SkillCreators.Count}个) ===");
         foreach (var kvp in s_SkillCreators)
         {
-            DebugEx.Log($"Skill Id: {kvp.Key}");
+            DebugEx.Log("ChessFactory", $"Skill Id: {kvp.Key}");
         }
-        DebugEx.Log("==========================================");
+        DebugEx.Log("ChessFactory", "==========================================");
     }
 
     /// <summary>

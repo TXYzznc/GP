@@ -63,8 +63,8 @@ public partial class PlayerSkillSlot : UIItemBase
                 );
         }
 
-        // 加载并设置图标
-        await LoadIconAsync(config.IconId);
+        // 加载并设置图标（使用Rank 1）
+        await LoadIconAsync(config.GetIconId(1));
 
         // 刷新显示
         RefreshDisplay();
@@ -186,7 +186,7 @@ public partial class PlayerSkillSlot : UIItemBase
         }
         catch (Exception e)
         {
-            DebugEx.Error(e);
+            DebugEx.Error("PlayerSkillSlot", e.Message);
         }
     }
 
@@ -212,7 +212,7 @@ public partial class PlayerSkillSlot : UIItemBase
         }
         catch (Exception ex)
         {
-            DebugEx.Error($"[PlayerSkillSlot] 获取冷却时间失败: {ex.Message}");
+            DebugEx.Error("PlayerSkillSlot", $"获取冷却时间失败: {ex.Message}");
         }
 
         return 0f;

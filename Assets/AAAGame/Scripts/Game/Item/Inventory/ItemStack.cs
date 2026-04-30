@@ -57,7 +57,7 @@ public class ItemStack
         m_Item = item;
         m_Count = count;
 
-        DebugEx.Log("ItemStack", $"创建物品堆叠: {item?.Name}, 数量:{count}");
+        DebugEx.Log(nameof(ItemStack), $"创建物品堆叠: {item?.Name}, 数量:{count}");
     }
 
     #endregion
@@ -79,7 +79,7 @@ public class ItemStack
         m_Count += actualAdd;
 
         DebugEx.Log(
-            "ItemStack",
+            nameof(ItemStack),
             $"添加物品: {m_Item.Name}, 添加数量:{actualAdd}, 当前数量:{m_Count}"
         );
         return actualAdd;
@@ -99,7 +99,7 @@ public class ItemStack
         m_Count -= actualRemove;
 
         DebugEx.Log(
-            "ItemStack",
+            nameof(ItemStack),
             $"移除物品: {m_Item.Name}, 移除数量:{actualRemove}, 剩余数量:{m_Count}"
         );
 
@@ -116,7 +116,7 @@ public class ItemStack
     /// </summary>
     public void Clear()
     {
-        DebugEx.Log("ItemStack", $"清空物品堆叠: {m_Item?.Name}");
+        DebugEx.Log(nameof(ItemStack), $"清空物品堆叠: {m_Item?.Name}");
         m_Item = null;
         m_Count = 0;
     }

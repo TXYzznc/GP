@@ -123,7 +123,7 @@ public class BuffManager : MonoBehaviour
 
         m_Buffs.Add(newBuff);
         newBuff.OnEnter();
-        DebugEx.LogModule("BuffManager", $"激活 Buff: {newBuff.BuffId}");
+        DebugEx.Log(nameof(BuffManager), $"激活 Buff: {newBuff.BuffId}");
         OnBuffAdded?.Invoke(buffId);
     }
 
@@ -167,7 +167,7 @@ public class BuffManager : MonoBehaviour
         }
 
         m_InactiveBuffs.Add(newBuff);
-        DebugEx.LogModule("BuffManager", $"休眠 Buff 加入: {buffId}");
+        DebugEx.Log(nameof(BuffManager), $"休眠 Buff 加入: {buffId}");
     }
 
     /// <summary>
@@ -238,7 +238,7 @@ public class BuffManager : MonoBehaviour
 
         m_Buffs.Add(buff);
         buff.OnEnter();
-        DebugEx.LogModule("BuffManager", $"条件满足，Buff 激活: {buff.BuffId}");
+        DebugEx.Log(nameof(BuffManager), $"条件满足，Buff 激活: {buff.BuffId}");
         OnBuffAdded?.Invoke(buff.BuffId);
     }
 
@@ -253,7 +253,7 @@ public class BuffManager : MonoBehaviour
         // 重置计时，等待下次激活时从头开始
         buff.Init(m_Context, GF.DataTable.GetDataTable<BuffTable>()?.GetDataRow(id));
         m_InactiveBuffs.Add(buff);
-        DebugEx.LogModule("BuffManager", $"条件不满足，Buff 回到休眠: {id}");
+        DebugEx.Log(nameof(BuffManager), $"条件不满足，Buff 回到休眠: {id}");
         OnBuffRemoved?.Invoke(id);
     }
 
@@ -287,14 +287,14 @@ public class BuffManager : MonoBehaviour
         var config = buffTable?.GetDataRow(buffId);
         if (config == null)
         {
-            DebugEx.ErrorModule("BuffManager", $"无法找到 ID 为 {buffId} 的 Buff 配置");
+            DebugEx.Error(nameof(BuffManager), $"无法找到 ID 为 {buffId} 的 Buff 配置");
             return null;
         }
 
         IBuff buff = BuffFactory.Create(buffId);
         if (buff == null)
         {
-            DebugEx.ErrorModule("BuffManager", $"无法创建 Buff 实例: {buffId}");
+            DebugEx.Error(nameof(BuffManager), $"无法创建 Buff 实例: {buffId}");
             return null;
         }
 

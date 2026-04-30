@@ -26,7 +26,7 @@ public class HouyiSkill1 : ChessSkillBase
         base.Init(ctx, config);
         m_IsActive = false;
 
-        DebugEx.LogModule("HouyiSkill1", "烈焰箭技能初始化完成");
+        DebugEx.Log("HouyiSkill1", "烈焰箭技能初始化完成");
     }
 
     public override void Tick(float dt)
@@ -59,14 +59,14 @@ public class HouyiSkill1 : ChessSkillBase
     {
         if (caster == null)
         {
-            DebugEx.ErrorModule("HouyiSkill1", "ExecuteSkill: caster 为 null");
+            DebugEx.Error("HouyiSkill1", "ExecuteSkill: caster 为 null");
             return;
         }
 
         // 播放技能释放特效
         PlaySkillEffect(caster);
 
-        DebugEx.LogModule("HouyiSkill1", "神力技能执行完成（自身增益，无需命中检测）");
+        DebugEx.Log("HouyiSkill1", "神力技能执行完成（自身增益，无需命中检测）");
     }
 
     #endregion
@@ -88,7 +88,7 @@ public class HouyiSkill1 : ChessSkillBase
             m_Ctx.BuffManager.AddBuff(4, m_Ctx.Owner, m_Ctx.Attribute); // 烈焰箭Buff ID=4
         }
 
-        DebugEx.LogModule("HouyiSkill1",
+        DebugEx.Log("HouyiSkill1",
             $"烈焰箭激活! 攻击力+25%，攻击附带灼烧");
     }
 

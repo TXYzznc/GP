@@ -37,7 +37,7 @@ public class SceneTransitionManager
     /// </summary>
     public void PrepareBeforeArenaSpawn()
     {
-        DebugEx.LogModule("SceneTransitionManager", "开始战斗准备...");
+        DebugEx.Log("SceneTransitionManager", "开始战斗准备...");
 
         // 1. 记录玩家原始位置和旋转（在生成战场前）
         RecordPlayerStateBeforeCombat();
@@ -46,7 +46,7 @@ public class SceneTransitionManager
         if (PlayerCharacterManager.Instance != null)
         {
             PlayerCharacterManager.Instance.RecordPositionBeforeCombat();
-            DebugEx.LogModule("SceneTransitionManager", "已通知 PlayerCharacterManager 记录位置");
+            DebugEx.Log("SceneTransitionManager", "已通知 PlayerCharacterManager 记录位置");
         }
 
         // 2. 隐藏敌人（摄像机排除 Enemy Layer）
@@ -58,7 +58,7 @@ public class SceneTransitionManager
         // 4. 标记玩家进入战斗（敌人AI停止索敌）
         SetPlayerCombatFlag(true);
 
-        DebugEx.LogModule("SceneTransitionManager", "战斗准备完成");
+        DebugEx.Log("SceneTransitionManager", "战斗准备完成");
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class SceneTransitionManager
     /// </summary>
     public async UniTask FinalizeAfterArenaSpawn()
     {
-        DebugEx.LogModule("SceneTransitionManager", "开始战场最终化...");
+        DebugEx.Log("SceneTransitionManager", "开始战场最终化...");
 
         // 1. 将玩家移至 PlayerAnchor（战场已生成）
         MovePlayerToArena();
@@ -79,7 +79,7 @@ public class SceneTransitionManager
             await DissolveTransitionManager.Instance.TransitionToBattle(battleArena);
         }
 
-        DebugEx.LogModule("SceneTransitionManager", "战场最终化完成");
+        DebugEx.Log("SceneTransitionManager", "战场最终化完成");
     }
 
     /// <summary>
@@ -89,13 +89,13 @@ public class SceneTransitionManager
     [System.Obsolete("使用 PrepareBeforeArenaSpawn() 和 FinalizeAfterArenaSpawn() 替代")]
     public async UniTask EnterCombatAsync()
     {
-        DebugEx.LogModule("SceneTransitionManager", "开始进入战斗场景转换...");
+        DebugEx.Log("SceneTransitionManager", "开始进入战斗场景转换...");
 
         // 向后兼容：合并两个方法
         PrepareBeforeArenaSpawn();
         await FinalizeAfterArenaSpawn();
 
-        DebugEx.LogModule("SceneTransitionManager", "进入战斗场景转换完成");
+        DebugEx.Log("SceneTransitionManager", "进入战斗场景转换完成");
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class SceneTransitionManager
     /// </summary>
     public async UniTask ExitCombatAsync()
     {
-        DebugEx.LogModule("SceneTransitionManager", "开始离开战斗场景转换...");
+        DebugEx.Log("SceneTransitionManager", "开始离开战斗场景转换...");
 
         // 1. 恢复玩家位置
         RestorePlayerPosition();
@@ -120,7 +120,7 @@ public class SceneTransitionManager
         // 5. 溶解显示环境物体（异步）
         await DissolveTransitionManager.Instance.TransitionToExploration();
 
-        DebugEx.LogModule("SceneTransitionManager", "离开战斗场景转换完成");
+        DebugEx.Log("SceneTransitionManager", "离开战斗场景转换完成");
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class SceneTransitionManager
     /// </summary>
     public void Cleanup()
     {
-        DebugEx.LogModule("SceneTransitionManager", "已清理");
+        DebugEx.Log("SceneTransitionManager", "已清理");
     }
 
     #endregion
@@ -144,11 +144,11 @@ public class SceneTransitionManager
         if (camera != null)
         {
             camera.ExcludeLayer(LayerHelper.Layer.Enemy);
-            DebugEx.LogModule("SceneTransitionManager", "敌人已隐藏（摄像机排除 Enemy Layer）");
+            DebugEx.Log("SceneTransitionManager", "敌人已隐藏（摄像机排除 Enemy Layer）");
         }
         else
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到 ThirdPersonCamera");
+            DebugEx.Warning("SceneTransitionManager", "未找到 ThirdPersonCamera");
         }
     }
 
@@ -161,11 +161,11 @@ public class SceneTransitionManager
         if (camera != null)
         {
             camera.IncludeLayer(LayerHelper.Layer.Enemy);
-            DebugEx.LogModule("SceneTransitionManager", "敌人已显示（摄像机恢复 Enemy Layer）");
+            DebugEx.Log("SceneTransitionManager", "敌人已显示（摄像机恢复 Enemy Layer）");
         }
         else
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到 ThirdPersonCamera");
+            DebugEx.Warning("SceneTransitionManager", "未找到 ThirdPersonCamera");
         }
     }
 
@@ -184,7 +184,7 @@ public class SceneTransitionManager
             }
         }
 
-        DebugEx.LogModule("SceneTransitionManager", "交互物体已隐藏");
+        DebugEx.Log("SceneTransitionManager", "交互物体已隐藏");
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public class SceneTransitionManager
             }
         }
 
-        DebugEx.LogModule("SceneTransitionManager", "交互物体已显示");
+        DebugEx.Log("SceneTransitionManager", "交互物体已显示");
     }
 
     /// <summary>
@@ -213,14 +213,14 @@ public class SceneTransitionManager
         var playerManager = PlayerCharacterManager.Instance;
         if (playerManager == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家管理器");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家管理器");
             return;
         }
 
         var playerGo = playerManager.CurrentPlayerCharacter;
         if (playerGo == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家角色");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家角色");
             return;
         }
 
@@ -231,7 +231,7 @@ public class SceneTransitionManager
         }
 
         flag.IsInCombat = isInCombat;
-        DebugEx.LogModule("SceneTransitionManager", $"玩家战斗标记已设置: {isInCombat}");
+        DebugEx.Log("SceneTransitionManager", $"玩家战斗标记已设置: {isInCombat}");
     }
 
     /// <summary>
@@ -243,21 +243,21 @@ public class SceneTransitionManager
         var playerManager = PlayerCharacterManager.Instance;
         if (playerManager == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家管理器");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家管理器");
             return;
         }
 
         var playerGo = playerManager.CurrentPlayerCharacter;
         if (playerGo == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家角色");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家角色");
             return;
         }
 
         m_PlayerPositionBeforeCombat = playerGo.transform.position;
         m_PlayerRotationBeforeCombat = playerGo.transform.rotation;
 
-        DebugEx.LogModule("SceneTransitionManager",
+        DebugEx.Log("SceneTransitionManager",
             $"记录玩家战斗前状态 - 位置: {m_PlayerPositionBeforeCombat}, 旋转: {m_PlayerRotationBeforeCombat.eulerAngles}");
     }
 
@@ -269,28 +269,28 @@ public class SceneTransitionManager
         var playerManager = PlayerCharacterManager.Instance;
         if (playerManager == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家管理器");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家管理器");
             return;
         }
 
         var playerGo = playerManager.CurrentPlayerCharacter;
         if (playerGo == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家角色");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家角色");
             return;
         }
 
         var battleArena = BattleArenaManager.Instance.CurrentArena;
         if (battleArena == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "战斗场地不存在，无法移动玩家");
+            DebugEx.Warning("SceneTransitionManager", "战斗场地不存在，无法移动玩家");
             return;
         }
 
         var playerAnchor = battleArena.transform.Find("PlayerAnchor");
         if (playerAnchor == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "战斗场地中未找到 PlayerAnchor");
+            DebugEx.Warning("SceneTransitionManager", "战斗场地中未找到 PlayerAnchor");
             return;
         }
 
@@ -307,14 +307,14 @@ public class SceneTransitionManager
             // 计算目标朝向（指向 PlayerAnchor 方向，保持战场朝向）
             Vector3 targetForward = playerAnchor.forward;
             controller.TeleportTo(playerAnchor.position, targetForward);
-            DebugEx.LogModule("SceneTransitionManager",
+            DebugEx.Log("SceneTransitionManager",
                 $"玩家已通过 TeleportTo 移至战场 (PlayerAnchor: {playerAnchor.position}, 朝向: {playerAnchor.eulerAngles})");
         }
         else
         {
             // 降级方案：直接设置位置
             playerGo.transform.position += offset;
-            DebugEx.LogModule("SceneTransitionManager",
+            DebugEx.Log("SceneTransitionManager",
                 $"玩家已移至战场 (玩家底部对齐 PlayerAnchor: {playerAnchor.position})");
         }
     }
@@ -327,14 +327,14 @@ public class SceneTransitionManager
         var playerManager = PlayerCharacterManager.Instance;
         if (playerManager == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家管理器");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家管理器");
             return;
         }
 
         var playerGo = playerManager.CurrentPlayerCharacter;
         if (playerGo == null)
         {
-            DebugEx.WarningModule("SceneTransitionManager", "未找到玩家角色");
+            DebugEx.Warning("SceneTransitionManager", "未找到玩家角色");
             return;
         }
 
@@ -345,7 +345,7 @@ public class SceneTransitionManager
             // 计算朝向向量
             Vector3 forward = m_PlayerRotationBeforeCombat * Vector3.forward;
             controller.TeleportTo(m_PlayerPositionBeforeCombat, forward);
-            DebugEx.LogModule("SceneTransitionManager",
+            DebugEx.Log("SceneTransitionManager",
                 $"玩家已通过 TeleportTo 恢复位置 (移至 {m_PlayerPositionBeforeCombat}, 朝向: {m_PlayerRotationBeforeCombat.eulerAngles})");
         }
         else
@@ -353,7 +353,7 @@ public class SceneTransitionManager
             // 降级方案：直接设置位置
             playerGo.transform.position = m_PlayerPositionBeforeCombat;
             playerGo.transform.rotation = m_PlayerRotationBeforeCombat;
-            DebugEx.LogModule("SceneTransitionManager",
+            DebugEx.Log("SceneTransitionManager",
                 $"玩家已恢复位置 (移至 {m_PlayerPositionBeforeCombat})");
         }
     }

@@ -97,7 +97,7 @@ public partial class FloatingBoxTip : UIFormBase
         Vector3 iconCenter = (corners[0] + corners[2]) * 0.5f;
         Vector2 iconScreenPos = RectTransformUtility.WorldToScreenPoint(targetCamera, iconCenter);
 
-        DebugEx.LogModule("FloatingBoxTip",
+        DebugEx.Log(nameof(FloatingBoxTip),
             $"Buff图标屏幕坐标(中心)={iconScreenPos} | 顶部中心={screenPos} | offset={offset} | " +
             $"Canvas={rootCanvas?.name ?? "null"} renderMode={rootCanvas?.renderMode} camera={targetCamera?.name ?? "null"}");
 
@@ -105,7 +105,7 @@ public partial class FloatingBoxTip : UIFormBase
         SetPosition(screenPos);
 
         var screenPoint = RectTransformUtility.WorldToScreenPoint(GetCanvasCamera(), m_RectTransform.position);
-        DebugEx.LogModule("FloatingBoxTip", $"提示框最终屏幕坐标={screenPoint} | anchoredPos={m_RectTransform.anchoredPosition}");
+        DebugEx.Log(nameof(FloatingBoxTip), $"提示框最终屏幕坐标={screenPoint} | anchoredPos={m_RectTransform.anchoredPosition}");
     }
 
     private static Canvas FindRootCanvas(Component target)

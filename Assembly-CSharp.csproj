@@ -88,8 +88,8 @@
     <None Include="Assets\AAAGame\DataTable\ItemTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260424_180933.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
+    <None Include="Assets\测试输出日志\snapshot_20260430_111746.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceConfigTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
@@ -106,12 +106,11 @@
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260427_183817.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260430_111700.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatRuleTable.txt" />
     <None Include="Assets\AAAGame\DataTable\TreasureBoxTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles_Cutout.shader" />
-    <None Include="Assets\测试输出日志\unity_log_20260424_171050.txt" />
     <None Include="Assets\AAAGame\DataTable\BuffTable.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AdditiveMobile_Scroll01.shader" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Aura.shader" />

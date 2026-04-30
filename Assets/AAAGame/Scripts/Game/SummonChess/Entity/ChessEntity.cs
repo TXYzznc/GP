@@ -74,6 +74,9 @@ public class ChessEntity : MonoBehaviour
     /// <summary>阵营（0=玩家，1=敌人）</summary>
     public int Camp { get; set; }
 
+    /// <summary>棋子等级（1-3）</summary>
+    public int Rank { get; private set; }
+
     /// <summary>当前状态</summary>
     public ChessState CurrentState { get; private set; }
 
@@ -95,17 +98,18 @@ public class ChessEntity : MonoBehaviour
     {
         if (config == null)
         {
-            DebugEx.ErrorModule("ChessEntity", "Initialize: config is null");
+            DebugEx.Error(nameof(ChessEntity), "Initialize: config is null");
             return;
         }
 
         ChessId = chessId;
         Config = config;
         Camp = camp;
+        Rank = 1;
         InstanceId = GetInstanceID();
 
-        DebugEx.LogModule(
-            "ChessEntity",
+        DebugEx.Log(
+            nameof(ChessEntity),
             $"Initialize: 开始初始化棋子 [{config.Name}] (Id={chessId}, Camp={camp})"
         );
 
@@ -115,7 +119,18 @@ public class ChessEntity : MonoBehaviour
         {
             Attribute = gameObject.AddComponent<ChessAttribute>();
         }
-        Attribute.Initialize(this, config);
+        Attribute.Initialize(this, config, Rank);
+
+        // 1.3 初始化经验组件（如果不存在则创建）
+        var expComp = gameObject.GetComponent<ChessEXPComponent>();
+        if (expComp == null)
+        {
+            expComp = gameObject.AddComponent<ChessEXPComponent>();
+            DebugEx.Log("ChessEntity", $"✅ 为棋子 {config.Name} 创建 ChessEXPComponent");
+        }
+        // 重置经验值（防止跨战斗数据污染）
+        expComp.SetEXP(0);
+        DebugEx.Log("ChessEntity", $"✅ 棋子 {config.Name} 经验值已重置为0");
 
         // 1.5 初始化Buff管理组件（清理可能残留的Buff数据）
         BuffManager = gameObject.GetComponent<BuffManager>();
@@ -150,101 +165,102 @@ public class ChessEntity : MonoBehaviour
 
         // 5. 初始化被动技能
         Passives = new System.Collections.Generic.List<IChessPassive>();
-        if (config.PassiveIds != null)
+        var passiveIds = config.GetPassiveIds();
+        for (int i = 0; i < passiveIds.Length; i++)
         {
-            for (int i = 0; i < config.PassiveIds.Length; i++)
-            {
-                int passiveId = config.PassiveIds[i];
-                if (passiveId == 0)
-                    continue;
+            int passiveId = passiveIds[i];
+            if (passiveId == 0)
+                continue;
 
-                var passive = ChessFactory.CreatePassive(passiveId);
-                if (passive != null)
+            var passive = ChessFactory.CreatePassive(passiveId);
+            if (passive != null)
+            {
+                var skillConfig = skillTable?.GetDataRow(passiveId);
+                if (skillConfig != null)
                 {
-                    var skillConfig = skillTable?.GetDataRow(passiveId);
-                    if (skillConfig != null)
-                    {
-                        passive.Init(m_Context, skillConfig);
-                        Passives.Add(passive);
-                        DebugEx.LogModule("ChessEntity", $"被动初始化成功 (Id={passiveId})");
-                    }
-                    else
-                    {
-                        DebugEx.WarningModule(
-                            "ChessEntity",
-                            $"{config.Name} 被动配置 ID={passiveId} 不存在"
-                        );
-                    }
+                    passive.Init(m_Context, skillConfig);
+                    Passives.Add(passive);
+                    DebugEx.Log(nameof(ChessEntity), $"被动初始化成功 (Id={passiveId})");
+                }
+                else
+                {
+                    DebugEx.Warning(
+                        nameof(ChessEntity),
+                        $"{config.Name} 被动配置 ID={passiveId} 不存在"
+                    );
                 }
             }
         }
 
         // 6. 初始化普攻效果
-        if (config.NormalAtkId != 0)
+        int normalAtkId = config.GetNormalAtkId(Rank);
+        if (normalAtkId != 0)
         {
-            NormalAttackConfig = skillTable?.GetDataRow(config.NormalAtkId);
+            NormalAttackConfig = skillTable?.GetDataRow(normalAtkId);
             if (NormalAttackConfig != null)
             {
-                NormalAttack = ChessFactory.CreateNormalAttack(config.NormalAtkId);
+                NormalAttack = ChessFactory.CreateNormalAttack(normalAtkId);
                 if (NormalAttack != null)
                 {
                     NormalAttack.Init(m_Context, NormalAttackConfig);
-                    DebugEx.LogModule(
-                        "ChessEntity",
-                        $"普攻效果初始化成功 (Id={config.NormalAtkId}, "
+                    DebugEx.Log(
+                        nameof(ChessEntity),
+                        $"普攻效果初始化成功 (Id={normalAtkId}, "
                             + $"EffectId={NormalAttackConfig.EffectId}, HitEffectId={NormalAttackConfig.HitEffectId})"
                     );
                 }
             }
             else
             {
-                DebugEx.WarningModule(
-                    "ChessEntity",
-                    $"{config.Name} 普攻配置 ID={config.NormalAtkId} 不存在"
+                DebugEx.Warning(
+                    nameof(ChessEntity),
+                    $"{config.Name} 普攻配置 ID={normalAtkId} 不存在"
                 );
             }
         }
 
         // 7. 初始化技能一
-        if (config.Skill1Id != 0)
+        int skill1Id = config.GetSkill1Id(Rank);
+        if (skill1Id != 0)
         {
-            Skill1Config = skillTable?.GetDataRow(config.Skill1Id);
+            Skill1Config = skillTable?.GetDataRow(skill1Id);
             if (Skill1Config != null)
             {
-                Skill1 = ChessFactory.CreateSkill(config.Skill1Id);
+                Skill1 = ChessFactory.CreateSkill(skill1Id);
                 if (Skill1 != null)
                 {
                     Skill1.Init(m_Context, Skill1Config);
-                    DebugEx.LogModule("ChessEntity", $"技能一初始化成功 (Id={config.Skill1Id})");
+                    DebugEx.Log(nameof(ChessEntity), $"技能一初始化成功 (Id={skill1Id})");
                 }
             }
             else
             {
-                DebugEx.WarningModule(
-                    "ChessEntity",
-                    $"{config.Name} 技能1配置 ID={config.Skill1Id} 不存在"
+                DebugEx.Warning(
+                    nameof(ChessEntity),
+                    $"{config.Name} 技能1配置 ID={skill1Id} 不存在"
                 );
             }
         }
 
         // 8. 初始化技能二/大招
-        if (config.Skill2Id != 0)
+        int skill2Id = config.GetSkill2Id(Rank);
+        if (skill2Id != 0)
         {
-            Skill2Config = skillTable?.GetDataRow(config.Skill2Id);
+            Skill2Config = skillTable?.GetDataRow(skill2Id);
             if (Skill2Config != null)
             {
-                Skill2 = ChessFactory.CreateSkill(config.Skill2Id);
+                Skill2 = ChessFactory.CreateSkill(skill2Id);
                 if (Skill2 != null)
                 {
                     Skill2.Init(m_Context, Skill2Config);
-                    DebugEx.LogModule("ChessEntity", $"大招初始化成功 (Id={config.Skill2Id})");
+                    DebugEx.Log(nameof(ChessEntity), $"大招初始化成功 (Id={skill2Id})");
                 }
             }
             else
             {
-                DebugEx.WarningModule(
-                    "ChessEntity",
-                    $"{config.Name} 技能2配置 ID={config.Skill2Id} 不存在"
+                DebugEx.Warning(
+                    nameof(ChessEntity),
+                    $"{config.Name} 技能2配置 ID={skill2Id} 不存在"
                 );
             }
         }
@@ -265,7 +281,7 @@ public class ChessEntity : MonoBehaviour
             Animator = gameObject.AddComponent<ChessAnimator>();
         }
         Animator.Initialize(this);
-        DebugEx.LogModule("ChessEntity", $"动画控制器初始化完成: {config.Name}");
+        DebugEx.Log(nameof(ChessEntity), $"动画控制器初始化完成: {config.Name}");
 
         // 11. ⭐ 再初始化战斗控制器（依赖 Animator.EventReceiver）
         CombatController = gameObject.GetComponent<ChessCombatController>();
@@ -274,7 +290,7 @@ public class ChessEntity : MonoBehaviour
             CombatController = gameObject.AddComponent<ChessCombatController>();
         }
         CombatController.Initialize(this, m_Context);
-        DebugEx.LogModule("ChessEntity", $"战斗控制器初始化完成: {config.Name}");
+        DebugEx.Log(nameof(ChessEntity), $"战斗控制器初始化完成: {config.Name}");
 
         // 12. 初始化测试输入组件（仅开发用）
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -297,7 +313,7 @@ public class ChessEntity : MonoBehaviour
         Attribute.OnHpChanged += OnHpChangedHandler;
         Attribute.OnMpChanged += OnMpChangedHandler;
 
-        DebugEx.LogModule("ChessEntity", $"Initialize: 棋子初始化完成 [{config.Name}]");
+        DebugEx.Log(nameof(ChessEntity), $"Initialize: 棋子初始化完成 [{config.Name}]");
 
         // 注册到战斗棋子管理器（如果在战斗准备阶段，管理器可能还未创建，这是正常的）
         try
@@ -305,21 +321,21 @@ public class ChessEntity : MonoBehaviour
             if (CombatEntityTracker.Instance != null)
             {
                 CombatEntityTracker.Instance.RegisterChess(this);
-                DebugEx.LogModule("ChessEntity", $"{Config.Name} 已注册到 CombatEntityTracker");
+                DebugEx.Log(nameof(ChessEntity), $"{Config.Name} 已注册到 CombatEntityTracker");
             }
             else
             {
                 // 战斗准备阶段棋子会在进入战斗状态时自动注册，这里不需要警告
-                DebugEx.LogModule(
-                    "ChessEntity",
+                DebugEx.Log(
+                    nameof(ChessEntity),
                     $"{Config.Name} 初始化完成，等待进入战斗状态后注册"
                 );
             }
         }
         catch (System.Exception ex)
         {
-            DebugEx.WarningModule(
-                "ChessEntity",
+            DebugEx.Warning(
+                nameof(ChessEntity),
                 $"{Config.Name} 注册到 CombatEntityTracker 时发生异常: {ex.Message}"
             );
         }
@@ -364,7 +380,7 @@ public class ChessEntity : MonoBehaviour
             Config = config,
         };
 
-        DebugEx.LogModule("ChessEntity",
+        DebugEx.Log(nameof(ChessEntity),
             $"InitializeAsSummoner 完成: [{config?.Name ?? "召唤师"}] ChessId={chessId}, Camp={camp}");
     }
 
@@ -512,7 +528,7 @@ public class ChessEntity : MonoBehaviour
             CombatEntityTracker.Instance.UnregisterChess(this);
         }
 
-        DebugEx.LogModule("ChessEntity", $"{Config?.Name} 已销毁");
+        DebugEx.Log(nameof(ChessEntity), $"{Config?.Name} 已销毁");
     }
 
     #endregion
@@ -601,7 +617,7 @@ public class ChessEntity : MonoBehaviour
         ChessState oldState = CurrentState;
         CurrentState = newState;
 
-        DebugEx.LogModule("ChessEntity", $"状态改变 [{Config?.Name}] {oldState} -> {newState}");
+        DebugEx.Log(nameof(ChessEntity), $"状态改变 [{Config?.Name}] {oldState} -> {newState}");
 
         // 触发状态变化事件
         OnStateChanged?.Invoke(oldState, newState);
@@ -631,7 +647,7 @@ public class ChessEntity : MonoBehaviour
         if (newValue <= 0 && oldValue > 0)
         {
             ChangeState(ChessState.Dead);
-            DebugEx.LogModule("ChessEntity", $"棋子死亡 [{Config?.Name}]");
+            DebugEx.Log(nameof(ChessEntity), $"棋子死亡 [{Config?.Name}]");
 
             ChessStateEvents.FireChessDied(this);
 
@@ -665,18 +681,18 @@ public class ChessEntity : MonoBehaviour
     /// </summary>
     public void DebugPrintInfo()
     {
-        DebugEx.LogModule("ChessEntity", "=== ChessEntity 信息 ===");
-        DebugEx.LogModule("ChessEntity", $"名称: {Config?.Name}");
-        DebugEx.LogModule("ChessEntity", $"ID: {ChessId}");
-        DebugEx.LogModule("ChessEntity", $"实例ID: {InstanceId}");
-        DebugEx.LogModule("ChessEntity", $"阵营: {Camp}");
-        DebugEx.LogModule("ChessEntity", $"状态: {CurrentState}");
-        DebugEx.LogModule("ChessEntity", $"生命值: {Attribute?.CurrentHp}/{Attribute?.MaxHp}");
-        DebugEx.LogModule("ChessEntity", $"法力值: {Attribute?.CurrentMp}/{Attribute?.MaxMp}");
-        DebugEx.LogModule("ChessEntity", $"AI类型: {Config?.AIType}");
-        DebugEx.LogModule("ChessEntity", $"种族: {string.Join(", ", GetRaces())}");
-        DebugEx.LogModule("ChessEntity", $"职业: {string.Join(", ", GetClasses())}");
-        DebugEx.LogModule("ChessEntity", "========================");
+        DebugEx.Log(nameof(ChessEntity), "=== ChessEntity 信息 ===");
+        DebugEx.Log(nameof(ChessEntity), $"名称: {Config?.Name}");
+        DebugEx.Log(nameof(ChessEntity), $"ID: {ChessId}");
+        DebugEx.Log(nameof(ChessEntity), $"实例ID: {InstanceId}");
+        DebugEx.Log(nameof(ChessEntity), $"阵营: {Camp}");
+        DebugEx.Log(nameof(ChessEntity), $"状态: {CurrentState}");
+        DebugEx.Log(nameof(ChessEntity), $"生命值: {Attribute?.CurrentHp}/{Attribute?.MaxHp}");
+        DebugEx.Log(nameof(ChessEntity), $"法力值: {Attribute?.CurrentMp}/{Attribute?.MaxMp}");
+        DebugEx.Log(nameof(ChessEntity), $"AI类型: {Config?.AIType}");
+        DebugEx.Log(nameof(ChessEntity), $"种族: {string.Join(", ", GetRaces())}");
+        DebugEx.Log(nameof(ChessEntity), $"职业: {string.Join(", ", GetClasses())}");
+        DebugEx.Log(nameof(ChessEntity), "========================");
     }
 
     #endregion
@@ -703,8 +719,8 @@ public class ChessEntity : MonoBehaviour
         if (collider != null)
         {
             m_ModelHeight = collider.bounds.size.y;
-            DebugEx.LogModule(
-                "ChessEntity",
+            DebugEx.Log(
+                nameof(ChessEntity),
                 $"{Config?.Name} 从Collider获取高度: {m_ModelHeight:F2}m"
             );
             return m_ModelHeight;
@@ -715,8 +731,8 @@ public class ChessEntity : MonoBehaviour
         if (renderer != null)
         {
             m_ModelHeight = renderer.bounds.size.y;
-            DebugEx.LogModule(
-                "ChessEntity",
+            DebugEx.Log(
+                nameof(ChessEntity),
                 $"{Config?.Name} 从Renderer获取高度: {m_ModelHeight:F2}m"
             );
             return m_ModelHeight;
@@ -724,8 +740,8 @@ public class ChessEntity : MonoBehaviour
 
         // 默认高度
         m_ModelHeight = 2f;
-        DebugEx.WarningModule(
-            "ChessEntity",
+        DebugEx.Warning(
+            nameof(ChessEntity),
             $"{Config?.Name} 无法获取模型高度，使用默认值: {m_ModelHeight}m"
         );
 
@@ -742,8 +758,8 @@ public class ChessEntity : MonoBehaviour
         // ⭐ 使用工具类按比例获取位置
         Vector3 position = EntityPositionHelper.GetPositionAtRatio(gameObject, normalizedHeight);
 
-        DebugEx.LogModule(
-            "ChessEntity",
+        DebugEx.Log(
+            nameof(ChessEntity),
             $"{Config?.Name} 特效位置计算: 归一化高度={normalizedHeight:F2}, 最终Y={position.y:F2}"
         );
 

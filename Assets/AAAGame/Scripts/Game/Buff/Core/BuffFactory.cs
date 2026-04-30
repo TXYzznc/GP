@@ -60,20 +60,20 @@ public static class BuffFactory
         Register(5014, () => new MaxHpBuff());         // 血源强化（MaxHP+30%）
         Register(5015, () => new LifestealBuff());    // 吸血之刃（吸血40%）
 
-        DebugEx.LogModule("BuffFactory", $"注册了 {s_Creators.Count} 个 Buff");
+        DebugEx.Log(nameof(BuffFactory), $"注册了 {s_Creators.Count} 个 Buff");
     }
 
     public static void Register(int buffId, Func<IBuff> creator)
     {
         if (creator == null)
         {
-            DebugEx.ErrorModule("BuffFactory", $"Register creator is null, id={buffId}");
+            DebugEx.Error(nameof(BuffFactory), $"Register creator is null, id={buffId}");
             return;
         }
 
         if (s_Creators.ContainsKey(buffId))
         {
-            DebugEx.WarningModule("BuffFactory", $"Buff ID {buffId} 已经注册过了，将被覆盖");
+            DebugEx.Warning(nameof(BuffFactory), $"Buff ID {buffId} 已经注册过了，将被覆盖");
         }
 
         s_Creators[buffId] = creator;

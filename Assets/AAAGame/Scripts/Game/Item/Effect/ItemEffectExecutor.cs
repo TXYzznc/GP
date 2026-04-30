@@ -21,11 +21,11 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
         var effectData = ItemManager.Instance?.GetSpecialEffectData(effectId);
         if (effectData == null)
         {
-            DebugEx.Error("ItemEffectExecutor", $"效果数据不存在 ID:{effectId}");
+            DebugEx.Error(nameof(ItemEffectExecutor), $"效果数据不存在 ID:{effectId}");
             return false;
         }
 
-        DebugEx.Log("ItemEffectExecutor", $"执行效果: {effectData.Name}");
+        DebugEx.Log(nameof(ItemEffectExecutor), $"执行效果: {effectData.Name}");
 
         string effectType = effectData.GetParamValue<string>("type", "");
 
@@ -71,7 +71,7 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
                 return ExecuteReviveChess(effectData);
 
             default:
-                DebugEx.Warning("ItemEffectExecutor", $"未知的效果类型: {effectType}");
+                DebugEx.Warning(nameof(ItemEffectExecutor), $"未知的效果类型: {effectType}");
                 return false;
         }
     }
@@ -89,12 +89,12 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
         int max = effectData.GetParamValue<int>("max", 0);
         int gold = Random.Range(min, max + 1);
 
-        DebugEx.Log("ItemEffectExecutor", $"添加金币: {gold}");
+        DebugEx.Log(nameof(ItemEffectExecutor), $"添加金币: {gold}");
 
         // TODO: 调用玩家数据管理器添加金币
         // PlayerDataManager.Instance.AddGold(gold);
 
-        DebugEx.Success("ItemEffectExecutor", $"金币添加成功: +{gold}");
+        DebugEx.Success(nameof(ItemEffectExecutor), $"金币添加成功: +{gold}");
         return true;
     }
 
@@ -105,12 +105,12 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
     {
         int value = effectData.GetParamValue<int>("value", 0);
 
-        DebugEx.Log("ItemEffectExecutor", $"恢复生命值: {value}");
+        DebugEx.Log(nameof(ItemEffectExecutor), $"恢复生命值: {value}");
 
         // TODO: 调用玩家角色恢复生命值
         // PlayerCharacterManager.Instance.RestoreHP(value);
 
-        DebugEx.Success("ItemEffectExecutor", $"生命值恢复成功: +{value}");
+        DebugEx.Success(nameof(ItemEffectExecutor), $"生命值恢复成功: +{value}");
         return true;
     }
 
@@ -121,12 +121,12 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
     {
         int value = effectData.GetParamValue<int>("value", 0);
 
-        DebugEx.Log("ItemEffectExecutor", $"恢复魔法值: {value}");
+        DebugEx.Log(nameof(ItemEffectExecutor), $"恢复魔法值: {value}");
 
         // TODO: 调用玩家角色恢复魔法值
         // PlayerCharacterManager.Instance.RestoreMP(value);
 
-        DebugEx.Success("ItemEffectExecutor", $"魔法值恢复成功: +{value}");
+        DebugEx.Success(nameof(ItemEffectExecutor), $"魔法值恢复成功: +{value}");
         return true;
     }
 
@@ -137,12 +137,12 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
     {
         int value = effectData.GetParamValue<int>("value", 0);
 
-        DebugEx.Log("ItemEffectExecutor", $"添加经验值: {value}");
+        DebugEx.Log(nameof(ItemEffectExecutor), $"添加经验值: {value}");
 
         // TODO: 调用玩家数据管理器添加经验值
         // PlayerDataManager.Instance.AddExp(value);
 
-        DebugEx.Success("ItemEffectExecutor", $"经验值添加成功: +{value}");
+        DebugEx.Success(nameof(ItemEffectExecutor), $"经验值添加成功: +{value}");
         return true;
     }
 
@@ -158,7 +158,7 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
 
         if (chessId <= 0)
         {
-            DebugEx.Warning("ItemEffectExecutor", "RecoverChessHP: chessId 未指定，请在使用道具时传入目标棋子");
+            DebugEx.Warning(nameof(ItemEffectExecutor), "RecoverChessHP: chessId 未指定，请在使用道具时传入目标棋子");
             return false;
         }
 
@@ -166,11 +166,11 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
 
         if (success)
         {
-            DebugEx.Success("ItemEffectExecutor", $"棋子 {chessId} 血量恢复 +{value}");
+            DebugEx.Success(nameof(ItemEffectExecutor), $"棋子 {chessId} 血量恢复 +{value}");
         }
         else
         {
-            DebugEx.Warning("ItemEffectExecutor", $"棋子 {chessId} 血量恢复失败（已死亡或血量已满）");
+            DebugEx.Warning(nameof(ItemEffectExecutor), $"棋子 {chessId} 血量恢复失败（已死亡或血量已满）");
         }
 
         return success;
@@ -188,7 +188,7 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
 
         if (chessId <= 0)
         {
-            DebugEx.Warning("ItemEffectExecutor", "ReviveChess: chessId 未指定");
+            DebugEx.Warning(nameof(ItemEffectExecutor), "ReviveChess: chessId 未指定");
             return false;
         }
 
@@ -196,11 +196,11 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
 
         if (success)
         {
-            DebugEx.Success("ItemEffectExecutor", $"棋子 {chessId} 复活成功，HP={reviveHP}");
+            DebugEx.Success(nameof(ItemEffectExecutor), $"棋子 {chessId} 复活成功，HP={reviveHP}");
         }
         else
         {
-            DebugEx.Warning("ItemEffectExecutor", $"棋子 {chessId} 复活失败（未死亡或未注册）");
+            DebugEx.Warning(nameof(ItemEffectExecutor), $"棋子 {chessId} 复活失败（未死亡或未注册）");
         }
 
         return success;
@@ -214,14 +214,14 @@ public class ItemEffectExecutor : SingletonBase<ItemEffectExecutor>
         int qualityMin = effectData.GetParamValue<int>("qualityMin", 1);
         int qualityMax = effectData.GetParamValue<int>("qualityMax", 3);
 
-        DebugEx.Log("ItemEffectExecutor", $"随机装备品质范围: {qualityMin}-{qualityMax}");
+        DebugEx.Log(nameof(ItemEffectExecutor), $"随机装备品质范围: {qualityMin}-{qualityMax}");
 
         // TODO: 实现随机装备生成逻辑
         // 1. 从装备表中筛选符合品质范围的装备
         // 2. 随机选择一件装备
         // 3. 添加到背包
 
-        DebugEx.Success("ItemEffectExecutor", "随机装备获得成功");
+        DebugEx.Success(nameof(ItemEffectExecutor), "随机装备获得成功");
         return true;
     }
 

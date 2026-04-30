@@ -101,14 +101,14 @@ public class InteractionDetector : MonoBehaviour
         var worldCanvasGo = GameObject.Find("WorldCanvas");
         if (worldCanvasGo == null)
         {
-            DebugEx.ErrorModule("Interaction", "未找到 WorldCanvas 对象！");
+            DebugEx.Error("InteractionDetector", "未找到 WorldCanvas 对象！");
             return;
         }
 
         var prefab = await ResourceExtension.LoadPrefabAsync(interactTipResourceId);
         if (prefab == null)
         {
-            DebugEx.ErrorModule("Interaction", $"加载 InteractTip 预制体失败，ResourceId={interactTipResourceId}");
+            DebugEx.Error("InteractionDetector", $"加载 InteractTip 预制体失败，ResourceId={interactTipResourceId}");
             return;
         }
 
@@ -297,7 +297,7 @@ public class InteractionDetector : MonoBehaviour
             target.OnInteract(gameObject);
         }
 
-        DebugEx.LogModule("Interaction", $"执行交互: {target.InteractionTip}");
+        DebugEx.Log("InteractionDetector", $"执行交互: {target.InteractionTip}");
     }
 
     #endregion

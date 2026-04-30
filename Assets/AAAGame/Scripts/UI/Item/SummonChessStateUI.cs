@@ -74,7 +74,7 @@ public partial class SummonChessStateUI : UIItemBase
         Shader s = m_HpImg.material != null ? m_HpImg.material.shader : Shader.Find("Custom/HealthBarGrid");
         if (s == null)
         {
-            DebugEx.WarningModule("SummonChessStateUI", "未找到 Custom/HealthBarGrid Shader，HP将不绘制格子");
+            DebugEx.Warning("SummonChessStateUI", "未找到 Custom/HealthBarGrid Shader，HP将不绘制格子");
             return;
         }
 
@@ -217,7 +217,14 @@ public partial class SummonChessStateUI : UIItemBase
         // 订阅EXP事件
         m_EXPComp = owner.GetComponent<ChessEXPComponent>();
         if (m_EXPComp != null)
+        {
             m_EXPComp.OnEXPChanged += OnEXPChanged;
+            DebugEx.Log("SummonChessStateUI", $"[Bind] ✅ 棋子 {owner.Config.Name} 的经验事件已订阅");
+        }
+        else
+        {
+            DebugEx.Error("SummonChessStateUI", $"[Bind] ❌ 棋子 {owner.Config.Name} 没有 ChessEXPComponent");
+        }
 
         UpdateHpGridParams();
         RefreshAll();
@@ -270,8 +277,9 @@ public partial class SummonChessStateUI : UIItemBase
 
     #region EXP显示
 
-    private void OnEXPChanged(int _, int __)
+    private void OnEXPChanged(int oldExp, int newExp)
     {
+        DebugEx.Log("SummonChessStateUI", $"[OnEXPChanged] 棋子={m_Owner?.Config?.Name ?? "null"}, 经验: {oldExp} → {newExp}");
         UpdateEXPDisplay();
     }
 
@@ -279,20 +287,27 @@ public partial class SummonChessStateUI : UIItemBase
     {
         if (m_Owner == null) return;
 
-        var dt = GF.DataTable.GetDataTable<ChessAdvanceTable>();
-        var dr = dt?.GetDataRow(m_Owner.ChessId);
-
         if (varChessName != null)
         {
             string chessName = m_Owner.Config?.Name ?? string.Empty;
-            if (dr != null && dr.Rank > 0 && dr.Rank < RankNames.Length)
-                varChessName.text = $"{chessName}·{RankNames[dr.Rank]}阶";
+            if (m_Owner.Rank > 0 && m_Owner.Rank < RankNames.Length)
+                varChessName.text = $"{chessName}·{RankNames[m_Owner.Rank]}阶";
             else
                 varChessName.text = chessName;
         }
 
         int currentEXP = m_EXPComp?.CurrentEXP ?? 0;
-        int requiredEXP = dr?.RequiredEXP ?? 0;
+
+        // 获取升到下一级所需的经验值
+        int requiredEXP = 0;
+        var dt = GF.DataTable.GetDataTable<ChessAdvanceTable>();
+        var dr = dt?.GetDataRow(m_Owner.ChessId);
+        if (dr != null && m_Owner.Rank > 0 && m_Owner.Rank < 3)
+        {
+            int rankIndex = m_Owner.Rank - 1; // Rank 1->索引0, Rank 2->索引1
+            if (rankIndex >= 0 && rankIndex < dr.RequiredEXP.Length)
+                requiredEXP = dr.RequiredEXP[rankIndex];
+        }
 
         if (varChessEXP != null)
             varChessEXP.fillAmount = requiredEXP > 0 ? Mathf.Clamp01((float)currentEXP / requiredEXP) : 1f;

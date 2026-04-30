@@ -13,7 +13,7 @@ public class InstantHitDetector : HitDetectorBase
         // 检查锁定目标是否有效
         if (context.LockedTarget == null)
         {
-            DebugEx.Warning("[InstantHitDetector] 锁定目标为空");
+            DebugEx.Warning(nameof(InstantHitDetector), "锁定目标为空");
             Complete();
             return;
         }
@@ -21,7 +21,7 @@ public class InstantHitDetector : HitDetectorBase
         // 检查目标是否存活
         if (context.LockedTarget.CurrentState == ChessState.Dead)
         {
-            DebugEx.LogModule("InstantHitDetector", "目标已死亡");
+            DebugEx.Log(nameof(InstantHitDetector), "目标已死亡");
             Complete();
             return;
         }
@@ -29,7 +29,7 @@ public class InstantHitDetector : HitDetectorBase
         // 检查是否为敌人
         if (!IsEnemy(context.LockedTarget, context.AttackerCamp))
         {
-            DebugEx.Warning("[InstantHitDetector] 目标不是敌人");
+            DebugEx.Warning(nameof(InstantHitDetector), "目标不是敌人");
             Complete();
             return;
         }

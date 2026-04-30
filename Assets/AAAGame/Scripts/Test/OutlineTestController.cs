@@ -34,7 +34,7 @@ public class OutlineTestController : MonoBehaviour
         ClearAll();
         controller.ShowOutline(OutlineController.SelectionColor, OutlineController.DefaultSize);
         m_ActiveOutlines.Add(controller);
-        DebugEx.LogModule("OutlineTest", $"显示选中描边（黄色）: {controller.gameObject.name}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示选中描边（黄色）: {controller.gameObject.name}");
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class OutlineTestController : MonoBehaviour
         ClearAll();
         controller.ShowOutline(OutlineController.AllyColor, OutlineController.DefaultSize);
         m_ActiveOutlines.Add(controller);
-        DebugEx.LogModule("OutlineTest", $"显示友方描边（绿色）: {controller.gameObject.name}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示友方描边（绿色）: {controller.gameObject.name}");
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class OutlineTestController : MonoBehaviour
         ClearAll();
         controller.ShowOutline(OutlineController.EnemyColor, OutlineController.DefaultSize);
         m_ActiveOutlines.Add(controller);
-        DebugEx.LogModule("OutlineTest", $"显示敌方描边（红色）: {controller.gameObject.name}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示敌方描边（红色）: {controller.gameObject.name}");
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class OutlineTestController : MonoBehaviour
         ClearAll();
         controller.ShowOutline(color, size);
         m_ActiveOutlines.Add(controller);
-        DebugEx.LogModule("OutlineTest", $"显示自定义描边: {controller.gameObject.name}, 颜色={color}, 宽度={size}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示自定义描边: {controller.gameObject.name}, 颜色={color}, 宽度={size}");
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class OutlineTestController : MonoBehaviour
                 m_ActiveOutlines.Add(chess.OutlineController);
             }
         }
-        DebugEx.LogModule("OutlineTest", $"显示所有友方棋子描边，数量={m_ActiveOutlines.Count}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示所有友方棋子描边，数量={m_ActiveOutlines.Count}");
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ public class OutlineTestController : MonoBehaviour
                 m_ActiveOutlines.Add(chess.OutlineController);
             }
         }
-        DebugEx.LogModule("OutlineTest", $"显示所有敌方棋子描边，数量={m_ActiveOutlines.Count}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示所有敌方棋子描边，数量={m_ActiveOutlines.Count}");
     }
 
     /// <summary>
@@ -132,7 +132,7 @@ public class OutlineTestController : MonoBehaviour
             chess.OutlineController.ShowOutline(color, OutlineController.DefaultSize);
             m_ActiveOutlines.Add(chess.OutlineController);
         }
-        DebugEx.LogModule("OutlineTest", $"显示所有棋子阵营描边，数量={m_ActiveOutlines.Count}");
+        DebugEx.Log(nameof(OutlineTestController), $"显示所有棋子阵营描边，数量={m_ActiveOutlines.Count}");
     }
 
     /// <summary>
@@ -148,7 +148,7 @@ public class OutlineTestController : MonoBehaviour
             }
         }
         m_ActiveOutlines.Clear();
-        DebugEx.LogModule("OutlineTest", "已清除所有描边");
+        DebugEx.Log(nameof(OutlineTestController), "已清除所有描边");
     }
 
     /// <summary>
@@ -188,7 +188,7 @@ public class OutlineTestController : MonoBehaviour
 
         if (target == null)
         {
-            DebugEx.WarningModule("OutlineTest", "没有找到测试目标，请手动指定或确保场景中有棋子");
+            DebugEx.Warning(nameof(OutlineTestController), "没有找到测试目标，请手动指定或确保场景中有棋子");
             return null;
         }
 
@@ -200,7 +200,7 @@ public class OutlineTestController : MonoBehaviour
         if (controller == null)
         {
             controller = target.AddComponent<OutlineController>();
-            DebugEx.LogModule("OutlineTest", $"为 {target.name} 自动添加 OutlineController");
+            DebugEx.Log(nameof(OutlineTestController), $"为 {target.name} 自动添加 OutlineController");
         }
 
         return controller;

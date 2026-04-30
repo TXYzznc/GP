@@ -25,7 +25,7 @@ public partial class DictionarySlot : UIItemBase
 
         if (m_ItemUI == null)
         {
-            DebugEx.Warning("DictionarySlot", $"格子 {gameObject.name} 找不到 DictionaryItem 子组件");
+            DebugEx.Warning(this.GetType().Name, $"格子 {gameObject.name} 找不到 DictionaryItem 子组件");
         }
     }
 

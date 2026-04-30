@@ -160,8 +160,8 @@ public partial class DictionaryItem : UIItemBase
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule(
-                "DictionaryItem",
+            DebugEx.Error(
+                nameof(DictionaryItem),
                 $"加载图标异常: IconId={iconId}, Error={e.Message}"
             );
         }

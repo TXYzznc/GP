@@ -88,7 +88,7 @@ public class PlayerRuntimeDataManager
     {
         if (m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "已经初始化，跳过重复初始化");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "已经初始化，跳过重复初始化");
             return;
         }
 
@@ -97,15 +97,15 @@ public class PlayerRuntimeDataManager
         if (summonerConfig != null)
         {
             m_CurrentMoveSpeed = summonerConfig.PlayerMoveSpeed;
-            DebugEx.LogModule(
-                "PlayerRuntimeDataManager",
+            DebugEx.Log(
+                nameof(PlayerRuntimeDataManager),
                 $"从召唤师配置读取移速: {m_CurrentMoveSpeed}"
             );
         }
         else
         {
             m_CurrentMoveSpeed = 5f; // 默认移速
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未找到召唤师配置，使用默认移速: 5");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未找到召唤师配置，使用默认移速: 5");
         }
 
         // 初始化污染值为0（局外时为0）
@@ -115,8 +115,8 @@ public class PlayerRuntimeDataManager
 
         m_IsInitialized = true;
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"玩家运行时数据初始化完成 - 移速:{m_CurrentMoveSpeed}, 污染值:{m_CurrentCorruption}/{m_MaxCorruption}, 增长速度:{m_CorruptionGrowthRate}/秒"
         );
     }
@@ -137,7 +137,7 @@ public class PlayerRuntimeDataManager
         m_SpiritStone = 0;
         m_IsInitialized = false;
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", "玩家运行时数据已清理");
+        DebugEx.Log(nameof(PlayerRuntimeDataManager), "玩家运行时数据已清理");
     }
 
     /// <summary>
@@ -182,15 +182,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法设置污染值增长速度");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法设置污染值增长速度");
             return;
         }
 
         float oldRate = m_CorruptionGrowthRate;
         m_CorruptionGrowthRate = Mathf.Max(0f, growthRate);
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"污染值增长速度设置: {oldRate:F2}/秒 -> {m_CorruptionGrowthRate:F2}/秒"
         );
     }
@@ -203,7 +203,7 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法修改污染值增长速度");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法修改污染值增长速度");
             return;
         }
 
@@ -222,15 +222,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法增加污染值");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法增加污染值");
             return;
         }
 
         float oldValue = m_CurrentCorruption;
         m_CurrentCorruption = Mathf.Clamp(m_CurrentCorruption + amount, 0f, m_MaxCorruption);
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"污染值增加: {oldValue:F1} -> {m_CurrentCorruption:F1} (+{amount:F1})"
         );
 
@@ -246,15 +246,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法减少污染值");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法减少污染值");
             return;
         }
 
         float oldValue = m_CurrentCorruption;
         m_CurrentCorruption = Mathf.Clamp(m_CurrentCorruption - amount, 0f, m_MaxCorruption);
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"污染值减少: {oldValue:F1} -> {m_CurrentCorruption:F1} (-{amount:F1})"
         );
 
@@ -270,15 +270,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法设置污染值");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法设置污染值");
             return;
         }
 
         float oldValue = m_CurrentCorruption;
         m_CurrentCorruption = Mathf.Clamp(value, 0f, m_MaxCorruption);
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"污染值设置: {oldValue:F1} -> {m_CurrentCorruption:F1}"
         );
 
@@ -293,15 +293,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法处理战斗失败");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法处理战斗失败");
             return;
         }
 
         float halfCorruption = m_CurrentCorruption * 0.5f;
         AddCorruption(halfCorruption);
 
-        DebugEx.WarningModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Warning(
+            nameof(PlayerRuntimeDataManager),
             $"战斗失败！污染值增加一半: +{halfCorruption:F1}"
         );
     }
@@ -318,15 +318,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法设置移速");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法设置移速");
             return;
         }
 
         float oldSpeed = m_CurrentMoveSpeed;
         m_CurrentMoveSpeed = Mathf.Max(0f, speed);
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"移速设置: {oldSpeed:F1} -> {m_CurrentMoveSpeed:F1}"
         );
     }
@@ -339,7 +339,7 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法修改移速");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法修改移速");
             return;
         }
 
@@ -358,15 +358,15 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法增加灵石");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法增加灵石");
             return;
         }
 
         int oldValue = m_SpiritStone;
         m_SpiritStone = Mathf.Max(0, m_SpiritStone + amount);
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"灵石增加: {oldValue} -> {m_SpiritStone} (+{amount})"
         );
 
@@ -383,14 +383,14 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法消耗灵石");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法消耗灵石");
             return false;
         }
 
         if (m_SpiritStone < amount)
         {
-            DebugEx.WarningModule(
-                "PlayerRuntimeDataManager",
+            DebugEx.Warning(
+                nameof(PlayerRuntimeDataManager),
                 $"灵石不足: 需要{amount}，当前{m_SpiritStone}"
             );
             return false;
@@ -399,8 +399,8 @@ public class PlayerRuntimeDataManager
         int oldValue = m_SpiritStone;
         m_SpiritStone -= amount;
 
-        DebugEx.LogModule(
-            "PlayerRuntimeDataManager",
+        DebugEx.Log(
+            nameof(PlayerRuntimeDataManager),
             $"灵石消耗: {oldValue} -> {m_SpiritStone} (-{amount})"
         );
 
@@ -417,14 +417,14 @@ public class PlayerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("PlayerRuntimeDataManager", "未初始化，无法设置灵石");
+            DebugEx.Warning(nameof(PlayerRuntimeDataManager), "未初始化，无法设置灵石");
             return;
         }
 
         int oldValue = m_SpiritStone;
         m_SpiritStone = Mathf.Max(0, amount);
 
-        DebugEx.LogModule("PlayerRuntimeDataManager", $"灵石设置: {oldValue} -> {m_SpiritStone}");
+        DebugEx.Log(nameof(PlayerRuntimeDataManager), $"灵石设置: {oldValue} -> {m_SpiritStone}");
 
         // 触发事件
         OnSpiritStoneChanged?.Invoke(oldValue, m_SpiritStone);

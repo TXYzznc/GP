@@ -55,7 +55,7 @@ public class EnemyChaseState : IEnemyState
         // 立即更新路径
         UpdatePath();
 
-        DebugEx.LogModule("EnemyChaseState",
+        DebugEx.Log(nameof(EnemyChaseState),
             $"{m_AI.Entity.Config.Name} 开始追击玩家！");
     }
 
@@ -63,7 +63,7 @@ public class EnemyChaseState : IEnemyState
     {
         if (m_AI.PlayerTransform == null)
         {
-            DebugEx.WarningModule("EnemyChaseState", "玩家丢失，返回巡逻");
+            DebugEx.Warning(nameof(EnemyChaseState), "玩家丢失，返回巡逻");
             m_AI.ChangeState(EnemyAIState.Patrol);
             return;
         }
@@ -78,7 +78,7 @@ public class EnemyChaseState : IEnemyState
             if (distanceToPlayer <= config.DetectDistance)
             {
                 BroadcastPlayerPosition();  // 广播玩家位置
-                DebugEx.LogModule("EnemyChaseState", $"{m_AI.Entity.Config.Name} 广播召集附近敌人");
+                DebugEx.Log(nameof(EnemyChaseState), $"{m_AI.Entity.Config.Name} 广播召集附近敌人");
                 m_HasBroadcasted = true;
             }
         }
@@ -92,13 +92,13 @@ public class EnemyChaseState : IEnemyState
                            || (m_PlayerCombatFlag != null && m_PlayerCombatFlag.IsInCombat);
             if (blocked)
             {
-                DebugEx.LogModule("EnemyChaseState",
+                DebugEx.Log(nameof(EnemyChaseState),
                     $"{m_AI.Entity.Config.Name} 玩家处于隐身/屏蔽状态，放弃追击");
                 m_AI.ChangeState(EnemyAIState.Patrol);
                 return;
             }
 
-            DebugEx.LogModule("EnemyChaseState",
+            DebugEx.Log(nameof(EnemyChaseState),
                 $"{m_AI.Entity.Config.Name} 接近玩家，触发战斗！");
             TriggerCombat();
             return;
@@ -107,7 +107,7 @@ public class EnemyChaseState : IEnemyState
         // 检查是否超出追击范围
         if (distanceToPlayer > config.ChaseDistance)
         {
-            DebugEx.LogModule("EnemyChaseState",
+            DebugEx.Log(nameof(EnemyChaseState),
                 $"{m_AI.Entity.Config.Name} 玩家逃离，放弃追击，清除目标");
 
             // 清除玩家检测状态
@@ -162,13 +162,13 @@ public class EnemyChaseState : IEnemyState
         }
         else
         {
-            DebugEx.ErrorModule("EnemyChaseState", "EnemyEntityManager 不存在！");
+            DebugEx.Error(nameof(EnemyChaseState), "EnemyEntityManager 不存在！");
         }
     }
 
     private void BroadcastPlayerPosition()
     {
-        DebugEx.LogModule("EnemyChaseState",
+        DebugEx.Log(nameof(EnemyChaseState),
             $"{m_AI.Entity.Config.Name} 广播玩家位置，召集附近敌人");
 
         // 通知以自己为中心、BroadcastDistance 范围内的敌人

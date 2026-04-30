@@ -27,7 +27,7 @@ public partial class ItemContextMenu : UIItemBase
     {
         base.OnInit();
 
-        DebugEx.Log("ItemContextMenu", "物品上下文菜单初始化");
+        DebugEx.Log(this.GetType().Name, "物品上下文菜单初始化");
 
         // 查找或初始化菜单按钮
         InitializeButtons();
@@ -51,7 +51,7 @@ public partial class ItemContextMenu : UIItemBase
             m_DiscardBtn = buttons[2];
 
         DebugEx.Log(
-            "ItemContextMenu",
+            this.GetType().Name,
             $"按钮初始化完成：UseBtn={m_UseBtn != null}, SplitBtn={m_SplitBtn != null}, DiscardBtn={m_DiscardBtn != null}"
         );
     }
@@ -72,7 +72,7 @@ public partial class ItemContextMenu : UIItemBase
     {
         if (itemStack == null || itemStack.IsEmpty)
         {
-            DebugEx.Warning("ItemContextMenu", "物品堆叠为空，无法显示菜单");
+            DebugEx.Warning(this.GetType().Name, "物品堆叠为空，无法显示菜单");
             return;
         }
 
@@ -83,7 +83,7 @@ public partial class ItemContextMenu : UIItemBase
         var itemTable = GF.DataTable.GetDataTable<ItemTable>();
         if (itemTable == null)
         {
-            DebugEx.Error("ItemContextMenu", "ItemTable 未加载");
+            DebugEx.Error(this.GetType().Name, "ItemTable 未加载");
             return;
         }
 
@@ -91,7 +91,7 @@ public partial class ItemContextMenu : UIItemBase
         if (m_CurrentItemRow == null)
         {
             DebugEx.Error(
-                "ItemContextMenu",
+                this.GetType().Name,
                 $"ItemTable 中不存在 ID={itemStack.Item.ItemId} 的物品"
             );
             return;
@@ -111,7 +111,7 @@ public partial class ItemContextMenu : UIItemBase
                     parentCanvas != null ? parentCanvas.GetComponent<RectTransform>() : null;
                 if (canvasRect == null)
                 {
-                    DebugEx.Error("ItemContextMenu", "未找到 Canvas");
+                    DebugEx.Error(this.GetType().Name, "未找到 Canvas");
                     return;
                 }
 
@@ -141,7 +141,7 @@ public partial class ItemContextMenu : UIItemBase
                 rectTransform.anchoredPosition = localPos;
 
                 DebugEx.Log(
-                    "ItemContextMenu",
+                    this.GetType().Name,
                     $"格子屏幕坐标: {slotScreenPos}, 偏移(px): {offsetX * canvasScale}, 菜单屏幕坐标: {menuScreenPos}, anchoredPosition: {localPos}"
                 );
             }
@@ -149,7 +149,7 @@ public partial class ItemContextMenu : UIItemBase
 
         gameObject.SetActive(true);
 
-        DebugEx.Success("ItemContextMenu", $"显示上下文菜单: {itemStack.Item.Name}");
+        DebugEx.Success(this.GetType().Name, $"显示上下文菜单: {itemStack.Item.Name}");
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public partial class ItemContextMenu : UIItemBase
         m_CurrentItemStack = null;
         m_CurrentItemRow = null;
 
-        DebugEx.Log("ItemContextMenu", "上下文菜单已隐藏");
+        DebugEx.Log(this.GetType().Name, "上下文菜单已隐藏");
     }
 
     #endregion
@@ -191,7 +191,7 @@ public partial class ItemContextMenu : UIItemBase
                 // 资源物品隐藏菜单背景，不显示任何操作
                 if (varMenuBg != null)
                     varMenuBg.SetActive(false);
-                DebugEx.Log("ItemContextMenu", "资源物品，隐藏菜单背景");
+                DebugEx.Log(this.GetType().Name, "资源物品，隐藏菜单背景");
                 break;
 
             case 1: // 消耗品
@@ -207,7 +207,7 @@ public partial class ItemContextMenu : UIItemBase
                 // 任务道具隐藏菜单背景
                 if (varMenuBg != null)
                     varMenuBg.SetActive(false);
-                DebugEx.Log("ItemContextMenu", "任务道具，隐藏菜单背景");
+                DebugEx.Log(this.GetType().Name, "任务道具，隐藏菜单背景");
                 break;
 
             case 3: // 宝物
@@ -220,7 +220,7 @@ public partial class ItemContextMenu : UIItemBase
                 break;
 
             default:
-                DebugEx.Warning("ItemContextMenu", $"未知的物品类型: {itemType}");
+                DebugEx.Warning(this.GetType().Name, $"未知的物品类型: {itemType}");
                 break;
         }
     }
@@ -273,7 +273,7 @@ public partial class ItemContextMenu : UIItemBase
         {
             if (inventoryManager.UseItem(m_CurrentSlotIndex))
             {
-                DebugEx.Success("ItemContextMenu", $"使用物品: {m_CurrentItemStack.Item.Name}");
+                DebugEx.Success(this.GetType().Name, $"使用物品: {m_CurrentItemStack.Item.Name}");
             }
         }
 
@@ -289,7 +289,7 @@ public partial class ItemContextMenu : UIItemBase
             return;
 
         // TODO: 显示拆分对话框
-        DebugEx.Log("ItemContextMenu", $"拆分物品: {m_CurrentItemStack.Item.Name}");
+        DebugEx.Log(this.GetType().Name, $"拆分物品: {m_CurrentItemStack.Item.Name}");
 
         HideContextMenu();
     }
@@ -312,13 +312,13 @@ public partial class ItemContextMenu : UIItemBase
             if (success)
             {
                 DebugEx.Success(
-                    "ItemContextMenu",
+                    this.GetType().Name,
                     $"丢弃物品: {m_CurrentItemStack.Item.Name} x{m_CurrentItemStack.Count}"
                 );
             }
             else
             {
-                DebugEx.Warning("ItemContextMenu", $"丢弃物品失败: {m_CurrentItemStack.Item.Name}");
+                DebugEx.Warning(this.GetType().Name, $"丢弃物品失败: {m_CurrentItemStack.Item.Name}");
             }
         }
 

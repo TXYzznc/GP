@@ -30,7 +30,7 @@ public partial class EnemyMask : UIItemBase
 
         if (m_TrackedEnemy == null)
         {
-            DebugEx.WarningModule("EnemyAlertIndicator", "敌人实体为空");
+            DebugEx.Warning(this.GetType().Name, "敌人实体为空");
             return;
         }
 
@@ -52,7 +52,7 @@ public partial class EnemyMask : UIItemBase
             varEnemyName.text = m_TrackedEnemy.Config.Name;
         }
 
-        DebugEx.LogModule("EnemyAlertIndicator", $"设置指示器: {m_TrackedEnemy.Config.Name}, 警觉度={alertProgress:F2}");
+        DebugEx.Log(this.GetType().Name, $"设置指示器: {m_TrackedEnemy.Config.Name}, 警觉度={alertProgress:F2}");
     }
 
     /// <summary>

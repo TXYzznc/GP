@@ -54,7 +54,7 @@ public class BattleChessData
     {
         if (globalState == null)
         {
-            DebugEx.ErrorModule("BattleChessData", "FromGlobalState: globalState 为 null");
+            DebugEx.Error("BattleChessData", "FromGlobalState: globalState 为 null");
             return null;
         }
 

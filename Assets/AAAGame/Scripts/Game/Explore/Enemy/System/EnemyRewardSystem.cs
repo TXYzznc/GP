@@ -12,7 +12,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
     protected override void Awake()
     {
         base.Awake();
-        DebugEx.LogModule("EnemyRewardSystem", "初始化完成");
+        DebugEx.Log("EnemyRewardSystem", "初始化完成");
     }
 
     #endregion
@@ -26,11 +26,11 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
     {
         if (defeatedEnemies == null || defeatedEnemies.Count == 0)
         {
-            DebugEx.WarningModule("EnemyRewardSystem", "没有被击败的敌人");
+            DebugEx.Warning("EnemyRewardSystem", "没有被击败的敌人");
             return;
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyRewardSystem",
             $"开始发放奖励，敌人数量: {defeatedEnemies.Count}, 奖励倍率: {rewardMultiplier:F2}"
         );
@@ -61,7 +61,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
                 hasKey = true;
             }
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "EnemyRewardSystem",
                 $"{enemy.Config.Name} 奖励: 经验={exp}, 金币={gold}"
             );
@@ -76,7 +76,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
             GrantKey();
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyRewardSystem",
             $"奖励发放完成: 总经验={totalExp}, 总金币={totalGold}, 钥匙={hasKey}"
         );
@@ -128,7 +128,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
     private void GrantExp(int amount)
     {
         // TODO: 添加经验到玩家
-        DebugEx.LogModule("EnemyRewardSystem", $"获得经验: {amount}");
+        DebugEx.Log("EnemyRewardSystem", $"获得经验: {amount}");
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
     private void GrantGold(int amount)
     {
         // TODO: 添加金币到玩家
-        DebugEx.LogModule("EnemyRewardSystem", $"获得金币: {amount}");
+        DebugEx.Log("EnemyRewardSystem", $"获得金币: {amount}");
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
     private void GrantKey()
     {
         // TODO: 添加钥匙到玩家背包
-        DebugEx.LogModule("EnemyRewardSystem", "获得钥匙（可撤离）");
+        DebugEx.Log("EnemyRewardSystem", "获得钥匙（可撤离）");
     }
 
     #endregion

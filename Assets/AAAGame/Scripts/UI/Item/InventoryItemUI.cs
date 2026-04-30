@@ -17,7 +17,7 @@ public partial class InventoryItemUI : UIItemBase
     {
         base.OnInit();
 
-        DebugEx.Log("InventoryItemUI", "物品UI初始化");
+        DebugEx.Log(this.GetType().Name, "物品UI初始化");
     }
 
     #endregion
@@ -50,13 +50,13 @@ public partial class InventoryItemUI : UIItemBase
 
         if (itemStack == null || itemStack.IsEmpty)
         {
-            DebugEx.LogModule("InventoryItemUI", $"SetData: 清空物品显示");
+            DebugEx.Log(this.GetType().Name, $"SetData: 清空物品显示");
             Clear();
             return;
         }
 
         // 刷新显示
-        DebugEx.LogModule("InventoryItemUI", $"SetData: 显示物品 {itemStack.Item.Name}");
+        DebugEx.Log(this.GetType().Name, $"SetData: 显示物品 {itemStack.Item.Name}");
         RefreshDisplay();
     }
 
@@ -77,7 +77,7 @@ public partial class InventoryItemUI : UIItemBase
         // 隐藏 InventoryItemUI 本身以完全清除显示
         gameObject.SetActive(false);
 
-        DebugEx.LogModule("InventoryItemUI", "清空物品显示");
+        DebugEx.Log(this.GetType().Name, "清空物品显示");
     }
 
     #endregion

@@ -36,7 +36,7 @@ public class CombatTestController : MonoBehaviour
 
     private void Start()
     {
-        DebugEx.LogModule("CombatTestController", "战斗测试控制器已启动");
+        DebugEx.Log("CombatTestController", "战斗测试控制器已启动");
         m_IsInitialized = true;
     }
 
@@ -49,20 +49,20 @@ public class CombatTestController : MonoBehaviour
     /// </summary>
     public void TestConfigLoading()
     {
-        DebugEx.LogModule("CombatTestController", $"开始测试配置加载 ID={m_TestBattleConfigId}");
+        DebugEx.Log("CombatTestController", $"开始测试配置加载 ID={m_TestBattleConfigId}");
 
         // 测试加载 EnemyTable
         var dataTable = GF.DataTable.GetDataTable<EnemyTable>();
         if (dataTable == null)
         {
-            DebugEx.ErrorModule("CombatTestController", "EnemyTable 数据表未加载！");
+            DebugEx.Error("CombatTestController", "EnemyTable 数据表未加载！");
             return;
         }
 
         var enemyData = dataTable.GetDataRow(m_TestBattleConfigId);
         if (enemyData == null)
         {
-            DebugEx.ErrorModule("CombatTestController", $"未找到配置 ID={m_TestBattleConfigId}");
+            DebugEx.Error("CombatTestController", $"未找到配置 ID={m_TestBattleConfigId}");
             return;
         }
 
@@ -82,18 +82,18 @@ public class CombatTestController : MonoBehaviour
     /// </summary>
     public async void SpawnBattleArena()
     {
-        DebugEx.LogModule("CombatTestController", "开始生成战斗场地");
+        DebugEx.Log("CombatTestController", "开始生成战斗场地");
 
         if (BattleArenaManager.Instance == null)
         {
-            DebugEx.ErrorModule("CombatTestController", "BattleArenaManager 未初始化");
+            DebugEx.Error("CombatTestController", "BattleArenaManager 未初始化");
             return;
         }
 
         // 如果已有场地，先销毁
         if (BattleArenaManager.Instance.CurrentArena != null)
         {
-            DebugEx.LogModule("CombatTestController", "检测到已有场地，先销毁");
+            DebugEx.Log("CombatTestController", "检测到已有场地，先销毁");
             BattleArenaManager.Instance.DestroyArena();
         }
 
@@ -111,25 +111,25 @@ public class CombatTestController : MonoBehaviour
     [ContextMenu("生成敌人")]
     public async void SpawnTestEnemies()
     {
-        DebugEx.LogModule("CombatTestController", $"开始生成测试敌人 ConfigID={m_TestBattleConfigId}");
+        DebugEx.Log("CombatTestController", $"开始生成测试敌人 ConfigID={m_TestBattleConfigId}");
 
         // 确保管理器存在
         if (EnemySpawnManager.Instance == null)
         {
-            DebugEx.ErrorModule("CombatTestController", "EnemySpawnManager 未初始化");
+            DebugEx.Error("CombatTestController", "EnemySpawnManager 未初始化");
             return;
         }
 
         if (BattleArenaManager.Instance == null)
         {
-            DebugEx.ErrorModule("CombatTestController", "BattleArenaManager 未初始化");
+            DebugEx.Error("CombatTestController", "BattleArenaManager 未初始化");
             return;
         }
 
         // 如果没有战斗场地，先生成
         if (BattleArenaManager.Instance.CurrentArena == null)
         {
-            DebugEx.LogModule("CombatTestController", "战斗场地不存在，先生成场地");
+            DebugEx.Log("CombatTestController", "战斗场地不存在，先生成场地");
             await SpawnBattleArenaInternal();
         }
 
@@ -146,7 +146,7 @@ public class CombatTestController : MonoBehaviour
     [ContextMenu("清理战斗系统")]
     public void CleanupCombatSystem()
     {
-        DebugEx.LogModule("CombatTestController", "开始清理战斗系统");
+        DebugEx.Log("CombatTestController", "开始清理战斗系统");
 
         // 清空所有棋子
         if (SummonChessManager.Instance != null)
@@ -159,7 +159,7 @@ public class CombatTestController : MonoBehaviour
                 SummonChessManager.Instance.DestroyChess(allChess[i]);
             }
 
-            DebugEx.LogModule("CombatTestController", $"已清空 {count} 个棋子");
+            DebugEx.Log("CombatTestController", $"已清空 {count} 个棋子");
         }
 
         // 清理棋子管理器

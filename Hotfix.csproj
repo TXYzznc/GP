@@ -95,15 +95,15 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\Component\ExtendedLayoutElement.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\SummonerRuntimeDataManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItemPool.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Component\ChessEXPComponent.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\InGameState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Settlement\SettlementTriggerSource.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\EntityExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\MapItemSceneIdHolder.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\IItemEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ExpRuleTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\IItemEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\CombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\SneakDebuffSelectionUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillFactory.cs" />
@@ -192,6 +192,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\InventorySlot.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\DictionaryItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\TreasureBoxUIData.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SummonChessTableExt.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\LocalizationExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardRangePreview.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\InventorySlotContainerImpl.cs" />
@@ -350,6 +351,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\ItemEffectBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\LoadGameUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\GamePlayInfoUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SummonChessConfigExt.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Input\InputSource\KeyboardInputSource.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Preparation\BattlePresetManager.cs" />
@@ -375,6 +377,7 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\ExplorationLeaveEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Common\Core\Const.Groups.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RecoverChessHPEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Utils\LogConfigManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSM\ChessAIBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\RaycastHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Interface\ISummonerSkill.cs" />
@@ -520,6 +523,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\InventorySlotUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\DictionariesUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CurrencyUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Utils\LogConfig.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\OutsiderFunctionUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardPreviewDisplay.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\NewGameUI.Variables.cs" />

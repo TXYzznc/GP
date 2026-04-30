@@ -129,7 +129,7 @@ public class DissolveTransitionManager
                 }
             }
 
-            DebugEx.Log("[DissolveTransitionManager] 进入战斗场景过渡完成");
+            DebugEx.Log(nameof(DissolveTransitionManager), "进入战斗场景过渡完成");
         }
         finally
         {
@@ -214,7 +214,7 @@ public class DissolveTransitionManager
                 m_ArenaObject.SetActive(false);
             }
 
-            DebugEx.Log("[DissolveTransitionManager] 离开战斗场景过渡完成");
+            DebugEx.Log(nameof(DissolveTransitionManager), "离开战斗场景过渡完成");
         }
         finally
         {
@@ -249,7 +249,7 @@ public class DissolveTransitionManager
         int envLayer = LayerMask.NameToLayer(EnvironmentLayerName);
         if (envLayer < 0)
         {
-            DebugEx.Warning($"[DissolveTransitionManager] 未找到 Layer: {EnvironmentLayerName}");
+            DebugEx.Warning(nameof(DissolveTransitionManager), $"未找到 Layer: {EnvironmentLayerName}");
             return;
         }
 
@@ -271,7 +271,7 @@ public class DissolveTransitionManager
             }
         }
 
-        DebugEx.Log($"[DissolveTransitionManager] 收集到 {m_EnvironmentControllers.Count} 个环境物体");
+        DebugEx.Log(nameof(DissolveTransitionManager), $"收集到 {m_EnvironmentControllers.Count} 个环境物体");
     }
 
     /// <summary>

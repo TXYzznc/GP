@@ -78,7 +78,7 @@ public class WarehouseManager
     {
         if (m_IsInitialized)
         {
-            DebugEx.Log("WarehouseManager", "仓库管理器已初始化，跳过重复初始化");
+            DebugEx.Log(nameof(WarehouseManager), "仓库管理器已初始化，跳过重复初始化");
             return;
         }
 
@@ -87,7 +87,7 @@ public class WarehouseManager
 
         m_IsInitialized = true;
 
-        DebugEx.Success("WarehouseManager", $"仓库管理器初始化完成 - 容量:{m_WarehouseCapacity}");
+        DebugEx.Success(nameof(WarehouseManager), $"仓库管理器初始化完成 - 容量:{m_WarehouseCapacity}");
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class WarehouseManager
         m_WarehouseItems.Clear();
         m_IsInitialized = false;
 
-        DebugEx.Log("WarehouseManager", "仓库数据已清理");
+        DebugEx.Log(nameof(WarehouseManager), "仓库数据已清理");
     }
 
     #endregion
@@ -191,13 +191,13 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return false;
         }
 
         if (count <= 0)
         {
-            DebugEx.Warning("WarehouseManager", $"存入物品数量无效: {count}");
+            DebugEx.Warning(nameof(WarehouseManager), $"存入物品数量无效: {count}");
             return false;
         }
 
@@ -205,7 +205,7 @@ public class WarehouseManager
         var itemData = ItemManager.Instance?.GetItemData(itemId);
         if (itemData == null)
         {
-            DebugEx.Error("WarehouseManager", $"物品ID不存在: {itemId}");
+            DebugEx.Error(nameof(WarehouseManager), $"物品ID不存在: {itemId}");
             return false;
         }
 
@@ -221,7 +221,7 @@ public class WarehouseManager
                 existingItem.Count += addCount;
 
                 DebugEx.Log(
-                    "WarehouseManager",
+                    nameof(WarehouseManager),
                     $"物品堆叠: ID={itemId}, 数量 {oldCount} -> {existingItem.Count}"
                 );
 
@@ -241,7 +241,7 @@ public class WarehouseManager
         // 检查仓库是否有空间
         if (UsedSlots >= m_WarehouseCapacity)
         {
-            DebugEx.Warning("WarehouseManager", $"仓库已满，无法存入物品 ID={itemId}");
+            DebugEx.Warning(nameof(WarehouseManager), $"仓库已满，无法存入物品 ID={itemId}");
             return false;
         }
 
@@ -251,7 +251,7 @@ public class WarehouseManager
         m_WarehouseItems.Add(newItem);
 
         DebugEx.Log(
-            "WarehouseManager",
+            nameof(WarehouseManager),
             $"物品存入: ID={itemId}, 数量={count}, 格子={newSlotIndex}"
         );
 
@@ -267,14 +267,14 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return false;
         }
 
         var inventoryManager = InventoryManager.Instance;
         if (inventoryManager == null || !inventoryManager.IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "背包管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "背包管理器未初始化");
             return false;
         }
 
@@ -304,7 +304,7 @@ public class WarehouseManager
             inventoryManager.RemoveItem(itemId, count);
         }
 
-        DebugEx.Log("WarehouseManager", $"一键存入完成 - 成功:{successCount}, 失败:{failCount}");
+        DebugEx.Log(nameof(WarehouseManager), $"一键存入完成 - 成功:{successCount}, 失败:{failCount}");
 
         return failCount == 0;
     }
@@ -320,28 +320,28 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return false;
         }
 
         var inventoryManager = InventoryManager.Instance;
         if (inventoryManager == null || !inventoryManager.IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "背包管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "背包管理器未初始化");
             return false;
         }
 
         var item = GetItemById(itemId);
         if (item == null)
         {
-            DebugEx.Warning("WarehouseManager", $"仓库中不存在物品 ID={itemId}");
+            DebugEx.Warning(nameof(WarehouseManager), $"仓库中不存在物品 ID={itemId}");
             return false;
         }
 
         if (count > item.Count)
         {
             DebugEx.Warning(
-                "WarehouseManager",
+                nameof(WarehouseManager),
                 $"取出数量超过仓库存量: 请求={count}, 实际={item.Count}"
             );
             count = item.Count;
@@ -350,7 +350,7 @@ public class WarehouseManager
         // 尝试添加到背包
         if (!inventoryManager.AddItem(itemId, count))
         {
-            DebugEx.Warning("WarehouseManager", $"背包已满，无法取出物品 ID={itemId}");
+            DebugEx.Warning(nameof(WarehouseManager), $"背包已满，无法取出物品 ID={itemId}");
             return false;
         }
 
@@ -365,7 +365,7 @@ public class WarehouseManager
             m_WarehouseItems.Remove(item);
         }
 
-        DebugEx.Log("WarehouseManager", $"物品取出: ID={itemId}, 数量={count}");
+        DebugEx.Log(nameof(WarehouseManager), $"物品取出: ID={itemId}, 数量={count}");
 
         NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, item.Count, storedItemId);
 
@@ -383,7 +383,7 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return;
         }
 
@@ -391,7 +391,7 @@ public class WarehouseManager
         m_WarehouseCapacity += additionalSlots;
 
         DebugEx.Log(
-            "WarehouseManager",
+            nameof(WarehouseManager),
             $"仓库容量扩展: {oldCapacity} -> {m_WarehouseCapacity} (+{additionalSlots})"
         );
 
@@ -409,13 +409,13 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return false;
         }
 
         if (targetSlotIndex < 0 || targetSlotIndex >= m_WarehouseCapacity)
         {
-            DebugEx.Warning("WarehouseManager", $"[StoreItemToSlot] 无效的格子索引: {targetSlotIndex}");
+            DebugEx.Warning(nameof(WarehouseManager), $"[StoreItemToSlot] 无效的格子索引: {targetSlotIndex}");
             return false;
         }
 
@@ -426,7 +426,7 @@ public class WarehouseManager
         {
             var newItem = new InventoryItem(itemId, count, durability, targetSlotIndex);
             m_WarehouseItems.Add(newItem);
-            DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 存入物品到格子 {targetSlotIndex}: ID={itemId}, 数量={count}");
+            DebugEx.Log(nameof(WarehouseManager), $"[StoreItemToSlot] 存入物品到格子 {targetSlotIndex}: ID={itemId}, 数量={count}");
             NotifySlotChanged(targetSlotIndex, SlotChangeType.Add, 0, count, itemId);
             return true;
         }
@@ -435,7 +435,7 @@ public class WarehouseManager
         var itemData = ItemManager.Instance?.GetItemData(itemId);
         if (itemData == null || itemData.MaxStackCount <= 1)
         {
-            DebugEx.Warning("WarehouseManager", $"[StoreItemToSlot] 目标格子已有物品，且物品不可堆叠");
+            DebugEx.Warning(nameof(WarehouseManager), $"[StoreItemToSlot] 目标格子已有物品，且物品不可堆叠");
             return false;
         }
 
@@ -444,7 +444,7 @@ public class WarehouseManager
             int addCount = Mathf.Min(count, itemData.MaxStackCount - targetItem.Count);
             int oldCount = targetItem.Count;
             targetItem.Count += addCount;
-            DebugEx.Log("WarehouseManager", $"[StoreItemToSlot] 堆叠物品到格子 {targetSlotIndex}: 数量 {oldCount} -> {targetItem.Count}");
+            DebugEx.Log(nameof(WarehouseManager), $"[StoreItemToSlot] 堆叠物品到格子 {targetSlotIndex}: 数量 {oldCount} -> {targetItem.Count}");
             NotifySlotChanged(targetSlotIndex, SlotChangeType.Update, oldCount, targetItem.Count, itemId);
 
             // 如果还有剩余物品，存入下一个空格子
@@ -456,7 +456,7 @@ public class WarehouseManager
             return true;
         }
 
-        DebugEx.Warning("WarehouseManager", $"[StoreItemToSlot] 无法存入到格子 {targetSlotIndex}");
+        DebugEx.Warning(nameof(WarehouseManager), $"[StoreItemToSlot] 无法存入到格子 {targetSlotIndex}");
         return false;
     }
 
@@ -467,14 +467,14 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return false;
         }
 
         if (fromSlotIndex < 0 || fromSlotIndex >= m_WarehouseCapacity ||
             toSlotIndex < 0 || toSlotIndex >= m_WarehouseCapacity)
         {
-            DebugEx.Warning("WarehouseManager", $"[SwapSlots] 无效的格子索引: from={fromSlotIndex}, to={toSlotIndex}");
+            DebugEx.Warning(nameof(WarehouseManager), $"[SwapSlots] 无效的格子索引: from={fromSlotIndex}, to={toSlotIndex}");
             return false;
         }
 
@@ -488,7 +488,7 @@ public class WarehouseManager
 
         if (fromItem == null)
         {
-            DebugEx.Warning("WarehouseManager", $"[SwapSlots] 源格子 {fromSlotIndex} 为空");
+            DebugEx.Warning(nameof(WarehouseManager), $"[SwapSlots] 源格子 {fromSlotIndex} 为空");
             return false;
         }
 
@@ -504,7 +504,7 @@ public class WarehouseManager
             toItem.SlotIndex = fromSlotIndex;
         }
 
-        DebugEx.Log("WarehouseManager", $"[SwapSlots] 交换格子 {fromSlotIndex} <-> {toSlotIndex}");
+        DebugEx.Log(nameof(WarehouseManager), $"[SwapSlots] 交换格子 {fromSlotIndex} <-> {toSlotIndex}");
 
         NotifySlotChanged(fromSlotIndex, SlotChangeType.Move, fromOldCount, toOldCount, toOldItemId);
         NotifySlotChanged(toSlotIndex, SlotChangeType.Move, toOldCount, fromOldCount, fromOldItemId);
@@ -519,20 +519,20 @@ public class WarehouseManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.Error("WarehouseManager", "仓库管理器未初始化");
+            DebugEx.Error(nameof(WarehouseManager), "仓库管理器未初始化");
             return false;
         }
 
         if (slotIndex < 0 || slotIndex >= m_WarehouseCapacity)
         {
-            DebugEx.Warning("WarehouseManager", $"[RemoveItem] 无效的格子索引: {slotIndex}");
+            DebugEx.Warning(nameof(WarehouseManager), $"[RemoveItem] 无效的格子索引: {slotIndex}");
             return false;
         }
 
         var item = GetItemBySlot(slotIndex);
         if (item == null)
         {
-            DebugEx.Warning("WarehouseManager", $"[RemoveItem] 格子 {slotIndex} 为空");
+            DebugEx.Warning(nameof(WarehouseManager), $"[RemoveItem] 格子 {slotIndex} 为空");
             return false;
         }
 
@@ -548,11 +548,11 @@ public class WarehouseManager
         if (item.Count <= 0)
         {
             m_WarehouseItems.Remove(item);
-            DebugEx.Log("WarehouseManager", $"[RemoveItem] 物品已完全移除: 格子={slotIndex}");
+            DebugEx.Log(nameof(WarehouseManager), $"[RemoveItem] 物品已完全移除: 格子={slotIndex}");
         }
         else
         {
-            DebugEx.Log("WarehouseManager", $"[RemoveItem] 物品部分移除: 格子={slotIndex}, 剩余数量={item.Count}");
+            DebugEx.Log(nameof(WarehouseManager), $"[RemoveItem] 物品部分移除: 格子={slotIndex}, 剩余数量={item.Count}");
         }
 
         NotifySlotChanged(slotIndex, SlotChangeType.Remove, oldCount, item.Count, removedItemId);

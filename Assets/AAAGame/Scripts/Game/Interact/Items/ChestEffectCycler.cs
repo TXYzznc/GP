@@ -74,7 +74,7 @@ public class ChestEffectCycler : MonoBehaviour
                 Quaternion.identity,
                 transform
             );
-            DebugEx.Log("ChestEffectCycler", $"播放特效 [{m_CurrentEffectIndex}]");
+            DebugEx.Log(nameof(ChestEffectCycler), $"播放特效 [{m_CurrentEffectIndex}]");
         }
 
         // 循环到下一个特效

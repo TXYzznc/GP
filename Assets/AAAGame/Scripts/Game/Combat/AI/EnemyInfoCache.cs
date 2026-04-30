@@ -66,7 +66,7 @@ public class EnemyInfoCache
     {
         if (entity == null)
         {
-            DebugEx.Error("EnemyInfoCache", "尝试从空实体创建缓存");
+            DebugEx.Error(nameof(EnemyInfoCache), "尝试从空实体创建缓存");
             return null;
         }
 
@@ -90,7 +90,7 @@ public class EnemyInfoCache
     {
         if (proxy == null)
         {
-            DebugEx.Error("EnemyInfoCache", "尝试从空召唤师代理创建缓存");
+            DebugEx.Error(nameof(EnemyInfoCache), "尝试从空召唤师代理创建缓存");
             return null;
         }
 

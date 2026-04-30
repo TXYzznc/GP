@@ -76,8 +76,8 @@ public class ChessStateUIWorldManager : SingletonBase<ChessStateUIWorldManager>
         m_Prefab = await ResourceExtension.LoadPrefabAsync(m_PrefabResourceId);
         if (m_Prefab == null)
         {
-            DebugEx.ErrorModule(
-                "ChessStateUIWorldManager",
+            DebugEx.Error(
+                nameof(ChessStateUIWorldManager),
                 $"加载状态UI预制体失败 ConfigId={m_PrefabResourceId}"
             );
         }
@@ -200,8 +200,8 @@ public class ChessStateUIWorldManager : SingletonBase<ChessStateUIWorldManager>
 
         if (ui == null)
         {
-            DebugEx.ErrorModule(
-                "ChessStateUIWorldManager",
+            DebugEx.Error(
+                nameof(ChessStateUIWorldManager),
                 "状态UI预制体缺少 SummonChessStateUI 脚本"
             );
             Destroy(go);

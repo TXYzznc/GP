@@ -98,7 +98,7 @@ public class EnemyEntityAI
         // 切换到初始状态
         ChangeState(EnemyAIState.Idle);
 
-        DebugEx.LogModule("EnemyEntityAI", $"{m_Entity.Config.Name} AI初始化完成");
+        DebugEx.Log("EnemyEntityAI", $"{m_Entity.Config.Name} AI初始化完成");
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ public class EnemyEntityAI
         if (m_CurrentStateInstance != null)
         {
             m_CurrentStateInstance.OnExit();
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 状态切换: {m_CurrentState} → {newState}");
         }
 
@@ -156,7 +156,7 @@ public class EnemyEntityAI
         }
         else
         {
-            DebugEx.ErrorModule("EnemyEntityAI", $"状态不存在: {newState}");
+            DebugEx.Error("EnemyEntityAI", $"状态不存在: {newState}");
         }
     }
 
@@ -177,7 +177,7 @@ public class EnemyEntityAI
         m_IsPlayerDetected = false;
         m_DetectTimer = 0f;
 
-        DebugEx.LogModule("EnemyEntityAI",
+        DebugEx.Log("EnemyEntityAI",
             $"{m_Entity.Config.Name} 清除玩家检测状态（丢失目标）");
     }
 
@@ -195,7 +195,7 @@ public class EnemyEntityAI
         // 检查玩家对象是否被销毁
         if (m_PlayerTransform.gameObject == null)
         {
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 玩家对象已销毁，清除引用");
             m_PlayerTransform = null;
             return float.MaxValue;
@@ -221,7 +221,7 @@ public class EnemyEntityAI
         if (m_CurrentState == EnemyAIState.Chase)
         {
             m_HasReceivedBroadcast = true;
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 已在追击玩家，标记收到广播");
             return;
         }
@@ -229,7 +229,7 @@ public class EnemyEntityAI
         // 如果在战斗中，直接返回
         if (m_CurrentState == EnemyAIState.Combat)
         {
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 正在战斗中，忽略广播");
             return;
         }
@@ -238,13 +238,13 @@ public class EnemyEntityAI
         float distanceToPlayer = Vector3.Distance(m_Entity.transform.position, playerPosition);
         if (distanceToPlayer > m_Entity.Config.ChaseDistance)
         {
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 距离玩家太远({distanceToPlayer:F1}m)，不响应广播");
             return;
         }
 
         // 记录玩家位置
-        DebugEx.LogModule("EnemyEntityAI",
+        DebugEx.Log("EnemyEntityAI",
             $"{m_Entity.Config.Name} 收到广播，玩家位置={playerPosition}，距离={distanceToPlayer:F1}m");
 
         // 标记为已检测到玩家和收到广播
@@ -268,7 +268,7 @@ public class EnemyEntityAI
             return;
         }
 
-        DebugEx.LogModule("EnemyEntityAI",
+        DebugEx.Log("EnemyEntityAI",
             $"{m_Entity.Config.Name} 玩家进入战斗，恢复巡逻状态");
 
         // 清除检测状态
@@ -293,7 +293,7 @@ public class EnemyEntityAI
         if (playerGo != null)
         {
             m_PlayerTransform = playerGo.transform;
-            DebugEx.LogModule("EnemyEntityAI", $"{m_Entity.Config.Name} 找到玩家");
+            DebugEx.Log("EnemyEntityAI", $"{m_Entity.Config.Name} 找到玩家");
         }
         // 不输出警告，因为玩家可能还没生成
     }
@@ -320,13 +320,13 @@ public class EnemyEntityAI
         {
             m_IsPlayerDetected = true;
             float distance = GetDistanceToPlayer();
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 检测到玩家！距离={distance:F1}m, 警觉度={detector.AlertLevel:F2}");
         }
         else if (!shouldDetect && m_IsPlayerDetected)
         {
             m_IsPlayerDetected = false;
-            DebugEx.LogModule("EnemyEntityAI",
+            DebugEx.Log("EnemyEntityAI",
                 $"{m_Entity.Config.Name} 玩家离开检测范围");
         }
 

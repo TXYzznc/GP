@@ -108,12 +108,12 @@ public class CardManager : MonoBehaviour
     /// </summary>
     public bool RemoveCard(int cardId)
     {
-        DebugEx.LogModule("CardManager", $"[RemoveCard] 尝试移除卡牌 ID={cardId}，当前卡牌总数={m_AvailableCards.Count}");
+        DebugEx.Log("CardManager", $"[RemoveCard] 尝试移除卡牌 ID={cardId}，当前卡牌总数={m_AvailableCards.Count}");
 
         var card = m_AvailableCards.FirstOrDefault(c => c.CardId == cardId);
         if (card != null)
         {
-            DebugEx.LogModule("CardManager", $"[RemoveCard] 找到卡牌 ID={cardId}，移除前数量={m_AvailableCards.Count}");
+            DebugEx.Log("CardManager", $"[RemoveCard] 找到卡牌 ID={cardId}，移除前数量={m_AvailableCards.Count}");
             m_AvailableCards.Remove(card);
 
             // 如果移除的是当前选中的卡牌，清除选中状态
@@ -122,13 +122,13 @@ public class CardManager : MonoBehaviour
                 CurrentSelectedCard = null;
             }
 
-            DebugEx.LogModule("CardManager", $"[RemoveCard] 移除完成，移除后数量={m_AvailableCards.Count}，触发 OnCardRemoved 事件");
+            DebugEx.Log("CardManager", $"[RemoveCard] 移除完成，移除后数量={m_AvailableCards.Count}，触发 OnCardRemoved 事件");
             OnCardRemoved?.Invoke(cardId);
-            DebugEx.LogModule("CardManager", $"[RemoveCard] 卡牌 ID={cardId} 已移除");
+            DebugEx.Log("CardManager", $"[RemoveCard] 卡牌 ID={cardId} 已移除");
             return true;
         }
 
-        DebugEx.WarningModule("CardManager", $"[RemoveCard] 未找到卡牌 ID={cardId}");
+        DebugEx.Warning("CardManager", $"[RemoveCard] 未找到卡牌 ID={cardId}");
         return false;
     }
 
@@ -147,13 +147,13 @@ public class CardManager : MonoBehaviour
     {
         if (cardData == null)
         {
-            DebugEx.ErrorModule("CardManager", "尝试添加空卡牌数据");
+            DebugEx.Error("CardManager", "尝试添加空卡牌数据");
             return;
         }
 
         m_AvailableCards.Add(cardData);
         OnCardAdded?.Invoke(cardData);
-        DebugEx.LogModule("CardManager", $"添加卡牌: ID={cardData.CardId}, Name={cardData.Name}");
+        DebugEx.Log("CardManager", $"添加卡牌: ID={cardData.CardId}, Name={cardData.Name}");
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public class CardManager : MonoBehaviour
         var cardTable = GF.DataTable.GetDataTable<CardTable>();
         if (cardTable == null)
         {
-            DebugEx.ErrorModule("CardManager", "CardTable 未加载");
+            DebugEx.Error("CardManager", "CardTable 未加载");
             return;
         }
 
@@ -174,7 +174,7 @@ public class CardManager : MonoBehaviour
         var preparedCardIds = BattleLoadoutProvider.Instance.GetPreparedStrategyCardIds();
         if (preparedCardIds == null || preparedCardIds.Count == 0)
         {
-            DebugEx.WarningModule("CardManager", "预设中没有策略卡");
+            DebugEx.Warning("CardManager", "预设中没有策略卡");
             return;
         }
 
@@ -193,11 +193,11 @@ public class CardManager : MonoBehaviour
             }
             else
             {
-                DebugEx.WarningModule("CardManager", $"卡牌ID {cardId} 不存在于 CardTable");
+                DebugEx.Warning("CardManager", $"卡牌ID {cardId} 不存在于 CardTable");
             }
         }
 
-        DebugEx.LogModule("CardManager", $"战斗初始化完成，加载了 {m_AvailableCards.Count} 张卡牌");
+        DebugEx.Log("CardManager", $"战斗初始化完成，加载了 {m_AvailableCards.Count} 张卡牌");
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class CardManager : MonoBehaviour
     {
         m_AvailableCards.Clear();
         CurrentSelectedCard = null;
-        DebugEx.LogModule("CardManager", "清理卡牌数据");
+        DebugEx.Log("CardManager", "清理卡牌数据");
     }
 
     /// <summary>
@@ -221,7 +221,7 @@ public class CardManager : MonoBehaviour
         var cardTable = GF.DataTable.GetDataTable<CardTable>();
         if (cardTable == null)
         {
-            DebugEx.ErrorModule("CardManager", "CardTable 未加载，刷新失败");
+            DebugEx.Error("CardManager", "CardTable 未加载，刷新失败");
             return;
         }
 
@@ -229,7 +229,7 @@ public class CardManager : MonoBehaviour
         var preparedCardIds = BattleLoadoutProvider.Instance.GetPreparedStrategyCardIds();
         if (preparedCardIds == null || preparedCardIds.Count == 0)
         {
-            DebugEx.WarningModule("CardManager", "预设中没有策略卡");
+            DebugEx.Warning("CardManager", "预设中没有策略卡");
             return;
         }
 
@@ -248,11 +248,11 @@ public class CardManager : MonoBehaviour
             }
             else
             {
-                DebugEx.WarningModule("CardManager", $"卡牌ID {cardId} 不存在于 CardTable");
+                DebugEx.Warning("CardManager", $"卡牌ID {cardId} 不存在于 CardTable");
             }
         }
 
-        DebugEx.LogModule("CardManager", $"卡牌已刷新，重新加载了 {m_AvailableCards.Count} 张卡牌");
+        DebugEx.Log("CardManager", $"卡牌已刷新，重新加载了 {m_AvailableCards.Count} 张卡牌");
     }
 
     #endregion

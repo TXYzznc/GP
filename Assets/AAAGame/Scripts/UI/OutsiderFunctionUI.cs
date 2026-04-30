@@ -22,14 +22,14 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        DebugEx.LogModule("OutsiderFunctionUI", "订阅局外状态事件");
+        DebugEx.Log("OutsiderFunctionUI", "订阅局外状态事件");
         GF.Event.Subscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
         GF.Event.Subscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
     }
 
     protected override void UnsubscribeEvents()
     {
-        DebugEx.LogModule("OutsiderFunctionUI", "取消订阅局外状态事件");
+        DebugEx.Log("OutsiderFunctionUI", "取消订阅局外状态事件");
         GF.Event.Unsubscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
         GF.Event.Unsubscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
     }
@@ -40,14 +40,14 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
     private void OnOutOfGameEnter(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("OutsiderFunctionUI", "收到局外进入事件");
+        DebugEx.Log("OutsiderFunctionUI", "收到局外进入事件");
         ShowUI();
         RefreshFunctions();
     }
 
     private void OnOutOfGameLeave(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("OutsiderFunctionUI", "收到局外离开事件");
+        DebugEx.Log("OutsiderFunctionUI", "收到局外离开事件");
         HideUI();
     }
 
@@ -69,7 +69,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
             CreateFunctionItem(m_FunctionNames[i], i);
         }
 
-        DebugEx.LogModule("OutsiderFunctionUI", "功能按钮已刷新");
+        DebugEx.Log("OutsiderFunctionUI", "功能按钮已刷新");
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
     {
         if (varFunctionItem == null || varOutsiderFunctionPanel == null)
         {
-            DebugEx.WarningModule("OutsiderFunctionUI", "功能项模板或面板未设置");
+            DebugEx.Warning("OutsiderFunctionUI", "功能项模板或面板未设置");
             return;
         }
 
@@ -96,7 +96,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
         }
         else
         {
-            DebugEx.ErrorModule("OutsiderFunctionUI", "功能项上未找到 FunctionItem 组件");
+            DebugEx.Error("OutsiderFunctionUI", "功能项上未找到 FunctionItem 组件");
             Destroy(itemObj);
         }
     }
@@ -125,7 +125,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
     /// </summary>
     private void OnFunctionClicked(string functionName)
     {
-        DebugEx.LogModule("OutsiderFunctionUI", $"点击了功能按钮 - {functionName}");
+        DebugEx.Log("OutsiderFunctionUI", $"点击了功能按钮 - {functionName}");
 
         switch (functionName)
         {

@@ -19,7 +19,7 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
     protected override void Awake()
     {
         base.Awake();
-        DebugEx.LogModule("EnemyGroupManager", "初始化完成");
+        DebugEx.Log("EnemyGroupManager", "初始化完成");
     }
 
     protected override void OnDestroy()
@@ -39,14 +39,14 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
     {
         if (triggerEnemy == null)
         {
-            DebugEx.ErrorModule("EnemyGroupManager", "触发敌人为空");
+            DebugEx.Error("EnemyGroupManager", "触发敌人为空");
             return;
         }
 
         // 查找范围内处于 AlertedByBroadcast 状态的敌人
         float detectionRange = triggerEnemy.Config.CombatDistance * 2f;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyGroupManager",
             $"检测群体战斗，触发者={triggerEnemy.Config.Name}，检测范围={detectionRange}m"
         );
@@ -71,14 +71,14 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
             )
             {
                 combatGroup.Add(nearbyEnemy);
-                DebugEx.LogModule(
+                DebugEx.Log(
                     "EnemyGroupManager",
                     $"{nearbyEnemy.Config.Name} 加入群体战斗（AlertedByBroadcast状态）"
                 );
             }
         }
 
-        DebugEx.LogModule("EnemyGroupManager", $"触发战斗，敌人数量: {combatGroup.Count}");
+        DebugEx.Log("EnemyGroupManager", $"触发战斗，敌人数量: {combatGroup.Count}");
 
         // 触发战斗
         if (combatGroup.Count > 1)
@@ -106,11 +106,11 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
     {
         if (broadcaster == null)
         {
-            DebugEx.ErrorModule("EnemyGroupManager", "广播者为空");
+            DebugEx.Error("EnemyGroupManager", "广播者为空");
             return;
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyGroupManager",
             $"{broadcaster.Config.Name} 开始广播玩家位置，范围={broadcastRange}m"
         );
@@ -138,7 +138,7 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
             }
         }
 
-        DebugEx.LogModule("EnemyGroupManager", $"广播完成，通知了 {notifiedCount} 个敌人");
+        DebugEx.Log("EnemyGroupManager", $"广播完成，通知了 {notifiedCount} 个敌人");
     }
 
     #endregion

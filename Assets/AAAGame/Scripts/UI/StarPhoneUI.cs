@@ -48,40 +48,40 @@ public partial class StarPhoneUI : StateAwareUIForm
 
     private void OnOutOfGameEnter(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到局外进入事件 → 显示UI");
+        DebugEx.Log(nameof(StarPhoneUI), "收到局外进入事件 → 显示UI");
         ShowUI();
         RefreshStarPhone();
     }
 
     private void OnOutOfGameLeave(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到局外离开事件 → 隐藏UI");
+        DebugEx.Log(nameof(StarPhoneUI), "收到局外离开事件 → 隐藏UI");
         HideUI();
     }
 
     private void OnInGameEnter(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到局内进入事件 → 显示UI");
+        DebugEx.Log(nameof(StarPhoneUI), "收到局内进入事件 → 显示UI");
         ShowUI();
         RefreshStarPhone();
     }
 
     private void OnInGameLeave(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到局内离开事件 → 隐藏UI");
+        DebugEx.Log(nameof(StarPhoneUI), "收到局内离开事件 → 隐藏UI");
         HideUI();
     }
 
     private void OnExplorationEnter(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到探索进入事件 → 显示UI");
+        DebugEx.Log(nameof(StarPhoneUI), "收到探索进入事件 → 显示UI");
         ShowUI();
         RefreshStarPhone();
     }
 
     private void OnExplorationLeave(object sender, GameEventArgs e)
     {
-        DebugEx.Log("StarPhoneUI", "收到探索离开事件 → 保持显示（星盘始终可见）");
+        DebugEx.Log(nameof(StarPhoneUI), "收到探索离开事件 → 保持显示（星盘始终可见）");
         // 注释：星盘在局内外都保持显示，不再隐藏
         // HideUI();
     }
@@ -120,13 +120,13 @@ public partial class StarPhoneUI : StateAwareUIForm
     /// </summary>
     private void OnStarPhoneClicked()
     {
-        DebugEx.Log("StarPhoneUI", "点击了星盘按钮");
+        DebugEx.Log(nameof(StarPhoneUI), "点击了星盘按钮");
 
         // ⚠️ 临时功能：点击星盘打开背包UI
         // 注意：这是临时实现，后续可能会改为打开星盘详细界面或其他功能
         // TODO: 后续需要根据实际需求修改此处逻辑
         GF.UI.OpenUIForm(UIViews.InventoryUI);
-        DebugEx.Success("StarPhoneUI", "已打开背包UI（临时功能）");
+        DebugEx.Success(nameof(StarPhoneUI), "已打开背包UI（临时功能）");
     }
 
     #endregion

@@ -29,7 +29,7 @@ public class TargetHighlightManager : MonoBehaviour
         if (s_Instance == null)
         {
             s_Instance = this;
-            DebugEx.LogModule("TargetHighlightManager", "初始化完成");
+            DebugEx.Log(nameof(TargetHighlightManager), "初始化完成");
         }
         else
         {
@@ -78,7 +78,7 @@ public class TargetHighlightManager : MonoBehaviour
             m_HighlightedTargets.Add(target);
         }
 
-        DebugEx.LogModule("TargetHighlightManager", $"高亮 {m_HighlightedTargets.Count} 个目标");
+        DebugEx.Log(nameof(TargetHighlightManager), $"高亮 {m_HighlightedTargets.Count} 个目标");
     }
 
     /// <summary>

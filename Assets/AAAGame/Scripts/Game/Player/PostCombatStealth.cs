@@ -85,7 +85,7 @@ public class PostCombatStealth : MonoBehaviour
         m_IsArmed = true;
         m_RemainingTime = ALLRemainingTime;
         ApplyStealthVisual(m_StealthAlpha);
-        DebugEx.LogModule("PostCombatStealth", "隐身预备（屏蔽检测），待 UI 就绪后正式激活");
+        DebugEx.Log(nameof(PostCombatStealth), "隐身预备（屏蔽检测），待 UI 就绪后正式激活");
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class PostCombatStealth : MonoBehaviour
         if (m_IsActive) return;
         m_IsActive = true;
         OnStealthChanged?.Invoke(true);
-        DebugEx.LogModule("PostCombatStealth", $"隐身正式激活，持续 {m_RemainingTime:F0}s");
+        DebugEx.Log(nameof(PostCombatStealth), $"隐身正式激活，持续 {m_RemainingTime:F0}s");
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class PostCombatStealth : MonoBehaviour
         m_RemainingTime = 0f;
         ApplyStealthVisual(1f);
         OnStealthChanged?.Invoke(false);
-        DebugEx.LogModule("PostCombatStealth", "隐身已结束");
+        DebugEx.Log(nameof(PostCombatStealth), "隐身已结束");
     }
 
     #endregion

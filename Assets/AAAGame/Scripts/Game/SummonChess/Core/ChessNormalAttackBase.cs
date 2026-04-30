@@ -36,7 +36,7 @@ public abstract class ChessNormalAttackBase : IChessNormalAttack
         if (m_Config != null && m_Config.MpRestore > 0)
         {
             caster.Attribute.ModifyMp(m_Config.MpRestore);
-            DebugEx.LogModule(
+            DebugEx.Log(
                 GetType().Name,
                 $"{caster.Config?.Name} 回复蓝量: {m_Config.MpRestore}"
             );

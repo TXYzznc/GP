@@ -35,7 +35,7 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
         if (TryGetComponent(out Image img))
         {
             img.raycastTarget = true;
-            DebugEx.Log("InventoryClickHandler", "[EnsureRaycastable] raycastTarget=true");
+            DebugEx.Log(nameof(InventoryClickHandler), "[EnsureRaycastable] raycastTarget=true");
         }
     }
 
@@ -48,7 +48,7 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public void OnPointerClick(PointerEventData eventData)
     {
-        DebugEx.Log("InventoryClickHandler", $"[OnPointerClick] 触发，Button={eventData.button}");
+        DebugEx.Log(nameof(InventoryClickHandler), $"[OnPointerClick] 触发，Button={eventData.button}");
 
         if (eventData.button == PointerEventData.InputButton.Left)
         {
@@ -69,7 +69,7 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void HandleLeftClick()
     {
-        DebugEx.Log("InventoryClickHandler", "[HandleLeftClick] 左键点击");
+        DebugEx.Log(nameof(InventoryClickHandler), "[HandleLeftClick] 左键点击");
 
         // 获取源格子
         m_SourceSlot = GetComponent<InventorySlotUI>();
@@ -80,27 +80,27 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
 
         if (m_SourceSlot == null)
         {
-            DebugEx.Warning("InventoryClickHandler", "[HandleLeftClick] 无法找到 InventorySlotUI");
+            DebugEx.Warning(nameof(InventoryClickHandler), "[HandleLeftClick] 无法找到 InventorySlotUI");
             return;
         }
 
-        DebugEx.Log("InventoryClickHandler", $"[HandleLeftClick] 找到源格子: 格子={m_SourceSlot.SlotIndex}");
+        DebugEx.Log(nameof(InventoryClickHandler), $"[HandleLeftClick] 找到源格子: 格子={m_SourceSlot.SlotIndex}");
 
         // 检查物品是否存在
         var itemUI = m_SourceSlot.GetItemUI();
         if (itemUI == null)
         {
-            DebugEx.Warning("InventoryClickHandler", $"[HandleLeftClick] ItemUI 为 null (SlotIndex={m_SourceSlot.SlotIndex})");
+            DebugEx.Warning(nameof(InventoryClickHandler), $"[HandleLeftClick] ItemUI 为 null (SlotIndex={m_SourceSlot.SlotIndex})");
             return;
         }
 
         if (!itemUI.HasItem())
         {
-            DebugEx.Log("InventoryClickHandler", $"[HandleLeftClick] 格子为空 (SlotIndex={m_SourceSlot.SlotIndex})");
+            DebugEx.Log(nameof(InventoryClickHandler), $"[HandleLeftClick] 格子为空 (SlotIndex={m_SourceSlot.SlotIndex})");
             return;
         }
 
-        DebugEx.Log("InventoryClickHandler", $"[HandleLeftClick] 格子有物品，分发给 InventorySlotUI");
+        DebugEx.Log(nameof(InventoryClickHandler), $"[HandleLeftClick] 格子有物品，分发给 InventorySlotUI");
 
         // 分发给 InventorySlotUI 处理
         m_SourceSlot.OnLeftClick();
@@ -111,7 +111,7 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void HandleRightClick(Vector2 position)
     {
-        DebugEx.Log("InventoryClickHandler", $"[HandleRightClick] 右键点击，位置={position}");
+        DebugEx.Log(nameof(InventoryClickHandler), $"[HandleRightClick] 右键点击，位置={position}");
 
         // 获取源格子
         m_SourceSlot = GetComponent<InventorySlotUI>();
@@ -122,27 +122,27 @@ public class InventoryClickHandler : MonoBehaviour, IPointerClickHandler
 
         if (m_SourceSlot == null)
         {
-            DebugEx.Warning("InventoryClickHandler", "[HandleRightClick] 无法找到 InventorySlotUI");
+            DebugEx.Warning(nameof(InventoryClickHandler), "[HandleRightClick] 无法找到 InventorySlotUI");
             return;
         }
 
-        DebugEx.Log("InventoryClickHandler", $"[HandleRightClick] 找到源格子: 格子={m_SourceSlot.SlotIndex}");
+        DebugEx.Log(nameof(InventoryClickHandler), $"[HandleRightClick] 找到源格子: 格子={m_SourceSlot.SlotIndex}");
 
         // 检查物品是否存在
         var itemUI = m_SourceSlot.GetItemUI();
         if (itemUI == null)
         {
-            DebugEx.Warning("InventoryClickHandler", $"[HandleRightClick] ItemUI 为 null (SlotIndex={m_SourceSlot.SlotIndex})");
+            DebugEx.Warning(nameof(InventoryClickHandler), $"[HandleRightClick] ItemUI 为 null (SlotIndex={m_SourceSlot.SlotIndex})");
             return;
         }
 
         if (!itemUI.HasItem())
         {
-            DebugEx.Log("InventoryClickHandler", $"[HandleRightClick] 格子为空 (SlotIndex={m_SourceSlot.SlotIndex})");
+            DebugEx.Log(nameof(InventoryClickHandler), $"[HandleRightClick] 格子为空 (SlotIndex={m_SourceSlot.SlotIndex})");
             return;
         }
 
-        DebugEx.Log("InventoryClickHandler", $"[HandleRightClick] 格子有物品，分发给 InventorySlotUI");
+        DebugEx.Log(nameof(InventoryClickHandler), $"[HandleRightClick] 格子有物品，分发给 InventorySlotUI");
 
         // 装备栏右键 → 无效果
         if (m_SourceSlot.ContainerType == SlotContainerType.Equip)

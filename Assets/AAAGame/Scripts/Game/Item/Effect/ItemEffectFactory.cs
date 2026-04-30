@@ -27,20 +27,20 @@ public static class ItemEffectFactory
         // 卡牌解锁
         Register("UnlockCard", () => new UnlockCardEffect());
 
-        DebugEx.LogModule("ItemEffectFactory", $"注册了 {s_Creators.Count} 个物品效果");
+        DebugEx.Log(nameof(ItemEffectFactory), $"注册了 {s_Creators.Count} 个物品效果");
     }
 
     public static void Register(string effectType, Func<IItemEffect> creator)
     {
         if (creator == null)
         {
-            DebugEx.ErrorModule("ItemEffectFactory", $"Register creator is null, type={effectType}");
+            DebugEx.Error(nameof(ItemEffectFactory), $"Register creator is null, type={effectType}");
             return;
         }
 
         if (s_Creators.ContainsKey(effectType))
         {
-            DebugEx.WarningModule("ItemEffectFactory", $"效果类型 {effectType} 已经注册过了，将被覆盖");
+            DebugEx.Warning(nameof(ItemEffectFactory), $"效果类型 {effectType} 已经注册过了，将被覆盖");
         }
 
         s_Creators[effectType] = creator;
@@ -56,7 +56,7 @@ public static class ItemEffectFactory
             return creator();
         }
 
-        DebugEx.WarningModule("ItemEffectFactory", $"未找到效果类型: {effectType}");
+        DebugEx.Warning(nameof(ItemEffectFactory), $"未找到效果类型: {effectType}");
         return null;
     }
 }

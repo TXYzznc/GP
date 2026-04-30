@@ -49,7 +49,7 @@ public class ChangePassive : IChessPassive
         // 检查夜晚加成
         CheckNightBonus();
 
-        DebugEx.LogModule("ChangePassive", "月之守护被动初始化完成");
+        DebugEx.Log(nameof(ChangePassive), "月之守护被动初始化完成");
     }
 
     public void Tick(float dt)
@@ -98,7 +98,7 @@ public class ChangePassive : IChessPassive
 
         // TODO: 优化 - 扩展 TakeDamage 方法传入攻击者引用
         // 目前先记录日志，待战斗系统完善后补充
-        DebugEx.LogModule("ChangePassive", "嫦娥受到攻击，应该对攻击者施加减益(Buff ID=6)");
+        DebugEx.Log(nameof(ChangePassive), "嫦娥受到攻击，应该对攻击者施加减益(Buff ID=6)");
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class ChangePassive : IChessPassive
         if (m_Ctx?.Attribute == null) return;
 
         attacker.BuffManager.AddBuff(6, m_Ctx.Owner, m_Ctx.Attribute); // 冰霜减益 ID=6
-        DebugEx.LogModule("ChangePassive", $"月之守护对攻击者 {attacker.Config?.Name} 施加减益");
+        DebugEx.Log(nameof(ChangePassive), $"月之守护对攻击者 {attacker.Config?.Name} 施加减益");
     }
 
     #endregion
@@ -129,13 +129,13 @@ public class ChangePassive : IChessPassive
         {
             m_Ctx.Attribute.ModifySpellPower(NIGHT_SPELL_POWER_BONUS);
             m_NightBonusApplied = true;
-            DebugEx.LogModule("ChangePassive", "夜晚，法强+40");
+            DebugEx.Log(nameof(ChangePassive), "夜晚，法强+40");
         }
         else if (!m_IsNight && m_NightBonusApplied)
         {
             m_Ctx.Attribute.ModifySpellPower(-NIGHT_SPELL_POWER_BONUS);
             m_NightBonusApplied = false;
-            DebugEx.LogModule("ChangePassive", "白天，法强加成移除");
+            DebugEx.Log(nameof(ChangePassive), "白天，法强加成移除");
         }
     }
 

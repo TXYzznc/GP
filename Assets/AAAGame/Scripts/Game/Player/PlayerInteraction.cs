@@ -45,7 +45,7 @@ public class PlayerInteraction : MonoBehaviour
             animator.SetInteger("InteractIndex", interactIndex);
         }
 
-        DebugEx.LogModule("PlayerInteraction", $"触发交互动画，索引: {interactIndex}");
+        DebugEx.Log(nameof(PlayerInteraction), $"触发交互动画，索引: {interactIndex}");
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (m_IsInteracting)
         {
-            DebugEx.WarningModule("PlayerInteraction", "已在交互中，拒绝重复触发");
+            DebugEx.Warning(nameof(PlayerInteraction), "已在交互中，拒绝重复触发");
             return;
         }
         m_OnInteractComplete = onComplete;
@@ -80,7 +80,7 @@ public class PlayerInteraction : MonoBehaviour
         m_OnInteractComplete = null;
         callback?.Invoke();
 
-        DebugEx.LogModule("PlayerInteraction", "交互结束");
+        DebugEx.Log(nameof(PlayerInteraction), "交互结束");
     }
 
     /// <summary>

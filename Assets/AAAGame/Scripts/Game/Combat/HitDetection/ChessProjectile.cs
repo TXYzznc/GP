@@ -155,7 +155,7 @@ public class ChessProjectile : MonoBehaviour
             : string.Join(" | ", System.Array.ConvertAll(selfColliders, c => $"{c.GetType().Name}(isTrigger={c.isTrigger},enabled={c.enabled})"));
         bool hasRigidbody = GetComponent<Rigidbody>() != null;
 
-        DebugEx.LogModule("ChessProjectile",
+        DebugEx.Log("ChessProjectile",
             $"初始化完成（追踪模式）\n" +
             $"  ├─ ownerCamp={m_OwnerCamp}, target={target?.Config?.Name}(Camp={target?.Camp})\n" +
             $"  ├─ 目标位置: {m_TargetPosition}, 发射方向: {launchDirection}, 速度: {m_Speed}\n" +
@@ -209,7 +209,7 @@ public class ChessProjectile : MonoBehaviour
             transform.forward = m_Direction;
         }
 
-        DebugEx.LogModule("ChessProjectile",
+        DebugEx.Log("ChessProjectile",
             $"初始化完成（方向模式）- ownerCamp={m_OwnerCamp}, 方向: {m_Direction}, 速度: {m_Speed}, " +
             $"穿透: {m_IsPiercing}, 最大穿透数: {m_MaxPenetrationCount}");
     }
@@ -284,12 +284,12 @@ public class ChessProjectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        DebugEx.LogModule("ChessProjectile",
+        DebugEx.Log("ChessProjectile",
             $"[碰撞检测] OnTriggerEnter 触发 → other={other.name}, tag={other.tag}, layer={LayerMask.LayerToName(other.gameObject.layer)}, isTrigger={other.isTrigger}");
 
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("ChessProjectile", "  └─ 忽略：投射物未初始化");
+            DebugEx.Warning("ChessProjectile", "  └─ 忽略：投射物未初始化");
             return;
         }
 
@@ -302,12 +302,12 @@ public class ChessProjectile : MonoBehaviour
 
         if (target == null)
         {
-            DebugEx.LogModule("ChessProjectile",
+            DebugEx.Log("ChessProjectile",
                 $"  └─ 碰撞对象非棋子实体，忽略: {other.name} (parent={other.transform.parent?.name})");
             return;
         }
 
-        DebugEx.LogModule("ChessProjectile",
+        DebugEx.Log("ChessProjectile",
             $"  └─ 找到棋子目标: {target.Config?.Name}, camp={target.Camp}, ownerCamp={m_OwnerCamp}, state={target.CurrentState}");
 
         TryHitTarget(target);
@@ -320,11 +320,11 @@ public class ChessProjectile : MonoBehaviour
     {
         if (!m_IsInitialized)
         {
-            DebugEx.LogModule("ChessProjectile", "粒子碰撞被忽略：未初始化");
+            DebugEx.Log("ChessProjectile", "粒子碰撞被忽略：未初始化");
             return;
         }
 
-        DebugEx.LogModule("ChessProjectile", $"粒子系统碰撞触发: {other.name}");
+        DebugEx.Log("ChessProjectile", $"粒子系统碰撞触发: {other.name}");
 
         // 注意：other 是被碰撞的对象
         // 尝试获取棋子实体
@@ -336,7 +336,7 @@ public class ChessProjectile : MonoBehaviour
 
         if (target == null)
         {
-            DebugEx.LogModule("ChessProjectile",
+            DebugEx.Log("ChessProjectile",
                 $"粒子碰撞到非棋子对象: {other.name}");
             return;
         }
@@ -364,9 +364,7 @@ public class ChessProjectile : MonoBehaviour
         // ✅ 使用阵营服务检查是否为敌人
         if (!CampRelationService.IsEnemy(m_OwnerCamp, target.Camp))
         {
-            DebugEx.LogModule("ChessProjectile",
-
-                // 第 310-340 行（需要替换）
+            DebugEx.Log("ChessProjectile",
                 $"碰撞目标不是敌人，忽略: {target.Config?.Name}, 目标阵营={target.Camp}, 攻击者阵营={m_OwnerCamp}");
             return;
         }
@@ -374,7 +372,7 @@ public class ChessProjectile : MonoBehaviour
         // 检查是否已命中过
         if (m_HitTargets.Contains(target))
         {
-            DebugEx.LogModule("ChessProjectile",
+            DebugEx.Log("ChessProjectile",
                 $"目标已被命中过，忽略: {target.Config?.Name}");
             return;
         }
@@ -382,7 +380,7 @@ public class ChessProjectile : MonoBehaviour
         // 检查穿透数量
         if (m_CurrentPenetrationCount >= m_MaxPenetrationCount)
         {
-            DebugEx.LogModule("ChessProjectile",
+            DebugEx.Log("ChessProjectile",
                 $"已达到最大穿透数 ({m_MaxPenetrationCount})，投射物销毁");
             DestroyProjectile();
             return;
@@ -391,7 +389,7 @@ public class ChessProjectile : MonoBehaviour
         // 检查是否存活
         if (target.CurrentState == ChessState.Dead)
         {
-            DebugEx.LogModule("ChessProjectile",
+            DebugEx.Log("ChessProjectile",
                 $"目标已死亡，忽略: {target.Config?.Name}");
             return;
         }

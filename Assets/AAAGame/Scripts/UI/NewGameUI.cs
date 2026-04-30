@@ -846,7 +846,7 @@ public partial class NewGameUI : UIFormBase
         var summoner = GetCurrentSummoner();
         if (summoner != null)
         {
-            DebugEx.LogModule("NewGameUI", $"双击召唤师 {summoner.Name}，播放交互动画");
+            DebugEx.Log("NewGameUI", $"双击召唤师 {summoner.Name}，播放交互动画");
 
             // 播放交互动画
             if (m_ModelViewer != null)

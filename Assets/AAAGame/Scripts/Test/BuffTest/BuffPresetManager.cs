@@ -45,7 +45,7 @@ public class BuffPresetManager
         // 辅助组合：加血 + 速度提升
         AddPreset("辅助组合", new int[] { 10201, 10106 });
 
-        DebugEx.LogModule("BuffPresetManager", "默认预设初始化完成");
+        DebugEx.Log(nameof(BuffPresetManager), "默认预设初始化完成");
     }
 
     #endregion
@@ -59,7 +59,7 @@ public class BuffPresetManager
     {
         if (string.IsNullOrEmpty(name) || buffIds == null || buffIds.Length == 0)
         {
-            DebugEx.WarningModule("BuffPresetManager", "预设名称或 Buff ID 列表为空");
+            DebugEx.Warning(nameof(BuffPresetManager), "预设名称或 Buff ID 列表为空");
             return;
         }
 
@@ -71,7 +71,7 @@ public class BuffPresetManager
         };
 
         m_Presets[name] = preset;
-        DebugEx.LogModule("BuffPresetManager", $"保存预设: {name} (包含 {buffIds.Length} 个 Buff)");
+        DebugEx.Log(nameof(BuffPresetManager), $"保存预设: {name} (包含 {buffIds.Length} 个 Buff)");
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class BuffPresetManager
             return preset.BuffIds;
         }
 
-        DebugEx.WarningModule("BuffPresetManager", $"未找到预设: {name}");
+        DebugEx.Warning(nameof(BuffPresetManager), $"未找到预设: {name}");
         return new int[] { };
     }
 
@@ -95,7 +95,7 @@ public class BuffPresetManager
     {
         if (m_Presets.Remove(name))
         {
-            DebugEx.LogModule("BuffPresetManager", $"删除预设: {name}");
+            DebugEx.Log(nameof(BuffPresetManager), $"删除预设: {name}");
             return true;
         }
 
@@ -126,12 +126,12 @@ public class BuffPresetManager
         var buffIds = LoadPreset(presetName);
         if (buffIds.Length == 0)
         {
-            DebugEx.WarningModule("BuffPresetManager", $"预设 {presetName} 不存在或为空");
+            DebugEx.Warning(nameof(BuffPresetManager), $"预设 {presetName} 不存在或为空");
             return;
         }
 
         BuffTestTool.Instance.ApplyBuffs(buffIds, target, caster);
-        DebugEx.LogModule("BuffPresetManager", $"应用预设 '{presetName}' 到 {target.name}");
+        DebugEx.Log(nameof(BuffPresetManager), $"应用预设 '{presetName}' 到 {target.name}");
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public class BuffPresetManager
     public void ClearAllPresets()
     {
         m_Presets.Clear();
-        DebugEx.LogModule("BuffPresetManager", "清空所有预设");
+        DebugEx.Log(nameof(BuffPresetManager), "清空所有预设");
     }
 
     #endregion

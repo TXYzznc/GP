@@ -29,7 +29,7 @@ public class PlayerExpManager
         int exp = CalculateExp(SOURCE_ITEM, quality);
         if (exp <= 0) return;
         PlayerAccountDataManager.Instance.AddExp(exp);
-        DebugEx.LogModule("PlayerExpManager", $"物品经验 +{exp}（稀有度={quality}）");
+        DebugEx.Log("PlayerExpManager", $"物品经验 +{exp}（稀有度={quality}）");
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class PlayerExpManager
         int exp = CalculateExp(SOURCE_ENEMY, difficulty);
         if (exp <= 0) return;
         PlayerAccountDataManager.Instance.AddExp(exp);
-        DebugEx.LogModule("PlayerExpManager", $"击败敌人经验 +{exp}（难度={difficulty}）");
+        DebugEx.Log("PlayerExpManager", $"击败敌人经验 +{exp}（难度={difficulty}）");
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class PlayerExpManager
         int exp = CalculateExp(SOURCE_QUEST, questType);
         if (exp <= 0) return;
         PlayerAccountDataManager.Instance.AddExp(exp);
-        DebugEx.LogModule("PlayerExpManager", $"任务经验 +{exp}（类型={questType}）");
+        DebugEx.Log("PlayerExpManager", $"任务经验 +{exp}（类型={questType}）");
     }
 
     /// <summary>
@@ -62,14 +62,14 @@ public class PlayerExpManager
         var expTable = GF.DataTable.GetDataTable<ExpRuleTable>();
         if (expTable == null)
         {
-            DebugEx.WarningModule("PlayerExpManager", "ExpRuleTable 未加载");
+            DebugEx.Warning("PlayerExpManager", "ExpRuleTable 未加载");
             return 0;
         }
 
         var rule = expTable.GetDataRow(r => r.SourceType == sourceType && r.SourceParam == sourceParam);
         if (rule == null)
         {
-            DebugEx.WarningModule("PlayerExpManager",
+            DebugEx.Warning("PlayerExpManager",
                 $"未找到经验规则: SourceType={sourceType}, SourceParam={sourceParam}");
             return 0;
         }

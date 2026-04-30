@@ -13,13 +13,13 @@ public class OutOfGameState : FsmState<GameStateManager>
     protected override void OnInit(IFsm<GameStateManager> fsm)
     {
         base.OnInit(fsm);
-        DebugEx.LogModule("OutOfGameState", "初始化");
+        DebugEx.Log("OutOfGameState", "初始化");
     }
 
     protected override void OnEnter(IFsm<GameStateManager> fsm)
     {
         base.OnEnter(fsm);
-        DebugEx.LogModule("OutOfGameState", "进入局外状态");
+        DebugEx.Log("OutOfGameState", "进入局外状态");
 
         // 触发进入局外状态事件
         GF.Event.Fire(this, ReferencePool.Acquire<OutOfGameEnterEventArgs>());
@@ -42,7 +42,7 @@ public class OutOfGameState : FsmState<GameStateManager>
 
     protected override void OnLeave(IFsm<GameStateManager> fsm, bool isShutdown)
     {
-        DebugEx.LogModule("OutOfGameState", "离开局外状态");
+        DebugEx.Log("OutOfGameState", "离开局外状态");
 
         // 关闭打开的菜单UI
         if (GF.UI.HasUIForm(m_InventoryFormId))
@@ -65,7 +65,7 @@ public class OutOfGameState : FsmState<GameStateManager>
 
     protected override void OnDestroy(IFsm<GameStateManager> fsm)
     {
-        DebugEx.LogModule("OutOfGameState", "销毁");
+        DebugEx.Log("OutOfGameState", "销毁");
         base.OnDestroy(fsm);
     }
 
@@ -75,12 +75,12 @@ public class OutOfGameState : FsmState<GameStateManager>
         {
             GF.UI.CloseUIForm(m_InventoryFormId);
             m_InventoryFormId = -1;
-            DebugEx.LogModule("OutOfGameState", "关闭背包");
+            DebugEx.Log("OutOfGameState", "关闭背包");
         }
         else
         {
             m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
-            DebugEx.LogModule("OutOfGameState", "打开背包");
+            DebugEx.Log("OutOfGameState", "打开背包");
         }
     }
 
@@ -90,12 +90,12 @@ public class OutOfGameState : FsmState<GameStateManager>
         {
             GF.UI.CloseUIForm(m_WarehouseFormId);
             m_WarehouseFormId = -1;
-            DebugEx.LogModule("OutOfGameState", "关闭仓库");
+            DebugEx.Log("OutOfGameState", "关闭仓库");
         }
         else
         {
             m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
-            DebugEx.LogModule("OutOfGameState", "打开仓库");
+            DebugEx.Log("OutOfGameState", "打开仓库");
         }
     }
 }

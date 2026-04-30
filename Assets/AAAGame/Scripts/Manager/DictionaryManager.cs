@@ -88,7 +88,7 @@ public class DictionaryManager
         if (m_SaveData.DiscoveredEnemyIds == null)
             m_SaveData.DiscoveredEnemyIds = new List<int>();
 
-        DebugEx.LogModule("DictionaryManager", "初始化完成");
+        DebugEx.Log("DictionaryManager", "初始化完成");
     }
 
     /// <summary>
@@ -252,7 +252,7 @@ public class DictionaryManager
         }
 
         OnEntryDiscovered?.Invoke(category, id);
-        DebugEx.LogModule("DictionaryManager", $"发现新条目: {category} id={id}");
+        DebugEx.Log("DictionaryManager", $"发现新条目: {category} id={id}");
         return true;
     }
 
@@ -361,10 +361,10 @@ public class DictionaryManager
             return;
 
         entry.Name = row.Name;
-        entry.Description = row.Description;
-        entry.IconId = row.IconId;
+        entry.Description = row.GetDescription(1);
+        entry.IconId = row.GetIconId(1);
         entry.Quality = row.Quality;
-        entry.SubText = $"★{row.StarLevel}";
+        entry.SubText = "★1";
     }
 
     private void FillCardEntry(ref DictionaryEntryData entry, int id)

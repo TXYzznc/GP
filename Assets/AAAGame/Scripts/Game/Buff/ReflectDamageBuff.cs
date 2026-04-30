@@ -52,6 +52,6 @@ public class ReflectDamageBuff : BuffBase
         attacker.TakeDamage(reflectDamage, false, true,
             damageType: DamageFloatingTextManager.DamageType.反弹伤害);
 
-        DebugEx.LogModule("ReflectDamageBuff", $"反伤 {reflectDamage:F1} → 攻击者");
+        DebugEx.Log("ReflectDamageBuff", $"反伤 {reflectDamage:F1} → 攻击者");
     }
 }

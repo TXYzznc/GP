@@ -85,7 +85,7 @@ public class PlayerSkillManager : MonoBehaviour
                 Controller = character.GetComponent<PlayerController>(),
             };
 
-            DebugEx.Log("[PlayerSkillManager] 已设置玩家角色");
+            DebugEx.Log(nameof(PlayerSkillManager), "已设置玩家角色");
         }
     }
 
@@ -95,7 +95,7 @@ public class PlayerSkillManager : MonoBehaviour
     public void SetParamRegistry(SkillParamRegistrySO registry)
     {
         paramRegistry = registry;
-        DebugEx.Log("[PlayerSkillManager] 技能参数注册表已设置");
+        DebugEx.Log(nameof(PlayerSkillManager), "技能参数注册表已设置");
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class PlayerSkillManager : MonoBehaviour
             var skill = SkillFactory.Create(id);
             if (skill == null)
             {
-                DebugEx.Error($"SkillFactory.Create failed, skillId={id} (未注册?)");
+                DebugEx.Error(nameof(PlayerSkillManager), $"SkillFactory.Create failed, skillId={id} (未注册?)");
                 continue;
             }
 
@@ -139,7 +139,7 @@ public class PlayerSkillManager : MonoBehaviour
         var row = tb?.GetDataRow(skillId);
         if (row == null)
         {
-            DebugEx.Error($"PlayerSkillTable missing skillId={skillId}");
+            DebugEx.Error(nameof(PlayerSkillManager), $"PlayerSkillTable missing skillId={skillId}");
             return default;
         }
 

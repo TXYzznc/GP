@@ -43,7 +43,7 @@ public class ChessUnlockManager
     public void Initialize(PlayerSaveData saveData)
     {
         m_CurrentSaveData = saveData;
-        DebugEx.LogModule("ChessUnlockManager", "初始化完成");
+        DebugEx.Log(nameof(ChessUnlockManager), "初始化完成");
     }
 
     #endregion
@@ -59,20 +59,20 @@ public class ChessUnlockManager
     {
         if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
         {
-            DebugEx.ErrorModule("ChessUnlockManager", "SaveData 未初始化");
+            DebugEx.Error(nameof(ChessUnlockManager), "SaveData 未初始化");
             return false;
         }
 
         if (m_CurrentSaveData.OwnedUnitCardIds.Contains(chessId))
         {
-            DebugEx.LogModule("ChessUnlockManager", $"棋子已解锁: chessId={chessId}");
+            DebugEx.Log(nameof(ChessUnlockManager), $"棋子已解锁: chessId={chessId}");
             return false;
         }
 
         m_CurrentSaveData.OwnedUnitCardIds.Add(chessId);
         OnChessUnlocked?.Invoke(chessId);
 
-        DebugEx.LogModule("ChessUnlockManager", $"棋子已解锁: chessId={chessId}");
+        DebugEx.Log(nameof(ChessUnlockManager), $"棋子已解锁: chessId={chessId}");
         return true;
     }
 
@@ -131,28 +131,6 @@ public class ChessUnlockManager
         return count;
     }
 
-    /// <summary>
-    /// 获取指定星级的已解锁棋子数量
-    /// </summary>
-    public int GetUnlockedCountByStarLevel(int starLevel)
-    {
-        if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
-            return 0;
-
-        int count = 0;
-        foreach (var chessId in m_CurrentSaveData.OwnedUnitCardIds)
-        {
-            if (ChessDataManager.Instance.TryGetConfig(chessId, out var config))
-            {
-                if (config.StarLevel == starLevel)
-                {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
     #endregion
 
     #region 存档操作
@@ -166,7 +144,7 @@ public class ChessUnlockManager
         {
             m_CurrentSaveData.OwnedUnitCardIds.Clear();
         }
-        DebugEx.LogModule("ChessUnlockManager", "已清空棋子列表");
+        DebugEx.Log(nameof(ChessUnlockManager), "已清空棋子列表");
     }
 
     /// <summary>
@@ -177,7 +155,7 @@ public class ChessUnlockManager
     {
         if (m_CurrentSaveData == null || m_CurrentSaveData.OwnedUnitCardIds == null)
         {
-            DebugEx.ErrorModule("ChessUnlockManager", "SaveData 未初始化");
+            DebugEx.Error(nameof(ChessUnlockManager), "SaveData 未初始化");
             return;
         }
 
@@ -190,8 +168,8 @@ public class ChessUnlockManager
                 UnlockChess(chessId);
             }
 
-            DebugEx.LogModule(
-                "ChessUnlockManager",
+            DebugEx.Log(
+                nameof(ChessUnlockManager),
                 $"新存档初始化: 解锁 {initialChessIds.Count} 个棋子"
             );
         }
@@ -226,26 +204,26 @@ public class ChessUnlockManager
     {
         if (m_CurrentSaveData?.OwnedUnitCardIds == null)
         {
-            DebugEx.LogModule("ChessUnlockManager", "未初始化");
+            DebugEx.Log(nameof(ChessUnlockManager), "未初始化");
             return;
         }
 
-        DebugEx.LogModule(
-            "ChessUnlockManager",
+        DebugEx.Log(
+            nameof(ChessUnlockManager),
             $"已解锁棋子 ({m_CurrentSaveData.OwnedUnitCardIds.Count}):"
         );
         foreach (var chessId in m_CurrentSaveData.OwnedUnitCardIds)
         {
             if (ChessDataManager.Instance.TryGetConfig(chessId, out var config))
             {
-                DebugEx.LogModule(
-                    "ChessUnlockManager",
-                    $"  - ID={chessId}, Name={config.Name}, Quality={config.Quality}, StarLevel={config.StarLevel}"
+                DebugEx.Log(
+                    nameof(ChessUnlockManager),
+                    $"  - ID={chessId}, Name={config.Name}, Quality={config.Quality}"
                 );
             }
             else
             {
-                DebugEx.LogModule("ChessUnlockManager", $"  - ID={chessId} (配置未找到)");
+                DebugEx.Log(nameof(ChessUnlockManager), $"  - ID={chessId} (配置未找到)");
             }
         }
     }

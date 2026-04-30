@@ -61,11 +61,11 @@ public static class EffectExecutor
                 if (buffId == 0) continue; // 跳过无效ID
 
                 target.BuffManager?.AddBuff(
-                    buffId, 
-                    attacker.gameObject, 
+                    buffId,
+                    attacker.gameObject,
                     attacker.Attribute);
-                    
-                DebugEx.LogModule("EffectExecutor", 
+
+                DebugEx.Log("EffectExecutor",
                     $"[{timingName}] {attacker.Config?.Name} 给 {target.Config?.Name} 添加 Buff {buffId}");
             }
         }
@@ -78,11 +78,11 @@ public static class EffectExecutor
                 if (buffId == 0) continue; // 跳过无效ID
 
                 attacker.BuffManager?.AddBuff(
-                    buffId, 
-                    attacker.gameObject, 
+                    buffId,
+                    attacker.gameObject,
                     attacker.Attribute);
-                    
-                DebugEx.LogModule("EffectExecutor", 
+
+                DebugEx.Log("EffectExecutor",
                     $"[{timingName}] {attacker.Config?.Name} 给自己添加 Buff {buffId}");
             }
         }

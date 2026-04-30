@@ -214,8 +214,8 @@ public class ChessPlacementManager
         m_CurrentPlacingChessId = instance.ChessId;
         m_IsPlacing = true;
 
-        // 加载预制体
-        GameObject prefab = await GameExtension.ResourceExtension.LoadPrefabAsync(config.PrefabId);
+        // 加载预制体（使用Rank 1）
+        GameObject prefab = await GameExtension.ResourceExtension.LoadPrefabAsync(config.GetPrefabId(1));
         if (prefab == null)
         {
             Log.Error($"ChessPlacementManager: 预制体加载失败 Id={instance.ChessId}");
@@ -241,7 +241,7 @@ public class ChessPlacementManager
         // 检查是否释放在 UI 上
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
-            DebugEx.LogModule("ChessPlacementManager", "拖拽释放在UI上，取消放置");
+            DebugEx.Log("ChessPlacementManager", "拖拽释放在UI上，取消放置");
             CancelPlacement();
             return;
         }
@@ -260,7 +260,7 @@ public class ChessPlacementManager
                 && !BattleArenaManager.Instance.IsInPlayerZone(hit.point)
             )
             {
-                DebugEx.WarningModule(
+                DebugEx.Warning(
                     "ChessPlacementManager",
                     "拖拽释放位置不在我方区域，取消放置"
                 );
@@ -274,7 +274,7 @@ public class ChessPlacementManager
         else
         {
             // 不在有效区域 → 取消放置
-            DebugEx.LogModule("ChessPlacementManager", "拖拽释放位置不在有效区域，取消放置");
+            DebugEx.Log("ChessPlacementManager", "拖拽释放位置不在有效区域，取消放置");
             CancelPlacement();
         }
     }
@@ -364,7 +364,7 @@ public class ChessPlacementManager
                 && !BattleArenaManager.Instance.IsInPlayerZone(hit.point)
             )
             {
-                DebugEx.WarningModule("ChessPlacementManager", "点击位置不在我方区域，取消放置");
+                DebugEx.Warning("ChessPlacementManager", "点击位置不在我方区域，取消放置");
                 CancelPlacement();
                 return;
             }
@@ -375,7 +375,7 @@ public class ChessPlacementManager
         else
         {
             // 不在有效区域 → 取消放置
-            DebugEx.LogModule("ChessPlacementManager", "点击位置不在有效区域，取消放置");
+            DebugEx.Log("ChessPlacementManager", "点击位置不在有效区域，取消放置");
             CancelPlacement();
         }
     }

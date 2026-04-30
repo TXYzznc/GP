@@ -12,7 +12,7 @@ public class HouyiNormalAttack : ChessNormalAttackBase
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
-        DebugEx.LogModule("HouyiNormalAttack", "后羿普攻初始化完成");
+        DebugEx.Log("HouyiNormalAttack", "后羿普攻初始化完成");
     }
 
     /// <summary>
@@ -22,17 +22,17 @@ public class HouyiNormalAttack : ChessNormalAttackBase
     {
         if (caster == null)
         {
-            DebugEx.ErrorModule("HouyiNormalAttack", "ExecuteAttack: caster 为 null");
+            DebugEx.Error("HouyiNormalAttack", "ExecuteAttack: caster 为 null");
             return;
         }
 
         if (target == null)
         {
-            DebugEx.WarningModule("HouyiNormalAttack", "ExecuteAttack: target 为 null");
+            DebugEx.Warning("HouyiNormalAttack", "ExecuteAttack: target 为 null");
             return;
         }
 
-        DebugEx.LogModule("HouyiNormalAttack", $"执行普攻 → 目标: {target.Config?.Name}");
+        DebugEx.Log("HouyiNormalAttack", $"执行普攻 → 目标: {target.Config?.Name}");
 
         // 1. 计算伤害
         double damage = CalculateDamage(caster, out bool isCritical);
@@ -71,7 +71,7 @@ public class HouyiNormalAttack : ChessNormalAttackBase
         // 5. 回复蓝量
         RestoreMana(caster);
 
-        DebugEx.LogModule("HouyiNormalAttack", "普攻执行完成，投射物已发射");
+        DebugEx.Log("HouyiNormalAttack", "普攻执行完成，投射物已发射");
     }
 
     #endregion
@@ -92,7 +92,7 @@ public class HouyiNormalAttack : ChessNormalAttackBase
             if (target.BuffManager != null)
             {
                 target.BuffManager.AddBuff(1, m_Ctx.Owner, m_Ctx.Attribute); // 灼烧 ID=1
-                DebugEx.LogModule(
+                DebugEx.Log(
                     "HouyiNormalAttack",
                     $"烈焰箭激活，对 {target.Config?.Name} 附带灼烧效果"
                 );

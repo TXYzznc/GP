@@ -128,7 +128,7 @@ public class CardData
         }
         catch (Exception e)
         {
-            DebugEx.WarningModule("CardData", $"ParamsConfig 解析失败: {e.Message}, raw={raw}");
+            DebugEx.Warning("CardData", $"ParamsConfig 解析失败: {e.Message}, raw={raw}");
             return null;
         }
     }

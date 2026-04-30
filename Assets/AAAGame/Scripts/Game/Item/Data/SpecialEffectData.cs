@@ -28,7 +28,7 @@ public class SpecialEffectData
             }
             catch (Exception e)
             {
-                DebugEx.Error("SpecialEffectData", $"解析效果参数失败 ID:{Id}, Error:{e.Message}");
+                DebugEx.Error(nameof(SpecialEffectData), $"解析效果参数失败 ID:{Id}, Error:{e.Message}");
                 m_ParsedParams = new JObject();
             }
         }
@@ -49,7 +49,7 @@ public class SpecialEffectData
             }
             catch
             {
-                DebugEx.Warning("SpecialEffectData", $"获取参数失败 ID:{Id}, Key:{key}");
+                DebugEx.Warning(nameof(SpecialEffectData), $"获取参数失败 ID:{Id}, Key:{key}");
             }
         }
         return defaultValue;

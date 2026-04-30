@@ -48,7 +48,7 @@ public class DamagePopupItem : MonoBehaviour
             m_CanvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
 
-        DebugEx.LogModule("DamagePopupItem", "飘字组件初始化完成");
+        DebugEx.Log("DamagePopupItem", "飘字组件初始化完成");
     }
 
     #endregion

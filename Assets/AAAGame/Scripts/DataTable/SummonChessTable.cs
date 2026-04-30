@@ -74,108 +74,90 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 星级（1, 2, 3）
+        /// 棋子预制体资源ID（阶级数组，暂时三阶相同）
         /// </summary>
-        public int StarLevel
+        public int[] PrefabId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 进化到下一星级的配置ID（3星填0）
+        /// UI图标资源ID（阶级数组，暂时三阶相同）
         /// </summary>
-        public int NextStarId
+        public int[] IconId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 棋子预制体资源ID
+        /// 最大生命值（三个阶级）
         /// </summary>
-        public int PrefabId
+        public double[] MaxHp
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// UI图标资源ID
+        /// 最大法力值（三个阶级）
         /// </summary>
-        public int IconId
+        public double[] MaxMp
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 最大生命值
+        /// 初始法力值（三个阶级）
         /// </summary>
-        public double MaxHp
+        public double[] InitialMp
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 最大法力值
+        /// 攻击力（三个阶级）
         /// </summary>
-        public double MaxMp
+        public double[] AtkDamage
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 初始法力值
+        /// 攻击速度（三个阶级）
         /// </summary>
-        public double InitialMp
+        public double[] AtkSpeed
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 攻击力（物理伤害）
+        /// 攻击距离（三个阶级）
         /// </summary>
-        public double AtkDamage
+        public double[] AtkRange
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 攻击速度（每秒攻击次数）
+        /// 护甲（三个阶级）
         /// </summary>
-        public double AtkSpeed
+        public double[] Armor
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 攻击距离（格子数或米）
+        /// 魔抗（三个阶级）
         /// </summary>
-        public double AtkRange
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 护甲（物理减伤）
-        /// </summary>
-        public double Armor
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 魔抗（魔法减伤）
-        /// </summary>
-        public double MagicResist
+        public double[] MagicResist
         {
             get;
             private set;
@@ -191,27 +173,27 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 暴击率
+        /// 暴击率（三个阶级）
         /// </summary>
-        public double CritRate
+        public double[] CritRate
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 暴击伤害倍率
+        /// 暴击伤害倍率（三个阶级）
         /// </summary>
-        public double CritDamage
+        public double[] CritDamage
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 法术强度
+        /// 法术强度（三个阶级）
         /// </summary>
-        public double SpellPower
+        public double[] SpellPower
         {
             get;
             private set;
@@ -227,7 +209,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 冷却缩减（百分比）
+        /// 冷却缩减
         /// </summary>
         public double CooldownReduce
         {
@@ -236,7 +218,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 被动技能ID数组
+        /// 被动技能ID数组（三个值，暂时相同）
         /// </summary>
         public int[] PassiveIds
         {
@@ -245,27 +227,27 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 普攻效果技能ID
+        /// 普攻效果技能ID（三个值，暂时相同）
         /// </summary>
-        public int NormalAtkId
+        public int[] NormalAtkId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 技能一ID
+        /// 技能一ID（三个值，暂时相同）
         /// </summary>
-        public int Skill1Id
+        public int[] Skill1Id
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 大招ID
+        /// 大招ID（三个值，暂时相同）
         /// </summary>
-        public int Skill2Id
+        public int[] Skill2Id
         {
             get;
             private set;
@@ -281,9 +263,9 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 棋子的背景描述
+        /// 棋子的背景描述（三个值：一阶/二阶/三阶）
         /// </summary>
-        public string Description
+        public string[] Description
         {
             get;
             private set;
@@ -306,30 +288,28 @@ public partial class SummonChessTable : DataRowBase
             PopCost = int.Parse(columnStrings[index++]);
             Races = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             Classes = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            StarLevel = int.Parse(columnStrings[index++]);
-            NextStarId = int.Parse(columnStrings[index++]);
-            PrefabId = int.Parse(columnStrings[index++]);
-            IconId = int.Parse(columnStrings[index++]);
-            MaxHp = double.Parse(columnStrings[index++]);
-            MaxMp = double.Parse(columnStrings[index++]);
-            InitialMp = double.Parse(columnStrings[index++]);
-            AtkDamage = double.Parse(columnStrings[index++]);
-            AtkSpeed = double.Parse(columnStrings[index++]);
-            AtkRange = double.Parse(columnStrings[index++]);
-            Armor = double.Parse(columnStrings[index++]);
-            MagicResist = double.Parse(columnStrings[index++]);
+            PrefabId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            IconId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            MaxHp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            MaxMp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            InitialMp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            AtkDamage = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            AtkSpeed = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            AtkRange = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            Armor = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            MagicResist = DataTableExtension.ParseArray<double>(columnStrings[index++]);
             MoveSpeed = double.Parse(columnStrings[index++]);
-            CritRate = double.Parse(columnStrings[index++]);
-            CritDamage = double.Parse(columnStrings[index++]);
-            SpellPower = double.Parse(columnStrings[index++]);
+            CritRate = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            CritDamage = DataTableExtension.ParseArray<double>(columnStrings[index++]);
+            SpellPower = DataTableExtension.ParseArray<double>(columnStrings[index++]);
             Shield = double.Parse(columnStrings[index++]);
             CooldownReduce = double.Parse(columnStrings[index++]);
             PassiveIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            NormalAtkId = int.Parse(columnStrings[index++]);
-            Skill1Id = int.Parse(columnStrings[index++]);
-            Skill2Id = int.Parse(columnStrings[index++]);
+            NormalAtkId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            Skill1Id = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            Skill2Id = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             AIType = int.Parse(columnStrings[index++]);
-            Description = columnStrings[index++];
+            Description = DataTableExtension.ParseArray<string>(columnStrings[index++]);
 
             return true;
         }
@@ -346,30 +326,28 @@ public partial class SummonChessTable : DataRowBase
                     PopCost = binaryReader.Read7BitEncodedInt32();
                     Races = binaryReader.ReadArray<int>();
                     Classes = binaryReader.ReadArray<int>();
-                    StarLevel = binaryReader.Read7BitEncodedInt32();
-                    NextStarId = binaryReader.Read7BitEncodedInt32();
-                    PrefabId = binaryReader.Read7BitEncodedInt32();
-                    IconId = binaryReader.Read7BitEncodedInt32();
-                    MaxHp = binaryReader.ReadDouble();
-                    MaxMp = binaryReader.ReadDouble();
-                    InitialMp = binaryReader.ReadDouble();
-                    AtkDamage = binaryReader.ReadDouble();
-                    AtkSpeed = binaryReader.ReadDouble();
-                    AtkRange = binaryReader.ReadDouble();
-                    Armor = binaryReader.ReadDouble();
-                    MagicResist = binaryReader.ReadDouble();
+                    PrefabId = binaryReader.ReadArray<int>();
+                    IconId = binaryReader.ReadArray<int>();
+                    MaxHp = binaryReader.ReadArray<double>();
+                    MaxMp = binaryReader.ReadArray<double>();
+                    InitialMp = binaryReader.ReadArray<double>();
+                    AtkDamage = binaryReader.ReadArray<double>();
+                    AtkSpeed = binaryReader.ReadArray<double>();
+                    AtkRange = binaryReader.ReadArray<double>();
+                    Armor = binaryReader.ReadArray<double>();
+                    MagicResist = binaryReader.ReadArray<double>();
                     MoveSpeed = binaryReader.ReadDouble();
-                    CritRate = binaryReader.ReadDouble();
-                    CritDamage = binaryReader.ReadDouble();
-                    SpellPower = binaryReader.ReadDouble();
+                    CritRate = binaryReader.ReadArray<double>();
+                    CritDamage = binaryReader.ReadArray<double>();
+                    SpellPower = binaryReader.ReadArray<double>();
                     Shield = binaryReader.ReadDouble();
                     CooldownReduce = binaryReader.ReadDouble();
                     PassiveIds = binaryReader.ReadArray<int>();
-                    NormalAtkId = binaryReader.Read7BitEncodedInt32();
-                    Skill1Id = binaryReader.Read7BitEncodedInt32();
-                    Skill2Id = binaryReader.Read7BitEncodedInt32();
+                    NormalAtkId = binaryReader.ReadArray<int>();
+                    Skill1Id = binaryReader.ReadArray<int>();
+                    Skill2Id = binaryReader.ReadArray<int>();
                     AIType = binaryReader.Read7BitEncodedInt32();
-                    Description = binaryReader.ReadString();
+                    Description = binaryReader.ReadArray<string>();
                 }
             }
 

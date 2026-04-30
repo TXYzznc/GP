@@ -23,7 +23,7 @@ public class RaycastHitDetector : HitDetectorBase
             direction = (context.LockedTarget.transform.position - origin).normalized;
         }
 
-        DebugEx.LogModule("RaycastHitDetector", $"起点: {origin}, 方向: {direction}, 距离: {maxDistance}");
+        DebugEx.Log(nameof(RaycastHitDetector), $"起点: {origin}, 方向: {direction}, 距离: {maxDistance}");
 
         // 执行射线检测
         int hitCount = Physics.RaycastNonAlloc(origin, direction, s_HitBuffer, maxDistance, context.EnemyLayerMask);
@@ -61,7 +61,7 @@ public class RaycastHitDetector : HitDetectorBase
             ApplyDamage(target, context);
             actualHitCount++;
 
-            DebugEx.LogModule("RaycastHitDetector", $"射线命中: {target.Config?.Name}, 距离: {hit.distance:F2}");
+            DebugEx.Log(nameof(RaycastHitDetector), $"射线命中: {target.Config?.Name}, 距离: {hit.distance:F2}");
         }
 
         // 完成检测

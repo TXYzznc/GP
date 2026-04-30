@@ -22,7 +22,7 @@ public class BuffTestExample : MonoBehaviour
         BuffTestTool.Instance.ApplyBuffToTarget(10101, target);
 
         // 验证
-        DebugEx.LogModule("BuffTestExample", "✓ 示例 1 完成：已应用单个 Buff");
+        DebugEx.Log(nameof(BuffTestExample), "✓ 示例 1 完成：已应用单个 Buff");
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class BuffTestExample : MonoBehaviour
         int[] buffIds = { 10101, 10102, 10106 };
         BuffTestTool.Instance.ApplyBuffs(buffIds, target);
 
-        DebugEx.LogModule("BuffTestExample", $"✓ 示例 2 完成：已应用 {buffIds.Length} 个 Buff");
+        DebugEx.Log(nameof(BuffTestExample), $"✓ 示例 2 完成：已应用 {buffIds.Length} 个 Buff");
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class BuffTestExample : MonoBehaviour
         // 应用预设：伤害组合（攻击+ + 出血）
         BuffPresetManager.Instance.ApplyPreset("伤害组合", target);
 
-        DebugEx.LogModule("BuffTestExample", "✓ 示例 3 完成：已应用预设 '伤害组合'");
+        DebugEx.Log(nameof(BuffTestExample), "✓ 示例 3 完成：已应用预设 '伤害组合'");
     }
 
     /// <summary>
@@ -68,11 +68,11 @@ public class BuffTestExample : MonoBehaviour
         var result = BuffEffectVerifier.Instance.VerifyBuffApplied(10101, target);
         if (result.IsApplied)
         {
-            DebugEx.LogModule("BuffTestExample", $"✓ {result.BuffName} 已成功应用，堆叠数: {result.StackCount}");
+            DebugEx.Log(nameof(BuffTestExample), $"✓ {result.BuffName} 已成功应用，堆叠数: {result.StackCount}");
         }
         else
         {
-            DebugEx.ErrorModule("BuffTestExample", $"✗ Buff 应用失败: {result.Message}");
+            DebugEx.Error(nameof(BuffTestExample), $"✗ Buff 应用失败: {result.Message}");
         }
     }
 
@@ -96,7 +96,7 @@ public class BuffTestExample : MonoBehaviour
             report.AppendLine($"  • {buff.Name} (ID={buff.BuffId}, 堆叠={buff.StackCount})");
         }
 
-        DebugEx.LogModule("BuffTestExample", report.ToString());
+        DebugEx.Log(nameof(BuffTestExample), report.ToString());
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class BuffTestExample : MonoBehaviour
         report.AppendLine($"  防御力: {attr.PhysDef:F0}");
         report.AppendLine($"  速度: {attr.Speed:F0}");
 
-        DebugEx.LogModule("BuffTestExample", report.ToString());
+        DebugEx.Log(nameof(BuffTestExample), report.ToString());
     }
 
     /// <summary>
@@ -138,11 +138,11 @@ public class BuffTestExample : MonoBehaviour
         var controls = BuffEffectVerifier.Instance.GetControlStates(target);
         if (controls.Count > 0)
         {
-            DebugEx.LogModule("BuffTestExample", $"✓ 目标处于以下控制状态: {string.Join(", ", controls)}");
+            DebugEx.Log(nameof(BuffTestExample), $"✓ 目标处于以下控制状态: {string.Join(", ", controls)}");
         }
         else
         {
-            DebugEx.LogModule("BuffTestExample", "✓ 目标没有控制状态");
+            DebugEx.Log(nameof(BuffTestExample), "✓ 目标没有控制状态");
         }
     }
 
@@ -164,7 +164,7 @@ public class BuffTestExample : MonoBehaviour
         var buff = BuffTestTool.Instance.GetBuff(10101, target);
         if (buff != null)
         {
-            DebugEx.LogModule("BuffTestExample", $"✓ Buff 堆叠成功，当前堆叠数: {buff.StackCount}");
+            DebugEx.Log(nameof(BuffTestExample), $"✓ Buff 堆叠成功，当前堆叠数: {buff.StackCount}");
         }
     }
 
@@ -184,12 +184,12 @@ public class BuffTestExample : MonoBehaviour
         bool removed = BuffTestTool.Instance.RemoveBuffFromTarget(10101, target);
         if (removed)
         {
-            DebugEx.LogModule("BuffTestExample", "✓ 已移除 Buff (ID=10101)");
+            DebugEx.Log(nameof(BuffTestExample), "✓ 已移除 Buff (ID=10101)");
         }
 
         // 验证剩余 Buff
         var buffs = BuffTestTool.Instance.GetTargetBuffs(target);
-        DebugEx.LogModule("BuffTestExample", $"✓ 目标剩余 {buffs.Count} 个 Buff");
+        DebugEx.Log(nameof(BuffTestExample), $"✓ 目标剩余 {buffs.Count} 个 Buff");
     }
 
     /// <summary>
@@ -206,14 +206,14 @@ public class BuffTestExample : MonoBehaviour
 
         // 生成报告（清空前）
         var reportBefore = BuffEffectVerifier.Instance.GenerateTestReport(target);
-        DebugEx.LogModule("BuffTestExample", "【清空前的报告】\n" + reportBefore);
+        DebugEx.Log(nameof(BuffTestExample), "【清空前的报告】\n" + reportBefore);
 
         // 清空所有 Buff
         BuffTestTool.Instance.ClearAllBuffs(target);
 
         // 生成报告（清空后）
         var reportAfter = BuffEffectVerifier.Instance.GenerateTestReport(target);
-        DebugEx.LogModule("BuffTestExample", "【清空后的报告】\n" + reportAfter);
+        DebugEx.Log(nameof(BuffTestExample), "【清空后的报告】\n" + reportAfter);
     }
 
     /// <summary>
@@ -245,7 +245,7 @@ public class BuffTestExample : MonoBehaviour
             BuffTestTool.Instance.RemoveBuffFromTarget(buff.BuffId, target);
         }
 
-        DebugEx.LogModule("BuffTestExample",
+        DebugEx.Log(nameof(BuffTestExample),
             $"✓ 自动化测试完成: 成功={successCount}, 失败={failCount}, 总计={allBuffs.Count}");
     }
 
@@ -264,7 +264,7 @@ public class BuffTestExample : MonoBehaviour
         // 应用自定义预设
         BuffPresetManager.Instance.ApplyPreset("超级组合", target);
 
-        DebugEx.LogModule("BuffTestExample", "✓ 已创建并应用自定义预设 '超级组合'");
+        DebugEx.Log(nameof(BuffTestExample), "✓ 已创建并应用自定义预设 '超级组合'");
     }
 
     #endregion
@@ -279,7 +279,7 @@ public class BuffTestExample : MonoBehaviour
         var entity = FindObjectOfType<ChessEntity>();
         if (entity == null)
         {
-            DebugEx.ErrorModule("BuffTestExample", "场景中没有找到任何棋子实体");
+            DebugEx.Error(nameof(BuffTestExample), "场景中没有找到任何棋子实体");
             return null;
         }
 
@@ -291,7 +291,7 @@ public class BuffTestExample : MonoBehaviour
     /// </summary>
     public void RunAllExamples()
     {
-        DebugEx.LogModule("BuffTestExample", "=== 开始运行所有示例 ===");
+        DebugEx.Log(nameof(BuffTestExample), "=== 开始运行所有示例 ===");
 
         Example1_ApplySingleBuff();
         BuffTestTool.Instance.ClearAllBuffs(GetTestTarget());
@@ -324,7 +324,7 @@ public class BuffTestExample : MonoBehaviour
         Example11_TestAllBuffs();
         Example12_CreateCustomPreset();
 
-        DebugEx.LogModule("BuffTestExample", "=== 所有示例运行完成 ===");
+        DebugEx.Log(nameof(BuffTestExample), "=== 所有示例运行完成 ===");
     }
 
     #endregion

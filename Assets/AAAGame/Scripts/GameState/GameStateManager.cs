@@ -109,7 +109,7 @@ public class GameStateManager : SingletonBase<GameStateManager>
 
         m_MainFsm = GF.Fsm.CreateFsm(this, states);
 
-        DebugEx.LogModule("GameStateManager", "主状态机已创建");
+        DebugEx.Log(nameof(GameStateManager), "主状态机已创建");
     }
 
     #endregion
@@ -123,11 +123,11 @@ public class GameStateManager : SingletonBase<GameStateManager>
     {
         if (m_MainFsm == null)
         {
-            DebugEx.ErrorModule("GameStateManager", "状态机未初始化");
+            DebugEx.Error(nameof(GameStateManager), "状态机未初始化");
             return;
         }
 
-        DebugEx.LogModule("GameStateManager", "切换到局外状态");
+        DebugEx.Log(nameof(GameStateManager), "切换到局外状态");
 
         // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
         if (!m_MainFsm.IsRunning)
@@ -147,11 +147,11 @@ public class GameStateManager : SingletonBase<GameStateManager>
     {
         if (m_MainFsm == null)
         {
-            DebugEx.ErrorModule("GameStateManager", "状态机未初始化");
+            DebugEx.Error(nameof(GameStateManager), "状态机未初始化");
             return;
         }
 
-        DebugEx.LogModule("GameStateManager", "切换到局内状态");
+        DebugEx.Log(nameof(GameStateManager), "切换到局内状态");
 
         // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
         if (!m_MainFsm.IsRunning)
@@ -171,11 +171,11 @@ public class GameStateManager : SingletonBase<GameStateManager>
     {
         if (m_MainFsm == null)
         {
-            DebugEx.ErrorModule("GameStateManager", "状态机未初始化");
+            DebugEx.Error(nameof(GameStateManager), "状态机未初始化");
             return;
         }
 
-        DebugEx.LogModule("GameStateManager", "切换到主菜单状态");
+        DebugEx.Log(nameof(GameStateManager), "切换到主菜单状态");
 
         // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
         if (!m_MainFsm.IsRunning)
@@ -199,7 +199,7 @@ public class GameStateManager : SingletonBase<GameStateManager>
         }
         else
         {
-            DebugEx.WarningModule("GameStateManager", "当前不在局内状态，无法切换到探索状态");
+            DebugEx.Warning(nameof(GameStateManager), "当前不在局内状态，无法切换到探索状态");
         }
     }
 
@@ -214,7 +214,7 @@ public class GameStateManager : SingletonBase<GameStateManager>
         }
         else
         {
-            DebugEx.WarningModule("GameStateManager", "当前不在局内状态，无法切换到战斗准备状态");
+            DebugEx.Warning(nameof(GameStateManager), "当前不在局内状态，无法切换到战斗准备状态");
         }
     }
 
@@ -229,7 +229,7 @@ public class GameStateManager : SingletonBase<GameStateManager>
         }
         else
         {
-            DebugEx.WarningModule("GameStateManager", "当前不在局内状态，无法切换到战斗状态");
+            DebugEx.Warning(nameof(GameStateManager), "当前不在局内状态，无法切换到战斗状态");
         }
     }
 
@@ -276,16 +276,16 @@ public class GameStateManager : SingletonBase<GameStateManager>
                 // 调用方法
                 genericMethod.Invoke(m_MainFsm, null);
 
-                DebugEx.LogModule("GameStateManager", $"成功切换到状态 {typeof(TState).Name}");
+                DebugEx.Log(nameof(GameStateManager), $"成功切换到状态 {typeof(TState).Name}");
             }
             else
             {
-                DebugEx.ErrorModule("GameStateManager", "未找到 ChangeState<T>() 方法");
+                DebugEx.Error(nameof(GameStateManager), "未找到 ChangeState<T>() 方法");
             }
         }
         catch (System.Exception ex)
         {
-            DebugEx.ErrorModule("GameStateManager", $"切换状态失败 - {ex.Message}");
+            DebugEx.Error(nameof(GameStateManager), $"切换状态失败 - {ex.Message}");
         }
     }
 

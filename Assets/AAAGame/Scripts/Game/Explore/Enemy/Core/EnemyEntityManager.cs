@@ -25,14 +25,14 @@ public class EnemyCombatData
         var enemyTable = GF.DataTable.GetDataTable<EnemyTable>();
         if (enemyTable == null)
         {
-            DebugEx.ErrorModule("EnemyCombatData", "EnemyTable 数据表未加载");
+            DebugEx.Error("EnemyCombatData", "EnemyTable 数据表未加载");
             return null;
         }
 
         var enemyData = enemyTable.GetDataRow(entity.Config.BattleConfigId);
         if (enemyData == null)
         {
-            DebugEx.ErrorModule(
+            DebugEx.Error(
                 "EnemyCombatData",
                 $"未找到 EnemyTable 配置: BattleConfigId={entity.Config.BattleConfigId}"
             );
@@ -71,7 +71,7 @@ public class EnemyCombatData
         var enemyTable = GF.DataTable.GetDataTable<EnemyTable>();
         if (enemyTable == null)
         {
-            DebugEx.ErrorModule("EnemyCombatData", "EnemyTable 数据表未加载");
+            DebugEx.Error("EnemyCombatData", "EnemyTable 数据表未加载");
             return null;
         }
 
@@ -86,7 +86,7 @@ public class EnemyCombatData
         var firstEnemyData = enemyTable.GetDataRow(firstEnemy.Config.BattleConfigId);
         if (firstEnemyData == null)
         {
-            DebugEx.ErrorModule(
+            DebugEx.Error(
                 "EnemyCombatData",
                 $"未找到触发者的 EnemyTable 配置: BattleConfigId={firstEnemy.Config.BattleConfigId}"
             );
@@ -129,7 +129,7 @@ public class EnemyCombatData
             var enemyData = enemyTable.GetDataRow(enemy.Config.BattleConfigId);
             if (enemyData == null)
             {
-                DebugEx.WarningModule(
+                DebugEx.Warning(
                     "EnemyCombatData",
                     $"跳过敌人（未找到配置）: {enemy.Config.Name}, BattleConfigId={enemy.Config.BattleConfigId}"
                 );
@@ -230,7 +230,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         base.Awake();
         GF.Event.Subscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
-        DebugEx.LogModule("EnemyEntityManager", "初始化完成");
+        DebugEx.Log("EnemyEntityManager", "初始化完成");
     }
 
     protected override void OnDestroy()
@@ -254,7 +254,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         if (!m_Entities.Contains(entity))
         {
             m_Entities.Add(entity);
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "EnemyEntityManager",
                 $"注册敌人实体: {entity.Config.Name}, 当前总数={m_Entities.Count}"
             );
@@ -271,7 +271,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
 
         if (m_Entities.Remove(entity))
         {
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "EnemyEntityManager",
                 $"注销敌人实体: {entity.Config.Name}, 当前总数={m_Entities.Count}"
             );
@@ -285,13 +285,13 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         if (entity == null)
         {
-            DebugEx.ErrorModule("EnemyEntityManager", "触发战斗失败：敌人实体为空");
+            DebugEx.Error("EnemyEntityManager", "触发战斗失败：敌人实体为空");
             return;
         }
 
         if (m_IsInCombat)
         {
-            DebugEx.WarningModule("EnemyEntityManager", "已经在战斗中，忽略触发请求");
+            DebugEx.Warning("EnemyEntityManager", "已经在战斗中，忽略触发请求");
             return;
         }
 
@@ -310,13 +310,13 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         if (entity == null)
         {
-            DebugEx.ErrorModule("EnemyEntityManager", "进入战斗状态失败：敌人实体为空");
+            DebugEx.Error("EnemyEntityManager", "进入战斗状态失败：敌人实体为空");
             return;
         }
 
         if (m_IsInCombat)
         {
-            DebugEx.WarningModule("EnemyEntityManager", "已经在战斗中，忽略触发请求");
+            DebugEx.Warning("EnemyEntityManager", "已经在战斗中，忽略触发请求");
             return;
         }
 
@@ -324,7 +324,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         m_CurrentCombatData = EnemyCombatData.FromEntity(entity);
         if (m_CurrentCombatData == null)
         {
-            DebugEx.ErrorModule("EnemyEntityManager", "创建战斗数据失败");
+            DebugEx.Error("EnemyEntityManager", "创建战斗数据失败");
             return;
         }
 
@@ -336,7 +336,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         // 让敌人进入战斗状态
         entity.EnterCombat();
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyEntityManager",
             $"触发单敌人战斗: {m_CurrentCombatData.EnemyDataList[0].EnemyName}, BattleConfigId={m_CurrentCombatData.EnemyDataList[0].BattleConfigId}"
         );
@@ -373,11 +373,11 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         if (!m_IsInCombat)
         {
-            DebugEx.WarningModule("EnemyEntityManager", "当前不在战斗中");
+            DebugEx.Warning("EnemyEntityManager", "当前不在战斗中");
             return;
         }
 
-        DebugEx.LogModule("EnemyEntityManager", $"战斗结束: 玩家{(playerWin ? "胜利" : "失败")}");
+        DebugEx.Log("EnemyEntityManager", $"战斗结束: 玩家{(playerWin ? "胜利" : "失败")}");
 
         // 注意：敌人实体已经在战斗准备阶段销毁了
         // 这里只需要清理数据
@@ -391,7 +391,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
                 foreach (var enemyData in m_CurrentCombatData.EnemyDataList)
                     enemyNames += enemyData.EnemyName + " ";
             }
-            DebugEx.LogModule("EnemyEntityManager", $"玩家胜利，销毁敌人: {enemyNames}");
+            DebugEx.Log("EnemyEntityManager", $"玩家胜利，销毁敌人: {enemyNames}");
 
             if (m_CurrentCombatEnemy != null)
             {
@@ -413,7 +413,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         else
         {
             // 玩家失败：将敌人存入待恢复列表，溶解完成后（CombatLeaveEvent）再恢复
-            DebugEx.LogModule("EnemyEntityManager", "玩家失败，敌人将在溶解完成后恢复");
+            DebugEx.Log("EnemyEntityManager", "玩家失败，敌人将在溶解完成后恢复");
             m_PendingRestoreEnemies.Clear();
             if (m_CurrentCombatEnemy != null)
                 m_PendingRestoreEnemies.Add(m_CurrentCombatEnemy);
@@ -465,13 +465,13 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         if (combatEnemies == null || combatEnemies.Count == 0)
         {
-            DebugEx.ErrorModule("EnemyEntityManager", "触发群体战斗失败：敌人列表为空");
+            DebugEx.Error("EnemyEntityManager", "触发群体战斗失败：敌人列表为空");
             return;
         }
 
         if (m_IsInCombat)
         {
-            DebugEx.WarningModule("EnemyEntityManager", "已经在战斗中，忽略群体战斗触发");
+            DebugEx.Warning("EnemyEntityManager", "已经在战斗中，忽略群体战斗触发");
             return;
         }
 
@@ -482,7 +482,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         m_CurrentCombatData = EnemyCombatData.FromMultipleEnemies(combatEnemies);
         if (m_CurrentCombatData == null)
         {
-            DebugEx.ErrorModule("EnemyEntityManager", "创建群体战斗数据失败");
+            DebugEx.Error("EnemyEntityManager", "创建群体战斗数据失败");
             return;
         }
 
@@ -498,7 +498,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
             enemy.EnterCombat();
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyEntityManager",
             $"触发群体战斗: 主敌人={mainEnemy.Config.Name}, 参战敌人数={combatEnemies.Count}"
         );
@@ -519,7 +519,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         m_CurrentCombatEnemy = null;
         m_IsInCombat = false;
 
-        DebugEx.LogModule("EnemyEntityManager", "已清空所有敌人实体");
+        DebugEx.Log("EnemyEntityManager", "已清空所有敌人实体");
     }
 
     /// <summary>
@@ -545,7 +545,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         if (entity == null) return;
 
-        DebugEx.LogModule("EnemyEntityManager", $"隐藏敌人实体: {entity.Config.Name}");
+        DebugEx.Log("EnemyEntityManager", $"隐藏敌人实体: {entity.Config.Name}");
 
         // 必须先停止再 SetActive(false)，否则 NavMesh 状态残留
         if (entity.NavAgent != null && entity.NavAgent.isOnNavMesh)
@@ -561,7 +561,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
     {
         if (entity == null) return;
 
-        DebugEx.LogModule("EnemyEntityManager", $"恢复敌人实体: {entity.Config.Name}");
+        DebugEx.Log("EnemyEntityManager", $"恢复敌人实体: {entity.Config.Name}");
 
         entity.gameObject.SetActive(true);
 
@@ -591,7 +591,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
                 count++;
             }
         }
-        DebugEx.LogModule("EnemyEntityManager", $"已重置 {count} 个敌人的警觉度");
+        DebugEx.Log("EnemyEntityManager", $"已重置 {count} 个敌人的警觉度");
     }
 
     /// <summary>
@@ -616,7 +616,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
             }
         }
 
-        DebugEx.LogModule("EnemyEntityManager", $"已通知 {notifiedCount} 个追击敌人：玩家进入战斗");
+        DebugEx.Log("EnemyEntityManager", $"已通知 {notifiedCount} 个追击敌人：玩家进入战斗");
     }
 
     /// <summary>
@@ -628,12 +628,12 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         var gameStateManager = GameStateManager.Instance;
         if (gameStateManager != null)
         {
-            DebugEx.LogModule("EnemyEntityManager", "请求切换到战斗准备状态");
+            DebugEx.Log("EnemyEntityManager", "请求切换到战斗准备状态");
             gameStateManager.SwitchToCombatPreparation();
         }
         else
         {
-            DebugEx.ErrorModule("EnemyEntityManager", "GameStateManager 不存在！");
+            DebugEx.Error("EnemyEntityManager", "GameStateManager 不存在！");
         }
     }
 
@@ -652,7 +652,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
             }
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyEntityManager",
             $"战斗难度计算: 参战敌人数={m_CurrentCombatEnemies.Count}, 总难度={totalDifficulty}"
         );

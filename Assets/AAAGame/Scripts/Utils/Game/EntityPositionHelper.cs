@@ -79,7 +79,7 @@ public static class EntityPositionHelper
         {
             if (enableLog)
             {
-                DebugEx.WarningModule("EntityPositionHelper", "GetBottomPosition: obj 为 null");
+                DebugEx.Warning(nameof(EntityPositionHelper), "GetBottomPosition: obj 为 null");
             }
             return Vector3.zero;
         }
@@ -92,7 +92,7 @@ public static class EntityPositionHelper
             bottomPos.y = renderer.bounds.min.y;
             if (enableLog)
             {
-                DebugEx.LogModule("EntityPositionHelper",
+                DebugEx.Log(nameof(EntityPositionHelper),
                     $"GetBottomPosition: {obj.name} 使用 Renderer.bounds.min.y = {bottomPos}");
             }
             return bottomPos;
@@ -106,7 +106,7 @@ public static class EntityPositionHelper
             bottomPos.y = collider.bounds.min.y;
             if (enableLog)
             {
-                DebugEx.LogModule("EntityPositionHelper",
+                DebugEx.Log(nameof(EntityPositionHelper),
                     $"GetBottomPosition: {obj.name} 使用 Collider.bounds.min.y = {bottomPos}");
             }
             return bottomPos;
@@ -115,7 +115,7 @@ public static class EntityPositionHelper
         // 最后使用 Transform.position（假设锚点在底部）
         if (enableLog)
         {
-            DebugEx.LogModule("EntityPositionHelper",
+            DebugEx.Log(nameof(EntityPositionHelper),
                 $"GetBottomPosition: {obj.name} 使用 Transform.position = {obj.transform.position}");
         }
         return obj.transform.position;
@@ -133,7 +133,7 @@ public static class EntityPositionHelper
         {
             if (enableLog)
             {
-                DebugEx.WarningModule("EntityPositionHelper", "GetTopPosition: obj 为 null");
+                DebugEx.Warning(nameof(EntityPositionHelper), "GetTopPosition: obj 为 null");
             }
             return Vector3.zero;
         }
@@ -149,7 +149,7 @@ public static class EntityPositionHelper
             );
             if (enableLog)
             {
-                DebugEx.LogModule("EntityPositionHelper",
+                DebugEx.Log(nameof(EntityPositionHelper),
                     $"GetTopPosition: {obj.name} 使用 Renderer.bounds.max.y = {top}");
             }
             return top;
@@ -166,7 +166,7 @@ public static class EntityPositionHelper
             );
             if (enableLog)
             {
-                DebugEx.LogModule("EntityPositionHelper",
+                DebugEx.Log(nameof(EntityPositionHelper),
                     $"GetTopPosition: {obj.name} 使用 Collider.bounds.max.y = {top}");
             }
             return top;
@@ -176,7 +176,7 @@ public static class EntityPositionHelper
         Vector3 fallbackTop = obj.transform.position + Vector3.up * (DEFAULT_HEIGHT_OFFSET * 2f);
         if (enableLog)
         {
-            DebugEx.LogModule("EntityPositionHelper",
+            DebugEx.Log(nameof(EntityPositionHelper),
                 $"GetTopPosition: {obj.name} 使用默认偏移 = {fallbackTop}");
         }
         return fallbackTop;
@@ -196,7 +196,7 @@ public static class EntityPositionHelper
         {
             if (enableLog)
             {
-                DebugEx.WarningModule("EntityPositionHelper", "GetPositionAtRatio: obj 为 null");
+                DebugEx.Warning(nameof(EntityPositionHelper), "GetPositionAtRatio: obj 为 null");
             }
             return Vector3.zero;
         }
@@ -210,7 +210,7 @@ public static class EntityPositionHelper
 
         if (enableLog)
         {
-            DebugEx.LogModule("EntityPositionHelper",
+            DebugEx.Log(nameof(EntityPositionHelper),
                 $"GetPositionAtRatio: {obj.name} ratio={ratio:F2}, 底部Y={bottomPos.y:F2}, 顶部Y={topPos.y:F2}, 结果Y={result.y:F2}");
         }
 

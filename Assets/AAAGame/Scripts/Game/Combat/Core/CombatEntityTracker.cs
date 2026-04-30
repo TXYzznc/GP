@@ -31,7 +31,7 @@ public class CombatEntityTracker : MonoBehaviour
                 {
                     GameObject managerObj = new("CombatEntityTracker");
                     s_Instance = managerObj.AddComponent<CombatEntityTracker>();
-                    DebugEx.LogModule("CombatEntityTracker", "单例实例不存在，已自动创建");
+                    DebugEx.Log("CombatEntityTracker", "单例实例不存在，已自动创建");
                 }
             }
             return s_Instance;
@@ -62,13 +62,13 @@ public class CombatEntityTracker : MonoBehaviour
     {
         if (s_Instance != null && s_Instance != this)
         {
-            DebugEx.WarningModule("CombatEntityTracker", "检测到重复实例，销毁当前对象");
+            DebugEx.Warning("CombatEntityTracker", "检测到重复实例，销毁当前对象");
             Destroy(gameObject);
             return;
         }
 
         s_Instance = this;
-        DebugEx.LogModule("CombatEntityTracker", "棋子管理器已初始化");
+        DebugEx.Log("CombatEntityTracker", "棋子管理器已初始化");
     }
 
     private void OnDestroy()
@@ -76,7 +76,7 @@ public class CombatEntityTracker : MonoBehaviour
         if (s_Instance == this)
         {
             s_Instance = null;
-            DebugEx.LogModule("CombatEntityTracker", "棋子管理器已销毁");
+            DebugEx.Log("CombatEntityTracker", "棋子管理器已销毁");
         }
     }
 
@@ -107,7 +107,7 @@ public class CombatEntityTracker : MonoBehaviour
     {
         if (chess == null)
         {
-            DebugEx.WarningModule("CombatEntityTracker", "尝试注册空棋子");
+            DebugEx.Warning("CombatEntityTracker", "尝试注册空棋子");
             return;
         }
 
@@ -133,7 +133,7 @@ public class CombatEntityTracker : MonoBehaviour
         // ⭐ 自动维护敌人缓存
         AddEnemyToCache(chess);
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "CombatEntityTracker",
             $"注册棋子: {chess.Config?.Name}, Camp={camp}, 当前总数={m_AllChess.Count}"
         );
@@ -164,7 +164,7 @@ public class CombatEntityTracker : MonoBehaviour
         // ⭐ 自动维护敌人缓存
         RemoveEnemyFromCache(chess);
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "CombatEntityTracker",
             $"注销棋子: {chess.Config?.Name}, Camp={camp}, 剩余总数={m_AllChess.Count}"
         );
@@ -365,17 +365,17 @@ public class CombatEntityTracker : MonoBehaviour
     /// </summary>
     public void DebugPrintStats()
     {
-        DebugEx.LogModule("CombatEntityTracker", "=== 棋子统计 ===");
-        DebugEx.LogModule("CombatEntityTracker", $"总数: {m_AllChess.Count}");
+        DebugEx.Log("CombatEntityTracker", "=== 棋子统计 ===");
+        DebugEx.Log("CombatEntityTracker", $"总数: {m_AllChess.Count}");
 
         foreach (var kvp in m_ChessByCamp)
         {
             int camp = kvp.Key;
             int count = kvp.Value.Count;
-            DebugEx.LogModule("CombatEntityTracker", $"阵营 {camp}: {count} 个棋子");
+            DebugEx.Log("CombatEntityTracker", $"阵营 {camp}: {count} 个棋子");
         }
 
-        DebugEx.LogModule("CombatEntityTracker", "================");
+        DebugEx.Log("CombatEntityTracker", "================");
     }
 
     #endregion
@@ -397,7 +397,7 @@ public class CombatEntityTracker : MonoBehaviour
     /// </summary>
     public void BuildEnemyCache()
     {
-        DebugEx.LogModule("CombatEntityTracker", "开始构建敌人信息缓存...");
+        DebugEx.Log("CombatEntityTracker", "开始构建敌人信息缓存...");
 
         m_EnemyCacheByMyCamp.Clear();
 
@@ -426,7 +426,7 @@ public class CombatEntityTracker : MonoBehaviour
 
             m_EnemyCacheByMyCamp[myCamp] = enemyCaches;
 
-            DebugEx.LogModule("CombatEntityTracker", $"阵营 {myCamp} 缓存了 {enemyCaches.Count} 个敌人");
+            DebugEx.Log("CombatEntityTracker", $"阵营 {myCamp} 缓存了 {enemyCaches.Count} 个敌人");
         }
 
         m_IsCacheBuilt = true;
@@ -445,20 +445,20 @@ public class CombatEntityTracker : MonoBehaviour
     {
         if (enemy == null)
         {
-            DebugEx.WarningModule("CombatEntityTracker", "尝试添加空敌人到缓存");
+            DebugEx.Warning("CombatEntityTracker", "尝试添加空敌人到缓存");
             return;
         }
 
         if (!m_IsCacheBuilt)
         {
-            DebugEx.WarningModule("CombatEntityTracker", "缓存未构建，跳过添加敌人");
+            DebugEx.Warning("CombatEntityTracker", "缓存未构建，跳过添加敌人");
             return;
         }
 
         var cache = EnemyInfoCache.FromEntity(enemy);
         if (cache == null)
         {
-            DebugEx.WarningModule("CombatEntityTracker", $"无法为敌人 {enemy.Config?.Name} 创建缓存");
+            DebugEx.Warning("CombatEntityTracker", $"无法为敌人 {enemy.Config?.Name} 创建缓存");
             return;
         }
 
@@ -479,7 +479,7 @@ public class CombatEntityTracker : MonoBehaviour
                 if (!exists)
                 {
                     cacheList.Add(cache);
-                    DebugEx.LogModule("CombatEntityTracker",
+                    DebugEx.Log("CombatEntityTracker",
                         $"为阵营 {myCamp} 添加敌人缓存: {enemy.Config?.Name}");
                 }
             }
@@ -516,7 +516,7 @@ public class CombatEntityTracker : MonoBehaviour
 
         if (removedCount > 0)
         {
-            DebugEx.LogModule("CombatEntityTracker",
+            DebugEx.Log("CombatEntityTracker",
                 $"从 {removedCount} 个阵营缓存中移除敌人: {enemy.Config?.Name}");
         }
     }
@@ -582,12 +582,12 @@ public class CombatEntityTracker : MonoBehaviour
     {
         if (proxy == null)
         {
-            DebugEx.WarningModule("CombatEntityTracker", "尝试注册空召唤师代理");
+            DebugEx.Warning("CombatEntityTracker", "尝试注册空召唤师代理");
             return;
         }
 
         m_SummonerProxy = proxy;
-        DebugEx.LogModule("CombatEntityTracker", "召唤师战斗代理已注册");
+        DebugEx.Log("CombatEntityTracker", "召唤师战斗代理已注册");
     }
 
     /// <summary>
@@ -596,7 +596,7 @@ public class CombatEntityTracker : MonoBehaviour
     public void UnregisterSummoner()
     {
         m_SummonerProxy = null;
-        DebugEx.LogModule("CombatEntityTracker", "召唤师战斗代理已注销");
+        DebugEx.Log("CombatEntityTracker", "召唤师战斗代理已注销");
     }
 
     #endregion

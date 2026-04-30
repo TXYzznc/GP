@@ -21,7 +21,7 @@ public partial class ChessAdvanceTable : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 棋子ID（等于进阶前棋子ID，直接按棋子ID查询）
+    /// 棋子ID
     /// </summary>
     public override int Id
     {
@@ -29,43 +29,25 @@ public partial class ChessAdvanceTable : DataRowBase
     }
 
         /// <summary>
-        /// 当前阶级（1=一阶）
+        /// 升阶所需经验值数组（1升2, 2升3）
         /// </summary>
-        public int Rank
+        public int[] RequiredEXP
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 进阶后棋子ID（0=已是最高阶）
+        /// 升阶条件事件ID数组（1升2, 2升3）
         /// </summary>
-        public int AdvancedChessId
+        public int[] ConditionEventId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 进阶所需经验值（0=无法进阶）
-        /// </summary>
-        public int RequiredEXP
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 进阶条件事件ID（0=无附加条件，后续接事件系统）
-        /// </summary>
-        public int ConditionEventId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 进阶特效资源ID（0=无特效）
+        /// 升阶特效资源ID
         /// </summary>
         public int AdvanceEffectId
         {
@@ -85,10 +67,8 @@ public partial class ChessAdvanceTable : DataRowBase
             index++;
             m_Id = int.Parse(columnStrings[index++]);
             index++;
-            Rank = int.Parse(columnStrings[index++]);
-            AdvancedChessId = int.Parse(columnStrings[index++]);
-            RequiredEXP = int.Parse(columnStrings[index++]);
-            ConditionEventId = int.Parse(columnStrings[index++]);
+            RequiredEXP = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            ConditionEventId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             AdvanceEffectId = int.Parse(columnStrings[index++]);
 
             return true;
@@ -101,10 +81,8 @@ public partial class ChessAdvanceTable : DataRowBase
                 using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
-                    Rank = binaryReader.Read7BitEncodedInt32();
-                    AdvancedChessId = binaryReader.Read7BitEncodedInt32();
-                    RequiredEXP = binaryReader.Read7BitEncodedInt32();
-                    ConditionEventId = binaryReader.Read7BitEncodedInt32();
+                    RequiredEXP = binaryReader.ReadArray<int>();
+                    ConditionEventId = binaryReader.ReadArray<int>();
                     AdvanceEffectId = binaryReader.Read7BitEncodedInt32();
                 }
             }

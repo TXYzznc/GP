@@ -178,25 +178,25 @@ public static class LayerHelper
     /// </summary>
     public static void PrintAllLayers()
     {
-        DebugEx.LogModule("LayerHelper", "========== Unity Layer 配置 ==========");
-        
+        DebugEx.Log(nameof(LayerHelper), "========== Unity Layer 配置 ==========");
+
         foreach (Layer layer in System.Enum.GetValues(typeof(Layer)))
         {
             int index = (int)layer;
             string name = LayerMask.LayerToName(index);
-            
+
             // 检查Layer是否在Unity中配置
             if (!string.IsNullOrEmpty(name))
             {
-                DebugEx.LogModule("LayerHelper", $"Layer {index}: {layer} -> Unity名称: {name}");
+                DebugEx.Log(nameof(LayerHelper), $"Layer {index}: {layer} -> Unity名称: {name}");
             }
             else
             {
-                DebugEx.WarningModule("LayerHelper", $"Layer {index}: {layer} -> Unity中未配置！");
+                DebugEx.Warning(nameof(LayerHelper), $"Layer {index}: {layer} -> Unity中未配置！");
             }
         }
-        
-        DebugEx.LogModule("LayerHelper", "====================================");
+
+        DebugEx.Log(nameof(LayerHelper), "====================================");
     }
 
     /// <summary>
@@ -205,25 +205,25 @@ public static class LayerHelper
     public static bool ValidateLayerConfiguration()
     {
         bool isValid = true;
-        
+
         foreach (Layer layer in System.Enum.GetValues(typeof(Layer)))
         {
             int index = (int)layer;
             string unityName = LayerMask.LayerToName(index);
             string enumName = layer.ToString();
-            
+
             if (string.IsNullOrEmpty(unityName))
             {
-                DebugEx.ErrorModule("LayerHelper", $"Layer {enumName} (索引{index}) 在Unity中未配置！");
+                DebugEx.Error(nameof(LayerHelper), $"Layer {enumName} (索引{index}) 在Unity中未配置！");
                 isValid = false;
             }
             else if (unityName != enumName)
             {
-                DebugEx.WarningModule("LayerHelper", 
+                DebugEx.Warning(nameof(LayerHelper),
                     $"Layer名称不匹配: 枚举={enumName}, Unity={unityName} (索引{index})");
             }
         }
-        
+
         return isValid;
     }
 

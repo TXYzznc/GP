@@ -25,7 +25,7 @@ public partial class CombatUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        DebugEx.LogModule("CombatUI", "订阅战斗状态事件");
+        DebugEx.Log(nameof(CombatUI), "订阅战斗状态事件");
         GF.Event.Subscribe(CombatEnterEventArgs.EventId, OnCombatEnter);
         GF.Event.Subscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
         GF.Event.Subscribe(PlayerLevelUpEventArgs.EventId, OnPlayerLevelUp);
@@ -40,7 +40,7 @@ public partial class CombatUI : StateAwareUIForm
 
     protected override void UnsubscribeEvents()
     {
-        DebugEx.LogModule("CombatUI", "取消订阅战斗状态事件");
+        DebugEx.Log(nameof(CombatUI), "取消订阅战斗状态事件");
         GF.Event.Unsubscribe(CombatEnterEventArgs.EventId, OnCombatEnter);
         GF.Event.Unsubscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
         GF.Event.Unsubscribe(PlayerLevelUpEventArgs.EventId, OnPlayerLevelUp);
@@ -90,7 +90,7 @@ public partial class CombatUI : StateAwareUIForm
 
     private void OnCombatEnter(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("CombatUI", "收到战斗进入事件");
+        DebugEx.Log(nameof(CombatUI), "收到战斗进入事件");
 
         // ⭐ 新增：创建卡牌预览管理器
         CreateCardPreviewManager();
@@ -101,7 +101,7 @@ public partial class CombatUI : StateAwareUIForm
         // CardManager 已在 CombatState 中初始化
         if (CardManager.Instance != null)
         {
-            DebugEx.LogModule("CombatUI", "CardManager 已初始化");
+            DebugEx.Log(nameof(CombatUI), "CardManager 已初始化");
         }
 
         ShowUI();
@@ -110,20 +110,20 @@ public partial class CombatUI : StateAwareUIForm
 
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("CombatUI", "收到战斗离开事件");
+        DebugEx.Log(nameof(CombatUI), "收到战斗离开事件");
 
         // ⭐ 新增：销毁卡牌预览管理器
         if (CardPreviewDisplayShader.Instance != null)
         {
             Destroy(CardPreviewDisplayShader.Instance.gameObject);
-            DebugEx.LogModule("CombatUI", "卡牌预览管理器已销毁");
+            DebugEx.Log(nameof(CombatUI), "卡牌预览管理器已销毁");
         }
 
         // 清理 CardManager
         if (CardManager.Instance != null)
         {
             CardManager.Instance.Clear();
-            DebugEx.LogModule("CombatUI", "CardManager 已清理");
+            DebugEx.Log(nameof(CombatUI), "CardManager 已清理");
         }
 
         // 清理 CardSlotContainer 的状态
@@ -164,7 +164,7 @@ public partial class CombatUI : StateAwareUIForm
         go.transform.SetParent(parentTransform);
         go.AddComponent<CardPreviewDisplayShader>();
 
-        DebugEx.LogModule("CombatUI", "卡牌预览管理器已创建");
+        DebugEx.Log(nameof(CombatUI), "卡牌预览管理器已创建");
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public partial class CombatUI : StateAwareUIForm
         {
             entity.Attribute.OnHpChanged += OnDetailChessHpChanged;
             entity.Attribute.OnMpChanged += OnDetailChessMpChanged;
-            DebugEx.LogModule("CombatUI", $"已订阅棋子 {entity.Config?.Name} 的属性变化事件");
+            DebugEx.Log(nameof(CombatUI), $"已订阅棋子 {entity.Config?.Name} 的属性变化事件");
         }
 
         // 订阅Buff变化事件
@@ -221,7 +221,7 @@ public partial class CombatUI : StateAwareUIForm
         detailUI.SetChessUnitData(entity);
         detailUI.RefreshUI();
         detailUI.ShowWithAnimation();
-        DebugEx.LogModule("CombatUI", $"显示棋子详情: {entity.Config?.Name}");
+        DebugEx.Log(nameof(CombatUI), $"显示棋子详情: {entity.Config?.Name}");
     }
 
     /// <summary>
@@ -236,7 +236,7 @@ public partial class CombatUI : StateAwareUIForm
         if (detailUI != null)
         {
             detailUI.RefreshUI();
-            DebugEx.LogModule("CombatUI", $"DetailInfoUI已刷新（HP变化 {oldHp:F0} -> {newHp:F0}）");
+            DebugEx.Log(nameof(CombatUI), $"DetailInfoUI已刷新（HP变化 {oldHp:F0} -> {newHp:F0}）");
         }
     }
 
@@ -252,7 +252,7 @@ public partial class CombatUI : StateAwareUIForm
         if (detailUI != null)
         {
             detailUI.RefreshUI();
-            DebugEx.LogModule("CombatUI", $"DetailInfoUI已刷新（MP变化 {oldMp:F0} -> {newMp:F0}）");
+            DebugEx.Log(nameof(CombatUI), $"DetailInfoUI已刷新（MP变化 {oldMp:F0} -> {newMp:F0}）");
         }
     }
 
@@ -272,7 +272,7 @@ public partial class CombatUI : StateAwareUIForm
         if (detailUI != null)
         {
             detailUI.RefreshUI();
-            DebugEx.LogModule("CombatUI", $"DetailInfoUI已刷新（Buff变化 ID={buffId}）");
+            DebugEx.Log(nameof(CombatUI), $"DetailInfoUI已刷新（Buff变化 ID={buffId}）");
         }
     }
 
@@ -287,7 +287,7 @@ public partial class CombatUI : StateAwareUIForm
         {
             m_CurrentDetailChess.Attribute.OnHpChanged -= OnDetailChessHpChanged;
             m_CurrentDetailChess.Attribute.OnMpChanged -= OnDetailChessMpChanged;
-            DebugEx.LogModule("CombatUI", $"已取消订阅棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件");
+            DebugEx.Log(nameof(CombatUI), $"已取消订阅棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件");
         }
 
         ChessStateEvents.OnBuffAdded -= OnDetailChessBuffChanged;
@@ -335,7 +335,7 @@ public partial class CombatUI : StateAwareUIForm
         RefreshCardSlots();
         BindButtonEvents();
 
-        DebugEx.LogModule("CombatUI", "战斗UI已刷新");
+        DebugEx.Log(nameof(CombatUI), "战斗UI已刷新");
     }
 
     /// <summary>
@@ -511,7 +511,7 @@ public partial class CombatUI : StateAwareUIForm
         var container = GetCardSlotContainer();
         if (container == null)
         {
-            DebugEx.ErrorModule("CombatUI", "未找到 CardSlotContainer 组件");
+            DebugEx.Error(nameof(CombatUI), "未找到 CardSlotContainer 组件");
             return;
         }
 
@@ -565,22 +565,22 @@ public partial class CombatUI : StateAwareUIForm
                     container.AddCardSilent(slotItem);
                     cardSlots.Add(slotItem);
 
-                    DebugEx.LogModule("CombatUI", $"从对象池获取卡牌槽 {i}");
+                    DebugEx.Log(nameof(CombatUI), $"从对象池获取卡牌槽 {i}");
                 }
                 else
                 {
-                    DebugEx.ErrorModule("CombatUI", "无法从对象池获取卡牌槽");
+                    DebugEx.Error(nameof(CombatUI), "无法从对象池获取卡牌槽");
                 }
             }
 
             // 第二步：统一启动所有卡牌的进场动画（此时所有卡都已添加，位置计算基于最终的卡牌数量）
             await container.PlayAllCardAnimationsAsync();
 
-            DebugEx.LogModule("CombatUI", $"刷新卡牌槽完成，共 {cards.Count} 张卡牌");
+            DebugEx.Log(nameof(CombatUI), $"刷新卡牌槽完成，共 {cards.Count} 张卡牌");
         }
         else
         {
-            DebugEx.WarningModule("CombatUI", "CardManager 未初始化");
+            DebugEx.Warning(nameof(CombatUI), "CardManager 未初始化");
         }
     }
 
@@ -659,17 +659,17 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private void OnPopulationButtonClicked()
     {
-        DebugEx.LogModule("CombatUI", "点击了人口按钮");
+        DebugEx.Log(nameof(CombatUI), "点击了人口按钮");
 
         if (CombatSessionData.Instance.TryUpgradePopulation())
         {
             // 刷新UI显示
             RefreshPopulationDisplay();
-            DebugEx.LogModule("CombatUI", "统治值升级成功");
+            DebugEx.Log(nameof(CombatUI), "统治值升级成功");
         }
         else
         {
-            DebugEx.WarningModule("CombatUI", "统治值升级失败（金币不足）");
+            DebugEx.Warning(nameof(CombatUI), "统治值升级失败（金币不足）");
             // TODO: 显示提示信息
         }
     }
@@ -687,12 +687,12 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private async UniTask OnRefreshButtonClickedAsync()
     {
-        DebugEx.LogModule("CombatUI", "点击了刷新按钮");
+        DebugEx.Log(nameof(CombatUI), "点击了刷新按钮");
 
         // 检查是否还有刷新次数
         if (m_RefreshCount >= 3)
         {
-            DebugEx.WarningModule("CombatUI", "本战斗已达到最大刷新次数（3次）");
+            DebugEx.Warning(nameof(CombatUI), "本战斗已达到最大刷新次数（3次）");
             // TODO: 显示提示信息
             return;
         }
@@ -700,7 +700,7 @@ public partial class CombatUI : StateAwareUIForm
         // 检查召唤师运行时数据
         if (SummonerRuntimeDataManager.Instance == null || !SummonerRuntimeDataManager.Instance.IsInitialized)
         {
-            DebugEx.ErrorModule("CombatUI", "召唤师数据未初始化");
+            DebugEx.Error(nameof(CombatUI), "召唤师数据未初始化");
             return;
         }
 
@@ -716,7 +716,7 @@ public partial class CombatUI : StateAwareUIForm
             costType = "MP";
             if (summonerData.CurrentMP < costAmount)
             {
-                DebugEx.WarningModule("CombatUI", $"灵力不足（需要 {costAmount:F0}，当前 {summonerData.CurrentMP:F0}）");
+                DebugEx.Warning(nameof(CombatUI), $"灵力不足（需要 {costAmount:F0}，当前 {summonerData.CurrentMP:F0}）");
                 return;
             }
         }
@@ -727,7 +727,7 @@ public partial class CombatUI : StateAwareUIForm
             costType = "HP";
             if (summonerData.CurrentHP < costAmount)
             {
-                DebugEx.WarningModule("CombatUI", $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
+                DebugEx.Warning(nameof(CombatUI), $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
                 return;
             }
         }
@@ -738,7 +738,7 @@ public partial class CombatUI : StateAwareUIForm
             costType = "HP";
             if (summonerData.CurrentHP < costAmount)
             {
-                DebugEx.WarningModule("CombatUI", $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
+                DebugEx.Warning(nameof(CombatUI), $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
                 return;
             }
         }
@@ -759,7 +759,7 @@ public partial class CombatUI : StateAwareUIForm
             CardManager.Instance.RefreshCards();
             await RefreshCardSlotsAsync();
             m_RefreshCount++;
-            DebugEx.LogModule("CombatUI", $"卡牌已刷新（第 {m_RefreshCount} 次），消耗 {costAmount:F0} {costType}");
+            DebugEx.Log(nameof(CombatUI), $"卡牌已刷新（第 {m_RefreshCount} 次），消耗 {costAmount:F0} {costType}");
         }
     }
 
@@ -769,7 +769,7 @@ public partial class CombatUI : StateAwareUIForm
     private void OnSummonerSkillClicked(int index)
     {
         int slot = index + 1;
-        DebugEx.LogModule("CombatUI", $"点击了召唤师技能按钮，slot={slot}");
+        DebugEx.Log(nameof(CombatUI), $"点击了召唤师技能按钮，slot={slot}");
         PlayerInputManager.Instance?.TriggerSummonerSkill(slot);
     }
 

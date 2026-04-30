@@ -50,6 +50,6 @@ public class LifestealBuff : BuffBase
         double heal = damage * m_LifestealRatio;
         m_OwnerAttr.ModifyHp(heal);
 
-        DebugEx.LogModule("LifestealBuff", $"吸血恢复 {heal:F1} HP");
+        DebugEx.Log(nameof(LifestealBuff), $"吸血恢复 {heal:F1} HP");
     }
 }

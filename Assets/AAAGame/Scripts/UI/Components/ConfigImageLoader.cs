@@ -56,13 +56,13 @@ public class ConfigImageLoader : MonoBehaviour
     {
         if (resourceConfigId <= 0)
         {
-            DebugEx.Warning($"[ConfigImageLoader] 资源配置ID无效: {resourceConfigId}", this);
+            DebugEx.Warning(nameof(ConfigImageLoader), $"资源配置ID无效: {resourceConfigId}");
             return;
         }
 
         if (isLoading)
         {
-            DebugEx.Warning($"[ConfigImageLoader] 正在加载中，避免重复加载", this);
+            DebugEx.Warning(nameof(ConfigImageLoader), "正在加载中，避免重复加载");
             return;
         }
 
@@ -86,21 +86,21 @@ public class ConfigImageLoader : MonoBehaviour
                     image.SetNativeSize();
                 }
 
-                DebugEx.Log($"[ConfigImageLoader] 加载成功: ConfigId={resourceConfigId}", this);
+                DebugEx.Log(nameof(ConfigImageLoader), $"加载成功: ConfigId={resourceConfigId}");
             }
             else
             {
-                DebugEx.Error($"[ConfigImageLoader] Image为null，加载失败: ConfigId={resourceConfigId}", this);
+                DebugEx.Error(nameof(ConfigImageLoader), $"Image为null，加载失败: ConfigId={resourceConfigId}");
             }
         }
         catch (System.Exception ex)
         {
-            DebugEx.Error($"[ConfigImageLoader] 加载异常: ConfigId={resourceConfigId}, Error={ex.Message}", this);
+            DebugEx.Error(nameof(ConfigImageLoader), $"加载异常: ConfigId={resourceConfigId}, Error={ex.Message}");
         }
         finally
         {
             isLoading = false;
-            
+
             // 隐藏加载指示器
             if (showLoadingIndicator)
             {

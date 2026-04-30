@@ -53,7 +53,7 @@ public class MaxHpBuff : BuffBase
         attr.ModifyHp(m_MaxHpDelta);
 
         m_Applied = true;
-        DebugEx.LogModule("MaxHpBuff", $"MaxHP +{m_MaxHpDelta:F0} ({oldMax:F0} → {newMax:F0})");
+        DebugEx.Log("MaxHpBuff", $"MaxHP +{m_MaxHpDelta:F0} ({oldMax:F0} → {newMax:F0})");
     }
 
     private void Restore()
@@ -68,7 +68,7 @@ public class MaxHpBuff : BuffBase
         attr.SetHp(Math.Min(savedHp, newMax));
 
         m_Applied = false;
-        DebugEx.LogModule("MaxHpBuff", $"MaxHP -{m_MaxHpDelta:F0} (恢复至 {newMax:F0})，当前HP保持 {Math.Min(savedHp, newMax):F0}");
+        DebugEx.Log("MaxHpBuff", $"MaxHP -{m_MaxHpDelta:F0} (恢复至 {newMax:F0})，当前HP保持 {Math.Min(savedHp, newMax):F0}");
     }
 
     private static double ParseMaxHpDelta(BuffTable config, ChessAttribute attr)

@@ -92,12 +92,12 @@ public class ChessCombatController : MonoBehaviour
             m_Entity.Animator.EventReceiver.OnSkill1Execute += OnSkill1Execute;
             m_Entity.Animator.EventReceiver.OnSkill2Execute += OnSkill2Execute;
 
-            DebugEx.LogModule("ChessCombatController",
+            DebugEx.Log("ChessCombatController",
                 $"初始化完成: {m_Entity.Config?.Name}");
         }
         else
         {
-            DebugEx.ErrorModule("ChessCombatController",
+            DebugEx.Error("ChessCombatController",
                 $"初始化失败: {m_Entity.Config?.Name}, Animator.EventReceiver 为 null！");
         }
     }
@@ -116,7 +116,7 @@ public class ChessCombatController : MonoBehaviour
         // 跳过召唤师AI（AIType=3）
         if (m_Entity != null && m_Entity.Config != null && m_Entity.Config.AIType == 3)
         {
-            DebugEx.LogModule("ChessCombatController",
+            DebugEx.Log("ChessCombatController",
                 $"跳过启用（召唤师AI）: {m_Entity.Config?.Name}");
             return;
         }
@@ -125,7 +125,7 @@ public class ChessCombatController : MonoBehaviour
         m_AIState = CombatAIState.Idle;
         m_PlayerMoveTarget = null;
 
-        DebugEx.LogModule("ChessCombatController", $"启用: {m_Entity.Config?.Name}");
+        DebugEx.Log("ChessCombatController", $"启用: {m_Entity.Config?.Name}");
     }
 
     /// <summary>
@@ -146,7 +146,7 @@ public class ChessCombatController : MonoBehaviour
         // 停止移动
         m_Entity.Movement?.Stop();
 
-        DebugEx.LogModule("ChessCombatController", $"禁用: {m_Entity.Config?.Name}");
+        DebugEx.Log("ChessCombatController", $"禁用: {m_Entity.Config?.Name}");
     }
 
     #endregion
@@ -169,7 +169,7 @@ public class ChessCombatController : MonoBehaviour
             {
                 // 正在使用技能，缓存移动指令，等待技能完成
                 m_HasPendingPlayerMove = true;
-                DebugEx.LogModule("ChessCombatController",
+                DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 正在使用技能，移动指令已缓存，等待技能完成");
                 return;
             }
@@ -179,7 +179,7 @@ public class ChessCombatController : MonoBehaviour
                 bool interrupted = m_Entity.Animator.ForceInterruptAction();
                 if (interrupted)
                 {
-                    DebugEx.LogModule("ChessCombatController",
+                    DebugEx.Log("ChessCombatController",
                         $"{m_Entity.Config?.Name} 普攻被玩家移动打断");
 
                     // ⭐ 清理攻击状态（重要！）
@@ -212,7 +212,7 @@ public class ChessCombatController : MonoBehaviour
         // 立即开始移动
         m_Entity.Movement?.MoveTo(targetPosition);
 
-        DebugEx.LogModule("ChessCombatController",
+        DebugEx.Log("ChessCombatController",
             $"{m_Entity.Config?.Name} 开始玩家移动 → {targetPosition}");
     }
 
@@ -230,7 +230,7 @@ public class ChessCombatController : MonoBehaviour
         // 停止移动
         m_Entity.Movement?.Stop();
 
-        DebugEx.LogModule("ChessCombatController",
+        DebugEx.Log("ChessCombatController",
             $"{m_Entity.Config?.Name} 取消玩家移动指令");
 
         // ⭐ 恢复 AI 行动
@@ -259,7 +259,7 @@ public class ChessCombatController : MonoBehaviour
     {
         if (target == null)
         {
-            DebugEx.LogModule("ChessCombatController", "AI触发攻击时目标为null");
+            DebugEx.Log("ChessCombatController", "AI触发攻击时目标为null");
             return;
         }
 
@@ -277,7 +277,7 @@ public class ChessCombatController : MonoBehaviour
         m_Entity.Animator?.UpdateAttackSpeed(atkSpeed);
         m_Entity.Animator?.PlayAttack();
 
-        DebugEx.LogModule("ChessCombatController",
+        DebugEx.Log("ChessCombatController",
             $"{m_Entity.Config?.Name} AI触发攻击 → {target.Config?.Name}");
     }
 
@@ -292,7 +292,7 @@ public class ChessCombatController : MonoBehaviour
     {
         if (m_Entity.Skill1 == null)
         {
-            DebugEx.WarningModule("ChessCombatController",
+            DebugEx.Warning("ChessCombatController",
                 $"{m_Entity.Config?.Name} 没有技能1");
             return;
         }
@@ -308,7 +308,7 @@ public class ChessCombatController : MonoBehaviour
             // 播放技能动画
             m_Entity.Animator?.PlaySkill1();
 
-            DebugEx.LogModule("ChessCombatController",
+            DebugEx.Log("ChessCombatController",
                 $"{m_Entity.Config?.Name} 释放技能1");
         }
     }
@@ -320,7 +320,7 @@ public class ChessCombatController : MonoBehaviour
     {
         if (m_Entity.Skill2 == null)
         {
-            DebugEx.WarningModule("ChessCombatController",
+            DebugEx.Warning("ChessCombatController",
                 $"{m_Entity.Config?.Name} 没有大招");
             return;
         }
@@ -336,7 +336,7 @@ public class ChessCombatController : MonoBehaviour
             // 播放技能动画
             m_Entity.Animator?.PlaySkill2();
 
-            DebugEx.LogModule("ChessCombatController",
+            DebugEx.Log("ChessCombatController",
                 $"{m_Entity.Config?.Name} 释放大招");
         }
     }
@@ -394,7 +394,7 @@ public class ChessCombatController : MonoBehaviour
 
         if (m_PendingAttackTarget == null)
         {
-            DebugEx.WarningModule("ChessCombatController",
+            DebugEx.Warning("ChessCombatController",
                 $"{m_Entity.Config?.Name} 攻击目标为空");
             EndAttack();
             return;
@@ -402,7 +402,7 @@ public class ChessCombatController : MonoBehaviour
 
         if (m_Entity.NormalAttack == null)
         {
-            DebugEx.ErrorModule("ChessCombatController",
+            DebugEx.Error("ChessCombatController",
                 $"{m_Entity.Config?.Name} 没有普攻实现类！");
             EndAttack();
             return;
@@ -422,13 +422,13 @@ public class ChessCombatController : MonoBehaviour
         switch (animName)
         {
             case "Attack":
-                DebugEx.LogModule("ChessCombatController",
+                DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 攻击动画完成");
                 EndAttack();
                 break;
 
             case "Skill1":
-                DebugEx.LogModule("ChessCombatController",
+                DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 技能1动画完成");
                 EndSkill(1);
 
@@ -437,7 +437,7 @@ public class ChessCombatController : MonoBehaviour
                 break;
 
             case "Skill2":
-                DebugEx.LogModule("ChessCombatController",
+                DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 大招动画完成");
                 EndSkill(2);
 
@@ -460,7 +460,7 @@ public class ChessCombatController : MonoBehaviour
 
         if (m_Entity.Skill1 == null)
         {
-            DebugEx.WarningModule("ChessCombatController",
+            DebugEx.Warning("ChessCombatController",
                 $"{m_Entity.Config?.Name} 技能1不存在");
             return;
         }
@@ -482,7 +482,7 @@ public class ChessCombatController : MonoBehaviour
 
         if (m_Entity.Skill2 == null)
         {
-            DebugEx.WarningModule("ChessCombatController",
+            DebugEx.Warning("ChessCombatController",
                 $"{m_Entity.Config?.Name} 大招不存在");
             return;
         }
@@ -526,13 +526,13 @@ public class ChessCombatController : MonoBehaviour
             }
         }
 
-        DebugEx.LogModule("ChessCombatController",
+        DebugEx.Log("ChessCombatController",
             $"{m_Entity.Config?.Name} 攻击流程结束，AI 可以继续行动");
     }
 
     private void EndSkill(int skillIndex)
     {
-        DebugEx.LogModule("ChessCombatController",
+        DebugEx.Log("ChessCombatController",
             $"{m_Entity.Config?.Name} 技能{skillIndex}流程结束");
 
         // ⭐ 通知 AI 技能完成（支持新版状态机AI）
@@ -549,7 +549,7 @@ public class ChessCombatController : MonoBehaviour
     {
         if (m_HasPendingPlayerMove && m_PlayerMoveTarget.HasValue)
         {
-            DebugEx.LogModule("ChessCombatController",
+            DebugEx.Log("ChessCombatController",
                 $"{m_Entity.Config?.Name} 技能完成，执行缓存的玩家移动指令");
 
             ExecutePlayerMove(m_PlayerMoveTarget.Value);
@@ -567,7 +567,7 @@ public class ChessCombatController : MonoBehaviour
             m_PlayerMoveTarget = null;
             m_AIState = CombatAIState.Idle;
 
-            DebugEx.LogModule("ChessCombatController", 
+            DebugEx.Log("ChessCombatController",
                 $"玩家移动完成，恢复AI: {m_Entity.Config?.Name}, " +
                 $"PlayerMoveTarget={m_PlayerMoveTarget}, AIState={m_AIState}, " +
                 $"HasPlayerMoveCommand={HasPlayerMoveCommand}");

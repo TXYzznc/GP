@@ -22,13 +22,13 @@ public class CombatState : FsmState<InGameState>
     protected override void OnInit(IFsm<InGameState> fsm)
     {
         base.OnInit(fsm);
-        DebugEx.LogModule("CombatState", "初始化");
+        DebugEx.Log("CombatState", "初始化");
     }
 
     protected override void OnEnter(IFsm<InGameState> fsm)
     {
         base.OnEnter(fsm);
-        DebugEx.LogModule("CombatState", "进入战斗状态");
+        DebugEx.Log("CombatState", "进入战斗状态");
 
         // 取消上一次未完成的异步链（防止重复进入竞态）
         m_Cts?.Cancel();
@@ -47,7 +47,7 @@ public class CombatState : FsmState<InGameState>
         // ⭐ 检查棋子管理器（应该在战斗准备阶段已创建）
         if (CombatEntityTracker.Instance == null)
         {
-            DebugEx.WarningModule("CombatState",
+            DebugEx.Warning("CombatState",
                 "CombatEntityTracker 不存在！这不应该发生，尝试创建...");
 
             GameObject managerObj = new GameObject("CombatEntityTracker");
@@ -55,7 +55,7 @@ public class CombatState : FsmState<InGameState>
         }
         else
         {
-            DebugEx.LogModule("CombatState",
+            DebugEx.Log("CombatState",
                 $"CombatEntityTracker 已存在，当前已注册棋子数量: " +
                 $"阵营0={CombatEntityTracker.Instance.GetAllies(0)?.Count ?? 0}, " +
                 $"阵营1={CombatEntityTracker.Instance.GetAllies(1)?.Count ?? 0}");
@@ -110,12 +110,12 @@ public class CombatState : FsmState<InGameState>
         if (DamageFloatingTextManager.Instance != null)
         {
             // DamageFloatingTextManager 在 Awake 时自动初始化
-            DebugEx.LogModule("CombatState", "伤害飘字管理器已初始化");
+            DebugEx.Log("CombatState", "伤害飘字管理器已初始化");
         }
 
         ct.ThrowIfCancellationRequested();
         CombatVFXUpdater.EnsureExists();
-        DebugEx.LogModule("CombatState", "战斗特效管理器已初始化");
+        DebugEx.Log("CombatState", "战斗特效管理器已初始化");
 
         // 初始化完成后再开始战斗（技能系统在此初始化，必须在 CombatEnterEventArgs 之前）
         StartCombat();
@@ -126,7 +126,7 @@ public class CombatState : FsmState<InGameState>
 
     protected override void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
     {
-        DebugEx.LogModule("CombatState", "离开战斗状态");
+        DebugEx.Log("CombatState", "离开战斗状态");
 
         // 取消所有正在进行的异步操作
         m_Cts?.Cancel();
@@ -157,14 +157,14 @@ public class CombatState : FsmState<InGameState>
         if (CombatEntityTracker.Instance != null)
         {
             CombatEntityTracker.Instance.Clear();
-            DebugEx.LogModule("CombatState", "CombatEntityTracker 已清空");
+            DebugEx.Log("CombatState", "CombatEntityTracker 已清空");
         }
 
         // 6. 重置玩家棋子的出战状态
         if (ChessDeploymentTracker.Instance != null)
         {
             ChessDeploymentTracker.Instance.OnBattleEnd();
-            DebugEx.LogModule("CombatState", "玩家棋子出战状态已重置");
+            DebugEx.Log("CombatState", "玩家棋子出战状态已重置");
         }
 
         // 7. 禁用选择系统
@@ -197,7 +197,7 @@ public class CombatState : FsmState<InGameState>
         {
             cameraController.SetViewModeLocked(false);
             cameraController.ClearOverrideFOV();
-            DebugEx.LogModule("CombatState", "已解锁视角切换并清除FOV覆盖（同步）");
+            DebugEx.Log("CombatState", "已解锁视角切换并清除FOV覆盖（同步）");
         }
 
         // 16. 触发战斗离开事件
@@ -219,7 +219,7 @@ public class CombatState : FsmState<InGameState>
         if (PlayerCharacterManager.Instance != null)
         {
             PlayerCharacterManager.Instance.RestorePositionAfterCombat();
-            DebugEx.LogModule("CombatState", "玩家位置已恢复");
+            DebugEx.Log("CombatState", "玩家位置已恢复");
         }
 
         // ⭐ 场景转换：显示敌人、溶解显示环境物体、清除玩家战斗标记
@@ -230,12 +230,12 @@ public class CombatState : FsmState<InGameState>
         if (cameraController != null)
         {
             cameraController.RestoreCachedViewMode();
-            DebugEx.LogModule("CombatState", $"已恢复相机视角为 {cameraController.GetViewMode()}");
+            DebugEx.Log("CombatState", $"已恢复相机视角为 {cameraController.GetViewMode()}");
 
             if (cameraController.GetViewMode() == CameraViewMode.ThirdPerson)
             {
                 cameraController.SyncYawToTarget();
-                DebugEx.LogModule("CombatState", "已同步第三人称相机 Yaw 到玩家旋转");
+                DebugEx.Log("CombatState", "已同步第三人称相机 Yaw 到玩家旋转");
             }
         }
 
@@ -244,7 +244,7 @@ public class CombatState : FsmState<InGameState>
         {
             CameraViewMode restoredMode = cameraController.GetViewMode();
             PlayerInputManager.Instance.SetViewMode(restoredMode);
-            DebugEx.LogModule("CombatState", $"已同步 PlayerInputManager 视角为 {restoredMode}");
+            DebugEx.Log("CombatState", $"已同步 PlayerInputManager 视角为 {restoredMode}");
         }
 
         // ⭐ 启用 PlayerController
@@ -256,7 +256,7 @@ public class CombatState : FsmState<InGameState>
 
     protected override void OnDestroy(IFsm<InGameState> fsm)
     {
-        DebugEx.LogModule("CombatState", "销毁");
+        DebugEx.Log("CombatState", "销毁");
         base.OnDestroy(fsm);
     }
 
@@ -275,7 +275,7 @@ public class CombatState : FsmState<InGameState>
         // IsVictory 表示本地玩家阵营是否胜利
         bool playerWin = args.IsVictory;
 
-        DebugEx.LogModule("CombatState",
+        DebugEx.Log("CombatState",
             $"战斗结束: 玩家{(playerWin ? "胜利" : "失败")}");
 
         // 如果战斗失败，增加一半污染值
@@ -314,7 +314,7 @@ public class CombatState : FsmState<InGameState>
                 if (controller != null)
                 {
                     controller.enabled = false;
-                    DebugEx.LogModule("CombatState", "PlayerController 已禁用");
+                    DebugEx.Log("CombatState", "PlayerController 已禁用");
                 }
             }
         }
@@ -332,11 +332,11 @@ public class CombatState : FsmState<InGameState>
         if (CombatManager.Instance != null)
         {
             CombatManager.Instance.enabled = true;
-            DebugEx.LogModule("CombatState", "CombatManager 已启用");
+            DebugEx.Log("CombatState", "CombatManager 已启用");
         }
         else
         {
-            DebugEx.WarningModule("CombatState", "CombatManager 未初始化");
+            DebugEx.Warning("CombatState", "CombatManager 未初始化");
         }
     }
 
@@ -348,7 +348,7 @@ public class CombatState : FsmState<InGameState>
         if (CombatManager.Instance != null)
         {
             CombatManager.Instance.enabled = false;
-            DebugEx.LogModule("CombatState", "CombatManager 已禁用");
+            DebugEx.Log("CombatState", "CombatManager 已禁用");
         }
     }
 
@@ -365,7 +365,7 @@ public class CombatState : FsmState<InGameState>
         var context = CombatTriggerManager.Instance?.CurrentContext;
         if (context == null || context.SelectedEffectId <= 0)
         {
-            DebugEx.LogModule("CombatState", "无待应用的战斗效果");
+            DebugEx.Log("CombatState", "无待应用的战斗效果");
             return;
         }
 
@@ -373,21 +373,21 @@ public class CombatState : FsmState<InGameState>
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatState", "SpecialEffectTable未加载，无法应用待定效果");
+            DebugEx.Warning("CombatState", "SpecialEffectTable未加载，无法应用待定效果");
             return;
         }
 
         var effect = specialEffectTable.GetDataRow(effectId);
         if (effect == null)
         {
-            DebugEx.WarningModule("CombatState", $"未找到效果配置: EffectId={effectId}");
+            DebugEx.Warning("CombatState", $"未找到效果配置: EffectId={effectId}");
             return;
         }
 
         var allChess = SummonChessManager.Instance?.GetAllChess();
         if (allChess == null || allChess.Count == 0)
         {
-            DebugEx.WarningModule("CombatState", "没有棋子可应用效果");
+            DebugEx.Warning("CombatState", "没有棋子可应用效果");
             return;
         }
 
@@ -397,7 +397,7 @@ public class CombatState : FsmState<InGameState>
                 // 偷袭：BuffIds 应用到敌人（全体），SelfBuffIds 应用到玩家（全体）
                 ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 1); // 敌方
                 ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 0); // 我方
-                DebugEx.LogModule("CombatState",
+                DebugEx.Log("CombatState",
                     $"已应用偷袭效果: {effect.Name} (EffectId={effectId})");
                 break;
 
@@ -405,7 +405,7 @@ public class CombatState : FsmState<InGameState>
                 // 玩家先手：BuffIds + SelfBuffIds 都应用到玩家（全体）
                 ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 0);
                 ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 0);
-                DebugEx.LogModule("CombatState",
+                DebugEx.Log("CombatState",
                     $"已应用玩家先手效果: {effect.Name} (EffectId={effectId})");
                 break;
 
@@ -413,12 +413,12 @@ public class CombatState : FsmState<InGameState>
                 // 敌方先手：BuffIds + SelfBuffIds 都应用到敌人（全体）
                 ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 1);
                 ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 1);
-                DebugEx.LogModule("CombatState",
+                DebugEx.Log("CombatState",
                     $"已应用敌方先手效果: {effect.Name} (EffectId={effectId})");
                 break;
 
             default:
-                DebugEx.LogModule("CombatState", "普通战斗，无待应用效果");
+                DebugEx.Log("CombatState", "普通战斗，无待应用效果");
                 break;
         }
     }
@@ -441,7 +441,7 @@ public class CombatState : FsmState<InGameState>
                 if (chess != null && chess.Camp == targetCamp)
                 {
                     BuffApplyHelper.ApplyBuff(buffId, chess.gameObject, false, null);
-                    DebugEx.LogModule("CombatState",
+                    DebugEx.Log("CombatState",
                         $"  应用Buff {buffId} 到 {chess.Config?.Name ?? chess.name} (Camp={targetCamp})");
                 }
             }
@@ -478,16 +478,16 @@ public class CombatState : FsmState<InGameState>
         {
             GameObject cardManagerObj = new GameObject("CardManager");
             cardManagerObj.AddComponent<CardManager>();
-            DebugEx.LogModule("CombatState", "动态添加 CardManager");
+            DebugEx.Log("CombatState", "动态添加 CardManager");
         }
         else
         {
-            DebugEx.LogModule("CombatState", "CardManager 已存在");
+            DebugEx.Log("CombatState", "CardManager 已存在");
         }
 
         // 初始化卡牌（随机加载 8 张）
         CardManager.Instance.InitializeForCombat();
-        DebugEx.LogModule("CombatState", "卡牌系统已初始化");
+        DebugEx.Log("CombatState", "卡牌系统已初始化");
     }
 
     /// <summary>
@@ -498,7 +498,7 @@ public class CombatState : FsmState<InGameState>
         if (CardManager.Instance != null)
         {
             CardManager.Instance.Clear();
-            DebugEx.LogModule("CombatState", "卡牌系统已清理");
+            DebugEx.Log("CombatState", "卡牌系统已清理");
         }
     }
 
@@ -513,7 +513,7 @@ public class CombatState : FsmState<InGameState>
         // 清理敌人管理器
         EnemySpawnManager.Instance.Cleanup();
 
-        DebugEx.LogModule("CombatState", "战斗管理器已清理");
+        DebugEx.Log("CombatState", "战斗管理器已清理");
     }
 
     /// <summary>
@@ -524,7 +524,7 @@ public class CombatState : FsmState<InGameState>
         if (PlayerInputManager.Instance != null)
         {
             PlayerInputManager.Instance.SetCursorLock(false);
-            DebugEx.LogModule("CombatState", "光标已解锁");
+            DebugEx.Log("CombatState", "光标已解锁");
         }
     }
 
@@ -559,12 +559,12 @@ public class CombatState : FsmState<InGameState>
         if (BattleArenaManager.Instance != null)
         {
             BattleArenaManager.Instance.DestroyArena();
-            DebugEx.LogModule("CombatState", "战斗场地已销毁");
+            DebugEx.Log("CombatState", "战斗场地已销毁");
         }
 
         // 清理溶解管理器
         DissolveTransitionManager.Instance.Cleanup();
-        DebugEx.LogModule("CombatState", "溶解管理器已清理");
+        DebugEx.Log("CombatState", "溶解管理器已清理");
     }
 
     /// <summary>
@@ -576,7 +576,7 @@ public class CombatState : FsmState<InGameState>
         if (skillManager != null)
         {
             skillManager.enabled = false;
-            DebugEx.LogModule("CombatState", "PlayerSkillManager 已禁用");
+            DebugEx.Log("CombatState", "PlayerSkillManager 已禁用");
         }
     }
 
@@ -594,7 +594,7 @@ public class CombatState : FsmState<InGameState>
                 if (controller != null)
                 {
                     controller.enabled = true;
-                    DebugEx.LogModule("CombatState", "PlayerController 已启用");
+                    DebugEx.Log("CombatState", "PlayerController 已启用");
                 }
             }
         }
@@ -627,9 +627,9 @@ public class CombatState : FsmState<InGameState>
     /// </summary>
     private async UniTask SpawnEnemiesAndEnableAI()
     {
-        DebugEx.LogModule("CombatState", "开始生成敌人...");
+        DebugEx.Log("CombatState", "开始生成敌人...");
         await EnemySpawnManager.Instance.SpawnWaveAsync();
-        DebugEx.LogModule("CombatState", "敌人生成完成");
+        DebugEx.Log("CombatState", "敌人生成完成");
 
         // 敌人生成完成后，启用所有棋子的战斗AI
         EnableAllChessCombatAI();
@@ -660,7 +660,7 @@ public class CombatState : FsmState<InGameState>
             }
         }
 
-        DebugEx.LogModule("CombatState", $"已启用 {allChess.Count} 个棋子的战斗AI");
+        DebugEx.Log("CombatState", $"已启用 {allChess.Count} 个棋子的战斗AI");
     }
 
     /// <summary>
@@ -681,7 +681,7 @@ public class CombatState : FsmState<InGameState>
             }
         }
 
-        DebugEx.LogModule("CombatState", "已禁用所有棋子的战斗AI");
+        DebugEx.Log("CombatState", "已禁用所有棋子的战斗AI");
     }
 
     /// <summary>
@@ -691,7 +691,7 @@ public class CombatState : FsmState<InGameState>
     {
         if (SummonChessManager.Instance == null)
         {
-            DebugEx.WarningModule("CombatState", "SummonChessManager 不存在，跳过棋子销毁");
+            DebugEx.Warning("CombatState", "SummonChessManager 不存在，跳过棋子销毁");
             return;
         }
 
@@ -702,7 +702,7 @@ public class CombatState : FsmState<InGameState>
         // 销毁所有棋子
         SummonChessManager.Instance.DestroyAllChess();
 
-        DebugEx.LogModule("CombatState", $"已销毁 {count} 个棋子实例");
+        DebugEx.Log("CombatState", $"已销毁 {count} 个棋子实例");
     }
 
     #endregion
@@ -716,7 +716,7 @@ public class CombatState : FsmState<InGameState>
     private void CleanupCombatVFX()
     {
         CombatVFXManager.Cleanup();
-        DebugEx.LogModule("CombatState", "战斗特效管理器已清理");
+        DebugEx.Log("CombatState", "战斗特效管理器已清理");
     }
 
 

@@ -113,10 +113,10 @@ public class ChessAttribute : MonoBehaviour
         m_MaxMp = 0;
         m_CurrentMp = 0;
 
-        // 防御 / 受击属性从配置读取
-        m_Armor = config?.Armor ?? 0;
-        m_MagicResist = config?.MagicResist ?? 0;
-        m_AtkRange = config?.AtkRange ?? 0;  // 受击检测范围复用此字段
+        // 防御 / 受击属性从配置读取（使用等级1）
+        m_Armor = config != null ? config.GetArmor(1) : 0;
+        m_MagicResist = config != null ? config.GetMagicResist(1) : 0;
+        m_AtkRange = config != null ? config.GetAtkRange(1) : 0;  // 受击检测范围复用此字段
         m_MoveSpeed = config?.MoveSpeed ?? 0; // 实际移动由玩家控制器负责
 
         // 召唤师不攻击
@@ -129,7 +129,7 @@ public class ChessAttribute : MonoBehaviour
         m_CooldownReduce = 0;
         m_DamageTakenMultiplier = 1.0;
 
-        DebugEx.LogModule("ChessAttribute",
+        DebugEx.Log("ChessAttribute",
             $"InitializeAsSummoner: HP:{m_CurrentHp}/{m_MaxHp}, Armor:{m_Armor}, MR:{m_MagicResist}, AtkRange:{m_AtkRange}");
     }
 
@@ -138,38 +138,39 @@ public class ChessAttribute : MonoBehaviour
     /// </summary>
     /// <param name="owner">所属棋子实体</param>
     /// <param name="config">棋子配置数据</param>
-    public void Initialize(ChessEntity owner, SummonChessConfig config)
+    /// <param name="rank">棋子等级（1-3）</param>
+    public void Initialize(ChessEntity owner, SummonChessConfig config, int rank)
     {
         m_Owner = owner;
         if (config == null)
         {
-            DebugEx.ErrorModule("ChessAttribute", "Initialize: config is null");
+            DebugEx.Error("ChessAttribute", "Initialize: config is null");
             return;
         }
 
-        // 初始化最大值
-        m_MaxHp = config.MaxHp;
-        m_MaxMp = config.MaxMp;
+        // 初始化最大值（使用等级对应的数据）
+        m_MaxHp = config.GetMaxHp(rank);
+        m_MaxMp = config.GetMaxMp(rank);
 
         // 初始化当前值
-        m_CurrentHp = config.MaxHp;
-        m_CurrentMp = config.InitialMp;
+        m_CurrentHp = config.GetMaxHp(rank);
+        m_CurrentMp = config.GetInitialMp(rank);
 
         // 初始化战斗属性
-        m_AtkDamage = config.AtkDamage;
-        m_AtkSpeed = config.AtkSpeed;
-        m_AtkRange = config.AtkRange;
-        m_Armor = config.Armor;
-        m_MagicResist = config.MagicResist;
+        m_AtkDamage = config.GetAtkDamage(rank);
+        m_AtkSpeed = config.GetAtkSpeed(rank);
+        m_AtkRange = config.GetAtkRange(rank);
+        m_Armor = config.GetArmor(rank);
+        m_MagicResist = config.GetMagicResist(rank);
         m_MoveSpeed = config.MoveSpeed;
-        m_CritRate = config.CritRate;
-        m_CritDamage = config.CritDamage;
-        m_SpellPower = config.SpellPower;
+        m_CritRate = config.GetCritRate(rank);
+        m_CritDamage = config.GetCritDamage(rank);
+        m_SpellPower = config.GetSpellPower(rank);
         m_Shield = config.Shield;
         m_CooldownReduce = config.CooldownReduce;
         m_DamageTakenMultiplier = 1.0;
 
-        DebugEx.LogModule("ChessAttribute", $"Initialize: {config.Name} - HP:{m_CurrentHp}/{m_MaxHp} MP:{m_CurrentMp}/{m_MaxMp}");
+        DebugEx.Log("ChessAttribute", $"Initialize: {config.Name} - HP:{m_CurrentHp}/{m_MaxHp} MP:{m_CurrentMp}/{m_MaxMp}");
     }
 
     #endregion
@@ -195,7 +196,7 @@ public class ChessAttribute : MonoBehaviour
             // 如果生命值降为0，输出日志
             if (m_CurrentHp <= 0 && oldValue > 0)
             {
-                DebugEx.LogModule("ChessAttribute", $"棋子死亡 (HP: {oldValue} -> {m_CurrentHp})");
+                DebugEx.Log("ChessAttribute", $"棋子死亡 (HP: {oldValue} -> {m_CurrentHp})");
 
                 // ⭐ 从棋子管理器注销
                 if (CombatEntityTracker.Instance != null && m_Owner != null)
@@ -225,7 +226,7 @@ public class ChessAttribute : MonoBehaviour
             // 如果法力值达到最大值，可以释放技能
             if (m_CurrentMp >= m_MaxMp && oldValue < m_MaxMp)
             {
-                DebugEx.LogModule("ChessAttribute", $"法力值满了 (MP: {m_CurrentMp}/{m_MaxMp})");
+                DebugEx.Log("ChessAttribute", $"法力值满了 (MP: {m_CurrentMp}/{m_MaxMp})");
             }
         }
     }
@@ -256,7 +257,7 @@ public class ChessAttribute : MonoBehaviour
     {
         if (value <= 0)
         {
-            DebugEx.WarningModule("ChessAttribute", $"SetMaxHp: invalid value {value}");
+            DebugEx.Warning("ChessAttribute", $"SetMaxHp: invalid value {value}");
             return;
         }
 
@@ -277,7 +278,7 @@ public class ChessAttribute : MonoBehaviour
     {
         if (value < 0)
         {
-            DebugEx.WarningModule("ChessAttribute", $"SetMaxMp: invalid value {value}");
+            DebugEx.Warning("ChessAttribute", $"SetMaxMp: invalid value {value}");
             return;
         }
 
@@ -421,7 +422,7 @@ public class ChessAttribute : MonoBehaviour
         double actualDamage = baseDamage * damageReduction;
 
         // ⭐ 调试：打印护甲和减伤倍数
-        DebugEx.LogModule("ChessAttribute", $"[伤害计算] 基础伤害={baseDamage:F1}, 护甲={m_Armor:F1}, 减伤倍数={damageReduction:F3}, 实际伤害={actualDamage:F1}");
+        DebugEx.Log("ChessAttribute", $"[伤害计算] 基础伤害={baseDamage:F1}, 护甲={m_Armor:F1}, 减伤倍数={damageReduction:F3}, 实际伤害={actualDamage:F1}");
 
         return Math.Max(0, actualDamage);
     }
@@ -537,7 +538,7 @@ public class ChessAttribute : MonoBehaviour
         if (attacker != null)
             attacker.OnDamageDealt?.Invoke(actualDamage, this);
 
-        DebugEx.LogModule("ChessAttribute", $"TakeDamage: 受到{(isTrueDamage ? "真实" : isMagic ? "魔法" : "物理")}伤害 {actualDamage:F1} " +
+        DebugEx.Log("ChessAttribute", $"TakeDamage: 受到{(isTrueDamage ? "真实" : isMagic ? "魔法" : "物理")}伤害 {actualDamage:F1} " +
                  $"(原始:{damage:F1}) HP: {m_CurrentHp:F1}/{m_MaxHp:F1} Shield: {m_Shield:F1}");
 
         return actualDamage;
@@ -607,16 +608,16 @@ public class ChessAttribute : MonoBehaviour
     /// </summary>
     public void DebugPrintAttributes()
     {
-        DebugEx.LogModule("ChessAttribute", "=== ChessAttribute 属性信息 ===");
-        DebugEx.LogModule("ChessAttribute", $"生命值: {m_CurrentHp:F1}/{m_MaxHp:F1}");
-        DebugEx.LogModule("ChessAttribute", $"法力值: {m_CurrentMp:F1}/{m_MaxMp:F1}");
-        DebugEx.LogModule("ChessAttribute", $"攻击力: {m_AtkDamage:F1}");
-        DebugEx.LogModule("ChessAttribute", $"攻击速度: {m_AtkSpeed:F2}");
-        DebugEx.LogModule("ChessAttribute", $"攻击范围: {m_AtkRange:F1}");
-        DebugEx.LogModule("ChessAttribute", $"护甲: {m_Armor:F1}");
-        DebugEx.LogModule("ChessAttribute", $"魔抗: {m_MagicResist:F1}");
-        DebugEx.LogModule("ChessAttribute", $"移动速度: {m_MoveSpeed:F1}");
-        DebugEx.LogModule("ChessAttribute", "==============================");
+        DebugEx.Log("ChessAttribute", "=== ChessAttribute 属性信息 ===");
+        DebugEx.Log("ChessAttribute", $"生命值: {m_CurrentHp:F1}/{m_MaxHp:F1}");
+        DebugEx.Log("ChessAttribute", $"法力值: {m_CurrentMp:F1}/{m_MaxMp:F1}");
+        DebugEx.Log("ChessAttribute", $"攻击力: {m_AtkDamage:F1}");
+        DebugEx.Log("ChessAttribute", $"攻击速度: {m_AtkSpeed:F2}");
+        DebugEx.Log("ChessAttribute", $"攻击范围: {m_AtkRange:F1}");
+        DebugEx.Log("ChessAttribute", $"护甲: {m_Armor:F1}");
+        DebugEx.Log("ChessAttribute", $"魔抗: {m_MagicResist:F1}");
+        DebugEx.Log("ChessAttribute", $"移动速度: {m_MoveSpeed:F1}");
+        DebugEx.Log("ChessAttribute", "==============================");
     }
 
     #endregion

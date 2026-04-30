@@ -34,7 +34,7 @@ public class GenericCardEffect : ICardEffect
     {
         if (m_CardData == null || m_TargetSelector == null || m_EffectAppliers.Count == 0)
         {
-            DebugEx.WarningModule("GenericCardEffect", "未正确初始化（缺少选择器或应用器）");
+            DebugEx.Warning("GenericCardEffect", "未正确初始化（缺少选择器或应用器）");
             return;
         }
 
@@ -42,7 +42,7 @@ public class GenericCardEffect : ICardEffect
         var targets = m_TargetSelector.SelectTargets(null, m_CardData, targetPosition);
         if (targets == null || targets.Count == 0)
         {
-            DebugEx.LogModule("GenericCardEffect", $"卡牌 {m_CardData.CardId} 未找到目标");
+            DebugEx.Log("GenericCardEffect", $"卡牌 {m_CardData.CardId} 未找到目标");
             CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
             return;
         }

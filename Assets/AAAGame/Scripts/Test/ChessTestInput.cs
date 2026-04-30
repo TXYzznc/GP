@@ -98,7 +98,7 @@ public class ChessTestInput : MonoBehaviour
         m_Animator?.PlayAttack();
 
         // TODO: 执行普攻逻辑（查找目标等）
-        DebugEx.LogModule("ChessTestInput", $"{gameObject.name} 执行普攻");
+        DebugEx.Log("ChessTestInput", $"{gameObject.name} 执行普攻");
     }
 
     /// <summary>
@@ -113,11 +113,11 @@ public class ChessTestInput : MonoBehaviour
         if (m_Entity.Skill1.TryCast())
         {
             m_Animator?.PlaySkill1();
-            DebugEx.LogModule("ChessTestInput", $"{gameObject.name} 技能1释放成功");
+            DebugEx.Log("ChessTestInput", $"{gameObject.name} 技能1释放成功");
         }
         else
         {
-            DebugEx.WarningModule("ChessTestInput", $"{gameObject.name} 技能1无法释放");
+            DebugEx.Warning("ChessTestInput", $"{gameObject.name} 技能1无法释放");
         }
     }
 
@@ -133,11 +133,11 @@ public class ChessTestInput : MonoBehaviour
         if (m_Entity.Skill2.TryCast())
         {
             m_Animator?.PlaySkill2();
-            DebugEx.LogModule("ChessTestInput", $"{gameObject.name} 大招释放成功");
+            DebugEx.Log("ChessTestInput", $"{gameObject.name} 大招释放成功");
         }
         else
         {
-            DebugEx.WarningModule("ChessTestInput", $"{gameObject.name} 大招无法释放");
+            DebugEx.Warning("ChessTestInput", $"{gameObject.name} 大招无法释放");
         }
     }
 
@@ -150,7 +150,7 @@ public class ChessTestInput : MonoBehaviour
 
         // 将生命值设为0，触发死亡
         m_Entity.Attribute.TakeDamage(m_Entity.Attribute.CurrentHp + 1, true, true);
-        DebugEx.LogModule("ChessTestInput", $"{gameObject.name} 执行死亡");
+        DebugEx.Log("ChessTestInput", $"{gameObject.name} 执行死亡");
     }
 
     #endregion

@@ -122,7 +122,7 @@ public class StatModBuff : BuffBase
     {
         if (m_Mods == null || Ctx?.OwnerAttribute == null)
         {
-            DebugEx.WarningModule("StatModBuff", $"Buff(ID={BuffId}) ApplyMods 失败: m_Mods={m_Mods}, OwnerAttribute={Ctx?.OwnerAttribute}");
+            DebugEx.Warning("StatModBuff", $"Buff(ID={BuffId}) ApplyMods 失败: m_Mods={m_Mods}, OwnerAttribute={Ctx?.OwnerAttribute}");
             return;
         }
         if (m_IsApplied) return;
@@ -137,11 +137,11 @@ public class StatModBuff : BuffBase
             {
                 double currentValue = GetStatValue(mod.Type);
                 actualValue = currentValue * mod.Value;
-                DebugEx.LogModule("StatModBuff", $"Buff(ID={BuffId}) {mod.Type}: 当前值={currentValue:F2}, 百分比={mod.Value*100:F1}%, 修改值={actualValue:F2}");
+                DebugEx.Log("StatModBuff", $"Buff(ID={BuffId}) {mod.Type}: 当前值={currentValue:F2}, 百分比={mod.Value*100:F1}%, 修改值={actualValue:F2}");
             }
             else
             {
-                DebugEx.LogModule("StatModBuff", $"Buff(ID={BuffId}) {mod.Type}: 固定修改={actualValue:F2}");
+                DebugEx.Log("StatModBuff", $"Buff(ID={BuffId}) {mod.Type}: 固定修改={actualValue:F2}");
             }
 
             ApplyStatChange(mod.Type, actualValue);
@@ -149,7 +149,7 @@ public class StatModBuff : BuffBase
         }
 
         m_IsApplied = true;
-        DebugEx.LogModule("StatModBuff", $"✓ Buff(ID={BuffId}) 属性修改已应用，共{m_Mods.Length}项");
+        DebugEx.Log("StatModBuff", $"✓ Buff(ID={BuffId}) 属性修改已应用，共{m_Mods.Length}项");
     }
 
     private void RestoreMods()
@@ -190,7 +190,7 @@ public class StatModBuff : BuffBase
         var attr = Ctx.OwnerAttribute;
         if (attr == null)
         {
-            DebugEx.ErrorModule("StatModBuff", $"Buff(ID={BuffId}) ApplyStatChange 失败: OwnerAttribute 为 null");
+            DebugEx.Error("StatModBuff", $"Buff(ID={BuffId}) ApplyStatChange 失败: OwnerAttribute 为 null");
             return;
         }
 
@@ -213,7 +213,7 @@ public class StatModBuff : BuffBase
         }
 
         double afterValue = GetStatValue(type);
-        DebugEx.LogModule("StatModBuff", $"  {type}: 修改前={beforeValue:F2} → 修改后={afterValue:F2}");
+        DebugEx.Log("StatModBuff", $"  {type}: 修改前={beforeValue:F2} → 修改后={afterValue:F2}");
     }
 
     private void TryInitModsFromConfig()
@@ -235,7 +235,7 @@ public class StatModBuff : BuffBase
         }
         catch (Exception e)
         {
-            DebugEx.WarningModule("StatModBuff", $"Buff(ID={BuffId}) StatMods JSON解析失败: {e.Message}");
+            DebugEx.Warning("StatModBuff", $"Buff(ID={BuffId}) StatMods JSON解析失败: {e.Message}");
             return;
         }
 
@@ -244,13 +244,13 @@ public class StatModBuff : BuffBase
         {
             if (!Enum.TryParse(property.Name, out StatType statType))
             {
-                DebugEx.WarningModule("StatModBuff", $"Buff(ID={BuffId}) 未知StatType: {property.Name}");
+                DebugEx.Warning("StatModBuff", $"Buff(ID={BuffId}) 未知StatType: {property.Name}");
                 continue;
             }
 
             if (!TryParseModValue(property.Value, out double value, out bool isPercent))
             {
-                DebugEx.WarningModule("StatModBuff", $"Buff(ID={BuffId}) StatMods[{property.Name}] 值解析失败: {property.Value}");
+                DebugEx.Warning("StatModBuff", $"Buff(ID={BuffId}) StatMods[{property.Name}] 值解析失败: {property.Value}");
                 continue;
             }
 
@@ -263,7 +263,7 @@ public class StatModBuff : BuffBase
         }
 
         SetMods(mods.ToArray());
-        DebugEx.LogModule("StatModBuff", $"Buff(ID={BuffId}) 从配置初始化属性修改，共{mods.Count}项");
+        DebugEx.Log("StatModBuff", $"Buff(ID={BuffId}) 从配置初始化属性修改，共{mods.Count}项");
     }
 
     private bool TryParseModValue(JToken token, out double value, out bool isPercent)

@@ -39,7 +39,7 @@ public class DashSkill : IPlayerSkill
         param = _param as DashParamSO;
         if (param == null)
         {
-            DebugEx.ErrorModule("DashSkill", $"missing DashParamSO for skillId={common.Id}");
+            DebugEx.Error("DashSkill", $"missing DashParamSO for skillId={common.Id}");
             return;
         }
 
@@ -54,7 +54,7 @@ public class DashSkill : IPlayerSkill
     {
         if (ctx == null || ctx.Owner == null)
         {
-            DebugEx.WarningModule("DashSkill", "上下文或Owner为空，无法查找手部挂点");
+            DebugEx.Warning("DashSkill", "上下文或Owner为空，无法查找手部挂点");
             return;
         }
 
@@ -63,7 +63,7 @@ public class DashSkill : IPlayerSkill
 
         if (taggedObjects.Length == 0)
         {
-            DebugEx.WarningModule("DashSkill", $"未找到Tag为'{param.handBoneTag}'的对象");
+            DebugEx.Warning("DashSkill", $"未找到Tag为'{param.handBoneTag}'的对象");
             return;
         }
 
@@ -77,12 +77,12 @@ public class DashSkill : IPlayerSkill
             if (obj.name == param.handBoneName)
             {
                 m_HandTransform = obj.transform;
-                DebugEx.LogModule("DashSkill", $"找到手部挂点: {obj.name}");
+                DebugEx.Log("DashSkill", $"找到手部挂点: {obj.name}");
                 return;
             }
         }
 
-        DebugEx.WarningModule("DashSkill", $"未找到名为'{param.handBoneName}'的手部挂点");
+        DebugEx.Warning("DashSkill", $"未找到名为'{param.handBoneName}'的手部挂点");
     }
 
     #endregion
@@ -120,32 +120,32 @@ public class DashSkill : IPlayerSkill
         // 检查冷却
         if (cdRemain > 0f)
         {
-            DebugEx.LogModule("DashSkill", $"技能冷却中，剩余{cdRemain:F1}秒");
+            DebugEx.Log("DashSkill", $"技能冷却中，剩余{cdRemain:F1}秒");
             return false;
         }
 
         // 检查是否已有道具存在
         if (m_CurrentItem != null && !m_CurrentItem.IsDestroyed)
         {
-            DebugEx.WarningModule("DashSkill", "已有道具存在，无法重复使用");
+            DebugEx.Warning("DashSkill", "已有道具存在，无法重复使用");
             return false;
         }
 
         // 检查手部挂点
         if (m_HandTransform == null)
         {
-            DebugEx.WarningModule("DashSkill", "手部挂点未找到，尝试重新查找");
+            DebugEx.Warning("DashSkill", "手部挂点未找到，尝试重新查找");
             FindHandTransform();
 
             if (m_HandTransform == null)
             {
-                DebugEx.ErrorModule("DashSkill", "手部挂点查找失败，无法使用技能");
+                DebugEx.Error("DashSkill", "手部挂点查找失败，无法使用技能");
                 return false;
             }
         }
 
         // 输出使用技能日志
-        DebugEx.LogModule("DashSkill", $"使用技能：{common.Name}");
+        DebugEx.Log("DashSkill", $"使用技能：{common.Name}");
 
         // 打开 AimUI
         OpenAimUI();
@@ -175,7 +175,7 @@ public class DashSkill : IPlayerSkill
         }
 
         m_AimUIFormId = GF.UI.OpenUIForm(UIViews.AimUI);
-        DebugEx.LogModule("DashSkill", "打开 AimUI");
+        DebugEx.Log("DashSkill", "打开 AimUI");
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ public class DashSkill : IPlayerSkill
         {
             GF.UI.CloseUIForm(m_AimUIFormId);
             m_AimUIFormId = -1;
-            DebugEx.LogModule("DashSkill", "关闭 AimUI");
+            DebugEx.Log("DashSkill", "关闭 AimUI");
         }
     }
 
@@ -207,7 +207,7 @@ public class DashSkill : IPlayerSkill
 
             if (prefab == null)
             {
-                DebugEx.ErrorModule("DashSkill", $"加载道具预制体失败，ResourceId={param.itemResourceId}");
+                DebugEx.Error("DashSkill", $"加载道具预制体失败，ResourceId={param.itemResourceId}");
                 // 加载失败时关闭 AimUI
                 CloseAimUI();
                 return;
@@ -227,7 +227,7 @@ public class DashSkill : IPlayerSkill
 
             if (m_CurrentItem == null)
             {
-                DebugEx.ErrorModule("DashSkill", "道具预制体上缺少 DashItemController 组件");
+                DebugEx.Error("DashSkill", "道具预制体上缺少 DashItemController 组件");
                 Object.Destroy(itemObj);
                 // 组件缺失时关闭 AimUI
                 CloseAimUI();
@@ -250,11 +250,11 @@ public class DashSkill : IPlayerSkill
             m_IsWaitingForThrow = true;
             m_IsWaitingForTeleport = false;
 
-            DebugEx.LogModule("DashSkill", "道具生成成功，等待投掷");
+            DebugEx.Log("DashSkill", "道具生成成功，等待投掷");
         }
         catch (System.Exception ex)
         {
-            DebugEx.ErrorModule("DashSkill", $"生成道具时发生错误: {ex.Message}");
+            DebugEx.Error("DashSkill", $"生成道具时发生错误: {ex.Message}");
             // 异常时关闭 AimUI
             CloseAimUI();
         }
@@ -269,7 +269,7 @@ public class DashSkill : IPlayerSkill
     /// </summary>
     private void OnItemThrown()
     {
-        DebugEx.LogModule("DashSkill", "道具已投掷");
+        DebugEx.Log("DashSkill", "道具已投掷");
         // 关闭 AimUI
         CloseAimUI();
     }
@@ -279,7 +279,7 @@ public class DashSkill : IPlayerSkill
     /// </summary>
     private void OnItemDestroyed()
     {
-        DebugEx.LogModule("DashSkill", "道具已销毁");
+        DebugEx.Log("DashSkill", "道具已销毁");
         // 关闭 AimUI（防御性编程，确保UI被关闭）
         CloseAimUI();
     }
@@ -324,7 +324,7 @@ public class DashSkill : IPlayerSkill
         Camera mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            DebugEx.WarningModule("DashSkill", "找不到主摄像机");
+            DebugEx.Warning("DashSkill", "找不到主摄像机");
             return;
         }
 
@@ -338,7 +338,7 @@ public class DashSkill : IPlayerSkill
         m_IsWaitingForThrow = false;
         m_IsWaitingForTeleport = true;
 
-        DebugEx.LogModule("DashSkill", $"投掷道具，方向={throwDirection}, 力度={param.throwForce}");
+        DebugEx.Log("DashSkill", $"投掷道具，方向={throwDirection}, 力度={param.throwForce}");
     }
 
     /// <summary>
@@ -384,7 +384,7 @@ public class DashSkill : IPlayerSkill
 
         if (ctx == null || ctx.Transform == null)
         {
-            DebugEx.WarningModule("DashSkill", "上下文为空，无法传送");
+            DebugEx.Warning("DashSkill", "上下文为空，无法传送");
             return;
         }
 
@@ -399,7 +399,7 @@ public class DashSkill : IPlayerSkill
         {
             // 使用 PlayerController 的 TeleportTo 方法，传入朝向
             ctx.Controller.TeleportTo(targetPosition, teleportDirection);
-            DebugEx.LogModule("DashSkill", $"传送到道具位置: {targetPosition}, 朝向: {teleportDirection}");
+            DebugEx.Log("DashSkill", $"传送到道具位置: {targetPosition}, 朝向: {teleportDirection}");
         }
         else
         {
@@ -416,7 +416,7 @@ public class DashSkill : IPlayerSkill
                 }
             }
 
-            DebugEx.LogModule("DashSkill", $"直接传送到: {targetPosition}, 朝向: {teleportDirection}");
+            DebugEx.Log("DashSkill", $"直接传送到: {targetPosition}, 朝向: {teleportDirection}");
         }
 
         // 销毁道具（会触发 OnItemDestroyed 回调，自动关闭 AimUI）

@@ -29,7 +29,7 @@ public class ProjectileHitDetector : HitDetectorBase
 
         if (prefab == null)
         {
-            DebugEx.WarningModule("ProjectileHitDetector",
+            DebugEx.Warning(nameof(ProjectileHitDetector),
                 $"投射物预制体加载失败 (ConfigId={context.ProjectilePrefabId}),降级到瞬发模式");
             FallbackToInstant(context);
             return;
@@ -43,14 +43,14 @@ public class ProjectileHitDetector : HitDetectorBase
         if (context.LockedTarget != null)
         {
             targetCenter = EntityPositionHelper.GetCenterPosition(context.LockedTarget, true);
-            DebugEx.LogModule("ProjectileHitDetector",
+            DebugEx.Log(nameof(ProjectileHitDetector),
                 $"目标中心点: {targetCenter}, 目标名称: {context.LockedTarget.Config?.Name}");
         }
 
         // ⭐ 4. 计算发射方向（从生成位置指向目标中心点）
         Vector3 launchDirection = (targetCenter - spawnPos).normalized;
 
-        DebugEx.LogModule("ProjectileHitDetector",
+        DebugEx.Log(nameof(ProjectileHitDetector),
             $"投射物发射 - 生成位置: {spawnPos}, 目标位置: {targetCenter}, 发射方向: {launchDirection}");
 
         // ⭐ 5. 生成投射物（使用计算出的发射方向设置朝向）
@@ -84,7 +84,7 @@ public class ProjectileHitDetector : HitDetectorBase
                 (target) => OnProjectileHit(target, capturedContext)
             );
 
-            DebugEx.Success("ProjectileHitDetector",
+            DebugEx.Success(nameof(ProjectileHitDetector),
                 $"投射物生成成功（追踪模式）: ConfigId={context.ProjectilePrefabId}, Target={context.LockedTarget.Config?.Name}");
         }
         else
@@ -98,7 +98,7 @@ public class ProjectileHitDetector : HitDetectorBase
                 (target) => OnProjectileHit(target, capturedContext)
             );
 
-            DebugEx.Success("ProjectileHitDetector",
+            DebugEx.Success(nameof(ProjectileHitDetector),
                 $"投射物生成成功（方向模式）: ConfigId={context.ProjectilePrefabId}, Direction={launchDirection}");
         }
 
@@ -112,23 +112,23 @@ public class ProjectileHitDetector : HitDetectorBase
     /// <param name="context">捕获的命中上下文</param>
     private void OnProjectileHit(ChessEntity target, HitContext context)
     {
-        DebugEx.LogModule("ProjectileHitDetector",
+        DebugEx.Log(nameof(ProjectileHitDetector),
             $"OnProjectileHit 被调用: target={target?.Config?.Name}, attackerCamp={context.AttackerCamp}");
 
         if (context == null)
         {
-            DebugEx.ErrorModule("ProjectileHitDetector", "context 为 null");
+            DebugEx.Error(nameof(ProjectileHitDetector), "context 为 null");
             return;
         }
 
         // 检查是否为敌人
         bool isEnemy = IsEnemy(target, context.AttackerCamp);
-        DebugEx.LogModule("ProjectileHitDetector",
+        DebugEx.Log(nameof(ProjectileHitDetector),
             $"阵营检查: target={target.Config?.Name}, targetCamp={target.Camp}, attackerCamp={context.AttackerCamp}, isEnemy={isEnemy}");
 
         if (!isEnemy)
         {
-            DebugEx.WarningModule("ProjectileHitDetector",
+            DebugEx.Warning(nameof(ProjectileHitDetector),
                 $"目标不是敌人，忽略命中: {target.Config?.Name} (Camp={target.Camp}) vs AttackerCamp={context.AttackerCamp}");
             return;
         }
@@ -136,14 +136,14 @@ public class ProjectileHitDetector : HitDetectorBase
         // 检查是否存活
         if (target.CurrentState == ChessState.Dead)
         {
-            DebugEx.LogModule("ProjectileHitDetector", $"目标已死亡，忽略命中: {target.Config?.Name}");
+            DebugEx.Log(nameof(ProjectileHitDetector), $"目标已死亡，忽略命中: {target.Config?.Name}");
             return;
         }
 
         // ⭐ 通过统一的 ApplyDamage 处理伤害、Buff 和特效
         ApplyDamage(target, context);
 
-        DebugEx.LogModule("ProjectileHitDetector", $"投射物命中目标: {target.Config?.Name}");
+        DebugEx.Log(nameof(ProjectileHitDetector), $"投射物命中目标: {target.Config?.Name}");
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ public class ProjectileHitDetector : HitDetectorBase
             // ✅ 通过统一的 ApplyDamage 处理伤害、Buff 和特效
             ApplyDamage(context.LockedTarget, context);
 
-            DebugEx.LogModule("ProjectileHitDetector",
+            DebugEx.Log(nameof(ProjectileHitDetector),
                 $"投射物预制体缺失,降级为瞬发模式命中: {context.LockedTarget.Config?.Name}");
         }
 

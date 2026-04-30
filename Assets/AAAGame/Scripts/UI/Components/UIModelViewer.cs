@@ -182,7 +182,7 @@ public class UIModelViewer : MonoBehaviour
         m_Light.shadows = LightShadows.Soft;
         m_Light.shadowStrength = 0.6f;
 
-        DebugEx.LogModule("UIModelViewer", $"光源创建完成 - 类型: {lightType}, 强度: {lightIntensity}, 旋转: {lightRotation}, 阴影强度: 0.6");
+        DebugEx.Log(this.GetType().Name, $"光源创建完成 - 类型: {lightType}, 强度: {lightIntensity}, 旋转: {lightRotation}, 阴影强度: 0.6");
 
         // 根据光源类型设置特定参数
         switch (lightType)
@@ -228,11 +228,11 @@ public class UIModelViewer : MonoBehaviour
         m_ModelController = m_CurrentModel.AddComponent<ModelController>();
         if (m_ModelController != null && m_ModelController.HasValidAnimator())
         {
-            DebugEx.LogModule("UIModelViewer", "已添加 ModelController 组件并初始化");
+            DebugEx.Log(this.GetType().Name, "已添加 ModelController 组件并初始化");
         }
         else
         {
-            DebugEx.Warning("UIModelViewer", "ModelController 初始化失败或模型没有 Animator 组件");
+            DebugEx.Warning(this.GetType().Name, "ModelController 初始化失败或模型没有 Animator 组件");
         }
 
         Log.Info($"UIModelViewer 设置模型成功: {modelPrefab.name}");
@@ -278,7 +278,7 @@ public class UIModelViewer : MonoBehaviour
             if (m_ModelController != null)
             {
                 m_ModelController.StopInteractAnimation();
-                DebugEx.LogModule("UIModelViewer", "已清理 ModelController 组件");
+                DebugEx.Log(this.GetType().Name, "已清理 ModelController 组件");
             }
 
             Destroy(m_CurrentModel);
@@ -561,7 +561,7 @@ public class UIModelViewer : MonoBehaviour
     {
         if (m_ModelController == null)
         {
-            DebugEx.Warning("UIModelViewer", "ModelController 为空，无法播放交互动画");
+            DebugEx.Warning(this.GetType().Name, "ModelController 为空，无法播放交互动画");
             return;
         }
 
@@ -575,7 +575,7 @@ public class UIModelViewer : MonoBehaviour
     {
         if (m_ModelController == null)
         {
-            DebugEx.Warning("UIModelViewer", "ModelController 为空，无法播放 Idle 动画");
+            DebugEx.Warning(this.GetType().Name, "ModelController 为空，无法播放 Idle 动画");
             return;
         }
 

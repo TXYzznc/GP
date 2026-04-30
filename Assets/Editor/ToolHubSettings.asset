@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 5
+  selectedIndex: 9
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -53,3 +53,7 @@ MonoBehaviour:
     displayName: "\u5B9D\u7BB1\u751F\u6210\u5668"
     description: "\u667A\u80FD\u6279\u91CF\u751F\u6210 TreasureBoxSpawnPoint\uFF0C\u652F\u6301
       NavMesh \u7EA6\u675F\u548C\u5BC6\u5EA6\u63A7\u5236"
+  - typeName: LogConfigPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u65E5\u5FD7\u8282\u70B9\u63A7\u5236\u5668"
+    description: "\u6309\u811A\u672C\u540D\u79F0\u63A7\u5236\u65E5\u5FD7\u8F93\u51FA\uFF0C\u652F\u6301\u6279\u91CF\u64CD\u4F5C\u548C\u914D\u7F6E\u4FDD\u5B58"

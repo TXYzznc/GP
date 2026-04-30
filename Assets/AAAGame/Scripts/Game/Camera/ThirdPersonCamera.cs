@@ -294,7 +294,7 @@ public class ThirdPersonCamera : MonoBehaviour
             if (ruleRow != null)
             {
                 topDownFOV = ruleRow.CameraView;
-                DebugEx.LogModule("ThirdPersonCamera", $"从配置表读取俯视角 FOV: {topDownFOV}");
+                DebugEx.Log("ThirdPersonCamera", $"从配置表读取俯视角 FOV: {topDownFOV}");
             }
             else
             {
@@ -325,11 +325,11 @@ public class ThirdPersonCamera : MonoBehaviour
         // 应用剔除遮罩
         m_Camera.cullingMask = defaultMask;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ThirdPersonCamera",
             $"摄像机剔除遮罩设置完成: 排除UI相关Layer (UIMask={uiMask.value})"
         );
-        DebugEx.LogModule(
+        DebugEx.Log(
             "ThirdPersonCamera",
             $"最终剔除遮罩: {System.Convert.ToString(defaultMask, 2).PadLeft(32, '0')}"
         );
@@ -343,7 +343,7 @@ public class ThirdPersonCamera : MonoBehaviour
         if (m_Camera == null) return;
         int mask = LayerHelper.GetMask(layer);
         m_Camera.cullingMask &= ~mask;
-        DebugEx.LogModule("ThirdPersonCamera", $"排除 Layer: {layer}");
+        DebugEx.Log("ThirdPersonCamera", $"排除 Layer: {layer}");
     }
 
     /// <summary>
@@ -354,7 +354,7 @@ public class ThirdPersonCamera : MonoBehaviour
         if (m_Camera == null) return;
         int mask = LayerHelper.GetMask(layer);
         m_Camera.cullingMask |= mask;
-        DebugEx.LogModule("ThirdPersonCamera", $"恢复 Layer: {layer}");
+        DebugEx.Log("ThirdPersonCamera", $"恢复 Layer: {layer}");
     }
 
     #endregion
@@ -425,19 +425,19 @@ public class ThirdPersonCamera : MonoBehaviour
             CameraViewMode previousMode = viewMode;
             viewMode = PlayerInputManager.Instance.ViewMode;
 
-            DebugEx.LogModule("ThirdPersonCamera", $"视角模式切换: {previousMode} -> {viewMode}");
+            DebugEx.Log("ThirdPersonCamera", $"视角模式切换: {previousMode} -> {viewMode}");
 
             // 切换视角时重置一些状态
             if (viewMode == CameraViewMode.TopDown)
             {
                 // 切换到俯视角时重置目标高度
                 m_TargetTopDownHeight = topDownHeight;
-                DebugEx.LogModule("ThirdPersonCamera", $"切换到俯视角，设置 FOV: {topDownFOV}");
+                DebugEx.Log("ThirdPersonCamera", $"切换到俯视角，设置 FOV: {topDownFOV}");
             }
             else if (previousMode == CameraViewMode.TopDown)
             {
                 // 从俯视角切换出来时，恢复默认 FOV
-                DebugEx.LogModule("ThirdPersonCamera", $"从俯视角切换出来，恢复默认 FOV: {defaultFOV}");
+                DebugEx.Log("ThirdPersonCamera", $"从俯视角切换出来，恢复默认 FOV: {defaultFOV}");
             }
         }
     }
@@ -921,7 +921,7 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         m_IsFOVOverridden = true;
         m_OverrideFOV = fov;
-        DebugEx.LogModule("ThirdPersonCamera", $"设置覆盖FOV: {fov}");
+        DebugEx.Log("ThirdPersonCamera", $"设置覆盖FOV: {fov}");
     }
 
     /// <summary>
@@ -930,7 +930,7 @@ public class ThirdPersonCamera : MonoBehaviour
     public void ClearOverrideFOV()
     {
         m_IsFOVOverridden = false;
-        DebugEx.LogModule("ThirdPersonCamera", "清除覆盖FOV，恢复默认逻辑");
+        DebugEx.Log("ThirdPersonCamera", "清除覆盖FOV，恢复默认逻辑");
     }
 
     /// <summary>
@@ -965,13 +965,13 @@ public class ThirdPersonCamera : MonoBehaviour
         // ⭐ 检查视角是否被锁定（新增）
         if (m_IsViewModeLocked && mode != viewMode)
         {
-            DebugEx.WarningModule("ThirdPersonCamera", $"视角模式已锁定，无法切换到 {mode}");
+            DebugEx.Warning("ThirdPersonCamera", $"视角模式已锁定，无法切换到 {mode}");
             return;
         }
 
         if (viewMode != mode)
         {
-            DebugEx.LogModule("ThirdPersonCamera", $"切换视角模式: {viewMode} -> {mode}");
+            DebugEx.Log("ThirdPersonCamera", $"切换视角模式: {viewMode} -> {mode}");
             viewMode = mode;
         }
     }
@@ -985,7 +985,7 @@ public class ThirdPersonCamera : MonoBehaviour
     public void SetViewModeLocked(bool locked)
     {
         m_IsViewModeLocked = locked;
-        DebugEx.LogModule("ThirdPersonCamera", $"视角模式锁定状态: {(locked ? "锁定" : "解锁")}");
+        DebugEx.Log("ThirdPersonCamera", $"视角模式锁定状态: {(locked ? "锁定" : "解锁")}");
     }
 
     /// <summary>
@@ -1002,7 +1002,7 @@ public class ThirdPersonCamera : MonoBehaviour
     public void CacheCurrentViewMode()
     {
         m_CachedViewMode = viewMode;
-        DebugEx.LogModule("ThirdPersonCamera", $"缓存视角模式: {m_CachedViewMode}");
+        DebugEx.Log("ThirdPersonCamera", $"缓存视角模式: {m_CachedViewMode}");
     }
 
     /// <summary>
@@ -1012,7 +1012,7 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (m_CachedViewMode != viewMode)
         {
-            DebugEx.LogModule("ThirdPersonCamera", $"恢复视角模式: {m_CachedViewMode}");
+            DebugEx.Log("ThirdPersonCamera", $"恢复视角模式: {m_CachedViewMode}");
             SetViewMode(m_CachedViewMode);
         }
     }
@@ -1031,7 +1031,7 @@ public class ThirdPersonCamera : MonoBehaviour
         while (m_CurrentYaw < 0f)
             m_CurrentYaw += 360f;
 
-        DebugEx.LogModule("ThirdPersonCamera", $"设置相机 Yaw: {m_CurrentYaw}°");
+        DebugEx.Log("ThirdPersonCamera", $"设置相机 Yaw: {m_CurrentYaw}°");
     }
 
     /// <summary>
@@ -1043,11 +1043,11 @@ public class ThirdPersonCamera : MonoBehaviour
         {
             float targetYaw = target.eulerAngles.y;
             SetYaw(targetYaw);
-            DebugEx.LogModule("ThirdPersonCamera", $"同步相机 Yaw 到目标: {targetYaw}°");
+            DebugEx.Log("ThirdPersonCamera", $"同步相机 Yaw 到目标: {targetYaw}°");
         }
         else
         {
-            DebugEx.WarningModule("ThirdPersonCamera", "无法同步 Yaw：目标为空");
+            DebugEx.Warning("ThirdPersonCamera", "无法同步 Yaw：目标为空");
         }
     }
 

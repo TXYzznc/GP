@@ -71,7 +71,7 @@ public class ChessSlotContainer : MonoBehaviour
         m_RectTransform = GetComponent<RectTransform>();
         if (m_RectTransform == null)
         {
-            DebugEx.ErrorModule("ChessSlotContainer", "缺少 RectTransform 组件");
+            DebugEx.Error(nameof(ChessSlotContainer), "缺少 RectTransform 组件");
         }
 
         // 初始化缓存参数
@@ -87,7 +87,7 @@ public class ChessSlotContainer : MonoBehaviour
         // 检测参数是否有变化
         if (HasParametersChanged())
         {
-            DebugEx.LogModule("ChessSlotContainer", "检测到参数变化，立即更新棋子位置");
+            DebugEx.Log(nameof(ChessSlotContainer), "检测到参数变化，立即更新棋子位置");
             CacheParameters();
             // 立即更新位置（不播放动画，实时反馈）
             RefreshCardPositionsImmediate();
@@ -145,7 +145,7 @@ public class ChessSlotContainer : MonoBehaviour
         // 重新缓存参数（以便下次参数检测）
         CacheParameters();
 
-        DebugEx.LogModule("ChessSlotContainer", "容器状态已清理");
+        DebugEx.Log(nameof(ChessSlotContainer), "容器状态已清理");
     }
 
     #endregion
@@ -163,7 +163,7 @@ public class ChessSlotContainer : MonoBehaviour
         m_Cards.Add(card);
         card.transform.SetParent(transform);
 
-        DebugEx.LogModule("ChessSlotContainer", $"添加棋子: {m_Cards.Count} 张");
+        DebugEx.Log(nameof(ChessSlotContainer), $"添加棋子: {m_Cards.Count} 张");
 
         // 计算延迟时间（按棋子索引从左到右发牌）
         int cardIndex = m_Cards.IndexOf(card);
@@ -202,7 +202,7 @@ public class ChessSlotContainer : MonoBehaviour
 
         m_Cards.Remove(card);
 
-        DebugEx.LogModule("ChessSlotContainer", $"移除棋子，剩余: {m_Cards.Count} 张");
+        DebugEx.Log(nameof(ChessSlotContainer), $"移除棋子，剩余: {m_Cards.Count} 张");
 
         // 其他卡补位
         RearrangeAsync().Forget();
@@ -287,7 +287,7 @@ public class ChessSlotContainer : MonoBehaviour
         }
         cardImage.alpha = 0f;
 
-        DebugEx.LogModule("ChessSlotContainer", $"棋子初始位置已设置");
+        DebugEx.Log(nameof(ChessSlotContainer), $"棋子初始位置已设置");
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ public class ChessSlotContainer : MonoBehaviour
         if (card == null)
             return;
 
-        DebugEx.LogModule("ChessSlotContainer", $"棋子进场动画完成");
+        DebugEx.Log(nameof(ChessSlotContainer), $"棋子进场动画完成");
     }
 
     /// <summary>
@@ -383,7 +383,7 @@ public class ChessSlotContainer : MonoBehaviour
 
         await sequence.AsyncWaitForCompletion();
 
-        DebugEx.LogModule("ChessSlotContainer", "棋子重排完成");
+        DebugEx.Log(nameof(ChessSlotContainer), "棋子重排完成");
     }
 
     /// <summary>
@@ -417,7 +417,7 @@ public class ChessSlotContainer : MonoBehaviour
             card.SetBaseFanTransform(fanTransforms[i].AnchoredPos, targetRotZ);
         }
 
-        DebugEx.LogModule("ChessSlotContainer", "棋子位置已立即更新");
+        DebugEx.Log(nameof(ChessSlotContainer), "棋子位置已立即更新");
     }
 
     #endregion

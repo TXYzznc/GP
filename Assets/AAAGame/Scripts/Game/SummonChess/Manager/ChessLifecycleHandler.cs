@@ -17,7 +17,7 @@ public class ChessLifecycleHandler : MonoBehaviour
         }
         else
         {
-            DebugEx.ErrorModule("ChessLifecycleHandler", "SummonChessManager.Instance 为 null，无法订阅 OnChessSpawned");
+            DebugEx.Error(nameof(ChessLifecycleHandler), "SummonChessManager.Instance 为 null，无法订阅 OnChessSpawned");
         }
     }
 
@@ -48,7 +48,7 @@ public class ChessLifecycleHandler : MonoBehaviour
         if (entity == null)
             return;
 
-        DebugEx.LogModule("ChessLifecycleHandler", $"棋子死亡: chessId={entity.ChessId}, name={entity.Config?.Name}");
+        DebugEx.Log(nameof(ChessLifecycleHandler), $"棋子死亡: chessId={entity.ChessId}, name={entity.Config?.Name}");
 
         // 1. 玩家棋子（Camp=0）先标记死亡（必须在 UnregisterChess 之前，
         //    因为注销可能同步触发战斗结束，清空 m_EntityToInstanceId）
@@ -58,7 +58,7 @@ public class ChessLifecycleHandler : MonoBehaviour
             if (!string.IsNullOrEmpty(instanceId))
             {
                 ChessDeploymentTracker.Instance.MarkChessDead(instanceId);
-                DebugEx.LogModule("ChessLifecycleHandler",
+                DebugEx.Log(nameof(ChessLifecycleHandler),
                     $"已标记棋子死亡: instanceId={instanceId}, chessId={entity.ChessId}");
             }
         }

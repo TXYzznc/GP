@@ -12,7 +12,7 @@ public class ChangeNormalAttack : ChessNormalAttackBase
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
-        DebugEx.LogModule("ChangeNormalAttack", "嫦娥普攻初始化完成");
+        DebugEx.Log(nameof(ChangeNormalAttack), "嫦娥普攻初始化完成");
     }
 
     /// <summary>
@@ -22,17 +22,17 @@ public class ChangeNormalAttack : ChessNormalAttackBase
     {
         if (caster == null)
         {
-            DebugEx.ErrorModule("ChangeNormalAttack", "ExecuteAttack: caster 为 null");
+            DebugEx.Error(nameof(ChangeNormalAttack), "ExecuteAttack: caster 为 null");
             return;
         }
 
         if (target == null)
         {
-            DebugEx.WarningModule("ChangeNormalAttack", "ExecuteAttack: target 为 null");
+            DebugEx.Warning(nameof(ChangeNormalAttack), "ExecuteAttack: target 为 null");
             return;
         }
 
-        DebugEx.LogModule("ChangeNormalAttack", $"执行普攻 → 目标: {target.Config?.Name}");
+        DebugEx.Log(nameof(ChangeNormalAttack), $"执行普攻 → 目标: {target.Config?.Name}");
 
         // 1. 计算伤害
         double damage = CalculateDamage(caster, out bool isCritical);
@@ -73,7 +73,7 @@ public class ChangeNormalAttack : ChessNormalAttackBase
         // 6. 回复蓝量
         RestoreMana(caster);
 
-        DebugEx.LogModule("ChangeNormalAttack", "普攻执行完成，投射物已发射");
+        DebugEx.Log(nameof(ChangeNormalAttack), "普攻执行完成，投射物已发射");
     }
 
     #endregion

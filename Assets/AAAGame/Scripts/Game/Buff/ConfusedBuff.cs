@@ -65,7 +65,7 @@ public class ConfusedBuff : BuffBase
             var candidate = all[(startIdx + i) % all.Count];
             if (candidate != m_Entity && !candidate.Attribute.IsDead)
             {
-                DebugEx.LogModule("ConfusedBuff", $"{m_Entity.Config.Name} 混乱：攻击随机目标 {candidate.Config.Name}");
+                DebugEx.Log(nameof(ConfusedBuff), $"{m_Entity.Config.Name} 混乱：攻击随机目标 {candidate.Config.Name}");
                 return candidate;
             }
         }

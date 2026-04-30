@@ -58,7 +58,7 @@ public class VisionConeDetector : MonoBehaviour
         m_Entity = GetComponent<EnemyEntity>();
         if (m_Entity == null)
         {
-            DebugEx.ErrorModule("VisionConeDetector", $"{gameObject.name} 上未找到EnemyEntity组件");
+            DebugEx.Error(nameof(VisionConeDetector), $"{gameObject.name} 上未找到EnemyEntity组件");
         }
     }
 
@@ -97,7 +97,7 @@ public class VisionConeDetector : MonoBehaviour
         m_AlertLevel = 0f;
         m_LastDetectionUpdateTime = Time.time;
 
-        DebugEx.LogModule("VisionConeDetector", $"{m_Entity.Config.Name} 检测器初始化完成");
+        DebugEx.Log(nameof(VisionConeDetector), $"{m_Entity.Config.Name} 检测器初始化完成");
     }
 
     /// <summary>

@@ -65,7 +65,7 @@ public class BattleArenaManager
     public void Initialize(int arenaResourceId = 0)
     {
         m_ArenaResourceId = arenaResourceId;
-        DebugEx.LogModule("BattleArenaManager", $"初始化完成 (ResourceId={arenaResourceId})");
+        DebugEx.Log(nameof(BattleArenaManager), $"初始化完成 (ResourceId={arenaResourceId})");
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class BattleArenaManager
     {
         if (playerTransform == null)
         {
-            DebugEx.ErrorModule("BattleArenaManager", "玩家 Transform 为空");
+            DebugEx.Error(nameof(BattleArenaManager), "玩家 Transform 为空");
             return null;
         }
 
@@ -101,7 +101,7 @@ public class BattleArenaManager
 
         if (prefab == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "战斗场地预制体加载失败,创建默认场地");
+            DebugEx.Warning(nameof(BattleArenaManager), "战斗场地预制体加载失败,创建默认场地");
             m_CurrentArena = CreateDefaultArena(playerBottomPosition, playerRotation);
         }
         else
@@ -120,7 +120,7 @@ public class BattleArenaManager
         // 缓存区域引用
         CacheZoneReferences();
 
-        DebugEx.LogModule("BattleArenaManager",
+        DebugEx.Log(nameof(BattleArenaManager),
             $"战斗场地已生成，PlayerAnchor 对齐玩家底部位置: {playerBottomPosition}, 战场朝向: {CalculateArenaRotation(prefab, playerRotation).eulerAngles.y}°, 玩家朝向: {playerRotation.eulerAngles.y}°");
 
         return m_CurrentArena;
@@ -138,7 +138,7 @@ public class BattleArenaManager
             m_PlayerAnchor = null;
             m_PlayerZoneCollider = null;
             m_EnemyZoneCollider = null;
-            DebugEx.LogModule("BattleArenaManager", "战斗场地已销毁");
+            DebugEx.Log(nameof(BattleArenaManager), "战斗场地已销毁");
         }
     }
 
@@ -149,7 +149,7 @@ public class BattleArenaManager
     {
         DestroyArena();
         m_ArenaResourceId = 0;
-        DebugEx.LogModule("BattleArenaManager", "已清理");
+        DebugEx.Log(nameof(BattleArenaManager), "已清理");
     }
 
     #endregion
@@ -163,7 +163,7 @@ public class BattleArenaManager
     {
         if (m_PlayerZoneCollider == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "PlayerZone Collider 未初始化，默认返回 true");
+            DebugEx.Warning(nameof(BattleArenaManager), "PlayerZone Collider 未初始化，默认返回 true");
             return true;
         }
 
@@ -179,7 +179,7 @@ public class BattleArenaManager
     {
         if (m_EnemyZoneCollider == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "EnemyZone Collider 未初始化，默认返回 false");
+            DebugEx.Warning(nameof(BattleArenaManager), "EnemyZone Collider 未初始化，默认返回 false");
             return false;
         }
 
@@ -193,7 +193,7 @@ public class BattleArenaManager
     {
         if (m_PlayerZoneCollider == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "PlayerZone Collider 未初始化，返回默认 Bounds");
+            DebugEx.Warning(nameof(BattleArenaManager), "PlayerZone Collider 未初始化，返回默认 Bounds");
             return new Bounds(Vector3.zero, Vector3.one * 10);
         }
 
@@ -207,7 +207,7 @@ public class BattleArenaManager
     {
         if (m_EnemyZoneCollider == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "EnemyZone Collider 未初始化，返回默认 Bounds");
+            DebugEx.Warning(nameof(BattleArenaManager), "EnemyZone Collider 未初始化，返回默认 Bounds");
             return new Bounds(Vector3.zero, Vector3.one * 10);
         }
 
@@ -221,7 +221,7 @@ public class BattleArenaManager
     {
         if (m_EnemyZoneCollider == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "EnemyZone Collider 未初始化，返回默认中心点");
+            DebugEx.Warning(nameof(BattleArenaManager), "EnemyZone Collider 未初始化，返回默认中心点");
             return Vector3.forward * 5;
         }
 
@@ -242,7 +242,7 @@ public class BattleArenaManager
         if (characterController != null)
         {
             Vector3 bottomPos = playerTransform.position - new Vector3(0, characterController.height / 2f, 0);
-            DebugEx.LogModule("BattleArenaManager",
+            DebugEx.Log(nameof(BattleArenaManager),
                 $"通过 CharacterController 获取底部位置: {bottomPos} (高度={characterController.height})");
             return bottomPos;
         }
@@ -256,13 +256,13 @@ public class BattleArenaManager
                 collider.bounds.min.y,
                 playerTransform.position.z
             );
-            DebugEx.LogModule("BattleArenaManager",
+            DebugEx.Log(nameof(BattleArenaManager),
                 $"通过 Collider 获取底部位置: {bottomPos}");
             return bottomPos;
         }
 
         // 如果都没有，使用 Transform 位置并警告
-        DebugEx.WarningModule("BattleArenaManager",
+        DebugEx.Warning(nameof(BattleArenaManager),
             "玩家对象没有 CharacterController 或 Collider，使用 Transform 位置作为底部位置");
         return playerTransform.position;
     }
@@ -295,7 +295,7 @@ public class BattleArenaManager
 
         if (playerAnchor == null)
         {
-            DebugEx.WarningModule("BattleArenaManager",
+            DebugEx.Warning(nameof(BattleArenaManager),
                 "预制体中未找到 PlayerAnchor，使用玩家旋转作为战场旋转");
             return playerRotation;
         }
@@ -308,7 +308,7 @@ public class BattleArenaManager
         // arenaRotation = playerRotation * playerAnchorLocalRotation^-1
         Quaternion arenaRotation = playerRotation * Quaternion.Inverse(playerAnchorLocalRotation);
 
-        DebugEx.LogModule("BattleArenaManager",
+        DebugEx.Log(nameof(BattleArenaManager),
             $"战场旋转计算: 玩家朝向={playerRotation.eulerAngles.y}°, " +
             $"PlayerAnchor本地朝向={playerAnchorLocalRotation.eulerAngles.y}°, " +
             $"计算后战场朝向={arenaRotation.eulerAngles.y}°");
@@ -326,7 +326,7 @@ public class BattleArenaManager
 
         if (playerAnchor == null)
         {
-            DebugEx.WarningModule("BattleArenaManager",
+            DebugEx.Warning(nameof(BattleArenaManager),
                 "预制体中未找到 PlayerAnchor，使用默认偏移");
             return playerBottomPosition;
         }
@@ -337,7 +337,7 @@ public class BattleArenaManager
         Vector3 rotatedOffset = arenaRotation * anchorLocalPos;
         Vector3 spawnPosition = playerBottomPosition - rotatedOffset;
 
-        DebugEx.LogModule("BattleArenaManager",
+        DebugEx.Log(nameof(BattleArenaManager),
             $"场地生成位置计算: 玩家底部位置={playerBottomPosition}, " +
             $"锚点本地坐标={anchorLocalPos}, 战场旋转后偏移={rotatedOffset}, 场地位置={spawnPosition}");
 
@@ -351,7 +351,7 @@ public class BattleArenaManager
     {
         if (m_CurrentArena == null)
         {
-            DebugEx.ErrorModule("BattleArenaManager", "当前场地为空，无法缓存区域引用");
+            DebugEx.Error(nameof(BattleArenaManager), "当前场地为空，无法缓存区域引用");
             return;
         }
 
@@ -359,7 +359,7 @@ public class BattleArenaManager
         m_PlayerAnchor = m_CurrentArena.transform.Find("PlayerAnchor");
         if (m_PlayerAnchor == null)
         {
-            DebugEx.WarningModule("BattleArenaManager", "未找到 PlayerAnchor");
+            DebugEx.Warning(nameof(BattleArenaManager), "未找到 PlayerAnchor");
         }
 
         // 缓存 PlayerZone Collider
@@ -369,17 +369,17 @@ public class BattleArenaManager
             m_PlayerZoneCollider = playerZone.GetComponent<Collider>();
             if (m_PlayerZoneCollider != null)
             {
-                DebugEx.LogModule("BattleArenaManager",
+                DebugEx.Log(nameof(BattleArenaManager),
                     $"PlayerZone Collider 已缓存，边界={m_PlayerZoneCollider.bounds}");
             }
             else
             {
-                DebugEx.WarningModule("BattleArenaManager", "PlayerZone 没有 Collider 组件");
+                DebugEx.Warning(nameof(BattleArenaManager), "PlayerZone 没有 Collider 组件");
             }
         }
         else
         {
-            DebugEx.WarningModule("BattleArenaManager", "未找到 PlayerZone");
+            DebugEx.Warning(nameof(BattleArenaManager), "未找到 PlayerZone");
         }
 
         // 缓存 EnemyZone Collider
@@ -389,17 +389,17 @@ public class BattleArenaManager
             m_EnemyZoneCollider = enemyZone.GetComponent<Collider>();
             if (m_EnemyZoneCollider != null)
             {
-                DebugEx.LogModule("BattleArenaManager",
+                DebugEx.Log(nameof(BattleArenaManager),
                     $"EnemyZone Collider 已缓存，边界={m_EnemyZoneCollider.bounds}");
             }
             else
             {
-                DebugEx.WarningModule("BattleArenaManager", "EnemyZone 没有 Collider 组件");
+                DebugEx.Warning(nameof(BattleArenaManager), "EnemyZone 没有 Collider 组件");
             }
         }
         else
         {
-            DebugEx.WarningModule("BattleArenaManager", "未找到 EnemyZone");
+            DebugEx.Warning(nameof(BattleArenaManager), "未找到 EnemyZone");
         }
     }
 
@@ -448,7 +448,7 @@ public class BattleArenaManager
             enemyCollider.isTrigger = true; // 设置为 Trigger
         }
 
-        DebugEx.WarningModule("BattleArenaManager", "使用默认战斗场地(仅用于测试)");
+        DebugEx.Warning(nameof(BattleArenaManager), "使用默认战斗场地(仅用于测试)");
         return arena;
     }
 

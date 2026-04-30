@@ -36,11 +36,11 @@ public class ModelController : MonoBehaviour
         m_Animator = GetComponentInChildren<Animator>();
         if (m_Animator == null)
         {
-            DebugEx.Warning("ModelController", "未找到 Animator 组件");
+            DebugEx.Warning(nameof(ModelController), "未找到 Animator 组件");
         }
         else
         {
-            DebugEx.LogModule("ModelController", "ModelController 初始化完成，已获取 Animator 组件");
+            DebugEx.Log(nameof(ModelController), "ModelController 初始化完成，已获取 Animator 组件");
         }
     }
 
@@ -61,7 +61,7 @@ public class ModelController : MonoBehaviour
     {
         if (m_Animator == null)
         {
-            DebugEx.Warning("ModelController", "Animator 为空，无法播放 Idle 动画");
+            DebugEx.Warning(nameof(ModelController), "Animator 为空，无法播放 Idle 动画");
             return;
         }
 
@@ -71,8 +71,8 @@ public class ModelController : MonoBehaviour
         m_Animator.SetInteger("State", 0);
         m_IsInteracting = false;
 
-        DebugEx.LogModule("ModelController", "播放 Idle 动画 (Speed=0.05, State=0)");
-        
+        DebugEx.Log(nameof(ModelController), "播放 Idle 动画 (Speed=0.05, State=0)");
+
         // 验证参数设置
         StartCoroutine(VerifyIdleParameters());
     }
@@ -85,13 +85,13 @@ public class ModelController : MonoBehaviour
     {
         if (m_Animator == null)
         {
-            DebugEx.Warning("ModelController", "Animator 为空，无法播放交互动画");
+            DebugEx.Warning(nameof(ModelController), "Animator 为空，无法播放交互动画");
             return;
         }
 
         if (m_IsInteracting)
         {
-            DebugEx.Warning("ModelController", "正在播放交互动画，忽略新的请求");
+            DebugEx.Warning(nameof(ModelController), "正在播放交互动画，忽略新的请求");
             return;
         }
 
@@ -103,8 +103,8 @@ public class ModelController : MonoBehaviour
         // 设置 State = 4 触发交互动画（从 Movement 跳转到 Interact 状态）
         m_Animator.SetInteger("State", 4);
 
-        DebugEx.LogModule("ModelController", $"播放交互动画 (State=4, InteractIndex={interactIndex})");
-        
+        DebugEx.Log(nameof(ModelController), $"播放交互动画 (State=4, InteractIndex={interactIndex})");
+
         // 添加状态检查日志
         StartCoroutine(CheckInteractAnimationState());
 
@@ -126,8 +126,8 @@ public class ModelController : MonoBehaviour
         m_Animator.SetInteger("State", 0);
         m_Animator.SetFloat("Speed", 0.05f);
 
-        DebugEx.LogModule("ModelController", "交互动画结束，恢复 Idle (State=0, Speed=0)");
-        
+        DebugEx.Log(nameof(ModelController), "交互动画结束，恢复 Idle (State=0, Speed=0)");
+
         // 验证状态是否正确切换
         StartCoroutine(VerifyReturnToIdle());
     }
@@ -141,7 +141,7 @@ public class ModelController : MonoBehaviour
         {
             CancelInvoke(nameof(EndInteractAnimation));
             EndInteractAnimation();
-            DebugEx.LogModule("ModelController", "强制停止交互动画");
+            DebugEx.Log(nameof(ModelController), "强制停止交互动画");
         }
     }
 
@@ -155,14 +155,14 @@ public class ModelController : MonoBehaviour
     private System.Collections.IEnumerator VerifyIdleParameters()
     {
         yield return new WaitForSeconds(0.1f);
-        
+
         if (m_Animator != null)
         {
             float currentSpeed = m_Animator.GetFloat("Speed");
             int currentState = m_Animator.GetInteger("State");
             var animatorState = m_Animator.GetCurrentAnimatorStateInfo(0);
-            
-            DebugEx.LogModule("ModelController", $"参数验证 - Speed: {currentSpeed}, State: {currentState}, 当前状态哈希: {animatorState.shortNameHash}");
+
+            DebugEx.Log(nameof(ModelController), $"参数验证 - Speed: {currentSpeed}, State: {currentState}, 当前状态哈希: {animatorState.shortNameHash}");
         }
     }
 
@@ -172,15 +172,15 @@ public class ModelController : MonoBehaviour
     private System.Collections.IEnumerator CheckInteractAnimationState()
     {
         yield return new WaitForSeconds(0.1f); // 等待状态机更新
-        
+
         if (m_Animator != null)
         {
             var currentState = m_Animator.GetCurrentAnimatorStateInfo(0);
             int stateParam = m_Animator.GetInteger("State");
             int interactIndex = m_Animator.GetInteger("InteractIndex");
-            
-            DebugEx.LogModule("ModelController", $"交互动画状态检查 - State参数: {stateParam}, InteractIndex: {interactIndex}");
-            DebugEx.LogModule("ModelController", $"当前动画状态哈希: {currentState.shortNameHash}");
+
+            DebugEx.Log(nameof(ModelController), $"交互动画状态检查 - State参数: {stateParam}, InteractIndex: {interactIndex}");
+            DebugEx.Log(nameof(ModelController), $"当前动画状态哈希: {currentState.shortNameHash}");
         }
     }
 
@@ -190,15 +190,15 @@ public class ModelController : MonoBehaviour
     private System.Collections.IEnumerator VerifyReturnToIdle()
     {
         yield return new WaitForSeconds(0.2f); // 等待状态转换完成
-        
+
         if (m_Animator != null)
         {
             var currentState = m_Animator.GetCurrentAnimatorStateInfo(0);
             float currentSpeed = m_Animator.GetFloat("Speed");
             int currentStateParam = m_Animator.GetInteger("State");
-            
-            DebugEx.LogModule("ModelController", $"返回验证 - State: {currentStateParam}, Speed: {currentSpeed}");
-            DebugEx.LogModule("ModelController", $"当前状态哈希: {currentState.shortNameHash}");
+
+            DebugEx.Log(nameof(ModelController), $"返回验证 - State: {currentStateParam}, Speed: {currentSpeed}");
+            DebugEx.Log(nameof(ModelController), $"当前状态哈希: {currentState.shortNameHash}");
         }
     }
 
@@ -234,7 +234,7 @@ public class ModelController : MonoBehaviour
     {
         // 取消所有延迟调用
         CancelInvoke();
-        DebugEx.LogModule("ModelController", "ModelController 已销毁");
+        DebugEx.Log(nameof(ModelController), "ModelController 已销毁");
     }
 
     #endregion

@@ -70,8 +70,8 @@ public partial class ItemTable
                         }
                         else
                         {
-                            DebugEx.WarningModule(
-                                "ItemTable",
+                            DebugEx.Warning(
+                                nameof(ItemTable),
                                 $"解析百分比失败 ID:{Id}, 属性:{property.Name}, 值:{valueStr}"
                             );
                             continue;
@@ -82,8 +82,8 @@ public partial class ItemTable
                         // 普通数值
                         if (!float.TryParse(valueStr, out value))
                         {
-                            DebugEx.WarningModule(
-                                "ItemTable",
+                            DebugEx.Warning(
+                                nameof(ItemTable),
                                 $"解析数值失败 ID:{Id}, 属性:{property.Name}, 值:{valueStr}"
                             );
                             continue;
@@ -94,8 +94,8 @@ public partial class ItemTable
                 }
                 else
                 {
-                    DebugEx.WarningModule(
-                        "ItemTable",
+                    DebugEx.Warning(
+                        nameof(ItemTable),
                         $"未知的属性类型 ID:{Id}, 属性名:{property.Name}"
                     );
                 }
@@ -103,8 +103,8 @@ public partial class ItemTable
         }
         catch (System.Exception e)
         {
-            DebugEx.ErrorModule(
-                "ItemTable",
+            DebugEx.Error(
+                nameof(ItemTable),
                 $"解析基础属性失败 ID:{Id}, BaseAttributes:{BaseAttributes}, Error:{e.Message}"
             );
         }

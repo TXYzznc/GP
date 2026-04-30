@@ -46,7 +46,7 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     private void Awake()
     {
         base.Awake();
-        DebugEx.LogModule("CombatTriggerManager", "初始化完成");
+        DebugEx.Log(nameof(CombatTriggerManager), "初始化完成");
     }
 
     private void OnDestroy()
@@ -65,7 +65,7 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     {
         if (enemy == null)
         {
-            DebugEx.ErrorModule("CombatTriggerManager", "敌人实体为空");
+            DebugEx.Error(nameof(CombatTriggerManager), "敌人实体为空");
             return;
         }
 
@@ -88,8 +88,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             case CombatTriggerType.SneakAttack:
                 m_CurrentContext.AvailableDebuffs = GetSneakDebuffPool();
                 CombatTriggerEvents.FireSneakAttackTriggered(m_CurrentContext.AvailableDebuffs);
-                DebugEx.LogModule(
-                    "CombatTriggerManager",
+                DebugEx.Log(
+                    nameof(CombatTriggerManager),
                     $"偷袭触发: {enemy.Config.Name}, 可选效果数={m_CurrentContext.AvailableDebuffs.Count}"
                 );
                 break;
@@ -98,8 +98,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                 // 遭遇战 = 玩家先手，获取候选Buff池，由UI让玩家三选一
                 m_CurrentContext.AvailableBuffIds = GetPlayerInitiativeBuffPool();
                 CombatTriggerEvents.FirePlayerInitiativeTriggered(m_CurrentContext.AvailableBuffIds);
-                DebugEx.LogModule(
-                    "CombatTriggerManager",
+                DebugEx.Log(
+                    nameof(CombatTriggerManager),
                     $"遭遇战触发: {enemy.Config.Name}, 候选先手效果数={m_CurrentContext.AvailableBuffIds.Count}"
                 );
                 break;
@@ -109,34 +109,38 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                 // 延迟应用：存储到SelectedEffectId，由CombatState在棋子就绪后统一应用
                 m_CurrentContext.SelectedEffectId = m_CurrentContext.InitiativeBuffId;
                 CombatTriggerEvents.FireEnemyInitiativeTriggered(m_CurrentContext.InitiativeBuffId);
-                DebugEx.LogModule(
-                    "CombatTriggerManager",
+                DebugEx.Log(
+                    nameof(CombatTriggerManager),
                     $"敌方先手触发: {enemy.Config.Name}, 敌人先手效果={m_CurrentContext.InitiativeBuffId} (延迟到棋子就绪后应用)"
                 );
                 break;
 
             default:
-                DebugEx.LogModule("CombatTriggerManager", $"普通触发: {enemy.Config.Name}");
+                DebugEx.Log(nameof(CombatTriggerManager), $"普通触发: {enemy.Config.Name}");
                 break;
         }
 
         // 输出战斗方式总结
         string triggerModeName = GetTriggerModeName(triggerType);
-        DebugEx.LogModule(
-            "CombatTriggerManager",
-            $"<color=#FFD700>========== 进入战斗 ==========</color>"
+        DebugEx.LogColor(
+            nameof(CombatTriggerManager),
+            $"========== 进入战斗 ==========",
+            "#FFD700"
         );
-        DebugEx.LogModule(
-            "CombatTriggerManager",
-            $"<color=#FFD700>敌人: {enemy.Config.Name}</color>"
+        DebugEx.LogColor(
+            nameof(CombatTriggerManager),
+            $"敌人: {enemy.Config.Name}",
+            "#FFD700"
         );
-        DebugEx.LogModule(
-            "CombatTriggerManager",
-            $"<color=#FFD700>战斗方式: {triggerModeName}</color>"
+        DebugEx.LogColor(
+            nameof(CombatTriggerManager),
+            $"战斗方式: {triggerModeName}",
+            "#FFD700"
         );
-        DebugEx.LogModule(
-            "CombatTriggerManager",
-            $"<color=#FFD700>============================</color>"
+        DebugEx.LogColor(
+            nameof(CombatTriggerManager),
+            $"============================",
+            "#FFD700"
         );
 
         // 注意：不在此处调用 EnemyEntityManager，由调用方负责进入战斗状态
@@ -182,7 +186,7 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", "SpecialEffectTable未加载");
+            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
             return effectIds;
         }
 
@@ -209,8 +213,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             }
         }
 
-        DebugEx.LogModule(
-            "CombatTriggerManager",
+        DebugEx.Log(
+            nameof(CombatTriggerManager),
             $"获取偷袭效果池: {effectIds.Count}个 - [{string.Join(", ", effectIds)}]"
         );
 
@@ -231,22 +235,22 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", "SpecialEffectTable未加载");
+            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
             return;
         }
 
         var effect = specialEffectTable.GetDataRow(effectId);
         if (effect == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", $"未找到先手效果: {effectId}");
+            DebugEx.Warning(nameof(CombatTriggerManager), $"未找到先手效果: {effectId}");
             return;
         }
 
         // 解析Buff ID列表并应用到玩家方（全体）
         ApplyBuffsFromEffect(effect, null, true); // isPlayerSide=true
 
-        DebugEx.LogModule(
-            "CombatTriggerManager",
+        DebugEx.Log(
+            nameof(CombatTriggerManager),
             $"应用先手效果到玩家方: EffectId={effectId}, 名称={effect.Name}, BuffIds={string.Join(",", effect.BuffIds ?? new int[0])}, SelfBuffIds={string.Join(",", effect.SelfBuffIds ?? new int[0])}"
         );
     }
@@ -265,14 +269,14 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", "SpecialEffectTable未加载");
+            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
             return;
         }
 
         var effect = specialEffectTable.GetDataRow(effectId);
         if (effect == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", $"未找到先手效果: {effectId}");
+            DebugEx.Warning(nameof(CombatTriggerManager), $"未找到先手效果: {effectId}");
             return;
         }
 
@@ -282,8 +286,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         // 注：敌方先手效果提示UI由 CombatPreparationState.ShowEnemyInitiativeBuffIfNeeded() 处理
         // 无需在此重复显示
 
-        DebugEx.LogModule(
-            "CombatTriggerManager",
+        DebugEx.Log(
+            nameof(CombatTriggerManager),
             $"应用先手效果到敌人方: EffectId={effectId}, 名称={effect.Name}, BuffIds={string.Join(",", effect.BuffIds ?? new int[0])}, SelfBuffIds={string.Join(",", effect.SelfBuffIds ?? new int[0])}, 敌人={enemy.Config.Name}"
         );
     }
@@ -316,8 +320,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                         // TODO: 获取玩家实体，应用Buff到玩家方（全体）
                         // GameObject playerEntity = GetPlayerEntity();
                         // BuffApplyHelper.ApplyBuff(buffId, playerEntity, true, null);
-                        DebugEx.LogModule(
-                            "CombatTriggerManager",
+                        DebugEx.Log(
+                            nameof(CombatTriggerManager),
                             $"  应用Buff到玩家方(全体-SelfBuff): BuffId={buffId}"
                         );
                     }
@@ -325,8 +329,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                     {
                         // 应用Buff到敌人方（全体）
                         BuffApplyHelper.ApplyBuff(buffId, targetEnemy.gameObject, true, null);
-                        DebugEx.LogModule(
-                            "CombatTriggerManager",
+                        DebugEx.Log(
+                            nameof(CombatTriggerManager),
                             $"  应用Buff到敌人方(全体-SelfBuff): BuffId={buffId}, 敌人={targetEnemy.Config.Name}"
                         );
                     }
@@ -344,8 +348,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                     if (isPlayerSide)
                     {
                         // 玩家先手的BuffIds通常应用到自己，但这里留作扩展
-                        DebugEx.LogModule(
-                            "CombatTriggerManager",
+                        DebugEx.Log(
+                            nameof(CombatTriggerManager),
                             $"  应用Buff到玩家方(全体-TargetBuff): BuffId={buffId}"
                         );
                     }
@@ -353,8 +357,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                     {
                         // 应用Buff到目标敌人方（全体）
                         BuffApplyHelper.ApplyBuff(buffId, targetEnemy.gameObject, true, null);
-                        DebugEx.LogModule(
-                            "CombatTriggerManager",
+                        DebugEx.Log(
+                            nameof(CombatTriggerManager),
                             $"  应用Buff到敌人方(全体-TargetBuff): BuffId={buffId}, 敌人={targetEnemy.Config.Name}"
                         );
                     }
@@ -374,7 +378,7 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", "SpecialEffectTable未加载");
+            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
             return effectIds;
         }
 
@@ -399,8 +403,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             }
         }
 
-        DebugEx.LogModule(
-            "CombatTriggerManager",
+        DebugEx.Log(
+            nameof(CombatTriggerManager),
             $"获取玩家先手效果池: {effectIds.Count}个 - [{string.Join(", ", effectIds)}]"
         );
 
@@ -418,7 +422,7 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (specialEffectTable == null)
         {
-            DebugEx.WarningModule("CombatTriggerManager", "SpecialEffectTable未加载");
+            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
             return 0;
         }
 
@@ -444,8 +448,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
 
         if (initiativeEffects.Count == 0)
         {
-            DebugEx.WarningModule(
-                "CombatTriggerManager",
+            DebugEx.Warning(
+                nameof(CombatTriggerManager),
                 $"未找到合适的先手效果（Category={targetCategory}）"
             );
             return 0;
@@ -454,8 +458,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         // 随机选择一个效果（可以根据Weight权重来选择，目前先用简单随机）
         int randomEffectId = initiativeEffects[Random.Range(0, initiativeEffects.Count)];
 
-        DebugEx.LogModule(
-            "CombatTriggerManager",
+        DebugEx.Log(
+            nameof(CombatTriggerManager),
             $"随机选择先手效果: {randomEffectId} (候选池:{initiativeEffects.Count}个，Category={targetCategory})"
         );
 

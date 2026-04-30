@@ -56,21 +56,21 @@ public partial class ChessPresetItem : UIItemBase
                 varNameText.text = config.Name;
             }
 
-            // 设置星级
+            // 设置等级显示（固定为Rank 1）
             if (varStar != null)
             {
-                varStar.text = new string('★', config.StarLevel);
+                varStar.text = "Lv1";
             }
 
-            // 加载图标
-            LoadIconAsync(config.IconId);
+            // 加载图标（使用Rank 1）
+            LoadIconAsync(config.GetIconId(1));
 
             // 设置稀有度UI
             SetQualityUI(config.Quality);
 
             DebugEx.Log(
                 "ChessPresetItem",
-                $"SetData: chessId={chessId}, name={config.Name}, star={config.StarLevel}"
+                $"SetData: chessId={chessId}, name={config.Name}"
             );
         }
         else

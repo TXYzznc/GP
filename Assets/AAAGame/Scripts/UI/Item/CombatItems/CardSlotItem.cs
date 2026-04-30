@@ -152,7 +152,7 @@ public partial class CardSlotItem
 
         m_BtnOriginalPosition = Vector3.zero;
 
-        DebugEx.LogModule("CardSlotItem", $"卡牌状态已重置");
+        DebugEx.Log(this.GetType().Name, $"卡牌状态已重置");
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ public partial class CardSlotItem
             m_DragPreview = null;
         }
 
-        DebugEx.LogModule("CardSlotItem", $"卡牌UI已销毁: {m_CardData?.Name ?? "unknown"}");
+        DebugEx.Log(this.GetType().Name, $"卡牌UI已销毁: {m_CardData?.Name ?? "unknown"}");
     }
 
     #endregion
@@ -185,7 +185,7 @@ public partial class CardSlotItem
     {
         if (m_CardData == null)
         {
-            DebugEx.WarningModule("CardSlotItem", "卡牌数据为空");
+            DebugEx.Warning(this.GetType().Name, "卡牌数据为空");
             return;
         }
 
@@ -196,7 +196,7 @@ public partial class CardSlotItem
             if (btnRectTransform != null)
             {
                 m_BtnOriginalPosition = btnRectTransform.anchoredPosition;
-                DebugEx.LogModule("CardSlotItem", $"保存 Btn 原始位置: {m_BtnOriginalPosition}");
+                DebugEx.Log(this.GetType().Name, $"保存 Btn 原始位置: {m_BtnOriginalPosition}");
             }
 
             // 获取或添加 CanvasGroup 用于控制透明度
@@ -223,7 +223,7 @@ public partial class CardSlotItem
         // 显示卡牌信息（如果 Variables 中有这些字段）
         RefreshCardInfo();
 
-        DebugEx.LogModule("CardSlotItem", $"设置卡牌数据: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"设置卡牌数据: {m_CardData.Name}");
     }
 
     /// <summary>
@@ -258,8 +258,8 @@ public partial class CardSlotItem
             varCost.text = m_CardData.SpiritCost.ToString();
         }
 
-        DebugEx.LogModule(
-            "CardSlotItem",
+        DebugEx.Log(
+            this.GetType().Name,
             $"刷新卡牌信息: {m_CardData.Name}, 灵力: {m_CardData.SpiritCost}"
         );
     }
@@ -297,21 +297,21 @@ public partial class CardSlotItem
 
         // 第1步：发出即将销毁事件 → Container 监听并启动重排
         string containerName = m_Container != null ? m_Container.gameObject.name : "null";
-        DebugEx.LogModule("CardSlotItem", $"[销毁前] m_Container={containerName}，卡牌={cardName}");
+        DebugEx.Log(this.GetType().Name, $"[销毁前] m_Container={containerName}，卡牌={cardName}");
         CardSlotItemEventDispatcher.RaiseAboutToDestroy(this);
-        DebugEx.LogModule("CardSlotItem", $"[事件] 发出销毁事件，触发容器重排: {cardName}");
+        DebugEx.Log(this.GetType().Name, $"[事件] 发出销毁事件，触发容器重排: {cardName}");
 
         // 第2步：通知 CardManager 移除卡牌数据
         if (CardManager.Instance != null && cardId > 0)
         {
             CardManager.Instance.RemoveCard(cardId);
-            DebugEx.LogModule("CardSlotItem", $"[立即] 从 CardManager 移除卡牌: {cardName}");
+            DebugEx.Log(this.GetType().Name, $"[立即] 从 CardManager 移除卡牌: {cardName}");
         }
 
         // ==================== 并行执行：销毁动画 ====================
         // 第3步：播放销毁动画（同时，其他卡牌在重排，形成流畅的视觉效果）
         await PlayDestroyAnimationAsync();
-        DebugEx.LogModule("CardSlotItem", $"[动画完成] 销毁动画播放完成: {cardName}");
+        DebugEx.Log(this.GetType().Name, $"[动画完成] 销毁动画播放完成: {cardName}");
 
         // ==================== 后续清理（异步进行） ====================
         // 第4步：等待容器重排完成，然后归还到对象池
@@ -320,11 +320,11 @@ public partial class CardSlotItem
             try
             {
                 await m_Container.WaitForLatestRearrangeAsync();
-                DebugEx.LogModule("CardSlotItem", $"[后台] 容器重排完成: {cardName}");
+                DebugEx.Log(this.GetType().Name, $"[后台] 容器重排完成: {cardName}");
             }
             catch (OperationCanceledException)
             {
-                DebugEx.LogModule("CardSlotItem", $"[后台] 重排被取消: {cardName}");
+                DebugEx.Log(this.GetType().Name, $"[后台] 重排被取消: {cardName}");
             }
         }
 
@@ -332,7 +332,7 @@ public partial class CardSlotItem
         if (CardSlotItemPool.Instance != null)
         {
             CardSlotItemPool.Instance.ReturnCard(this);
-            DebugEx.LogModule("CardSlotItem", $"[完成] 卡牌已归还到对象池: {cardName}");
+            DebugEx.Log(this.GetType().Name, $"[完成] 卡牌已归还到对象池: {cardName}");
         }
     }
 
@@ -357,7 +357,7 @@ public partial class CardSlotItem
             await sequence.AsyncWaitForCompletion();
         }
 
-        DebugEx.LogModule("CardSlotItem", $"卡牌销毁动画完成: {m_CardData?.Name ?? "unknown"}");
+        DebugEx.Log(this.GetType().Name, $"卡牌销毁动画完成: {m_CardData?.Name ?? "unknown"}");
     }
 
     #endregion
@@ -464,8 +464,8 @@ public partial class CardSlotItem
                 .SetEase(Ease.OutQuad);
             PlayPulseAnimation();
 
-            DebugEx.LogModule(
-                "CardSlotItem",
+            DebugEx.Log(
+                this.GetType().Name,
                 $"选中卡牌: {m_CardData.Name}, 目标位置: {targetPosition}"
             );
         }
@@ -498,8 +498,8 @@ public partial class CardSlotItem
 
             // 恢复到基准位置
             itemRectTransform.DOAnchorPos(m_BaseAnchoredPos, 0.3f).SetEase(Ease.OutQuad);
-            DebugEx.LogModule(
-                "CardSlotItem",
+            DebugEx.Log(
+                this.GetType().Name,
                 $"取消选中卡牌: {m_CardData.Name}, 恢复位置: {m_BaseAnchoredPos}"
             );
         }
@@ -562,7 +562,7 @@ public partial class CardSlotItem
     /// </summary>
     private void OnDragStart()
     {
-        DebugEx.LogModule("CardSlotItem", $"[状态] 进入拖拽状态: {m_CardData?.Name}");
+        DebugEx.Log(this.GetType().Name, $"[状态] 进入拖拽状态: {m_CardData?.Name}");
     }
 
     /// <summary>
@@ -580,7 +580,7 @@ public partial class CardSlotItem
         // 转换到 Dragging 状态（会自动调用 OnDragStart）
         SetState(CardSlotItemState.Dragging);
 
-        DebugEx.LogModule("CardSlotItem",
+        DebugEx.Log(this.GetType().Name,
             $"[拖拽开始] 卡牌: {m_CardData.Name}");
 
         // 取消选中状态（如果已选中）
@@ -625,13 +625,13 @@ public partial class CardSlotItem
                 Vector2 targetCardAnchoredPos = screenPos - cardRightBottomOffset - new Vector2(canvasSize.x / 2f, canvasSize.y / 2f);
                 m_ItemRectTransform.anchoredPosition = targetCardAnchoredPos;
 
-                DebugEx.LogModule("CardSlotItem",
+                DebugEx.Log(this.GetType().Name,
                     $"[拖拽开始] 鼠标屏幕: {screenPos:F2}, 卡牌尺寸: {cardSize:F2}, 右下角偏移: {cardRightBottomOffset:F2}, 目标锚点: {targetCardAnchoredPos:F2}");
             }
 
             // 旋转回正（取消扇形布局的旋转）
             m_ItemRectTransform.localRotation = Quaternion.identity;
-            DebugEx.LogModule("CardSlotItem", "[拖拽开始] 卡牌旋转已重置为正常");
+            DebugEx.Log(this.GetType().Name, "[拖拽开始] 卡牌旋转已重置为正常");
         }
     }
 
@@ -640,7 +640,7 @@ public partial class CardSlotItem
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
-        DebugEx.LogModule("CardSlotItem", $"[OnDrag] 鼠标位置={eventData.position}");
+        DebugEx.Log(this.GetType().Name, $"[OnDrag] 鼠标位置={eventData.position}");
 
         if (m_DragPreview == null)
             return;
@@ -720,7 +720,7 @@ public partial class CardSlotItem
         if (m_CardData == null)
             return;
 
-        DebugEx.LogModule("CardSlotItem", $"结束拖拽卡牌: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"结束拖拽卡牌: {m_CardData.Name}");
 
         // 清除策略卡目标描边
         ClearCardTargetOutlines();
@@ -755,7 +755,7 @@ public partial class CardSlotItem
         if (isInRetractArea || isInInvalidArea)
         {
             // 吸附区或无效区：返回卡槽，触发重排
-            DebugEx.LogModule("CardSlotItem",
+            DebugEx.Log(this.GetType().Name,
                 $"释放位置在保留/无效区，卡牌返回卡槽，触发重排");
             ReturnToSlot();
 
@@ -771,7 +771,7 @@ public partial class CardSlotItem
         else
         {
             // 战场区域：执行卡牌效果，转换到 Destroying 状态
-            DebugEx.LogModule("CardSlotItem", $"释放位置在战场，执行卡牌效果");
+            DebugEx.Log(this.GetType().Name, $"释放位置在战场，执行卡牌效果");
             ExecuteCardEffect(GetWorldPosFromScreen(eventData.position));
             SetState(CardSlotItemState.Destroying);
         }
@@ -786,7 +786,7 @@ public partial class CardSlotItem
                 greenArea.color = new Color(greenArea.color.r, greenArea.color.g, greenArea.color.b, 0f);
             if (redArea != null)
                 redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
-            DebugEx.LogModule("CardSlotItem", "拖拽结束，隐藏区域高亮");
+            DebugEx.Log(this.GetType().Name, "拖拽结束，隐藏区域高亮");
         }
     }
 
@@ -799,7 +799,7 @@ public partial class CardSlotItem
         Canvas canvas = GetComponentInParent<Canvas>();
         if (canvas == null)
         {
-            DebugEx.ErrorModule("CardSlotItem", "找不到Canvas，无法创建拖拽预览");
+            DebugEx.Error(this.GetType().Name, "找不到Canvas，无法创建拖拽预览");
             return;
         }
 
@@ -842,7 +842,7 @@ public partial class CardSlotItem
             .SetEase(Ease.InOutQuad)
             .SetLoops(-1, LoopType.Yoyo);
 
-        DebugEx.LogModule("CardSlotItem", "拖拽预览对象已创建");
+        DebugEx.Log(this.GetType().Name, "拖拽预览对象已创建");
     }
 
     /// <summary>
@@ -905,7 +905,7 @@ public partial class CardSlotItem
                 screenPosition,
                 canvasCamera
             );
-        DebugEx.LogModule("CardSlotItem",
+        DebugEx.Log(this.GetType().Name,
             $"[IsPositionInAdsorptionArea] 使用 GetCardSlotAdsorptionArea | 鼠标={screenPosition} | 结果={result}");
         return result;
     }
@@ -917,7 +917,7 @@ public partial class CardSlotItem
     {
         if (m_CardData == null)
         {
-            DebugEx.ErrorModule("CardSlotItem", "卡牌数据为空，无法执行效果");
+            DebugEx.Error(this.GetType().Name, "卡牌数据为空，无法执行效果");
             return;
         }
 
@@ -928,13 +928,13 @@ public partial class CardSlotItem
             bool consumed = SummonerRuntimeDataManager.Instance.ConsumeMP(spiritCost);
             if (!consumed)
             {
-                DebugEx.LogModule("CardSlotItem", $"灵力不足，无法使用卡牌: {m_CardData.Name} (需要 {spiritCost})");
+                DebugEx.Log(this.GetType().Name, $"灵力不足，无法使用卡牌: {m_CardData.Name} (需要 {spiritCost})");
                 ReturnToSlot();
                 return;
             }
         }
 
-        DebugEx.LogModule("CardSlotItem", $"执行卡牌效果: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"执行卡牌效果: {m_CardData.Name}");
 
         // 播放卡牌使用闪光效果
         PlayFlashEffect();
@@ -949,7 +949,7 @@ public partial class CardSlotItem
         }
         else
         {
-            DebugEx.ErrorModule("CardSlotItem", "无法创建 CardEffectExecutor");
+            DebugEx.Error(this.GetType().Name, "无法创建 CardEffectExecutor");
         }
 
         // 注意：销毁流程由 OnEndDrag 中的 SetState(CardSlotItemState.Destroying) 来触发
@@ -961,7 +961,7 @@ public partial class CardSlotItem
     /// </summary>
     private void ReturnToSlot()
     {
-        DebugEx.LogModule("CardSlotItem", $"卡牌返回卡槽: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"卡牌返回卡槽: {m_CardData.Name}");
 
         // 恢复到基准位置
         if (m_ItemRectTransform != null)
@@ -999,7 +999,7 @@ public partial class CardSlotItem
         );
 
         m_HoverTween = sequence;
-        DebugEx.LogModule("CardSlotItem", $"播放脉冲动画: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"播放脉冲动画: {m_CardData.Name}");
     }
 
     /// <summary>
@@ -1035,7 +1035,7 @@ public partial class CardSlotItem
                 .SetEase(Ease.OutQuad);
         }
 
-        DebugEx.LogModule("CardSlotItem", $"悬停放大: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"悬停放大: {m_CardData.Name}");
     }
 
     /// <summary>
@@ -1068,7 +1068,7 @@ public partial class CardSlotItem
                 .SetEase(Ease.OutQuad);
         }
 
-        DebugEx.LogModule("CardSlotItem", $"悬停缩小: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"悬停缩小: {m_CardData.Name}");
     }
 
     /// <summary>
@@ -1093,7 +1093,7 @@ public partial class CardSlotItem
             btnImage.DOColor(originalColor, FLASH_DURATION * 0.5f).SetEase(Ease.InQuad)
         );
 
-        DebugEx.LogModule("CardSlotItem", $"播放闪光效果: {m_CardData.Name}");
+        DebugEx.Log(this.GetType().Name, $"播放闪光效果: {m_CardData.Name}");
     }
 
     /// <summary>
@@ -1108,7 +1108,7 @@ public partial class CardSlotItem
         var combatUI = GetComponentInParent<CombatUI>();
         if (combatUI == null)
         {
-            DebugEx.WarningModule("CardSlotItem", "无法获取 CombatUI，区域预览无法更新");
+            DebugEx.Warning(this.GetType().Name, "无法获取 CombatUI，区域预览无法更新");
             return;
         }
 
@@ -1117,7 +1117,7 @@ public partial class CardSlotItem
 
         if (greenArea == null || redArea == null)
         {
-            DebugEx.WarningModule("CardSlotItem", $"区域预览对象为空: greenArea={greenArea}, redArea={redArea}");
+            DebugEx.Warning(this.GetType().Name, $"区域预览对象为空: greenArea={greenArea}, redArea={redArea}");
             return;
         }
 
@@ -1129,7 +1129,7 @@ public partial class CardSlotItem
             greenArea.color = newGreenColor;
             redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
 
-            DebugEx.LogModule("CardSlotItem",
+            DebugEx.Log(this.GetType().Name,
                 $"✓ 显示 GreenArea (吸附区) | 设置颜色={newGreenColor}");
         }
         else if (isInInvalidArea)
@@ -1139,7 +1139,7 @@ public partial class CardSlotItem
             Color newRedColor = new Color(1f, 0f, 0f, 0.7f);
             redArea.color = newRedColor;
 
-            DebugEx.LogModule("CardSlotItem",
+            DebugEx.Log(this.GetType().Name,
                 $"✓ 显示 RedArea (无效区) | 设置颜色={newRedColor}");
         }
         else
@@ -1147,7 +1147,7 @@ public partial class CardSlotItem
             // 在战场：隐藏所有预览
             greenArea.color = new Color(greenArea.color.r, greenArea.color.g, greenArea.color.b, 0f);
             redArea.color = new Color(redArea.color.r, redArea.color.g, redArea.color.b, 0f);
-            DebugEx.LogModule("CardSlotItem", "→ 在战场区域，隐藏所有预览");
+            DebugEx.Log(this.GetType().Name, "→ 在战场区域，隐藏所有预览");
         }
     }
 

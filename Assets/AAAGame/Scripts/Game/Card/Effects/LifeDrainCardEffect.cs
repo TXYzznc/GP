@@ -55,7 +55,7 @@ public class LifeDrainCardEffect : ICardEffect
         {
             float healAmount = totalDamage * healRatio;
             CardEffectHelper.HealTarget(lowestHpAlly, healAmount);
-            DebugEx.LogModule("LifeDrainCardEffect", $"治疗 HP 最低的友方 {lowestHpAlly.Config?.Name}，回复 {healAmount}");
+            DebugEx.Log("LifeDrainCardEffect", $"治疗 HP 最低的友方 {lowestHpAlly.Config?.Name}，回复 {healAmount}");
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);

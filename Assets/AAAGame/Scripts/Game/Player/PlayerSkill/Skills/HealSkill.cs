@@ -17,7 +17,7 @@ public class HealSkill : IPlayerSkill
 
         param = _param as HealParamSO;
         if (param == null)
-            DebugEx.Error($"HealSkill missing HealParamSO for skillId={common.Id}");
+            DebugEx.Error("HealSkill", $"missing HealParamSO for skillId={common.Id}");
     }
 
     public void Tick(float dt)
@@ -30,7 +30,7 @@ public class HealSkill : IPlayerSkill
         if (cdRemain > 0f) return false;
 
         // 输出使用技能日志
-        DebugEx.Log($"使用技能：{common.Name}");
+        DebugEx.Log("HealSkill", $"使用技能：{common.Name}");
 
         // 执行治疗逻辑
         ExecuteHeal();
@@ -47,7 +47,7 @@ public class HealSkill : IPlayerSkill
     {
         if (ctx == null || ctx.Owner == null)
         {
-            DebugEx.Warning("[HealSkill] 上下文为空，无法执行治疗");
+            DebugEx.Warning("HealSkill", "上下文为空，无法执行治疗");
             return;
         }
 
@@ -56,6 +56,6 @@ public class HealSkill : IPlayerSkill
         // 2. 恢复生命值
         // 3. 播放治疗特效和音效
 
-        DebugEx.Log($"[HealSkill] 恢复生命值，目标: {ctx.Owner.name}");
+        DebugEx.Log("HealSkill", $"恢复生命值，目标: {ctx.Owner.name}");
     }
 }

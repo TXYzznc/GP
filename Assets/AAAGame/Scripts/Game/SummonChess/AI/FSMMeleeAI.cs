@@ -20,7 +20,7 @@ public class FSMMeleeAI : ChessAIBase
         // 检查目标有效性
         if (!IsTargetValid())
         {
-            DebugEx.LogModule("FSMMeleeAI", 
+            DebugEx.Log("FSMMeleeAI",
                 $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
             ChangeState(ChessAIState.Idle);
             return;
@@ -29,7 +29,7 @@ public class FSMMeleeAI : ChessAIBase
         // 检查是否到达目标位置（进入攻击范围）
         if (IsInAttackRange(m_CurrentTarget))
         {
-            DebugEx.LogModule("FSMMeleeAI", 
+            DebugEx.Log("FSMMeleeAI",
                 $"{m_Context.Entity.Config.Name} 到达目标位置，返回待机重新决策");
             ChangeState(ChessAIState.Idle);
             return;

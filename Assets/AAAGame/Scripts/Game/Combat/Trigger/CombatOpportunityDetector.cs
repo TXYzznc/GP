@@ -111,7 +111,7 @@ public class CombatOpportunityDetector : MonoBehaviour
     {
         if (m_IsInitialized)
         {
-            DebugEx.WarningModule("CombatOpportunityDetector", "检测器已初始化，跳过重复初始化");
+            DebugEx.Warning(nameof(CombatOpportunityDetector), "检测器已初始化，跳过重复初始化");
             return;
         }
 
@@ -136,9 +136,9 @@ public class CombatOpportunityDetector : MonoBehaviour
 
         if (m_EnemyLayerMask.value == 0)
         {
-            DebugEx.ErrorModule("CombatOpportunityDetector",
-                "<color=red>[诊断] ⚠️ EnemyLayerMask 为 0！OverlapSphere 不会检测到任何敌人！" +
-                "这是动态 AddComponent 导致 SerializeField 未赋值的问题。</color>");
+            DebugEx.Error(nameof(CombatOpportunityDetector),
+                "[诊断] ⚠️ EnemyLayerMask 为 0！OverlapSphere 不会检测到任何敌人！" +
+                "这是动态 AddComponent 导致 SerializeField 未赋值的问题。");
         }
     }
 
@@ -219,7 +219,7 @@ public class CombatOpportunityDetector : MonoBehaviour
         // 2. 通过EnemyEntityManager进入战斗状态（纯状态设置，不会再调用CombatTriggerManager）
         EnemyEntityManager.Instance.EnterCombatState(m_CurrentTarget);
 
-        DebugEx.LogModule("CombatOpportunityDetector", $"触发战斗: {m_CurrentTarget.Config.Name}, 类型={m_CurrentTriggerType}");
+        DebugEx.Log(nameof(CombatOpportunityDetector), $"触发战斗: {m_CurrentTarget.Config.Name}, 类型={m_CurrentTriggerType}");
     }
 
     #endregion
@@ -414,8 +414,8 @@ public class CombatOpportunityDetector : MonoBehaviour
                 // 诊断：碰撞体不是敌人
                 if (m_DiagnosticLogTimer < 0.2f)
                 {
-                    DebugEx.LogModule("CombatOpportunityDetector",
-                        $"<color=gray>[诊断-偷袭] 碰撞体 {m_OverlapResults[i].name} 不是EnemyEntity</color>");
+                    DebugEx.Log(nameof(CombatOpportunityDetector),
+                        $"[诊断-偷袭] 碰撞体 {m_OverlapResults[i].name} 不是EnemyEntity");
                 }
                 continue;
             }
@@ -581,31 +581,31 @@ public class CombatOpportunityDetector : MonoBehaviour
     /// </summary>
     private void ShowOpportunityUI(CombatTriggerType triggerType)
     {
-        DebugEx.LogModule("CombatOpportunityDetector",
-            $"<color=cyan>[诊断-ShowOpportunityUI] 开始 | triggerType={triggerType}</color>");
+        DebugEx.Log(nameof(CombatOpportunityDetector),
+            $"[诊断-ShowOpportunityUI] 开始 | triggerType={triggerType}");
 
         string uiAssetName = GF.UI.GetUIFormAssetName(UIViews.GamePlayInfoUI);
         var uiForm = GF.UI.GetUIForm(uiAssetName);
         if (uiForm == null)
         {
-            DebugEx.ErrorModule("CombatOpportunityDetector",
-                $"<color=red>[诊断-ShowOpportunityUI] ❌ GamePlayInfoUI 未打开！assetName={uiAssetName}</color>");
+            DebugEx.Error(nameof(CombatOpportunityDetector),
+                $"[诊断-ShowOpportunityUI] ❌ GamePlayInfoUI 未打开！assetName={uiAssetName}");
             return;
         }
 
-        DebugEx.LogModule("CombatOpportunityDetector",
-            $"<color=cyan>[诊断-ShowOpportunityUI] UIForm 找到</color>");
+        DebugEx.Log(nameof(CombatOpportunityDetector),
+            $"[诊断-ShowOpportunityUI] UIForm 找到");
 
         var gameplayUI = uiForm.Logic as GamePlayInfoUI;
         if (gameplayUI == null)
         {
-            DebugEx.ErrorModule("CombatOpportunityDetector",
-                $"<color=red>[诊断-ShowOpportunityUI] ❌ UIForm.Logic 不是 GamePlayInfoUI 类型，实际类型={uiForm.Logic?.GetType().Name}</color>");
+            DebugEx.Error(nameof(CombatOpportunityDetector),
+                $"[诊断-ShowOpportunityUI] ❌ UIForm.Logic 不是 GamePlayInfoUI 类型，实际类型={uiForm.Logic?.GetType().Name}");
             return;
         }
 
-        DebugEx.LogModule("CombatOpportunityDetector",
-            $"<color=cyan>[诊断-ShowOpportunityUI] ✓ GamePlayInfoUI 获取成功，调用 ShowCombatInteract({triggerType})</color>");
+        DebugEx.Log(nameof(CombatOpportunityDetector),
+            $"[诊断-ShowOpportunityUI] ✓ GamePlayInfoUI 获取成功，调用 ShowCombatInteract({triggerType})");
 
         gameplayUI.ShowCombatInteract(triggerType);
     }
@@ -624,21 +624,21 @@ public class CombatOpportunityDetector : MonoBehaviour
         var uiForm = GF.UI.GetUIForm(uiAssetName);
         if (uiForm == null)
         {
-            DebugEx.WarningModule("CombatOpportunityDetector",
-                "<color=yellow>[诊断] ClearOpportunity: GamePlayInfoUI 未打开</color>");
+            DebugEx.Warning(nameof(CombatOpportunityDetector),
+                "[诊断] ClearOpportunity: GamePlayInfoUI 未打开");
             return;
         }
 
         var gameplayUI = uiForm.Logic as GamePlayInfoUI;
         if (gameplayUI == null)
         {
-            DebugEx.WarningModule("CombatOpportunityDetector",
-                "<color=yellow>[诊断] ClearOpportunity: UIForm.Logic 不是 GamePlayInfoUI</color>");
+            DebugEx.Warning(nameof(CombatOpportunityDetector),
+                "[诊断] ClearOpportunity: UIForm.Logic 不是 GamePlayInfoUI");
             return;
         }
 
-        DebugEx.LogModule("CombatOpportunityDetector",
-            "<color=cyan>[诊断] 清空战斗机会，隐藏UI和描边</color>");
+        DebugEx.Log(nameof(CombatOpportunityDetector),
+            "[诊断] 清空战斗机会，隐藏UI和描边");
 
         gameplayUI.HideCombatInteract();
     }
@@ -695,7 +695,7 @@ public class CombatOpportunityDetector : MonoBehaviour
         var outlineController = target.GetComponent<OutlineController>();
         if (outlineController == null)
         {
-            DebugEx.WarningModule("CombatOpportunityDetector",
+            DebugEx.Warning(nameof(CombatOpportunityDetector),
                 $"目标敌人 {target.Config?.Name} 没有 OutlineController 组件");
             return;
         }
@@ -713,7 +713,7 @@ public class CombatOpportunityDetector : MonoBehaviour
             .SetLoops(-1, LoopType.Restart)
             .SetLink(target.gameObject);
 
-        DebugEx.LogModule("CombatOpportunityDetector",
+        DebugEx.Log(nameof(CombatOpportunityDetector),
             $"显示目标描边: {target.Config?.Name}，开启闪烁效果");
     }
 
@@ -734,7 +734,7 @@ public class CombatOpportunityDetector : MonoBehaviour
         m_CurrentOutlineTween?.Kill();
         m_CurrentOutlineTween = null;
 
-        DebugEx.LogModule("CombatOpportunityDetector",
+        DebugEx.Log(nameof(CombatOpportunityDetector),
             $"隐藏目标描边: {m_CurrentTarget.Config?.Name}");
     }
 

@@ -75,7 +75,7 @@ public class SettlementManager
         // 防止重复结算
         if (m_IsSettlementInProgress)
         {
-            DebugEx.LogModule("SettlementManager", $"结算已在进行中，忽略新的结算触发请求 ({triggerSource})");
+            DebugEx.Log(nameof(SettlementManager), $"结算已在进行中，忽略新的结算触发请求 ({triggerSource})");
             return;
         }
 
@@ -85,7 +85,7 @@ public class SettlementManager
 
         try
         {
-            DebugEx.LogModule("SettlementManager", $"触发结算流程: 目标场景={targetScene}, 触发源={triggerSource}");
+            DebugEx.Log(nameof(SettlementManager), $"触发结算流程: 目标场景={targetScene}, 触发源={triggerSource}");
 
             // 1. 收集结算数据
             await CollectSettlementDataAsync(triggerSource);
@@ -106,15 +106,15 @@ public class SettlementManager
             //    此时场景卸载不会影响任何数据（都已保存）
             RequestSceneChange(targetScene);
 
-            DebugEx.LogModule("SettlementManager", "结算流程完成，已请求切换到新场景");
+            DebugEx.Log(nameof(SettlementManager), "结算流程完成，已请求切换到新场景");
         }
         catch (OperationCanceledException)
         {
-            DebugEx.WarningModule("SettlementManager", "结算流程被取消");
+            DebugEx.Warning(nameof(SettlementManager), "结算流程被取消");
         }
         catch (Exception ex)
         {
-            DebugEx.ErrorModule("SettlementManager", $"结算流程出错: {ex.Message}\n{ex.StackTrace}");
+            DebugEx.Error(nameof(SettlementManager), $"结算流程出错: {ex.Message}\n{ex.StackTrace}");
         }
         finally
         {
@@ -129,7 +129,7 @@ public class SettlementManager
     /// <summary>收集结算数据</summary>
     private async UniTask CollectSettlementDataAsync(SettlementTriggerSource triggerSource)
     {
-        DebugEx.LogModule("SettlementManager", "开始收集结算数据...");
+        DebugEx.Log(nameof(SettlementManager), "开始收集结算数据...");
 
         m_CurrentSettlementData = new SettlementData
         {
@@ -145,7 +145,7 @@ public class SettlementManager
             int currentValue = InventoryManager.Instance?.CalculateInventoryValue() ?? 0;
             m_CurrentSettlementData.ResourceGain = Mathf.Max(0, currentValue - snapshotValue);
 
-            DebugEx.LogModule("SettlementManager",
+            DebugEx.Log(nameof(SettlementManager),
                 $"背包价值对比: 进入局内={snapshotValue}, 当前={currentValue}, 收益={m_CurrentSettlementData.ResourceGain}");
         }
 
@@ -158,7 +158,7 @@ public class SettlementManager
         // 3. 从战斗系统收集其他数据
         await CollectSettlementDataFromCombatAsync();
 
-        DebugEx.LogModule("SettlementManager",
+        DebugEx.Log(nameof(SettlementManager),
             $"数据收集完成: 资源收益={m_CurrentSettlementData.ResourceGain}, " +
             $"金币={gold}, 起源石={originStone}, 灵石={spiritStone}, 经验={m_CurrentSettlementData.Experience}");
 
@@ -189,7 +189,7 @@ public class SettlementManager
 
         if (saveData == null || snapshot == null)
         {
-            DebugEx.WarningModule("SettlementManager", "无法获取存档或快照，经验收益设为0");
+            DebugEx.Warning(nameof(SettlementManager), "无法获取存档或快照，经验收益设为0");
             return 0;
         }
 
@@ -207,7 +207,7 @@ public class SettlementManager
         }
 
         int total = currentExp + levelExpSum - snapshot.CurrentExp;
-        DebugEx.LogModule("SettlementManager",
+        DebugEx.Log(nameof(SettlementManager),
             $"经验收益: 起始Lv={startLevel}(Exp={snapshot.CurrentExp}), 当前Lv={currentLevel}(Exp={currentExp}), 等级累计Exp={levelExpSum}, 合计={total}");
         return Mathf.Max(0, total);
     }
@@ -215,18 +215,18 @@ public class SettlementManager
     /// <summary>打开结算UI</summary>
     private async UniTask OpenSettlementUIAsync()
     {
-        DebugEx.LogModule("SettlementManager", "打开结算UI");
+        DebugEx.Log(nameof(SettlementManager), "打开结算UI");
 
         try
         {
             // 通过 UIViews 枚举打开结算UI
             // UIViews.SettlementUIForm 需要在 UIViews.cs 中定义
             await GF.UI.OpenUIFormAwait(UIViews.SettlementUIForm);
-            DebugEx.LogModule("SettlementManager", "结算UI打开完成");
+            DebugEx.Log(nameof(SettlementManager), "结算UI打开完成");
         }
         catch (Exception ex)
         {
-            DebugEx.ErrorModule("SettlementManager", $"打开结算UI失败: {ex.Message}");
+            DebugEx.Error(nameof(SettlementManager), $"打开结算UI失败: {ex.Message}");
         }
 
         await UniTask.CompletedTask;
@@ -235,7 +235,7 @@ public class SettlementManager
     /// <summary>请求场景切换（游戏内场景切换）</summary>
     private void RequestSceneChange(string targetScene)
     {
-        DebugEx.LogModule("SettlementManager", $"请求场景切换到: {targetScene}");
+        DebugEx.Log(nameof(SettlementManager), $"请求场景切换到: {targetScene}");
 
         try
         {
@@ -243,36 +243,36 @@ public class SettlementManager
             // 完整处理：卸载旧场景 → 加载新场景 → 更新游戏状态
             GameProcedure.RequestChangeScene(targetScene);
 
-            DebugEx.LogModule("SettlementManager", $"场景切换请求已提交: {targetScene}");
+            DebugEx.Log(nameof(SettlementManager), $"场景切换请求已提交: {targetScene}");
         }
         catch (Exception ex)
         {
-            DebugEx.ErrorModule("SettlementManager", $"请求场景切换失败: {ex.Message}");
+            DebugEx.Error(nameof(SettlementManager), $"请求场景切换失败: {ex.Message}");
         }
     }
 
     /// <summary>等待UI关闭（玩家手动点击关闭按钮）</summary>
     private async UniTask WaitForUIClosedAsync()
     {
-        DebugEx.LogModule("SettlementManager", "等待玩家关闭结算UI...");
+        DebugEx.Log(nameof(SettlementManager), "等待玩家关闭结算UI...");
 
         try
         {
             // 无限等待直到玩家手动关闭 UI
             // UI 关闭时会调用 NotifyUIClosedByUser()
             await UniTask.WaitUntil(() => m_SettlementUIClosed, cancellationToken: m_CancellationTokenSource.Token);
-            DebugEx.LogModule("SettlementManager", "结算UI已由用户关闭");
+            DebugEx.Log(nameof(SettlementManager), "结算UI已由用户关闭");
         }
         catch (OperationCanceledException)
         {
-            DebugEx.WarningModule("SettlementManager", "等待UI关闭被取消");
+            DebugEx.Warning(nameof(SettlementManager), "等待UI关闭被取消");
         }
     }
 
     /// <summary>应用奖励并保存存档</summary>
     private async UniTask ApplyRewardsAsync()
     {
-        DebugEx.LogModule("SettlementManager", "开始应用结算奖励");
+        DebugEx.Log(nameof(SettlementManager), "开始应用结算奖励");
 
         if (m_CurrentSettlementData == null)
             return;
@@ -285,34 +285,34 @@ public class SettlementManager
         if (m_CurrentSettlementData.Experience > 0)
         {
             accountManager.AddExp(m_CurrentSettlementData.Experience);
-            DebugEx.LogModule("SettlementManager", $"获得经验: {m_CurrentSettlementData.Experience}");
+            DebugEx.Log(nameof(SettlementManager), $"获得经验: {m_CurrentSettlementData.Experience}");
         }
 
         // ⭐ 应用资源收益（通过背包价值差计算）
         if (m_CurrentSettlementData.ResourceGain > 0)
         {
             accountManager.AddGold(m_CurrentSettlementData.ResourceGain);
-            DebugEx.LogModule("SettlementManager", $"获得资源（价值）: {m_CurrentSettlementData.ResourceGain}");
+            DebugEx.Log(nameof(SettlementManager), $"获得资源（价值）: {m_CurrentSettlementData.ResourceGain}");
         }
 
         // ⭐ 应用虚拟物品：金币
         if (m_CurrentSettlementData.VirtualGold > 0)
         {
             accountManager.AddGold(m_CurrentSettlementData.VirtualGold);
-            DebugEx.LogModule("SettlementManager", $"获得金币（虚拟物品）: {m_CurrentSettlementData.VirtualGold}");
+            DebugEx.Log(nameof(SettlementManager), $"获得金币（虚拟物品）: {m_CurrentSettlementData.VirtualGold}");
         }
 
         // ⭐ 应用虚拟物品：起源石
         if (m_CurrentSettlementData.VirtualOriginStone > 0)
         {
             accountManager.AddOriginStone(m_CurrentSettlementData.VirtualOriginStone);
-            DebugEx.LogModule("SettlementManager", $"获得起源石（虚拟物品）: {m_CurrentSettlementData.VirtualOriginStone}");
+            DebugEx.Log(nameof(SettlementManager), $"获得起源石（虚拟物品）: {m_CurrentSettlementData.VirtualOriginStone}");
         }
 
         // ⭐ 灵石不保存，仅记录日志
         if (m_CurrentSettlementData.VirtualSpiritStone > 0)
         {
-            DebugEx.LogModule("SettlementManager",
+            DebugEx.Log(nameof(SettlementManager),
                 $"灵石（局内货币）已清理: {m_CurrentSettlementData.VirtualSpiritStone}");
         }
 
@@ -320,7 +320,7 @@ public class SettlementManager
         foreach (var itemId in m_CurrentSettlementData.DroppedItems)
         {
             accountManager.AddItem(itemId, 1);
-            DebugEx.LogModule("SettlementManager", $"获得物品: {itemId}");
+            DebugEx.Log(nameof(SettlementManager), $"获得物品: {itemId}");
         }
 
         // ⭐ 清理背包快照
@@ -330,7 +330,7 @@ public class SettlementManager
         accountManager.ClearInGameSnapshot();
         accountManager.SaveCurrentSave();
 
-        DebugEx.LogModule("SettlementManager", "奖励应用完成，存档已保存");
+        DebugEx.Log(nameof(SettlementManager), "奖励应用完成，存档已保存");
 
         await UniTask.CompletedTask;
     }
@@ -338,7 +338,7 @@ public class SettlementManager
     /// <summary>结算完成，清理数据</summary>
     private void CompleteSettlement()
     {
-        DebugEx.LogModule("SettlementManager", "清理结算数据");
+        DebugEx.Log(nameof(SettlementManager), "清理结算数据");
 
         m_IsSettlementInProgress = false;
         m_SettlementUIClosed = false;
@@ -356,7 +356,7 @@ public class SettlementManager
     /// </summary>
     public void NotifyUIClosedByUser()
     {
-        DebugEx.LogModule("SettlementManager", "结算UI已由用户关闭");
+        DebugEx.Log(nameof(SettlementManager), "结算UI已由用户关闭");
         m_SettlementUIClosed = true;
     }
 
@@ -365,7 +365,7 @@ public class SettlementManager
     /// </summary>
     public void CancelSettlement()
     {
-        DebugEx.WarningModule("SettlementManager", "结算流程被取消");
+        DebugEx.Warning(nameof(SettlementManager), "结算流程被取消");
         m_CancellationTokenSource?.Cancel();
     }
 

@@ -44,7 +44,7 @@ public class CardRangePreview : MonoBehaviour
             return;
         }
 
-        DebugEx.LogModule("CardRangePreview", "范围预览系统已初始化（Gizmos 模式）");
+        DebugEx.Log("CardRangePreview", "范围预览系统已初始化（Gizmos 模式）");
     }
 
     private void OnDestroy()
@@ -92,7 +92,7 @@ public class CardRangePreview : MonoBehaviour
         // 启动脉冲动画
         PlayPulseAnimation();
 
-        DebugEx.LogModule("CardRangePreview", $"显示范围预览: 位置={position}, 半径={radius}");
+        DebugEx.Log("CardRangePreview", $"显示范围预览: 位置={position}, 半径={radius}");
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class CardRangePreview : MonoBehaviour
             .OnComplete(() =>
             {
                 m_IsShowingPreview = false;
-                DebugEx.LogModule("CardRangePreview", "范围预览已隐藏");
+                DebugEx.Log("CardRangePreview", "范围预览已隐藏");
             });
     }
 

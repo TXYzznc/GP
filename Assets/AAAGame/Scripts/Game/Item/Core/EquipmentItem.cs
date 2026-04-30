@@ -41,7 +41,7 @@ public class EquipmentItem : ItemBase
         : base(itemId, itemData)
     {
         m_IsEquipped = false;
-        DebugEx.Log("EquipmentItem", $"创建装备: {Name}");
+        DebugEx.Log(nameof(EquipmentItem), $"创建装备: {Name}");
     }
 
     #endregion
@@ -56,7 +56,7 @@ public class EquipmentItem : ItemBase
 
     protected override bool OnUse()
     {
-        DebugEx.Warning("EquipmentItem", $"装备不可使用: {Name}");
+        DebugEx.Warning(nameof(EquipmentItem), $"装备不可使用: {Name}");
         return false;
     }
 

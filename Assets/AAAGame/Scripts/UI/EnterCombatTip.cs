@@ -23,7 +23,7 @@ public partial class EnterCombatTip : UIFormBase
             m_DisplayDuration = uiParams.Get<VarFloat>("DisplayDuration", 1f);
         }
 
-        DebugEx.LogModule("EnterCombatTip", $"EnterCombatTip 打开，将在 {m_DisplayDuration} 秒后自动关闭");
+        DebugEx.Log(this.GetType().Name, $"EnterCombatTip 打开，将在 {m_DisplayDuration} 秒后自动关闭");
 
         // 启动自动关闭计时
         StartAutoCloseTimer().Forget();
@@ -31,7 +31,7 @@ public partial class EnterCombatTip : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        DebugEx.LogModule("EnterCombatTip", "战斗进入提示UI关闭");
+        DebugEx.Log(this.GetType().Name, "战斗进入提示UI关闭");
         base.OnClose(isShutdown, userData);
     }
 
@@ -49,17 +49,17 @@ public partial class EnterCombatTip : UIFormBase
             if (this == null || UIForm == null)
                 return;
 
-            DebugEx.LogModule("EnterCombatTip", $"显示时长已到 ({m_DisplayDuration}秒)，开始关闭UI");
+            DebugEx.Log(this.GetType().Name, $"显示时长已到 ({m_DisplayDuration}秒)，开始关闭UI");
 
             // 对于战斗进入提示这种简单UI，直接关闭避免动画延迟
             // 使用 CloseUIForm 而不是 Close，跳过关闭动画
             GF.UI.CloseUIForm(UIForm);
-            
-            DebugEx.LogModule("EnterCombatTip", "UI已直接关闭（跳过动画）");
+
+            DebugEx.Log(this.GetType().Name, "UI已直接关闭（跳过动画）");
         }
         catch (System.Exception ex)
         {
-            DebugEx.Error("EnterCombatTip", $"自动关闭计时器异常: {ex.Message}");
+            DebugEx.Error(this.GetType().Name, $"自动关闭计时器异常: {ex.Message}");
         }
     }
 }

@@ -44,7 +44,7 @@ public class EnemyRestState : IEnemyState
         m_RestDuration = Random.Range(config.RestDuration * 1.5f, config.RestDuration * 2.5f);
         m_RestTimer = 0f;
 
-        DebugEx.LogModule("EnemyRestState",
+        DebugEx.Log("EnemyRestState",
             $"{m_AI.Entity.Config.Name} 进入深度休息，时长={m_RestDuration:F1}秒");
 
         // TODO: 显示睡眠条UI
@@ -64,7 +64,7 @@ public class EnemyRestState : IEnemyState
         // 休息时间结束，切换到巡逻
         if (m_RestTimer >= m_RestDuration)
         {
-            DebugEx.LogModule("EnemyRestState", 
+            DebugEx.Log("EnemyRestState",
                 $"{m_AI.Entity.Config.Name} 休息结束，开始巡逻");
             m_AI.ChangeState(EnemyAIState.Patrol);
         }
@@ -89,7 +89,7 @@ public class EnemyRestState : IEnemyState
     private void ShowSleepBar(bool show)
     {
         // TODO: 实现睡眠条UI显示逻辑
-        DebugEx.LogModule("EnemyRestState", 
+        DebugEx.Log("EnemyRestState",
             $"睡眠条显示: {show}");
     }
 

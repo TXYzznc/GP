@@ -44,7 +44,7 @@ public class CardPreviewDisplayShader : MonoBehaviour
         if (s_Instance == null)
         {
             s_Instance = this;
-            DebugEx.LogModule("CardPreviewDisplayShader", "管理器已初始化");
+            DebugEx.Log("CardPreviewDisplayShader", "管理器已初始化");
         }
         else
         {
@@ -92,7 +92,7 @@ public class CardPreviewDisplayShader : MonoBehaviour
         var shader = Shader.Find(CIRCLE_SHADER_NAME);
         if (shader == null)
         {
-            DebugEx.ErrorModule("CardPreviewDisplayShader", $"未找到 Shader: {CIRCLE_SHADER_NAME}");
+            DebugEx.Error("CardPreviewDisplayShader", $"未找到 Shader: {CIRCLE_SHADER_NAME}");
             return;
         }
 
@@ -109,7 +109,7 @@ public class CardPreviewDisplayShader : MonoBehaviour
 
         m_CirclePreviewQuad.SetActive(false);
 
-        DebugEx.LogModule("CardPreviewDisplayShader", "蓝色圆形预览已初始化");
+        DebugEx.Log("CardPreviewDisplayShader", "蓝色圆形预览已初始化");
     }
 
     #endregion
@@ -151,7 +151,7 @@ public class CardPreviewDisplayShader : MonoBehaviour
             .SetEase(Ease.OutQuad)
             .OnUpdate(() => UpdateCircleAlpha());
 
-        //DebugEx.LogModule("CardPreviewDisplayShader", $"显示作用范围：位置={position}，半径={radius}");
+        //DebugEx.Log("CardPreviewDisplayShader", $"显示作用范围：位置={position}，半径={radius}");
     }
 
     /// <summary>

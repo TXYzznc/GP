@@ -49,7 +49,7 @@ public class WorldItemPickup : MonoBehaviour
         bool success = inventoryManager.AddItem(m_ItemId, m_Count);
         if (success)
         {
-            DebugEx.Log("WorldItemPickup", $"拾取物品 ID={m_ItemId} x{m_Count}");
+            DebugEx.Log(nameof(WorldItemPickup), $"拾取物品 ID={m_ItemId} x{m_Count}");
 
             // 获取物品稀有度并给予对应经验
             var itemData = ItemManager.Instance?.GetItemData(m_ItemId);
@@ -60,7 +60,7 @@ public class WorldItemPickup : MonoBehaviour
         }
         else
         {
-            DebugEx.Warning("WorldItemPickup", "背包已满，无法拾取");
+            DebugEx.Warning(nameof(WorldItemPickup), "背包已满，无法拾取");
             ShowFullTip();
         }
     }
@@ -79,7 +79,7 @@ public class WorldItemPickup : MonoBehaviour
         bool used = item.Use();
         if (used)
         {
-            DebugEx.Log("WorldItemPickup", $"直接使用物品 ID={m_ItemId}");
+            DebugEx.Log(nameof(WorldItemPickup), $"直接使用物品 ID={m_ItemId}");
             m_Count--;
             if (m_Count <= 0)
                 Destroy(gameObject);
@@ -93,7 +93,7 @@ public class WorldItemPickup : MonoBehaviour
             return;
 
         // TODO: 接入项目 Tooltip 系统后替换
-        DebugEx.Log("WorldItemPickup", $"[Tooltip] {itemData.Name}: {itemData.Description}");
+        DebugEx.Log(nameof(WorldItemPickup), $"[Tooltip] {itemData.Name}: {itemData.Description}");
     }
 
     private void HideTooltip()
@@ -103,6 +103,6 @@ public class WorldItemPickup : MonoBehaviour
 
     private void ShowFullTip()
     {
-        DebugEx.Warning("WorldItemPickup", "背包已满，无法拾取");
+        DebugEx.Warning(nameof(WorldItemPickup), "背包已满，无法拾取");
     }
 }

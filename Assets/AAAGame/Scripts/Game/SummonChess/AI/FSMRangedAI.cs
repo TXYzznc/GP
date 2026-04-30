@@ -26,7 +26,7 @@ public class FSMRangedAI : ChessAIBase
         // 检查目标有效性
         if (!IsTargetValid())
         {
-            DebugEx.LogModule("FSMRangedAI", 
+            DebugEx.Log("FSMRangedAI",
                 $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
             ChangeState(ChessAIState.Idle);
             return;
@@ -35,7 +35,7 @@ public class FSMRangedAI : ChessAIBase
         // 检查是否到达攻击范围
         if (IsInAttackRange(m_CurrentTarget))
         {
-            DebugEx.LogModule("FSMRangedAI", 
+            DebugEx.Log("FSMRangedAI",
                 $"{m_Context.Entity.Config.Name} 到达攻击范围，返回待机重新决策");
             ChangeState(ChessAIState.Idle);
             return;
@@ -68,25 +68,25 @@ public class FSMRangedAI : ChessAIBase
         int myCamp = m_Context.Entity.Camp;
         float attackRange = (float)m_Context.Entity.Attribute.AtkRange;
 
-        DebugEx.LogModule("FSMRangedAI", 
+        DebugEx.Log("FSMRangedAI",
             $"{m_Context.Entity.Config.Name} 开始搜索目标，攻击范围={attackRange:F2}");
 
         // 使用敌人信息缓存
         List<EnemyInfoCache> enemyCache = CombatEntityTracker.Instance.GetEnemyCache(myCamp);
 
-        DebugEx.LogModule("FSMRangedAI", 
+        DebugEx.Log("FSMRangedAI",
             $"{m_Context.Entity.Config.Name} 获取敌人缓存，数量={enemyCache.Count}");
 
         if (enemyCache.Count == 0)
         {
-            DebugEx.LogModule("FSMRangedAI", "没有可攻击的敌人");
+            DebugEx.Log("FSMRangedAI", "没有可攻击的敌人");
             return null;
         }
 
         // 详细输出敌人缓存信息
         foreach (var enemyInfo in enemyCache)
         {
-            DebugEx.LogModule("FSMRangedAI",
+            DebugEx.Log("FSMRangedAI",
                 $"敌人信息：{enemyInfo.Entity?.Config?.Name ?? (enemyInfo.SummonerProxy != null ? "召唤师" : "?")}, " +
                 $"IsAlive={enemyInfo.IsAlive}, Entity={enemyInfo.Entity != null}, IsSummoner={enemyInfo.SummonerProxy != null}");
         }
@@ -123,13 +123,13 @@ public class FSMRangedAI : ChessAIBase
         if (bestTarget != null)
         {
             bool inRange = minDistance <= attackRange;
-            DebugEx.LogModule("FSMRangedAI",
+            DebugEx.Log("FSMRangedAI",
                 $"{m_Context.Entity.Config.Name} 找到目标 {bestTarget.Config?.Name ?? "召唤师"}，距离={minDistance:F2}，" +
                 $"攻击范围={attackRange:F2}，在范围内={inRange}");
         }
         else
         {
-            DebugEx.LogModule("FSMRangedAI", "未找到有效目标");
+            DebugEx.Log("FSMRangedAI", "未找到有效目标");
         }
 
         return bestTarget;

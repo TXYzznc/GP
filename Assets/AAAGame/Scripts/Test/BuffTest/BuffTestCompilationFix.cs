@@ -15,23 +15,23 @@ public class BuffTestCompilationFix : MonoBehaviour
         var verifier = BuffEffectVerifier.Instance;
         if (verifier == null)
         {
-            DebugEx.ErrorModule("CompilationFix", "BuffEffectVerifier 创建失败");
+            DebugEx.Error(nameof(BuffTestCompilationFix), "BuffEffectVerifier 创建失败");
             return;
         }
 
         var target = FindObjectOfType<ChessEntity>();
         if (target == null)
         {
-            DebugEx.WarningModule("CompilationFix", "场景中没有 ChessEntity，跳过验证");
+            DebugEx.Warning(nameof(BuffTestCompilationFix), "场景中没有 ChessEntity，跳过验证");
             return;
         }
 
         // 测试获取属性信息
         var attrInfo = verifier.GetTargetAttributes(target.gameObject);
-        DebugEx.LogModule("CompilationFix", $"✓ BuffEffectVerifier 正常工作");
-        DebugEx.LogModule("CompilationFix", $"  目标: {attrInfo.Name}");
-        DebugEx.LogModule("CompilationFix", $"  HP: {attrInfo.HP}/{attrInfo.MaxHP}");
-        DebugEx.LogModule("CompilationFix", $"  MP: {attrInfo.MP}/{attrInfo.MaxMP}");
+        DebugEx.Log(nameof(BuffTestCompilationFix), $"✓ BuffEffectVerifier 正常工作");
+        DebugEx.Log(nameof(BuffTestCompilationFix), $"  目标: {attrInfo.Name}");
+        DebugEx.Log(nameof(BuffTestCompilationFix), $"  HP: {attrInfo.HP}/{attrInfo.MaxHP}");
+        DebugEx.Log(nameof(BuffTestCompilationFix), $"  MP: {attrInfo.MP}/{attrInfo.MaxMP}");
     }
 
     /// <summary>
@@ -42,13 +42,13 @@ public class BuffTestCompilationFix : MonoBehaviour
         var tool = BuffTestTool.Instance;
         if (tool == null)
         {
-            DebugEx.ErrorModule("CompilationFix", "BuffTestTool 创建失败");
+            DebugEx.Error(nameof(BuffTestCompilationFix), "BuffTestTool 创建失败");
             return;
         }
 
         // 测试获取所有 Buff
         var buffs = tool.GetAllAvailableBuffs();
-        DebugEx.LogModule("CompilationFix", $"✓ BuffTestTool 正常工作，共 {buffs.Count} 个可用 Buff");
+        DebugEx.Log(nameof(BuffTestCompilationFix), $"✓ BuffTestTool 正常工作，共 {buffs.Count} 个可用 Buff");
     }
 
     /// <summary>
@@ -59,12 +59,12 @@ public class BuffTestCompilationFix : MonoBehaviour
         var manager = BuffPresetManager.Instance;
         if (manager == null)
         {
-            DebugEx.ErrorModule("CompilationFix", "BuffPresetManager 创建失败");
+            DebugEx.Error(nameof(BuffTestCompilationFix), "BuffPresetManager 创建失败");
             return;
         }
 
         var presets = manager.GetAllPresets();
-        DebugEx.LogModule("CompilationFix", $"✓ BuffPresetManager 正常工作，共 {presets.Count} 个预设");
+        DebugEx.Log(nameof(BuffTestCompilationFix), $"✓ BuffPresetManager 正常工作，共 {presets.Count} 个预设");
     }
 
     /// <summary>
@@ -72,12 +72,12 @@ public class BuffTestCompilationFix : MonoBehaviour
     /// </summary>
     public void RunAllVerifications()
     {
-        DebugEx.LogModule("CompilationFix", "========== 开始编译验证 ==========");
+        DebugEx.Log(nameof(BuffTestCompilationFix), "========== 开始编译验证 ==========");
 
         VerifyBuffTestTool();
         VerifyBuffPresetManager();
         VerifyBuffEffectVerifier();
 
-        DebugEx.LogModule("CompilationFix", "========== 编译验证完成 ==========");
+        DebugEx.Log(nameof(BuffTestCompilationFix), "========== 编译验证完成 ==========");
     }
 }

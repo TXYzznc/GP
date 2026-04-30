@@ -55,7 +55,7 @@ public class SummonerDeathHandler : MonoBehaviour
             // 进入死亡倒计时
             if (!m_IsCountingDownToDeath)
             {
-                DebugEx.LogModule("SummonerDeathHandler", "腐蚀度达到100%，开始3秒倒计时");
+                DebugEx.Log(nameof(SummonerDeathHandler), "腐蚀度达到100%，开始3秒倒计时");
                 m_IsCountingDownToDeath = true;
                 m_CurrentDeathCountdown = 0f;
             }
@@ -75,7 +75,7 @@ public class SummonerDeathHandler : MonoBehaviour
             // 腐蚀度降低到阈值以下，重置倒计时
             if (m_IsCountingDownToDeath)
             {
-                DebugEx.LogModule("SummonerDeathHandler", "腐蚀度降低到100%以下，重置死亡倒计时");
+                DebugEx.Log(nameof(SummonerDeathHandler), "腐蚀度降低到100%以下，重置死亡倒计时");
                 m_IsCountingDownToDeath = false;
                 m_CurrentDeathCountdown = 0f;
             }
@@ -85,7 +85,7 @@ public class SummonerDeathHandler : MonoBehaviour
     /// <summary>触发死亡，如果没有救命物品则进行结算</summary>
     private void TriggerDeathIfNoProtection()
     {
-        DebugEx.LogModule("SummonerDeathHandler", "死亡倒计时完成，检查救命物品");
+        DebugEx.Log(nameof(SummonerDeathHandler), "死亡倒计时完成，检查救命物品");
 
         // 重置倒计时状态，防止重复触发
         m_IsCountingDownToDeath = false;
@@ -94,19 +94,19 @@ public class SummonerDeathHandler : MonoBehaviour
         // 检查复活卡
         if (CheckAndConsumeResurrectionItem())
         {
-            DebugEx.LogModule("SummonerDeathHandler", "使用复活卡，规避死亡");
+            DebugEx.Log(nameof(SummonerDeathHandler), "使用复活卡，规避死亡");
             return;
         }
 
         // 检查死亡护盾
         if (CheckDeathShield())
         {
-            DebugEx.LogModule("SummonerDeathHandler", "触发死亡护盾，规避死亡");
+            DebugEx.Log(nameof(SummonerDeathHandler), "触发死亡护盾，规避死亡");
             return;
         }
 
         // 没有救命物品，触发完全死亡
-        DebugEx.LogModule("SummonerDeathHandler", "没有救命物品，触发完全死亡结算");
+        DebugEx.Log(nameof(SummonerDeathHandler), "没有救命物品，触发完全死亡结算");
         TriggerCompleteDeath();
     }
 
@@ -133,7 +133,7 @@ public class SummonerDeathHandler : MonoBehaviour
     /// <summary>触发完全死亡，进行结算</summary>
     private void TriggerCompleteDeath()
     {
-        DebugEx.LogModule("SummonerDeathHandler", "触发死亡结算");
+        DebugEx.Log(nameof(SummonerDeathHandler), "触发死亡结算");
 
         // 异步调用结算流程，使用 Forget() 因为 MonoBehaviour 的 Update 不支持 async
         SettlementManager.Instance.TriggerSettlementAsync("BaseScene", SettlementTriggerSource.Death).Forget();

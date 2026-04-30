@@ -17,7 +17,7 @@ public class HouyiUltimate : ChessSkillBase
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
-        DebugEx.LogModule("HouyiUltimate", "日陨初始化完成");
+        DebugEx.Log("HouyiUltimate", "日陨初始化完成");
     }
 
     public override bool TryCast()
@@ -25,7 +25,7 @@ public class HouyiUltimate : ChessSkillBase
         if (!base.TryCast())
             return false;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "HouyiUltimate",
             $"日陨释放! 消耗MP={m_Config.MpCost}, 冷却={m_Config.Cooldown}秒"
         );
@@ -40,7 +40,7 @@ public class HouyiUltimate : ChessSkillBase
     {
         if (caster == null)
         {
-            DebugEx.ErrorModule("HouyiUltimate", "ExecuteSkill: caster 为 null");
+            DebugEx.Error("HouyiUltimate", "ExecuteSkill: caster 为 null");
             return;
         }
 
@@ -61,7 +61,7 @@ public class HouyiUltimate : ChessSkillBase
             float maxRange = (float)m_Config.CastRange * 20;
             endPosition = caster.transform.position + direction * maxRange;
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "HouyiUltimate",
                 $"日陨穿透模式: 目标={target.Config?.Name}, 方向={direction}, 射程={maxRange}"
             );
@@ -72,13 +72,13 @@ public class HouyiUltimate : ChessSkillBase
             direction = caster.transform.forward;
             endPosition = caster.transform.position + direction * (float)m_Config.CastRange;
 
-            DebugEx.WarningModule("HouyiUltimate", $"日陨未找到目标，朝前方发射");
+            DebugEx.Warning("HouyiUltimate", $"日陨未找到目标，朝前方发射");
         }
 
         // 2. 计算伤害
         double damage = CalculateDamage(caster, out bool isCritical);
 
-        DebugEx.LogModule("HouyiUltimate", $"日陨伤害: {damage:F1}{(isCritical ? " (暴击)" : "")}");
+        DebugEx.Log("HouyiUltimate", $"日陨伤害: {damage:F1}{(isCritical ? " (暴击)" : "")}");
 
         // 3. 构建命中检测上下文（穿透型：不锁定目标）
         HitContext context = new HitContext
@@ -111,7 +111,7 @@ public class HouyiUltimate : ChessSkillBase
         IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.Projectile);
         detector.Execute(context);
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "HouyiUltimate",
             $"日陨发射完成: 方向={direction}, 终点={endPosition}, 穿透={m_Config.PenetrationCount}"
         );
@@ -132,7 +132,7 @@ public class HouyiUltimate : ChessSkillBase
         // 施加2层灼烧
         ApplyBurnStacks(target, 2);
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "HouyiUltimate",
             $"日陨命中: {target.Config?.Name}, 伤害={damage:F1}, +2层灼烧"
         );
@@ -151,7 +151,7 @@ public class HouyiUltimate : ChessSkillBase
         {
             // 已有灼烧，直接加层数
             burnBuff.AddStacks(stacks);
-            DebugEx.LogModule("HouyiUltimate", $"灼烧叠加: {target.Config?.Name}, +{stacks}层");
+            DebugEx.Log("HouyiUltimate", $"灼烧叠加: {target.Config?.Name}, +{stacks}层");
         }
         else
         {
@@ -162,7 +162,7 @@ public class HouyiUltimate : ChessSkillBase
             {
                 burnBuff.AddStacks(stacks - 1);
             }
-            DebugEx.LogModule("HouyiUltimate", $"灼烧施加: {target.Config?.Name}, {stacks}层");
+            DebugEx.Log("HouyiUltimate", $"灼烧施加: {target.Config?.Name}, {stacks}层");
         }
     }
 

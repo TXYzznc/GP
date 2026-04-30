@@ -58,8 +58,8 @@ public class BuffTestIntegration : MonoBehaviour
 
         m_IsInitialized = true;
 
-        DebugEx.LogModule("BuffTestIntegration", "✓ Buff 测试工具已初始化");
-        DebugEx.LogModule("BuffTestIntegration", "快捷键: Ctrl+B 打开/关闭工具 | F 快速选择目标");
+        DebugEx.Log(nameof(BuffTestIntegration), "✓ Buff 测试工具已初始化");
+        DebugEx.Log(nameof(BuffTestIntegration), "快捷键: Ctrl+B 打开/关闭工具 | F 快速选择目标");
     }
 
     #endregion
@@ -78,12 +78,12 @@ public class BuffTestIntegration : MonoBehaviour
             if (entity != null && m_UIManager != null)
             {
                 m_UIManager.SetTarget(entity.gameObject);
-                DebugEx.LogModule("BuffTestIntegration", $"已选择: {entity.Config?.Name}");
+                DebugEx.Log(nameof(BuffTestIntegration), $"已选择: {entity.Config?.Name}");
                 return;
             }
         }
 
-        DebugEx.WarningModule("BuffTestIntegration", "未点中任何棋子");
+        DebugEx.Warning(nameof(BuffTestIntegration), "未点中任何棋子");
     }
 
     #endregion

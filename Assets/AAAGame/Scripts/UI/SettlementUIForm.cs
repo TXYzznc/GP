@@ -20,7 +20,7 @@ public partial class SettlementUIForm : StateAwareUIForm
     {
         base.OnOpen(userData);
 
-        DebugEx.LogModule("SettlementUIForm", "结算UI已打开");
+        DebugEx.Log("SettlementUIForm", "结算UI已打开");
 
         // 绑定关闭按钮事件
         if (varCloseButton != null)
@@ -37,7 +37,7 @@ public partial class SettlementUIForm : StateAwareUIForm
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        DebugEx.LogModule("SettlementUIForm", "结算UI正在关闭");
+        DebugEx.Log("SettlementUIForm", "结算UI正在关闭");
 
         // 解绑事件
         if (varCloseButton != null)
@@ -79,7 +79,7 @@ public partial class SettlementUIForm : StateAwareUIForm
         var settlementData = SettlementManager.Instance.GetCurrentSettlementData();
         if (settlementData == null)
         {
-            DebugEx.WarningModule("SettlementUIForm", "无结算数据可显示");
+            DebugEx.Warning("SettlementUIForm", "无结算数据可显示");
             return;
         }
 
@@ -101,13 +101,13 @@ public partial class SettlementUIForm : StateAwareUIForm
             varCurrencyText.text = $"资源收益: +{settlementData.GetTotalResourceGain()}";
         }
 
-        DebugEx.LogModule("SettlementUIForm", "结算数据填充完成");
+        DebugEx.Log("SettlementUIForm", "结算数据填充完成");
     }
 
     /// <summary>关闭按钮点击事件</summary>
     private void OnCloseButtonClicked()
     {
-        DebugEx.LogModule("SettlementUIForm", "用户点击关闭按钮");
+        DebugEx.Log("SettlementUIForm", "用户点击关闭按钮");
         CloseWithAnimation();
     }
 

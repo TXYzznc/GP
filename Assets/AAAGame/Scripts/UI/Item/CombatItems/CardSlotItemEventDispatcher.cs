@@ -41,7 +41,7 @@ public static class CardSlotItemEventDispatcher
     public static void RaiseDragStarted(CardSlotItem card, int startIndex)
     {
         OnDragStarted?.Invoke(card, startIndex);
-        DebugEx.LogModule("CardSlotItemEventDispatcher", $"[拖拽开始] {card.GetCardData()?.Name ?? "Unknown"}");
+        DebugEx.Log(nameof(CardSlotItemEventDispatcher), $"[拖拽开始] {card.GetCardData()?.Name ?? "Unknown"}");
     }
 
     /// <summary>发出拖拽位置改变事件</summary>
@@ -54,7 +54,7 @@ public static class CardSlotItemEventDispatcher
     public static void RaiseDragEnded(CardSlotItem card, Vector3 worldPos, bool isValid)
     {
         OnDragEnded?.Invoke(card, worldPos, isValid);
-        DebugEx.LogModule("CardSlotItemEventDispatcher",
+        DebugEx.Log(nameof(CardSlotItemEventDispatcher),
             $"[拖拽结束] {card.GetCardData()?.Name ?? "Unknown"}, isValid={isValid}");
     }
 
@@ -62,7 +62,7 @@ public static class CardSlotItemEventDispatcher
     public static void RaiseSelectionChanged(CardSlotItem card, bool isSelected)
     {
         OnSelectionChanged?.Invoke(card, isSelected);
-        DebugEx.LogModule("CardSlotItemEventDispatcher",
+        DebugEx.Log(nameof(CardSlotItemEventDispatcher),
             $"[选中改变] {card.GetCardData()?.Name ?? "Unknown"}, selected={isSelected}");
     }
 
@@ -70,7 +70,7 @@ public static class CardSlotItemEventDispatcher
     public static void RaiseAboutToDestroy(CardSlotItem card)
     {
         bool hasSubscribers = OnAboutToDestroy != null;
-        DebugEx.LogModule("CardSlotItemEventDispatcher",
+        DebugEx.Log(nameof(CardSlotItemEventDispatcher),
             $"[即将销毁] {card.GetCardData()?.Name ?? "Unknown"} | 有订阅者={hasSubscribers}");
         OnAboutToDestroy?.Invoke(card);
     }
@@ -109,7 +109,7 @@ public static class CardSlotItemEventDispatcher
         OnContainerRearrangeEnded = null;
         OnDragContextChanged = null;
 
-        DebugEx.LogModule("CardSlotItemEventDispatcher", "所有事件监听已清理");
+        DebugEx.Log(nameof(CardSlotItemEventDispatcher), "所有事件监听已清理");
     }
 
     #endregion

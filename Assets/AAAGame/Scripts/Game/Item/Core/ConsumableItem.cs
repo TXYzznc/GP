@@ -11,7 +11,7 @@ public class ConsumableItem : ItemBase
     public ConsumableItem(int itemId, ItemData itemData)
         : base(itemId, itemData)
     {
-        DebugEx.Log("ConsumableItem", $"创建消耗品: {Name}");
+        DebugEx.Log(nameof(ConsumableItem), $"创建消耗品: {Name}");
     }
 
     #endregion
@@ -22,11 +22,11 @@ public class ConsumableItem : ItemBase
     {
         if (ItemData.UseEffectId <= 0)
         {
-            DebugEx.Warning("ConsumableItem", $"消耗品没有配置使用效果: {Name}");
+            DebugEx.Warning(nameof(ConsumableItem), $"消耗品没有配置使用效果: {Name}");
             return false;
         }
 
-        DebugEx.Log("ConsumableItem", $"执行消耗品效果: {Name}, EffectId:{ItemData.UseEffectId}");
+        DebugEx.Log(nameof(ConsumableItem), $"执行消耗品效果: {Name}, EffectId:{ItemData.UseEffectId}");
 
         // 通过效果执行器执行效果
         var effectExecutor = ItemEffectExecutor.Instance;
@@ -35,16 +35,16 @@ public class ConsumableItem : ItemBase
             bool success = effectExecutor.ExecuteEffect(ItemData.UseEffectId);
             if (success)
             {
-                DebugEx.Success("ConsumableItem", $"消耗品使用成功: {Name}");
+                DebugEx.Success(nameof(ConsumableItem), $"消耗品使用成功: {Name}");
             }
             else
             {
-                DebugEx.Error("ConsumableItem", $"消耗品使用失败: {Name}");
+                DebugEx.Error(nameof(ConsumableItem), $"消耗品使用失败: {Name}");
             }
             return success;
         }
 
-        DebugEx.Error("ConsumableItem", "ItemEffectExecutor 未初始化");
+        DebugEx.Error(nameof(ConsumableItem), "ItemEffectExecutor 未初始化");
         return false;
     }
 

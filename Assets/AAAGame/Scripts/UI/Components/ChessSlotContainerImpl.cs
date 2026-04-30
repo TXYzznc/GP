@@ -57,7 +57,7 @@ public class ChessSlotContainerImpl : SlotContainerBase
     protected override bool ExecuteMove(int fromSlotIndex, ISlotContainer targetContainer, int targetSlotIndex)
     {
         // Chess 槽不支持拖出
-        DebugEx.Warning("ChessSlotContainer", "棋子装备槽不支持拖拽移出，请使用右键卸下");
+        DebugEx.Warning(nameof(ChessSlotContainerImpl), "棋子装备槽不支持拖拽移出，请使用右键卸下");
         return false;
     }
 

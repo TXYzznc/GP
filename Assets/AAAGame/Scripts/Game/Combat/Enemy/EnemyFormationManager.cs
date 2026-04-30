@@ -33,11 +33,11 @@ public static class EnemyFormationManager
     {
         if (enemyCount <= 0)
         {
-            DebugEx.WarningModule("EnemyFormationManager", "敌人数量为0，返回空列表");
+            DebugEx.Warning("EnemyFormationManager", "敌人数量为0，返回空列表");
             return new List<Vector3>();
         }
 
-        DebugEx.LogModule("EnemyFormationManager",
+        DebugEx.Log("EnemyFormationManager",
             $"计算阵型: 中心={centerPosition}, 数量={enemyCount}, 类型={formationType}, 间距={spacing}");
 
         List<Vector3> positions = formationType switch
@@ -48,7 +48,7 @@ public static class EnemyFormationManager
             _ => CalculateHorizontalFormation(centerPosition, enemyCount, spacing) // 默认横排
         };
 
-        DebugEx.LogModule("EnemyFormationManager",
+        DebugEx.Log("EnemyFormationManager",
             $"阵型计算完成，生成 {positions.Count} 个站位");
 
         return positions;
@@ -127,7 +127,7 @@ public static class EnemyFormationManager
         int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
         int rows = Mathf.CeilToInt((float)count / cols);
 
-        DebugEx.LogModule("EnemyFormationManager",
+        DebugEx.Log("EnemyFormationManager",
             $"矩形阵型: {rows}行 x {cols}列");
 
         // 计算起始位置（左上角）

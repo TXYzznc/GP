@@ -26,7 +26,7 @@ public partial class EscapeResultUI : UIFormBase
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
-        DebugEx.LogModule("EscapeResultUI", "初始化完成");
+        DebugEx.Log("EscapeResultUI", "初始化完成");
     }
 
     protected override void OnOpen(object userData)
@@ -54,7 +54,7 @@ public partial class EscapeResultUI : UIFormBase
         }
         else
         {
-            DebugEx.WarningModule("EscapeResultUI", "未收到有效的结果数据");
+            DebugEx.Warning("EscapeResultUI", "未收到有效的结果数据");
         }
     }
 
@@ -70,7 +70,7 @@ public partial class EscapeResultUI : UIFormBase
             m_AutoHideCts = null;
         }
 
-        DebugEx.LogModule("EscapeResultUI", "已关闭");
+        DebugEx.Log("EscapeResultUI", "已关闭");
     }
 
     #endregion
@@ -118,7 +118,7 @@ public partial class EscapeResultUI : UIFormBase
             }
         }
 
-        DebugEx.LogModule("EscapeResultUI",
+        DebugEx.Log("EscapeResultUI",
             resultData.Success
                 ? $"脱战成功，消耗污染值: {resultData.CorruptionCost}"
                 : $"脱战失败，生命损失: {resultData.HealthLoss:P0}, 冷却: {resultData.CooldownTurns}回合");
@@ -151,13 +151,13 @@ public partial class EscapeResultUI : UIFormBase
             if (this.UIForm != null)
             {
                 GF.UI.Close(this.UIForm);
-                DebugEx.LogModule("EscapeResultUI", "自动隐藏触发");
+                DebugEx.Log("EscapeResultUI", "自动隐藏触发");
             }
         }
         catch (System.OperationCanceledException)
         {
             // 任务被取消（UI提前关闭或页面切换）
-            DebugEx.LogModule("EscapeResultUI", "自动隐藏被取消");
+            DebugEx.Log("EscapeResultUI", "自动隐藏被取消");
         }
     }
 

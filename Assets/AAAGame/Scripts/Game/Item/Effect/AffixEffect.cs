@@ -29,7 +29,7 @@ public class AffixEffect
         Value = value;
         Description = affixData.FormatDescription(value);
 
-        DebugEx.Log("AffixEffect", $"生成词条效果: {Description}");
+        DebugEx.Log(nameof(AffixEffect), $"生成词条效果: {Description}");
     }
 
     #endregion

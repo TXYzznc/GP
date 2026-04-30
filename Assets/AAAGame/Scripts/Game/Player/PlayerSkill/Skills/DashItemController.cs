@@ -105,7 +105,7 @@ public class DashItemController : MonoBehaviour
         m_State = DashItemState.Waiting;
         m_StateTimer = 0f;
 
-        DebugEx.Log($"[DashItem] 初始化完成，等待投掷（{m_WaitingDuration}秒），重力缩放={m_GravityScale}");
+        DebugEx.Log("DashItemController", $"初始化完成，等待投掷（{m_WaitingDuration}秒），重力缩放={m_GravityScale}");
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public class DashItemController : MonoBehaviour
 
         if (m_IgnoredColliders == null || m_IgnoredColliders.Length == 0)
         {
-            DebugEx.Warning("[DashItem] 玩家身上未找到碰撞体");
+            DebugEx.Warning("DashItemController", "玩家身上未找到碰撞体");
             return;
         }
 
@@ -129,7 +129,7 @@ public class DashItemController : MonoBehaviour
             }
         }
 
-        DebugEx.Log($"[DashItem] 已忽略与玩家的 {m_IgnoredColliders.Length} 个碰撞体");
+        DebugEx.Log("DashItemController", $"已忽略与玩家的 {m_IgnoredColliders.Length} 个碰撞体");
     }
 
     #endregion
@@ -186,7 +186,7 @@ public class DashItemController : MonoBehaviour
         // 超时检测
         if (m_StateTimer >= m_WaitingDuration)
         {
-            DebugEx.Log("[DashItem] 等待超时，自动销毁");
+            DebugEx.Log("DashItemController", "等待超时，自动销毁");
             DestroyItem();
         }
     }
@@ -199,7 +199,7 @@ public class DashItemController : MonoBehaviour
         // 超时检测
         if (m_StateTimer >= m_FlyingDuration)
         {
-            DebugEx.Log("[DashItem] 飞行超时，自动销毁");
+            DebugEx.Log("DashItemController", "飞行超时，自动销毁");
             DestroyItem();
         }
     }
@@ -229,7 +229,7 @@ public class DashItemController : MonoBehaviour
     {
         if (m_State != DashItemState.Waiting)
         {
-            DebugEx.Warning("[DashItem] 只能在等待状态下投掷");
+            DebugEx.Warning("DashItemController", "只能在等待状态下投掷");
             return;
         }
 
@@ -251,7 +251,7 @@ public class DashItemController : MonoBehaviour
         // 清空轨迹预测（已经投掷，不需要预测）
         m_TrajectoryPoints.Clear();
 
-        DebugEx.Log($"[DashItem] 投掷道具，方向={direction}, 力度={force}, 重力缩放={m_GravityScale}");
+        DebugEx.Log("DashItemController", $"投掷道具，方向={direction}, 力度={force}, 重力缩放={m_GravityScale}");
 
         // 触发投掷回调
         m_OnThrown?.Invoke();
@@ -282,7 +282,7 @@ public class DashItemController : MonoBehaviour
         m_OnDestroyed?.Invoke();
 
         Destroy(gameObject);
-        DebugEx.Log("[DashItem] 道具已销毁");
+        DebugEx.Log("DashItemController", "道具已销毁");
     }
 
     /// <summary>

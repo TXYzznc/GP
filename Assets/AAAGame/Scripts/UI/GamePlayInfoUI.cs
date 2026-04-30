@@ -14,7 +14,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     protected override void SubscribeEvents()
     {
-        DebugEx.LogModule("GamePlayInfoUI", "订阅局内、局外和战斗状态事件");
+        DebugEx.Log("GamePlayInfoUI", "订阅局内、局外和战斗状态事件");
         // 订阅局外事件（进入基地 → 显示）
         GF.Event.Subscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
         GF.Event.Subscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
@@ -38,7 +38,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     protected override void UnsubscribeEvents()
     {
-        DebugEx.LogModule("GamePlayInfoUI", "取消订阅局内和战斗状态事件");
+        DebugEx.Log("GamePlayInfoUI", "取消订阅局内和战斗状态事件");
         // 取消订阅局外事件
         GF.Event.Unsubscribe(OutOfGameEnterEventArgs.EventId, OnOutOfGameEnter);
         GF.Event.Unsubscribe(OutOfGameLeaveEventArgs.EventId, OnOutOfGameLeave);
@@ -105,22 +105,22 @@ public partial class GamePlayInfoUI : StateAwareUIForm
                     if (containerTransform != null)
                     {
                         alertUIManager.Initialize(containerTransform, indicatorTemplate);
-                        DebugEx.LogModule("GamePlayInfoUI", "警示UI系统已初始化");
+                        DebugEx.Log("GamePlayInfoUI", "警示UI系统已初始化");
                     }
                     else
                     {
-                        DebugEx.WarningModule("GamePlayInfoUI", "varEnemyWarningHead上未找到RectTransform组件");
+                        DebugEx.Warning("GamePlayInfoUI", "varEnemyWarningHead上未找到RectTransform组件");
                     }
                 }
                 else
                 {
-                    DebugEx.WarningModule("GamePlayInfoUI", "varEnemyMask上未找到EnemyMask组件");
+                    DebugEx.Warning("GamePlayInfoUI", "varEnemyMask上未找到EnemyMask组件");
                 }
             }
         }
         else
         {
-            DebugEx.WarningModule("GamePlayInfoUI", "varEnemyWarningHead 或 varEnemyMask 未设置");
+            DebugEx.Warning("GamePlayInfoUI", "varEnemyWarningHead 或 varEnemyMask 未设置");
         }
 
         // 初始化时隐藏战斗交互UI（正常情况下应隐藏，只在触发时显示）
@@ -132,10 +132,10 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     /// </summary>
     public void ShowCombatInteract(CombatTriggerType triggerType)
     {
-        DebugEx.LogModule("GamePlayInfoUI",
+        DebugEx.Log("GamePlayInfoUI",
             $"<color=cyan>[诊断] ShowCombatInteract 被调用 | triggerType={triggerType}</color>");
 
-        DebugEx.LogModule("GamePlayInfoUI",
+        DebugEx.Log("GamePlayInfoUI",
             $"<color=cyan>[诊断] 组件状态: " +
             $"varCombatInteractUI={varCombatInteractUI != null} (name={(varCombatInteractUI != null ? varCombatInteractUI.name : "null")}) | " +
             $"varInteractIcon={varInteractIcon != null} | " +
@@ -143,7 +143,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
         if (varCombatInteractUI == null || varInteractIcon == null || varInteractText == null)
         {
-            DebugEx.ErrorModule("GamePlayInfoUI",
+            DebugEx.Error("GamePlayInfoUI",
                 $"<color=red>[诊断] ❌ 战斗交互UI组件未设置！" +
                 $"varCombatInteractUI={varCombatInteractUI} | " +
                 $"varInteractIcon={varInteractIcon} | " +
@@ -151,7 +151,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
             return;
         }
 
-        DebugEx.LogModule("GamePlayInfoUI",
+        DebugEx.Log("GamePlayInfoUI",
             $"<color=cyan>[诊断] ✓ 所有组件都存在，激活 varCombatInteractUI</color>");
 
         varCombatInteractUI.gameObject.SetActive(true);
@@ -162,7 +162,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
                 // 设置偷袭图标和文本
                 // varInteractIcon.sprite = LoadSprite("Icon_SneakAttack");
                 varInteractText.text = "按下【Space】进行偷袭";
-                DebugEx.LogModule("GamePlayInfoUI",
+                DebugEx.Log("GamePlayInfoUI",
                     $"<color=yellow>[诊断] ✓ 显示偷袭交互UI | 文本=\"{varInteractText.text}\"</color>");
                 break;
 
@@ -170,7 +170,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
                 // 设置遭遇战图标和文本
                 // varInteractIcon.sprite = LoadSprite("Icon_Encounter");
                 varInteractText.text = "按下【Space】进入战斗";
-                DebugEx.LogModule("GamePlayInfoUI",
+                DebugEx.Log("GamePlayInfoUI",
                     $"<color=yellow>[诊断] ✓ 显示遭遇战交互UI | 文本=\"{varInteractText.text}\"</color>");
                 break;
 
@@ -191,12 +191,12 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         if (varCombatInteractUI != null)
         {
             varCombatInteractUI.gameObject.SetActive(false);
-            DebugEx.LogModule("GamePlayInfoUI",
+            DebugEx.Log("GamePlayInfoUI",
                 "<color=cyan>[诊断] 隐藏战斗交互UI</color>");
         }
         else
         {
-            DebugEx.WarningModule("GamePlayInfoUI",
+            DebugEx.Warning("GamePlayInfoUI",
                 "<color=yellow>[诊断] varCombatInteractUI 为 null，无法隐藏</color>");
         }
     }
@@ -207,33 +207,33 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     private void OnOutOfGameEnter(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到局外进入事件 → 显示UI");
+        DebugEx.Log("GamePlayInfoUI", "收到局外进入事件 → 显示UI");
         ShowUI();
         RefreshGameInfo();
     }
 
     private void OnOutOfGameLeave(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到局外离开事件 → 隐藏UI");
+        DebugEx.Log("GamePlayInfoUI", "收到局外离开事件 → 隐藏UI");
         HideUI();
     }
 
     private void OnInGameEnter(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到局内进入事件 → 显示UI");
+        DebugEx.Log("GamePlayInfoUI", "收到局内进入事件 → 显示UI");
         ShowUI();
         RefreshGameInfo();
     }
 
     private void OnInGameLeave(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到局内离开事件 → 隐藏UI");
+        DebugEx.Log("GamePlayInfoUI", "收到局内离开事件 → 隐藏UI");
         HideUI();
     }
 
     private void OnExplorationEnter(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到探索进入事件 → 显示UI");
+        DebugEx.Log("GamePlayInfoUI", "收到探索进入事件 → 显示UI");
         ShowUI();
         RefreshGameInfo();
 
@@ -243,7 +243,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     private void OnExplorationLeave(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到探索离开事件 → 隐藏UI");
+        DebugEx.Log("GamePlayInfoUI", "收到探索离开事件 → 隐藏UI");
         UnsubscribeStealthEvents();
         HideUI();
 
@@ -259,7 +259,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     private void OnCombatEnter(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到战斗进入事件 → 隐藏UI");
+        DebugEx.Log("GamePlayInfoUI", "收到战斗进入事件 → 隐藏UI");
         HideUI();
     }
 
@@ -271,7 +271,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("GamePlayInfoUI", "收到战斗离开事件 → 显示UI");
+        DebugEx.Log("GamePlayInfoUI", "收到战斗离开事件 → 显示UI");
         ShowUI();
         RefreshGameInfo();
         // UI 已可见，正式激活隐身（开始计时 + 显示 StealthText）
@@ -352,7 +352,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         // 刷新污染值（使用HP滑条显示）
         RefreshCorruption();
 
-        DebugEx.LogModule("GamePlayInfoUI", "游戏信息已刷新");
+        DebugEx.Log("GamePlayInfoUI", "游戏信息已刷新");
     }
 
     /// <summary>

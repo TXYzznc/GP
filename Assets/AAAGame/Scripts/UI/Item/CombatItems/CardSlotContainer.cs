@@ -63,7 +63,7 @@ public class CardSlotContainer : MonoBehaviour
         m_RectTransform = GetComponent<RectTransform>();
         if (m_RectTransform == null)
         {
-            DebugEx.ErrorModule("CardSlotContainer", "缺少 RectTransform 组件");
+            DebugEx.Error(this.GetType().Name, "缺少 RectTransform 组件");
         }
 
         // 初始化缓存参数
@@ -75,14 +75,14 @@ public class CardSlotContainer : MonoBehaviour
         // 当容器启用时订阅事件（而不是在 Awake 中）
         // 这样可以避免时序问题，确保只在真正需要时才订阅
         SubscribeToCardEvents();
-        DebugEx.LogModule("CardSlotContainer", "[启用] 已订阅所有卡牌事件");
+        DebugEx.Log(this.GetType().Name, "[启用] 已订阅所有卡牌事件");
     }
 
     private void OnDisable()
     {
         // 当容器禁用时取消订阅
         UnsubscribeFromCardEvents();
-        DebugEx.LogModule("CardSlotContainer", "[禁用] 已取消事件订阅");
+        DebugEx.Log(this.GetType().Name, "[禁用] 已取消事件订阅");
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class CardSlotContainer : MonoBehaviour
         CardSlotItemEventDispatcher.OnDragPositionChanged += OnCardDragPositionChanged;
         CardSlotItemEventDispatcher.OnDragEnded += OnCardDragEnded;
         CardSlotItemEventDispatcher.OnAboutToDestroy += OnCardAboutToDestroy;
-        DebugEx.LogModule("CardSlotContainer", "[订阅] 已订阅所有卡牌事件");
+        DebugEx.Log(this.GetType().Name, "[订阅] 已订阅所有卡牌事件");
     }
 
     /// <summary>
@@ -278,7 +278,7 @@ public class CardSlotContainer : MonoBehaviour
         // 注意：不在此取消订阅，事件订阅应该在容器销毁时才取消
         // 这样可以确保容器还在运行时，事件始终保持订阅状态
 
-        DebugEx.LogModule("CardSlotContainer", "容器状态已清理");
+        DebugEx.Log(this.GetType().Name, "容器状态已清理");
     }
 
     #endregion
@@ -373,7 +373,7 @@ public class CardSlotContainer : MonoBehaviour
         card.transform.SetParent(transform);
         card.transform.SetSiblingIndex(m_Cards.Count - 1);
 
-        DebugEx.LogModule("CardSlotContainer", $"添加卡牌: {m_Cards.Count} 张");
+        DebugEx.Log(this.GetType().Name, $"添加卡牌: {m_Cards.Count} 张");
 
         int cardIndex = m_Cards.IndexOf(card);
 
@@ -410,7 +410,7 @@ public class CardSlotContainer : MonoBehaviour
         card.transform.SetParent(transform);
         card.transform.SetSiblingIndex(m_Cards.Count - 1);
 
-        DebugEx.LogModule("CardSlotContainer", $"静默添加卡牌: {m_Cards.Count} 张");
+        DebugEx.Log(this.GetType().Name, $"静默添加卡牌: {m_Cards.Count} 张");
     }
 
     /// <summary>
@@ -434,7 +434,7 @@ public class CardSlotContainer : MonoBehaviour
         // 动画都播放完后，重新排列所有卡（确保位置准确）
         await RearrangeAsync(default);
 
-        DebugEx.LogModule("CardSlotContainer", "所有卡牌动画播放完成");
+        DebugEx.Log(this.GetType().Name, "所有卡牌动画播放完成");
     }
 
     /// <summary>
@@ -442,12 +442,12 @@ public class CardSlotContainer : MonoBehaviour
     /// </summary>
     public void RemoveCardById(int cardId)
     {
-        DebugEx.LogModule("CardSlotContainer", $"[RemoveCardById] 尝试移除卡牌 ID={cardId}");
+        DebugEx.Log(this.GetType().Name, $"[RemoveCardById] 尝试移除卡牌 ID={cardId}");
 
         var cardSlot = m_Cards.FirstOrDefault(c => c.GetCardData()?.CardId == cardId);
         if (cardSlot == null)
         {
-            DebugEx.WarningModule("CardSlotContainer", $"[RemoveCardById] 未找到卡牌 ID={cardId}");
+            DebugEx.Warning(this.GetType().Name, $"[RemoveCardById] 未找到卡牌 ID={cardId}");
             return;
         }
 
@@ -462,11 +462,11 @@ public class CardSlotContainer : MonoBehaviour
     {
         if (card == null || !m_Cards.Contains(card))
         {
-            DebugEx.WarningModule("CardSlotContainer", $"[RemoveCard] 卡牌为空或不在容器中");
+            DebugEx.Warning(this.GetType().Name, $"[RemoveCard] 卡牌为空或不在容器中");
             return;
         }
 
-        DebugEx.LogModule("CardSlotContainer", $"[RemoveCard] 移除卡牌，当前数量={m_Cards.Count}");
+        DebugEx.Log(this.GetType().Name, $"[RemoveCard] 移除卡牌，当前数量={m_Cards.Count}");
 
         // 从活跃卡列表中移除（已在 OnCardAboutToDestroy 中完成）
         // 这个方法现在保留用于兼容性
@@ -669,7 +669,7 @@ public class CardSlotContainer : MonoBehaviour
 
         await sequence.AsyncWaitForCompletion();
 
-        DebugEx.LogModule("CardSlotContainer", $"卡牌进场动画完成");
+        DebugEx.Log(this.GetType().Name, $"卡牌进场动画完成");
     }
 
     /// <summary>
@@ -687,7 +687,7 @@ public class CardSlotContainer : MonoBehaviour
 
         if (activeCards.Count == 0)
         {
-            DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 活跃卡数为0，直接返回");
+            DebugEx.Log(this.GetType().Name, $"[RearrangeAsync] 活跃卡数为0，直接返回");
             return;
         }
 
@@ -743,7 +743,7 @@ public class CardSlotContainer : MonoBehaviour
             card.SetInteractable(true);
         }
 
-        DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 重排完成");
+        DebugEx.Log(this.GetType().Name, $"[RearrangeAsync] 重排完成");
     }
 
 
@@ -786,7 +786,7 @@ public class CardSlotContainer : MonoBehaviour
             transformIndex++;
         }
 
-        DebugEx.LogModule("CardSlotContainer", "卡牌位置已立即更新");
+        DebugEx.Log(this.GetType().Name, "卡牌位置已立即更新");
     }
 
     #endregion

@@ -59,7 +59,7 @@ public class SummonerCombatProxy : MonoBehaviour
         if (newHp <= 0 && !IsDead)
         {
             IsDead = true;
-            DebugEx.WarningModule("SummonerCombatProxy", "召唤师已死亡");
+            DebugEx.Warning(nameof(SummonerCombatProxy), "召唤师已死亡");
         }
     }
 

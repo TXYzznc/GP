@@ -69,7 +69,7 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
     protected override void Awake()
     {
         base.Awake();
-        DebugEx.LogModule("DamageFloatingTextManager", "管理器初始化开始");
+        DebugEx.Log("DamageFloatingTextManager", "管理器初始化开始");
 
         InitializeManagerAsync().Forget();
     }
@@ -131,7 +131,7 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
             return;
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "DamageFloatingTextManager",
             $"开始对象池预热，目标数量: {m_PoolInitialSize}"
         );

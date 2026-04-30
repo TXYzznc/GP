@@ -35,12 +35,12 @@ public partial class CurrencyItem : UIItemBase
                 varCurrencyIcon,
                 (error) =>
                 {
-                    DebugEx.ErrorModule("CurrencyItem", $"货币图标加载失败 - ConfigId: {iconId}, Error: {error}");
+                    DebugEx.Error(nameof(CurrencyItem), $"货币图标加载失败 - ConfigId: {iconId}, Error: {error}");
                 },
                 1f,
                 null
             );
-            DebugEx.LogModule("CurrencyItem", $"货币图标加载成功 - ConfigId: {iconId}");
+            DebugEx.Log(nameof(CurrencyItem), $"货币图标加载成功 - ConfigId: {iconId}");
         }
     }
 
@@ -82,6 +82,6 @@ public partial class CurrencyItem : UIItemBase
         }
 
         await tween.AsyncWaitForCompletion();
-        DebugEx.LogModule("CurrencyItem", $"货币更新完成: {oldCount} → {newCount}");
+        DebugEx.Log(nameof(CurrencyItem), $"货币更新完成: {oldCount} → {newCount}");
     }
 }

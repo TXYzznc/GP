@@ -53,7 +53,7 @@ public class WarehouseSlotContainerImpl : SlotContainerBase
         bool targetIsEmpty = targetSlot == null || targetSlot.IsEmpty;
 
         string targetStatus = targetIsEmpty ? "为空" : "非空";
-        DebugEx.Log("WarehouseSlotContainer",
+        DebugEx.Log(this.GetType().Name,
             $"[仓库→{targetContainer.ContainerType}] {fromSlotIndex} → {targetSlotIndex} (目标{targetStatus})");
 
         bool success = targetContainer switch

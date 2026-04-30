@@ -21,7 +21,7 @@ public class ItemManager : SingletonBase<ItemManager>
     {
         base.Awake();
 
-        DebugEx.LogModule("ItemManager", "物品管理器初始化开始");
+        DebugEx.Log("ItemManager", "物品管理器初始化开始");
         InitializeData();
         DebugEx.Success("ItemManager", "物品管理器初始化完成");
     }
@@ -50,7 +50,7 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     public void LoadAllTables()
     {
-        DebugEx.LogModule("ItemManager", "开始加载所有配置表");
+        DebugEx.Log("ItemManager", "开始加载所有配置表");
 
         LoadItemTable();
         LoadSpecialEffectTable();
@@ -65,19 +65,19 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     public void LoadItemTable()
     {
-        DebugEx.LogModule("ItemManager", "开始加载物品配置表");
+        DebugEx.Log("ItemManager", "开始加载物品配置表");
 
         var table = GF.DataTable.GetDataTable<ItemTable>();
         if (table == null)
         {
-            DebugEx.ErrorModule("ItemManager", "物品配置表未加载，请先加载配置表");
+            DebugEx.Error("ItemManager", "物品配置表未加载，请先加载配置表");
             return;
         }
 
         var allRows = table.GetAllDataRows();
         if (allRows == null || allRows.Length == 0)
         {
-            DebugEx.WarningModule("ItemManager", "物品配置表为空");
+            DebugEx.Warning("ItemManager", "物品配置表为空");
             return;
         }
 
@@ -99,19 +99,19 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     public void LoadSpecialEffectTable()
     {
-        DebugEx.LogModule("ItemManager", "开始加载特殊效果配置表");
+        DebugEx.Log("ItemManager", "开始加载特殊效果配置表");
 
         var table = GF.DataTable.GetDataTable<SpecialEffectTable>();
         if (table == null)
         {
-            DebugEx.ErrorModule("ItemManager", "特殊效果配置表未加载");
+            DebugEx.Error("ItemManager", "特殊效果配置表未加载");
             return;
         }
 
         var allRows = table.GetAllDataRows();
         if (allRows == null || allRows.Length == 0)
         {
-            DebugEx.WarningModule("ItemManager", "特殊效果配置表为空");
+            DebugEx.Warning("ItemManager", "特殊效果配置表为空");
             return;
         }
 
@@ -136,19 +136,19 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     public void LoadAffixTable()
     {
-        DebugEx.LogModule("ItemManager", "开始加载词条配置表");
+        DebugEx.Log("ItemManager", "开始加载词条配置表");
 
         var table = GF.DataTable.GetDataTable<AffixTable>();
         if (table == null)
         {
-            DebugEx.ErrorModule("ItemManager", "词条配置表未加载");
+            DebugEx.Error("ItemManager", "词条配置表未加载");
             return;
         }
 
         var allRows = table.GetAllDataRows();
         if (allRows == null || allRows.Length == 0)
         {
-            DebugEx.WarningModule("ItemManager", "词条配置表为空");
+            DebugEx.Warning("ItemManager", "词条配置表为空");
             return;
         }
 
@@ -170,19 +170,19 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     public void LoadSynergyTable()
     {
-        DebugEx.LogModule("ItemManager", "开始加载羁绊配置表");
+        DebugEx.Log("ItemManager", "开始加载羁绊配置表");
 
         var table = GF.DataTable.GetDataTable<SynergyTable>();
         if (table == null)
         {
-            DebugEx.ErrorModule("ItemManager", "羁绊配置表未加载");
+            DebugEx.Error("ItemManager", "羁绊配置表未加载");
             return;
         }
 
         var allRows = table.GetAllDataRows();
         if (allRows == null || allRows.Length == 0)
         {
-            DebugEx.WarningModule("ItemManager", "羁绊配置表为空");
+            DebugEx.Warning("ItemManager", "羁绊配置表为空");
             return;
         }
 
@@ -213,7 +213,7 @@ public class ItemManager : SingletonBase<ItemManager>
             return data;
         }
 
-        DebugEx.WarningModule("ItemManager", $"物品配置不存在 ID:{itemId}");
+        DebugEx.Warning("ItemManager", $"物品配置不存在 ID:{itemId}");
         return null;
     }
 
@@ -227,7 +227,7 @@ public class ItemManager : SingletonBase<ItemManager>
             return data;
         }
 
-        DebugEx.WarningModule("ItemManager", $"特殊效果配置不存在 ID:{effectId}");
+        DebugEx.Warning("ItemManager", $"特殊效果配置不存在 ID:{effectId}");
         return null;
     }
 
@@ -241,7 +241,7 @@ public class ItemManager : SingletonBase<ItemManager>
             return data;
         }
 
-        DebugEx.WarningModule("ItemManager", $"词条配置不存在 ID:{affixId}");
+        DebugEx.Warning("ItemManager", $"词条配置不存在 ID:{affixId}");
         return null;
     }
 
@@ -255,7 +255,7 @@ public class ItemManager : SingletonBase<ItemManager>
             return data;
         }
 
-        DebugEx.WarningModule("ItemManager", $"羁绊配置不存在 ID:{synergyId}");
+        DebugEx.Warning("ItemManager", $"羁绊配置不存在 ID:{synergyId}");
         return null;
     }
 
@@ -271,11 +271,11 @@ public class ItemManager : SingletonBase<ItemManager>
         var itemData = GetItemData(itemId);
         if (itemData == null)
         {
-            DebugEx.ErrorModule("ItemManager", $"创建物品失败，配置不存在 ID:{itemId}");
+            DebugEx.Error("ItemManager", $"创建物品失败，配置不存在 ID:{itemId}");
             return null;
         }
 
-        DebugEx.LogModule("ItemManager", $"创建物品: {itemData.Name} (ID:{itemId})");
+        DebugEx.Log("ItemManager", $"创建物品: {itemData.Name} (ID:{itemId})");
 
         ItemBase item = null;
 
@@ -302,7 +302,7 @@ public class ItemManager : SingletonBase<ItemManager>
                 break;
 
             default:
-                DebugEx.ErrorModule("ItemManager", $"未知的物品类型: {itemData.Type}");
+                DebugEx.Error("ItemManager", $"未知的物品类型: {itemData.Type}");
                 break;
         }
 
@@ -503,13 +503,13 @@ public class ItemManager : SingletonBase<ItemManager>
                 }
                 else
                 {
-                    DebugEx.WarningModule("ItemManager", $"未知的属性类型: {property.Name}");
+                    DebugEx.Warning("ItemManager", $"未知的属性类型: {property.Name}");
                 }
             }
         }
         catch (System.Exception e)
         {
-            DebugEx.ErrorModule("ItemManager", $"解析属性JSON失败: {json}, Error:{e.Message}");
+            DebugEx.Error("ItemManager", $"解析属性JSON失败: {json}, Error:{e.Message}");
         }
 
         return dict;

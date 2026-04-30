@@ -48,13 +48,13 @@ public partial class BattlePresetUI : UIFormBase
     protected override void OnInit(object userData)
     {
         base.OnInit(userData);
-        DebugEx.LogModule("BattlePresetUI", "初始化");
+        DebugEx.Log(nameof(BattlePresetUI), "初始化");
     }
 
     protected override void OnOpen(object userData)
     {
         base.OnOpen(userData);
-        DebugEx.LogModule("BattlePresetUI", "已打开");
+        DebugEx.Log(nameof(BattlePresetUI), "已打开");
 
         // 绑定按钮事件
         BindButtons();
@@ -88,7 +88,7 @@ public partial class BattlePresetUI : UIFormBase
         m_EditingPreset = null;
 
         base.OnClose(isShutdown, userData);
-        DebugEx.LogModule("BattlePresetUI", "已关闭");
+        DebugEx.Log(nameof(BattlePresetUI), "已关闭");
     }
 
     #endregion
@@ -155,7 +155,7 @@ public partial class BattlePresetUI : UIFormBase
         BattlePresetManager.Instance.SavePreset(m_CurrentPresetIndex, m_EditingPreset);
         RefreshPresetList();
 
-        DebugEx.LogModule("BattlePresetUI", $"保存预设: {m_EditingPreset.DeckName}");
+        DebugEx.Log(nameof(BattlePresetUI), $"保存预设: {m_EditingPreset.DeckName}");
     }
 
     private void OnDeleteClicked()
@@ -355,7 +355,7 @@ public partial class BattlePresetUI : UIFormBase
         // 刷新编辑区域
         RefreshEditArea();
 
-        DebugEx.LogModule("BattlePresetUI", $"选中预设: index={index}, name={preset.DeckName}");
+        DebugEx.Log(nameof(BattlePresetUI), $"选中预设: index={index}, name={preset.DeckName}");
     }
 
     /// <summary>
@@ -514,8 +514,8 @@ public partial class BattlePresetUI : UIFormBase
             }
         }
 
-        DebugEx.LogModule(
-            "BattlePresetUI",
+        DebugEx.Log(
+            nameof(BattlePresetUI),
             $"刷新棋子区域: 已选={m_EditingPreset.UnitCardIds.Count}, 可选={allChessIds.Count}"
         );
     }
@@ -570,7 +570,7 @@ public partial class BattlePresetUI : UIFormBase
         // 立即更新可选池中这一个棋子的状态
         UpdatePoolChessState(chessId, false);
 
-        DebugEx.LogModule("BattlePresetUI", $"移除棋子: {chessId}");
+        DebugEx.Log(nameof(BattlePresetUI), $"移除棋子: {chessId}");
     }
 
     /// <summary>
@@ -647,7 +647,7 @@ public partial class BattlePresetUI : UIFormBase
         // 检查是否已达到最大数量限制（8个）
         if (m_EditingPreset.UnitCardIds.Count >= BattlePresetManager.MAX_CHESS_COUNT)
         {
-            DebugEx.Warning("BattlePresetUI", "已达到最大棋子数量限制");
+            DebugEx.Warning(nameof(BattlePresetUI), "已达到最大棋子数量限制");
 
             // 播放达到上限动画
             if (varChessCountText != null)
@@ -683,7 +683,7 @@ public partial class BattlePresetUI : UIFormBase
             PlayCounterUpdateAnimation(varChessCountText, newCount, isLimit);
         }
 
-        DebugEx.LogModule("BattlePresetUI", $"添加棋子: {chessId}");
+        DebugEx.Log(nameof(BattlePresetUI), $"添加棋子: {chessId}");
     }
 
     /// <summary>
@@ -859,8 +859,8 @@ public partial class BattlePresetUI : UIFormBase
             }
         }
 
-        DebugEx.LogModule(
-            "BattlePresetUI",
+        DebugEx.Log(
+            nameof(BattlePresetUI),
             $"刷新策略卡区域: 已选={m_EditingPreset.StrategyCardIds.Count}, 可选={allCardIds.Count}"
         );
     }
@@ -916,7 +916,7 @@ public partial class BattlePresetUI : UIFormBase
         // 立即更新可选池中这一个策略卡的状态
         UpdatePoolCardState(cardId, false);
 
-        DebugEx.LogModule("BattlePresetUI", $"移除策略卡: {cardId}");
+        DebugEx.Log(nameof(BattlePresetUI), $"移除策略卡: {cardId}");
     }
 
     /// <summary>
@@ -999,7 +999,7 @@ public partial class BattlePresetUI : UIFormBase
 
         if (m_EditingPreset.StrategyCardIds.Count >= BattlePresetManager.MAX_STRATEGY_CARD_COUNT)
         {
-            DebugEx.WarningModule("BattlePresetUI", "策略卡数量已达上限");
+            DebugEx.Warning(nameof(BattlePresetUI), "策略卡数量已达上限");
 
             // 播放达到上限动画
             if (varCardCountText != null)
@@ -1038,7 +1038,7 @@ public partial class BattlePresetUI : UIFormBase
             PlayCounterUpdateAnimation(varCardCountText, newCount, isLimit);
         }
 
-        DebugEx.LogModule("BattlePresetUI", $"添加策略卡: {cardId}");
+        DebugEx.Log(nameof(BattlePresetUI), $"添加策略卡: {cardId}");
     }
 
     /// <summary>

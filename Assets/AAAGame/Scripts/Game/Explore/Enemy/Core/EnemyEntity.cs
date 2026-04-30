@@ -190,14 +190,14 @@ public class EnemyEntity : MonoBehaviour
     {
         if (m_IsInitialized)
         {
-            DebugEx.WarningModule("EnemyEntity", "已经初始化过了");
+            DebugEx.Warning("EnemyEntity", "已经初始化过了");
             return;
         }
 
         // 加载配置
         if (!LoadConfig())
         {
-            DebugEx.ErrorModule("EnemyEntity", $"加载配置失败: EntityConfigId={m_EntityConfigId}");
+            DebugEx.Error("EnemyEntity", $"加载配置失败: EntityConfigId={m_EntityConfigId}");
             return;
         }
 
@@ -231,7 +231,7 @@ public class EnemyEntity : MonoBehaviour
         // 从 EnemyTable 读取棋子列表并注册到 EnemyChessDataManager
         RegisterChessData();
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyEntity",
             $"初始化完成: {m_Config.Name}, 类型={m_EnemyType}, 可广播={m_Config.CanBroadcast}, 奖励等级={m_Config.RewardTier}"
         );
@@ -248,7 +248,7 @@ public class EnemyEntity : MonoBehaviour
         m_IsInCombat = true;
         m_NavAgent.isStopped = true;
 
-        DebugEx.LogModule("EnemyEntity", $"{m_Config.Name} 进入战斗状态");
+        DebugEx.Log("EnemyEntity", $"{m_Config.Name} 进入战斗状态");
     }
 
     /// <summary>
@@ -268,7 +268,7 @@ public class EnemyEntity : MonoBehaviour
         // 重置AI状态
         m_AI?.ResetToIdle();
 
-        DebugEx.LogModule("EnemyEntity", $"{m_Config.Name} 离开战斗状态");
+        DebugEx.Log("EnemyEntity", $"{m_Config.Name} 离开战斗状态");
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ public class EnemyEntity : MonoBehaviour
         EnemyStatus oldStatus = m_Status;
         m_Status = status;
 
-        DebugEx.LogModule("EnemyEntity", $"{m_Config.Name} 状态变更: {oldStatus} → {status}");
+        DebugEx.Log("EnemyEntity", $"{m_Config.Name} 状态变更: {oldStatus} → {status}");
 
         // 根据状态执行相应逻辑
         OnStatusChanged(oldStatus, status);
@@ -298,12 +298,12 @@ public class EnemyEntity : MonoBehaviour
             case EnemyStatus.Defeated:
                 // 被击败，切换到Defeated状态
                 m_AI?.ChangeState(EnemyAIState.Defeated);
-                DebugEx.LogModule("EnemyEntity", $"{m_Config.Name} 被击败");
+                DebugEx.Log("EnemyEntity", $"{m_Config.Name} 被击败");
                 break;
 
             case EnemyStatus.Purified:
                 // 已净化
-                DebugEx.LogModule("EnemyEntity", $"{m_Config.Name} 已净化");
+                DebugEx.Log("EnemyEntity", $"{m_Config.Name} 已净化");
                 break;
         }
     }
@@ -320,14 +320,14 @@ public class EnemyEntity : MonoBehaviour
         var enemyTable = GF.DataTable.GetDataTable<EnemyTable>();
         if (enemyTable == null)
         {
-            DebugEx.WarningModule("EnemyEntity", "EnemyTable 未加载，跳过棋子数据注册");
+            DebugEx.Warning("EnemyEntity", "EnemyTable 未加载，跳过棋子数据注册");
             return;
         }
 
         var enemyData = enemyTable.GetDataRow(m_Config.BattleConfigId);
         if (enemyData == null || enemyData.ChessIds == null || enemyData.ChessIds.Length == 0)
         {
-            DebugEx.WarningModule(
+            DebugEx.Warning(
                 "EnemyEntity",
                 $"EnemyTable 中未找到棋子数据: BattleConfigId={m_Config.BattleConfigId}"
             );
@@ -346,14 +346,14 @@ public class EnemyEntity : MonoBehaviour
                 var chessRow = chessTable.GetDataRow(chessId);
                 if (chessRow != null)
                 {
-                    maxHp = chessRow.MaxHp;
+                    maxHp = chessRow.GetMaxHp(1);
                 }
             }
 
             EnemyChessDataManager.Instance.Register(m_EntityGuid, i, chessId, maxHp);
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "EnemyEntity",
             $"已注册 {enemyData.ChessIds.Length} 个棋子到 EnemyChessDataManager (guid={m_EntityGuid})"
         );
@@ -367,14 +367,14 @@ public class EnemyEntity : MonoBehaviour
         var dataTable = GF.DataTable.GetDataTable<EnemyEntityTable>();
         if (dataTable == null)
         {
-            DebugEx.ErrorModule("EnemyEntity", "EnemyEntityTable 未加载");
+            DebugEx.Error("EnemyEntity", "EnemyEntityTable 未加载");
             return false;
         }
 
         m_Config = dataTable.GetDataRow(m_EntityConfigId);
         if (m_Config == null)
         {
-            DebugEx.ErrorModule("EnemyEntity", $"未找到配置: EntityConfigId={m_EntityConfigId}");
+            DebugEx.Error("EnemyEntity", $"未找到配置: EntityConfigId={m_EntityConfigId}");
             return false;
         }
 

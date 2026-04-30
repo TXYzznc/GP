@@ -36,7 +36,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (m_ItemUI == null)
         {
             DebugEx.Warning(
-                "InventorySlotUI",
+                this.GetType().Name,
                 $"格子 {gameObject.name} 找不到 InventoryItemUI 子组件！"
                     + $"请检查预制体层级：InventorySlotUI > InventoryItemUI"
             );
@@ -63,7 +63,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (container != null && container.ContainerType != ContainerType)
         {
             DebugEx.Warning(
-                "InventorySlotUI",
+                this.GetType().Name,
                 $"格子容器类型不匹配: ContainerType={ContainerType}, Container.Type={container.ContainerType}"
             );
         }
@@ -163,19 +163,19 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         var itemUI = GetItemUI();
         if (itemUI == null || !itemUI.HasItem())
         {
-            DebugEx.Warning("InventorySlotUI", $"[OnLeftClick] 格子 {SlotIndex} 无物品");
+            DebugEx.Warning(this.GetType().Name, $"[OnLeftClick] 格子 {SlotIndex} 无物品");
             return;
         }
 
         var itemStack = itemUI.GetItemStack();
         if (itemStack == null || itemStack.IsEmpty)
         {
-            DebugEx.Warning("InventorySlotUI", $"[OnLeftClick] 物品堆叠为空");
+            DebugEx.Warning(this.GetType().Name, $"[OnLeftClick] 物品堆叠为空");
             return;
         }
 
         DebugEx.Log(
-            "InventorySlotUI",
+            this.GetType().Name,
             $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}"
         );
 
@@ -192,19 +192,19 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         var itemUI = GetItemUI();
         if (itemUI == null || !itemUI.HasItem())
         {
-            DebugEx.Warning("InventorySlotUI", $"[OnRightClick] 格子 {SlotIndex} 无物品");
+            DebugEx.Warning(this.GetType().Name, $"[OnRightClick] 格子 {SlotIndex} 无物品");
             return;
         }
 
         var itemStack = itemUI.GetItemStack();
         if (itemStack == null || itemStack.IsEmpty)
         {
-            DebugEx.Warning("InventorySlotUI", $"[OnRightClick] 物品堆叠为空");
+            DebugEx.Warning(this.GetType().Name, $"[OnRightClick] 物品堆叠为空");
             return;
         }
 
         DebugEx.Log(
-            "InventorySlotUI",
+            this.GetType().Name,
             $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}"
         );
 
@@ -223,13 +223,13 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
                     {
                         treasureContainer.RemoveItem(SlotIndex, slot.Count);
                         DebugEx.Success(
-                            "InventorySlotUI",
+                            this.GetType().Name,
                             $"[OnRightClick] 宝箱物品快捷放入背包: {itemStack.Item.Name}"
                         );
                     }
                     else
                     {
-                        DebugEx.Warning("InventorySlotUI", "[OnRightClick] 背包已满，无法放入");
+                        DebugEx.Warning(this.GetType().Name, "[OnRightClick] 背包已满，无法放入");
                     }
                 }
             }
@@ -247,7 +247,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     {
         if (itemStack == null || itemStack.IsEmpty)
         {
-            DebugEx.Warning("InventorySlotUI", "[ShowItemDetailPanel] 物品堆叠为空");
+            DebugEx.Warning(this.GetType().Name, "[ShowItemDetailPanel] 物品堆叠为空");
             return;
         }
 
@@ -257,13 +257,13 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         {
             inventoryUI.ShowItemDetail(itemStack);
             DebugEx.Success(
-                "InventorySlotUI",
+                this.GetType().Name,
                 $"[ShowItemDetailPanel] 显示物品详情: {itemStack.Item.Name}"
             );
         }
         else
         {
-            DebugEx.Warning("InventorySlotUI", "[ShowItemDetailPanel] 无法获取 InventoryUI");
+            DebugEx.Warning(this.GetType().Name, "[ShowItemDetailPanel] 无法获取 InventoryUI");
         }
     }
 
@@ -279,7 +279,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     {
         if (itemStack == null || itemStack.IsEmpty)
         {
-            DebugEx.Warning("InventorySlotUI", "[ShowContextMenu] 物品堆叠为空");
+            DebugEx.Warning(this.GetType().Name, "[ShowContextMenu] 物品堆叠为空");
             return;
         }
 
@@ -289,7 +289,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         {
             inventoryUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
             DebugEx.Success(
-                "InventorySlotUI",
+                this.GetType().Name,
                 $"[ShowContextMenu] 显示上下文菜单（来自InventoryUI）: {itemStack.Item.Name}"
             );
             return;
@@ -301,7 +301,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         {
             warehouseUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
             DebugEx.Success(
-                "InventorySlotUI",
+                this.GetType().Name,
                 $"[ShowContextMenu] 显示上下文菜单（来自WarehouseUI）: {itemStack.Item.Name}"
             );
             return;
@@ -313,14 +313,14 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         {
             treasureBoxUI.ShowItemContextMenu(itemStack, slotIndex, slotRect);
             DebugEx.Success(
-                "InventorySlotUI",
+                this.GetType().Name,
                 $"[ShowContextMenu] 显示上下文菜单（来自TreasureBoxUI）: {itemStack.Item.Name}"
             );
             return;
         }
 
         DebugEx.Error(
-            "InventorySlotUI",
+            this.GetType().Name,
             "[ShowContextMenu] 无法获取 InventoryUI、WarehouseUI 或 TreasureBoxUI"
         );
     }

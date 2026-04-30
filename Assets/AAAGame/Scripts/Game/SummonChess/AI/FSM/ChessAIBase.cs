@@ -109,7 +109,7 @@ public abstract class ChessAIBase : IChessAI
         // 初始化技能释放策略
         InitSkillStrategy();
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"AI初始化完成 - {ctx.Entity.Config.Name}，初始状态: {m_CurrentState}"
         );
@@ -210,7 +210,7 @@ public abstract class ChessAIBase : IChessAI
         // 如果 CombatController 有玩家移动指令，AI 暂停工作
         if (m_Context.Entity.CombatController.HasPlayerMoveCommand)
         {
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "ChessAIBase",
                 $"CanExecuteAI=false: {m_Context.Entity.Config.Name} - 有玩家移动指令"
             );
@@ -260,7 +260,7 @@ public abstract class ChessAIBase : IChessAI
 
         if (m_SummoningTimer <= 0)
         {
-            DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 召唤完成");
+            DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 召唤完成");
             ChangeState(ChessAIState.Idle);
         }
     }
@@ -278,21 +278,21 @@ public abstract class ChessAIBase : IChessAI
         // 定期搜索目标
         if (m_TargetSearchTimer <= 0)
         {
-            DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 开始搜索目标...");
+            DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 开始搜索目标...");
 
             m_CurrentTarget = FindTarget();
             m_TargetSearchTimer = TARGET_SEARCH_INTERVAL;
 
             if (m_CurrentTarget != null)
             {
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 找到目标: {m_CurrentTarget.Config.Name}"
                 );
             }
             else
             {
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 未找到目标，继续待机"
                 );
@@ -305,7 +305,7 @@ public abstract class ChessAIBase : IChessAI
             // 优先级1：检查是否应该使用技能
             if (ShouldUseSkill())
             {
-                DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 决策: 使用技能");
+                DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 决策: 使用技能");
                 ChangeState(ChessAIState.UsingSkill);
                 return;
             }
@@ -313,7 +313,7 @@ public abstract class ChessAIBase : IChessAI
             // 优先级2：检查是否在攻击范围内
             if (IsInAttackRange(m_CurrentTarget))
             {
-                // DebugEx.LogModule(
+                // DebugEx.Log(
                 //     GetType().Name,
                 //     $"{m_Context.Entity.Config.Name} 决策: 进入攻击状态"
                 // );
@@ -322,7 +322,7 @@ public abstract class ChessAIBase : IChessAI
             }
 
             // 优先级3：需要移动到目标位置
-            DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 决策: 移动到目标");
+            DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 决策: 移动到目标");
             ChangeState(ChessAIState.Moving);
         }
     }
@@ -354,7 +354,7 @@ public abstract class ChessAIBase : IChessAI
         // 1. 检查目标有效性
         if (!IsTargetValid())
         {
-            DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
+            DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
             m_ShouldUseSkillAfterAttack = false; // 清除技能标记
             ChangeState(ChessAIState.Idle);
             return;
@@ -375,7 +375,7 @@ public abstract class ChessAIBase : IChessAI
                     if (!m_ShouldUseSkillAfterAttack)
                     {
                         m_ShouldUseSkillAfterAttack = true;
-                        DebugEx.LogModule(
+                        DebugEx.Log(
                             GetType().Name,
                             $"{m_Context.Entity.Config.Name} 攻击中满足技能条件，标记攻击结束后释放技能"
                         );
@@ -384,7 +384,7 @@ public abstract class ChessAIBase : IChessAI
                 // 如果不在攻击中，立即切换到技能状态
                 else
                 {
-                    DebugEx.LogModule(
+                    DebugEx.Log(
                         GetType().Name,
                         $"{m_Context.Entity.Config.Name} 满足技能条件，切换到使用技能"
                     );
@@ -403,7 +403,7 @@ public abstract class ChessAIBase : IChessAI
 
         if (distance > attackRange * ATTACK_RANGE_BUFFER)
         {
-            DebugEx.LogModule(
+            DebugEx.Log(
                 GetType().Name,
                 $"{m_Context.Entity.Config.Name} 目标超出范围，切换到移动"
             );
@@ -433,7 +433,7 @@ public abstract class ChessAIBase : IChessAI
         // 检查目标有效性
         if (!IsTargetValid())
         {
-            DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
+            DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
             ChangeState(ChessAIState.Idle);
             return;
         }
@@ -448,7 +448,7 @@ public abstract class ChessAIBase : IChessAI
             if (m_PendingSkillIndex == 2)
             {
                 m_Context.Entity.CombatController?.TriggerSkill2FromAI();
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 请求 Controller 执行大招"
                 );
@@ -456,7 +456,7 @@ public abstract class ChessAIBase : IChessAI
             else if (m_PendingSkillIndex == 1)
             {
                 m_Context.Entity.CombatController?.TriggerSkill1FromAI();
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 请求 Controller 执行技能1"
                 );
@@ -464,7 +464,7 @@ public abstract class ChessAIBase : IChessAI
             else
             {
                 // 异常情况：没有有效的技能索引
-                DebugEx.WarningModule(
+                DebugEx.Warning(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 技能索引无效: {m_PendingSkillIndex}"
                 );
@@ -503,7 +503,7 @@ public abstract class ChessAIBase : IChessAI
         m_PreviousState = oldState;
         m_CurrentState = newState;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"{m_Context.Entity.Config?.Name} 状态切换: {oldState} → {newState}"
         );
@@ -558,7 +558,7 @@ public abstract class ChessAIBase : IChessAI
                 // 进入死亡状态时清理所有状态
                 m_CurrentTarget = null;
                 m_Context.Entity.Movement?.Stop();
-                DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config?.Name} 进入死亡状态");
+                DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config?.Name} 进入死亡状态");
                 break;
         }
     }
@@ -805,7 +805,7 @@ public abstract class ChessAIBase : IChessAI
     {
         if (target == null || m_Context?.Entity == null)
         {
-            DebugEx.WarningModule(
+            DebugEx.Warning(
                 GetType().Name,
                 $"{m_Context?.Entity?.Config?.Name} 攻击目标为null"
             );
@@ -815,7 +815,7 @@ public abstract class ChessAIBase : IChessAI
         // 检查是否在攻击范围内
         if (!IsInAttackRange(target))
         {
-            DebugEx.WarningModule(
+            DebugEx.Warning(
                 GetType().Name,
                 $"{m_Context.Entity.Config.Name} 目标不在攻击范围内"
             );
@@ -838,7 +838,7 @@ public abstract class ChessAIBase : IChessAI
         float atkSpeed = (float)m_Context.Entity.Attribute.AtkSpeed;
         m_AttackCooldownTimer = 1.0f / atkSpeed;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"{m_Context.Entity.Config.Name} 发起攻击 → {target.Config.Name}，冷却: {m_AttackCooldownTimer:F2}秒"
         );
@@ -875,7 +875,7 @@ public abstract class ChessAIBase : IChessAI
 
         m_IsAttacking = false;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"{m_Context.Entity.Config.Name} 攻击动作完成，重置攻击标记"
         );
@@ -888,7 +888,7 @@ public abstract class ChessAIBase : IChessAI
             // 再次检查技能条件（可能在攻击过程中条件已不满足）
             if (ShouldUseSkill())
             {
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 攻击结束，切换到使用技能"
                 );
@@ -897,7 +897,7 @@ public abstract class ChessAIBase : IChessAI
             }
             else
             {
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 攻击结束，技能条件已不满足，继续攻击"
                 );
@@ -925,7 +925,7 @@ public abstract class ChessAIBase : IChessAI
         m_IsUsingSkill = false;
         m_PendingSkillIndex = 0; // 重置技能索引
 
-        DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 技能动画完成，返回待机");
+        DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 技能动画完成，返回待机");
 
         // 技能完成后返回待机，重新决策
         ChangeState(ChessAIState.Idle);
@@ -940,7 +940,7 @@ public abstract class ChessAIBase : IChessAI
     /// </summary>
     public virtual void ResetTargetAfterPlayerMove()
     {
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"{m_Context.Entity.Config.Name} 手动移动完成，开始立即索敌"
         );
@@ -953,14 +953,14 @@ public abstract class ChessAIBase : IChessAI
         m_ShouldUseSkillAfterAttack = false;
 
         // ⭐ 检查当前状态和CombatController状态
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"{m_Context.Entity.Config.Name} 当前AI状态: {m_CurrentState}"
         );
 
         if (m_Context.Entity.CombatController != null)
         {
-            DebugEx.LogModule(
+            DebugEx.Log(
                 GetType().Name,
                 $"{m_Context.Entity.Config.Name} CombatController状态: IsEnabled={m_Context.Entity.CombatController.IsEnabled}, "
                     + $"HasPlayerMoveCommand={m_Context.Entity.CombatController.HasPlayerMoveCommand}"
@@ -973,7 +973,7 @@ public abstract class ChessAIBase : IChessAI
         if (newTarget != null)
         {
             m_CurrentTarget = newTarget;
-            DebugEx.LogModule(
+            DebugEx.Log(
                 GetType().Name,
                 $"{m_Context.Entity.Config.Name} 立即索敌成功，目标: {newTarget.Config.Name}"
             );
@@ -988,20 +988,20 @@ public abstract class ChessAIBase : IChessAI
             if (distance <= attackRange)
             {
                 // 在攻击范围内，直接进入攻击状态
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 目标在攻击范围内(距离={distance:F2}, 范围={attackRange:F2})，直接攻击"
                 );
 
                 // ⭐ 在状态切换前后添加详细日志
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 准备切换到攻击状态，当前状态: {m_CurrentState}"
                 );
 
                 ChangeState(ChessAIState.Attacking);
 
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 状态切换完成，新状态: {m_CurrentState}"
                 );
@@ -1009,7 +1009,7 @@ public abstract class ChessAIBase : IChessAI
             else
             {
                 // 不在攻击范围内，先移动到合适位置
-                DebugEx.LogModule(
+                DebugEx.Log(
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 目标超出攻击范围(距离={distance:F2}, 范围={attackRange:F2})，开始移动"
                 );
@@ -1019,7 +1019,7 @@ public abstract class ChessAIBase : IChessAI
         else
         {
             // 没有找到目标，进入待机状态
-            DebugEx.LogModule(
+            DebugEx.Log(
                 GetType().Name,
                 $"{m_Context.Entity.Config.Name} 未找到有效目标，进入待机状态"
             );
@@ -1029,7 +1029,7 @@ public abstract class ChessAIBase : IChessAI
             m_TargetSearchTimer = 0f;
         }
 
-        DebugEx.LogModule(GetType().Name, $"{m_Context.Entity.Config.Name} 手动移动后索敌完成");
+        DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 手动移动后索敌完成");
     }
 
     #endregion

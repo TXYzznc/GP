@@ -45,7 +45,7 @@ public class EnemyAlertedByBroadcastState : IEnemyState
         // 立即更新路径
         UpdatePath();
 
-        DebugEx.LogModule("EnemyAlertedByBroadcastState",
+        DebugEx.Log(nameof(EnemyAlertedByBroadcastState),
             $"{m_AI.Entity.Config.Name} 收到广播，开始追击玩家！");
     }
 
@@ -53,7 +53,7 @@ public class EnemyAlertedByBroadcastState : IEnemyState
     {
         if (m_AI.PlayerTransform == null)
         {
-            DebugEx.WarningModule("EnemyAlertedByBroadcastState", "玩家丢失，返回巡逻");
+            DebugEx.Warning(nameof(EnemyAlertedByBroadcastState), "玩家丢失，返回巡逻");
             m_AI.ChangeState(EnemyAIState.Patrol);
             return;
         }
@@ -64,7 +64,7 @@ public class EnemyAlertedByBroadcastState : IEnemyState
         // 检查是否接近到战斗距离
         if (distanceToPlayer <= config.CombatDistance)
         {
-            DebugEx.LogModule("EnemyAlertedByBroadcastState",
+            DebugEx.Log(nameof(EnemyAlertedByBroadcastState),
                 $"{m_AI.Entity.Config.Name} 接近玩家，触发战斗！");
             TriggerCombat();
             return;
@@ -73,7 +73,7 @@ public class EnemyAlertedByBroadcastState : IEnemyState
         // 检查是否超出追击范围
         if (distanceToPlayer > config.ChaseDistance)
         {
-            DebugEx.LogModule("EnemyAlertedByBroadcastState",
+            DebugEx.Log(nameof(EnemyAlertedByBroadcastState),
                 $"{m_AI.Entity.Config.Name} 玩家逃离，放弃追击，清除目标");
 
             // 清除玩家检测状态
@@ -128,7 +128,7 @@ public class EnemyAlertedByBroadcastState : IEnemyState
         }
         else
         {
-            DebugEx.ErrorModule("EnemyAlertedByBroadcastState", "EnemyGroupManager 不存在！");
+            DebugEx.Error(nameof(EnemyAlertedByBroadcastState), "EnemyGroupManager 不存在！");
         }
     }
 

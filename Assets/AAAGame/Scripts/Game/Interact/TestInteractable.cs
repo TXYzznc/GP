@@ -20,6 +20,6 @@ public class TestInteractable : InteractableBase
     public override void OnInteract(GameObject player)
     {
         m_Used = true;
-        DebugEx.LogModule("TestInteractable", testMessage);
+        DebugEx.Log(nameof(TestInteractable), testMessage);
     }
 }

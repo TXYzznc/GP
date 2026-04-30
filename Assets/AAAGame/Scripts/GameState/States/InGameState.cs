@@ -47,20 +47,20 @@ public class InGameState : FsmState<GameStateManager>
     protected override void OnInit(IFsm<GameStateManager> fsm)
     {
         base.OnInit(fsm);
-        DebugEx.LogModule("InGameState", "初始化");
+        DebugEx.Log("InGameState", "初始化");
     }
 
     protected override void OnEnter(IFsm<GameStateManager> fsm)
     {
         base.OnEnter(fsm);
-        DebugEx.LogModule("InGameState", "进入局内状态");
+        DebugEx.Log("InGameState", "进入局内状态");
 
         // 初始化玩家运行时数据管理器
         PlayerRuntimeDataManager.Instance.Initialize();
 
         // ⭐ 新增：初始化棋子库存（进入局内时就加载备战阵容）
         ChessDeploymentTracker.Instance.Initialize();
-        DebugEx.LogModule("InGameState", "棋子库存已初始化");
+        DebugEx.Log("InGameState", "棋子库存已初始化");
 
         // ⭐ 新增：为所有棋子初始化全局状态（满血）
         // 这样在准备阶段选中棋子时已有全局状态，无需临时创建
@@ -71,7 +71,7 @@ public class InGameState : FsmState<GameStateManager>
 
         // ⭐ 保存进入局内时的背包快照
         InventoryManager.Instance?.CreateSnapshot();
-        DebugEx.LogModule("InGameState", "已创建背包快照");
+        DebugEx.Log("InGameState", "已创建背包快照");
 
         // ⭐ 创建账号数据快照（等级/经验/金币/背包等），用于异常退出时回滚
         PlayerAccountDataManager.Instance.CreateInGameSnapshot();
@@ -94,7 +94,7 @@ public class InGameState : FsmState<GameStateManager>
 
     protected override void OnLeave(IFsm<GameStateManager> fsm, bool isShutdown)
     {
-        DebugEx.LogModule("InGameState", "离开局内状态");
+        DebugEx.Log("InGameState", "离开局内状态");
 
         // 取消订阅战斗结束事件
         GF.Event.Unsubscribe(CombatEndEventArgs.EventId, OnCombatEnd);
@@ -122,7 +122,7 @@ public class InGameState : FsmState<GameStateManager>
 
     protected override void OnDestroy(IFsm<GameStateManager> fsm)
     {
-        DebugEx.LogModule("InGameState", "销毁");
+        DebugEx.Log("InGameState", "销毁");
         base.OnDestroy(fsm);
     }
 
@@ -136,12 +136,12 @@ public class InGameState : FsmState<GameStateManager>
     private void OnCombatEnd(object sender, GameEventArgs e)
     {
         CombatEndEventArgs eventArgs = (CombatEndEventArgs)e;
-        DebugEx.LogModule("InGameState", $"收到战斗结束事件 - {(eventArgs.IsVictory ? "胜利" : "失败")}");
+        DebugEx.Log("InGameState", $"收到战斗结束事件 - {(eventArgs.IsVictory ? "胜利" : "失败")}");
 
         // 如果已经不在战斗状态，忽略此事件（防止测试强制退出后重复触发）
         if (!(m_SubFsm?.CurrentState is CombatState))
         {
-            DebugEx.WarningModule("InGameState", "当前不在战斗状态，忽略战斗结束事件");
+            DebugEx.Warning("InGameState", "当前不在战斗状态，忽略战斗结束事件");
             return;
         }
 
@@ -171,7 +171,7 @@ public class InGameState : FsmState<GameStateManager>
     {
         if (m_SubFsm != null)
         {
-            DebugEx.WarningModule("InGameState", "子状态机已存在");
+            DebugEx.Warning("InGameState", "子状态机已存在");
             return;
         }
 
@@ -186,7 +186,7 @@ public class InGameState : FsmState<GameStateManager>
         // 创建子状态机
         m_SubFsm = GF.Fsm.CreateFsm(this, subStates);
 
-        DebugEx.LogModule("InGameState", "子状态机已创建");
+        DebugEx.Log("InGameState", "子状态机已创建");
     }
 
     /// <summary>
@@ -200,7 +200,7 @@ public class InGameState : FsmState<GameStateManager>
         GF.Fsm.DestroyFsm(m_SubFsm);
         m_SubFsm = null;
 
-        DebugEx.LogModule("InGameState", "子状态机已销毁");
+        DebugEx.Log("InGameState", "子状态机已销毁");
     }
 
     #endregion
@@ -214,11 +214,11 @@ public class InGameState : FsmState<GameStateManager>
     {
         if (m_SubFsm == null)
         {
-            DebugEx.ErrorModule("InGameState", "子状态机未初始化");
+            DebugEx.Error("InGameState", "子状态机未初始化");
             return;
         }
 
-        DebugEx.LogModule("InGameState", "切换到探索状态");
+        DebugEx.Log("InGameState", "切换到探索状态");
 
         // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
         if (!m_SubFsm.IsRunning)
@@ -238,11 +238,11 @@ public class InGameState : FsmState<GameStateManager>
     {
         if (m_SubFsm == null)
         {
-            DebugEx.ErrorModule("InGameState", "子状态机未初始化");
+            DebugEx.Error("InGameState", "子状态机未初始化");
             return;
         }
 
-        DebugEx.LogModule("InGameState", "切换到战斗准备状态");
+        DebugEx.Log("InGameState", "切换到战斗准备状态");
 
         if (!m_SubFsm.IsRunning)
         {
@@ -261,11 +261,11 @@ public class InGameState : FsmState<GameStateManager>
     {
         if (m_SubFsm == null)
         {
-            DebugEx.ErrorModule("InGameState", "子状态机未初始化");
+            DebugEx.Error("InGameState", "子状态机未初始化");
             return;
         }
 
-        DebugEx.LogModule("InGameState", "切换到战斗状态");
+        DebugEx.Log("InGameState", "切换到战斗状态");
 
         // 如果状态机未运行，使用 Start，否则使用反射调用 ChangeState
         if (!m_SubFsm.IsRunning)
@@ -291,7 +291,7 @@ public class InGameState : FsmState<GameStateManager>
         var allInstances = ChessDeploymentTracker.Instance.GetAllChessInstances();
         if (allInstances == null || allInstances.Count == 0)
         {
-            DebugEx.WarningModule("InGameState", "没有棋子实例，无法初始化全局状态");
+            DebugEx.Warning("InGameState", "没有棋子实例，无法初始化全局状态");
             return;
         }
 
@@ -303,13 +303,13 @@ public class InGameState : FsmState<GameStateManager>
                 // 如果还没注册过，就注册满血状态
                 if (GlobalChessManager.Instance.GetChessState(instance.ChessId) == null)
                 {
-                    GlobalChessManager.Instance.RegisterChess(instance.ChessId, config.MaxHp);
+                    GlobalChessManager.Instance.RegisterChess(instance.ChessId, config.GetMaxHp(1));
                     initializedCount++;
                 }
             }
         }
 
-        DebugEx.LogModule("InGameState", $"棋子全局状态初始化完成 - 共{initializedCount}个棋子");
+        DebugEx.Log("InGameState", $"棋子全局状态初始化完成 - 共{initializedCount}个棋子");
     }
 
     /// <summary>
@@ -330,7 +330,7 @@ public class InGameState : FsmState<GameStateManager>
         // InventoryManager 是 MonoBehaviour 单例，在 Awake 中自动初始化，无需手动调用
         WarehouseManager.Instance.Initialize(warehouseCapacity);
 
-        DebugEx.LogModule("InGameState", $"仓库初始化完成 - 容量:{warehouseCapacity}");
+        DebugEx.Log("InGameState", $"仓库初始化完成 - 容量:{warehouseCapacity}");
     }
 
     /// <summary>
@@ -367,16 +367,16 @@ public class InGameState : FsmState<GameStateManager>
                 // 调用方法
                 genericMethod.Invoke(m_SubFsm, null);
 
-                DebugEx.LogModule("InGameState", $"成功切换到子状态 {typeof(TState).Name}");
+                DebugEx.Log("InGameState", $"成功切换到子状态 {typeof(TState).Name}");
             }
             else
             {
-                DebugEx.ErrorModule("InGameState", "未找到 ChangeState<T>() 方法");
+                DebugEx.Error("InGameState", "未找到 ChangeState<T>() 方法");
             }
         }
         catch (System.Exception ex)
         {
-            DebugEx.ErrorModule("InGameState", $"切换子状态失败 - {ex.Message}");
+            DebugEx.Error("InGameState", $"切换子状态失败 - {ex.Message}");
         }
     }
 

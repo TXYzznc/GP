@@ -77,19 +77,19 @@ public static class ChessStateEvents
 
     internal static void FireGlobalChessHPChanged(int chessId, double oldHp, double newHp)
     {
-        DebugEx.LogModule("ChessStateEvents", $"全局HP变化 [{chessId}]: {oldHp:F0} → {newHp:F0}");
+        DebugEx.Log(nameof(ChessStateEvents), $"全局HP变化 [{chessId}]: {oldHp:F0} → {newHp:F0}");
         OnGlobalChessHPChanged?.Invoke(chessId, oldHp, newHp);
     }
 
     internal static void FireAllChessHPRestored()
     {
-        DebugEx.LogModule("ChessStateEvents", "触发：全体棋子血量恢复");
+        DebugEx.Log(nameof(ChessStateEvents), "触发：全体棋子血量恢复");
         OnAllChessHPRestored?.Invoke();
     }
 
     internal static void FireChessDied(ChessEntity chess)
     {
-        DebugEx.LogModule("ChessStateEvents", $"棋子死亡 [{chess?.ChessId}] Camp={chess?.Camp}");
+        DebugEx.Log(nameof(ChessStateEvents), $"棋子死亡 [{chess?.ChessId}] Camp={chess?.Camp}");
         OnChessDied?.Invoke(chess);
     }
 
@@ -100,19 +100,19 @@ public static class ChessStateEvents
 
     internal static void FireBuffAdded(int chessId, int buffId)
     {
-        DebugEx.LogModule("ChessStateEvents", $"Buff 添加 [{chessId}]: BuffId={buffId}");
+        DebugEx.Log(nameof(ChessStateEvents), $"Buff 添加 [{chessId}]: BuffId={buffId}");
         OnBuffAdded?.Invoke(chessId, buffId);
     }
 
     internal static void FireBuffRemoved(int chessId, int buffId)
     {
-        DebugEx.LogModule("ChessStateEvents", $"Buff 移除 [{chessId}]: BuffId={buffId}");
+        DebugEx.Log(nameof(ChessStateEvents), $"Buff 移除 [{chessId}]: BuffId={buffId}");
         OnBuffRemoved?.Invoke(chessId, buffId);
     }
 
     internal static void FireEquipmentChanged(int chessId, int slotIndex)
     {
-        DebugEx.LogModule("ChessStateEvents", $"装备变更 [{chessId}]: SlotIndex={slotIndex}");
+        DebugEx.Log(nameof(ChessStateEvents), $"装备变更 [{chessId}]: SlotIndex={slotIndex}");
         OnEquipmentChanged?.Invoke(chessId, slotIndex);
     }
 
@@ -134,7 +134,7 @@ public static class ChessStateEvents
         OnBuffRemoved = null;
         OnEquipmentChanged = null;
 
-        DebugEx.LogModule("ChessStateEvents", "所有事件订阅已清除");
+        DebugEx.Log(nameof(ChessStateEvents), "所有事件订阅已清除");
     }
 
     #endregion

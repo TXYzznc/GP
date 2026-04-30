@@ -56,21 +56,21 @@ public class EnemySpawnManager
         var dataTable = GF.DataTable.GetDataTable<EnemyTable>();
         if (dataTable == null)
         {
-            DebugEx.ErrorModule("EnemySpawnManager", "EnemyTable 数据表未加载");
+            DebugEx.Error("EnemySpawnManager", "EnemyTable 数据表未加载");
             return;
         }
 
         var enemyData = dataTable.GetDataRow(enemyTableId);
         if (enemyData == null)
         {
-            DebugEx.ErrorModule("EnemySpawnManager", $"未找到敌人配置 ID={enemyTableId}");
+            DebugEx.Error("EnemySpawnManager", $"未找到敌人配置 ID={enemyTableId}");
             return;
         }
 
         // 从 EnemyTable 读取配置
         if (enemyData.ChessIds == null || enemyData.ChessIds.Length == 0)
         {
-            DebugEx.WarningModule("EnemySpawnManager", "敌人配置中没有棋子数据");
+            DebugEx.Warning("EnemySpawnManager", "敌人配置中没有棋子数据");
             return;
         }
 
@@ -87,7 +87,7 @@ public class EnemySpawnManager
 
         m_CurrentEnemyGuid = enemyGuid;
 
-        DebugEx.LogModule("EnemySpawnManager",
+        DebugEx.Log("EnemySpawnManager",
             $"从 EnemyTable 加载配置: ID={enemyTableId}, Name={enemyData.EnemyName}, " +
             $"棋子数量={m_CurrentWave.EnemyChessIds.Count}, 阵型={m_CurrentWave.FormationType}, " +
             $"间距={m_CurrentWave.Spacing}");
@@ -117,7 +117,7 @@ public class EnemySpawnManager
             Spacing = spacing
         };
 
-        DebugEx.LogModule("EnemySpawnManager",
+        DebugEx.Log("EnemySpawnManager",
             $"手动设置敌人数据，数量={enemyChessIds.Count}");
     }
 
@@ -141,11 +141,11 @@ public class EnemySpawnManager
     {
         if (m_CurrentWave == null || m_CurrentWave.EnemyChessIds.Count == 0)
         {
-            DebugEx.WarningModule("EnemySpawnManager", "没有敌人数据，跳过生成");
+            DebugEx.Warning("EnemySpawnManager", "没有敌人数据，跳过生成");
             return;
         }
 
-        DebugEx.LogModule("EnemySpawnManager",
+        DebugEx.Log("EnemySpawnManager",
             $"开始生成敌人波次，数量={m_CurrentWave.EnemyChessIds.Count}");
 
         // 获取敌方区域中心点
@@ -175,7 +175,7 @@ public class EnemySpawnManager
             }
         }
 
-        DebugEx.LogModule("EnemySpawnManager",
+        DebugEx.Log("EnemySpawnManager",
             $"敌人波次生成完成，成功数量={m_SpawnedEnemies.Count}");
     }
 
@@ -189,19 +189,19 @@ public class EnemySpawnManager
     {
         if (SummonChessManager.Instance == null)
         {
-            DebugEx.ErrorModule("EnemySpawnManager", "SummonChessManager.Instance is null");
+            DebugEx.Error("EnemySpawnManager", "SummonChessManager.Instance is null");
             return null;
         }
 
         var entity = await SummonChessManager.Instance.SpawnChessAsync(chessId, position, ENEMY_CAMP);
         if (entity != null)
         {
-            DebugEx.LogModule("EnemySpawnManager",
+            DebugEx.Log("EnemySpawnManager",
                 $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}");
         }
         else
         {
-            DebugEx.ErrorModule("EnemySpawnManager", $"敌人生成失败 ID={chessId}");
+            DebugEx.Error("EnemySpawnManager", $"敌人生成失败 ID={chessId}");
         }
 
         return entity;
@@ -221,7 +221,7 @@ public class EnemySpawnManager
             }
         }
         m_SpawnedEnemies.Clear();
-        DebugEx.LogModule("EnemySpawnManager", "已销毁所有敌人");
+        DebugEx.Log("EnemySpawnManager", "已销毁所有敌人");
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ public class EnemySpawnManager
         m_CurrentWave = null;
         m_CurrentEnemyGuid = null;
         m_SpawnedEnemies.Clear();
-        DebugEx.LogModule("EnemySpawnManager", "已清理");
+        DebugEx.Log("EnemySpawnManager", "已清理");
     }
 
     #endregion
@@ -258,7 +258,7 @@ public class EnemySpawnManager
         if (state != null)
         {
             entity.Attribute.SetHp(state.CurrentHp);
-            DebugEx.LogModule("EnemySpawnManager",
+            DebugEx.Log("EnemySpawnManager",
                 $"敌方棋子 {chessId} 继承历史 HP={state.CurrentHp:F0}/{state.MaxHp:F0} (key={enemyKey})");
         }
     }

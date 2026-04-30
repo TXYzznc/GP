@@ -49,10 +49,10 @@ public class EquipSlotContainerImpl : SlotContainerBase
             if (oldItem != null)
             {
                 InventoryManager.Instance.AddItem(oldItem.ItemId, 1);
-                DebugEx.Log("EquipSlotContainer", $"旧装备 {oldItem.Name} 回到背包");
+                DebugEx.Log(nameof(EquipSlotContainerImpl), $"旧装备 {oldItem.Name} 回到背包");
             }
 
-            DebugEx.Log("EquipSlotContainer", $"装备 {equipItem.Name} → 棋子 {chessId} 槽位 {targetSlotIndex}");
+            DebugEx.Log(nameof(EquipSlotContainerImpl), $"装备 {equipItem.Name} → 棋子 {chessId} 槽位 {targetSlotIndex}");
             return true;
         }
 

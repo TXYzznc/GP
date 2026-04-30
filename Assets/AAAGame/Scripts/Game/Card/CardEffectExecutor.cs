@@ -42,7 +42,7 @@ public class CardEffectExecutor : MonoBehaviour
         m_EffectTypeMap[1006] = typeof(LifeDrainCardEffect);      // 生命汲取（联动逻辑复杂）
         m_EffectTypeMap[1012] = typeof(ResurrectionCardEffect);   // 不屈意志（状态依赖）
 
-        DebugEx.LogModule("CardEffectExecutor", "卡牌效果类型映射已初始化");
+        DebugEx.Log("CardEffectExecutor", "卡牌效果类型映射已初始化");
     }
 
     #endregion
@@ -56,7 +56,7 @@ public class CardEffectExecutor : MonoBehaviour
     {
         if (cardData == null)
         {
-            DebugEx.ErrorModule("CardEffectExecutor", "卡牌数据为空");
+            DebugEx.Error("CardEffectExecutor", "卡牌数据为空");
             return;
         }
 
@@ -70,7 +70,7 @@ public class CardEffectExecutor : MonoBehaviour
                 effectInstance = Activator.CreateInstance(effectType) as ICardEffect;
                 if (effectInstance == null)
                 {
-                    DebugEx.ErrorModule("CardEffectExecutor", $"无法创建效果实例: {effectType.Name}");
+                    DebugEx.Error("CardEffectExecutor", $"无法创建效果实例: {effectType.Name}");
                     return;
                 }
 
@@ -82,7 +82,7 @@ public class CardEffectExecutor : MonoBehaviour
                 var targetSelector = GetTargetSelector(cardData.CTargetType);
                 if (targetSelector == null)
                 {
-                    DebugEx.ErrorModule("CardEffectExecutor", $"未找到目标类型选择器: {cardData.CTargetType}");
+                    DebugEx.Error("CardEffectExecutor", $"未找到目标类型选择器: {cardData.CTargetType}");
                     return;
                 }
 
@@ -92,16 +92,16 @@ public class CardEffectExecutor : MonoBehaviour
 
             if (effectInstance == null)
             {
-                DebugEx.ErrorModule("CardEffectExecutor", $"无法创建效果实例: ID={cardData.CardId}");
+                DebugEx.Error("CardEffectExecutor", $"无法创建效果实例: ID={cardData.CardId}");
                 return;
             }
 
             effectInstance.Execute(targetPosition);
-            DebugEx.LogModule("CardEffectExecutor", $"执行卡牌效果: {cardData.CardId}");
+            DebugEx.Log("CardEffectExecutor", $"执行卡牌效果: {cardData.CardId}");
         }
         catch (Exception ex)
         {
-            DebugEx.ErrorModule("CardEffectExecutor", $"执行卡牌效果异常: {ex.Message}\n{ex.StackTrace}");
+            DebugEx.Error("CardEffectExecutor", $"执行卡牌效果异常: {ex.Message}\n{ex.StackTrace}");
         }
     }
 

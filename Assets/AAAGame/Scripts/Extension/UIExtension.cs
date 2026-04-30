@@ -39,7 +39,7 @@ public static class UIExtension
     {
         ResourceExtension.LoadSpriteAsync(configId, image, errorMsg =>
         {
-            DebugEx.ErrorModule("UIExtension", $"SetSpriteById failed: {errorMsg}");
+            DebugEx.Error(nameof(UIExtension), $"SetSpriteById failed: {errorMsg}");
         }, alpha, size);
 
         if (resize)

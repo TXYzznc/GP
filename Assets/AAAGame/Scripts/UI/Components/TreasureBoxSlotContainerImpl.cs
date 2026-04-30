@@ -76,7 +76,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
 
         if (initialItems == null || initialItems.Count == 0)
         {
-            DebugEx.Log("TreasureBoxContainer", "宝箱初始化为空");
+            DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), "宝箱初始化为空");
             NotifyAllSlotsChanged();
             return;
         }
@@ -93,7 +93,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
             }
         }
 
-        DebugEx.Log("TreasureBoxContainer", $"宝箱初始化完成，物品数={itemCount}");
+        DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"宝箱初始化完成，物品数={itemCount}");
         NotifyAllSlotsChanged();
     }
 
@@ -381,7 +381,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                 // 目标格子为空，直接存入
                 m_Slots[targetSlotIndex] = new InventoryItem(itemId, count, 0, targetSlotIndex);
                 DebugEx.Log(
-                    "TreasureBoxContainer",
+                    nameof(TreasureBoxSlotContainerImpl),
                     $"物品直接存入格子: ID={itemId}, 数量={count}, 格子={targetSlotIndex}"
                 );
                 NotifySlotChanged(targetSlotIndex, SlotChangeType.Add, 0, count, itemId);
@@ -456,7 +456,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
             }
         }
 
-        DebugEx.Warning("TreasureBoxContainer", "宝箱已满");
+        DebugEx.Warning(nameof(TreasureBoxSlotContainerImpl), "宝箱已满");
         return false;
     }
 
@@ -507,7 +507,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                         if (accountManager != null)
                         {
                             accountManager.AddGold(item.Count);
-                            DebugEx.Log("TreasureBoxContainer", $"金币 x{item.Count} → 账号资源");
+                            DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"金币 x{item.Count} → 账号资源");
                         }
                         m_Slots[i] = null;
                         successCount++;
@@ -517,7 +517,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                         if (accountManager != null)
                         {
                             accountManager.AddOriginStone(item.Count);
-                            DebugEx.Log("TreasureBoxContainer", $"起源石 x{item.Count} → 账号资源");
+                            DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"起源石 x{item.Count} → 账号资源");
                         }
                         m_Slots[i] = null;
                         successCount++;
@@ -525,7 +525,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
 
                     case InventoryManager.VIRTUAL_ITEM_SPIRIT_STONE:
                         // 灵石直接删除（局内货币）
-                        DebugEx.Log("TreasureBoxContainer", $"灵石 x{item.Count} → 删除（局内货币）");
+                        DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"灵石 x{item.Count} → 删除（局内货币）");
                         m_Slots[i] = null;
                         successCount++;
                         break;
@@ -541,7 +541,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
                         }
                         else
                         {
-                            DebugEx.Warning("TreasureBoxContainer", "背包已满，剩余物品无法全部放入");
+                            DebugEx.Warning(nameof(TreasureBoxSlotContainerImpl), "背包已满，剩余物品无法全部放入");
                             goto EXIT_LOOP;
                         }
                         break;
@@ -550,7 +550,7 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
         }
 
 EXIT_LOOP:
-        DebugEx.Log("TreasureBoxContainer", $"全部拿走: 成功 {successCount} 件");
+        DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"全部拿走: 成功 {successCount} 件");
         NotifyAllSlotsChanged();
         return successCount;
     }

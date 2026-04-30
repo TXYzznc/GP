@@ -17,7 +17,7 @@ public class ChangeSkill1 : ChessSkillBase
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
-        DebugEx.LogModule("ChangeSkill1", "朔月飞轮初始化完成");
+        DebugEx.Log(nameof(ChangeSkill1), "朔月飞轮初始化完成");
     }
 
     public override bool TryCast()
@@ -25,8 +25,8 @@ public class ChangeSkill1 : ChessSkillBase
         if (!base.TryCast())
             return false;
 
-        DebugEx.LogModule(
-            "ChangeSkill1",
+        DebugEx.Log(
+            nameof(ChangeSkill1),
             $"朔月飞轮释放! 消耗MP={m_Config.MpCost}, 冷却={m_Config.Cooldown}秒"
         );
 
@@ -40,7 +40,7 @@ public class ChangeSkill1 : ChessSkillBase
     {
         if (caster == null)
         {
-            DebugEx.ErrorModule("ChangeSkill1", "ExecuteSkill: caster 为 null");
+            DebugEx.Error(nameof(ChangeSkill1), "ExecuteSkill: caster 为 null");
             return;
         }
 
@@ -48,15 +48,15 @@ public class ChangeSkill1 : ChessSkillBase
         ChessEntity target = FindNearestEnemy(caster);
         if (target == null)
         {
-            DebugEx.WarningModule("ChangeSkill1", "未找到目标");
+            DebugEx.Warning(nameof(ChangeSkill1), "未找到目标");
             return;
         }
 
         // 2. 计算伤害
         double damage = CalculateDamage(caster, out bool isCritical);
 
-        DebugEx.LogModule(
-            "ChangeSkill1",
+        DebugEx.Log(
+            nameof(ChangeSkill1),
             $"朔月飞轮伤害: {damage:F1}{(isCritical ? " (暴击)" : "")}"
         );
 
@@ -91,8 +91,8 @@ public class ChangeSkill1 : ChessSkillBase
         IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.Projectile);
         detector.Execute(context);
 
-        DebugEx.LogModule(
-            "ChangeSkill1",
+        DebugEx.Log(
+            nameof(ChangeSkill1),
             $"朔月飞轮发射完成: 目标={target.Config?.Name}, 命中次数={m_Config.HitCount}"
         );
     }
@@ -109,8 +109,8 @@ public class ChangeSkill1 : ChessSkillBase
         if (target == null)
             return;
 
-        DebugEx.LogModule(
-            "ChangeSkill1",
+        DebugEx.Log(
+            nameof(ChangeSkill1),
             $"朔月飞轮命中: {target.Config?.Name}, 伤害={damage:F1}{(isCritical ? " (暴击)" : "")}"
         );
     }

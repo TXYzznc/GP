@@ -49,25 +49,30 @@ public class GameProcedure : ProcedureBase
         // GF.UI.OpenUIForm(UIViews.GameUIForm);
         // 建议：先生成后再加载，生成角色
 
-        // 0. 初始化物品效果工厂
+        // 0. 加载日志配置（仅编辑器模式）
+#if UNITY_EDITOR
+        LoadLogConfig();
+#endif
+
+        // 1. 初始化物品效果工厂
         ItemEffectFactory.RegisterAll();
 
-        // 1. 先实例化技能管理器（在场景中）
+        // 2. 先实例化技能管理器（在场景中）
         InitializeSkillManager();
 
-        // 2. 初始化卡牌系统（动态添加 CardManager）
+        // 3. 初始化卡牌系统（动态添加 CardManager）
         InitializeCardSystem();
 
-        // 3. 初始化战斗特效系统
+        // 4. 初始化战斗特效系统
         InitializeCombatVFXSystem();
 
-        // 4. 初始化场景生成管理器（根据当前地图 ID 生成敌人/宝箱）
+        // 5. 初始化场景生成管理器（根据当前地图 ID 生成敌人/宝箱）
         InitializeSceneSpawnManager();
 
-        // 5. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
+        // 6. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
         OpenGameUIs();
 
-        // 6. 最后生成角色
+        // 7. 最后生成角色
         PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
 
         Log.Info("GameProcedure 初始化完成");
@@ -382,13 +387,13 @@ public class GameProcedure : ProcedureBase
         {
             detector = playerCharacter.AddComponent<CombatOpportunityDetector>();
             Log.Info("GameProcedure: 动态添加 CombatOpportunityDetector 到玩家角色");
-            DebugEx.WarningModule("GameProcedure",
+            DebugEx.Warning(nameof(GameProcedure),
                 "<color=red>[诊断] ⚠️ CombatOpportunityDetector 是动态 AddComponent 的！" +
                 "SerializeField（如 EnemyLayerMask）不会有值！需要手动设置或在预制体上预先挂载。</color>");
         }
         else
         {
-            DebugEx.LogModule("GameProcedure",
+            DebugEx.Log(nameof(GameProcedure),
                 "<color=cyan>[诊断] CombatOpportunityDetector 已在预制体上存在</color>");
         }
 
@@ -397,7 +402,7 @@ public class GameProcedure : ProcedureBase
         Log.Info("GameProcedure: 玩家角色的CombatOpportunityDetector已初始化");
 
         // 诊断：输出玩家角色信息
-        DebugEx.LogModule("GameProcedure",
+        DebugEx.Log(nameof(GameProcedure),
             $"<color=cyan>[诊断] 玩家角色: {playerCharacter.name}, " +
             $"Layer={LayerMask.LayerToName(playerCharacter.layer)}({playerCharacter.layer}), " +
             $"Position={playerCharacter.transform.position}</color>");
@@ -521,6 +526,25 @@ public class GameProcedure : ProcedureBase
             // 在状态切换时，它们会根据订阅的事件自动显示/隐藏
         }
     }
+
+    /// <summary>
+    /// 加载日志配置并应用到 DebugEx（仅编辑器模式）
+    /// </summary>
+#if UNITY_EDITOR
+    private void LoadLogConfig()
+    {
+        var config = LogConfigManager.LoadConfigFromFile();
+        if (config.Count > 0)
+        {
+            DebugEx.SetAllScriptLogEnabled(config);
+            Log.Info($"GameProcedure: 已加载日志配置，共 {config.Count} 个脚本");
+        }
+        else
+        {
+            Log.Info("GameProcedure: 未找到日志配置文件，使用默认设置");
+        }
+    }
+#endif
 
     #endregion
 }

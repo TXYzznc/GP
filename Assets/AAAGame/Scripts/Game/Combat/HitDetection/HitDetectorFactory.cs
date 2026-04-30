@@ -62,7 +62,7 @@ public static class HitDetectorFactory
                 return new RaycastHitDetector();
 
             default:
-                DebugEx.WarningModule("HitDetectorFactory", $"未知的攻击类型: {hitType}，使用瞬发检测器");
+                DebugEx.Warning("HitDetectorFactory", $"未知的攻击类型: {hitType}，使用瞬发检测器");
                 return new InstantHitDetector();
         }
     }

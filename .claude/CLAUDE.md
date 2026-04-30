@@ -110,7 +110,26 @@
   - Prefab 创建与 UI 层级搭建
   - Variables 脚本生成（`UIVariables/`、`UIItemVariables/` 由工具生成）
   - 正确顺序：**用户先定义 Prefab/配置表 → 工具生成 Variables/DataTable → 再编写对应逻辑脚本**
-- 输出日志使用DebugEX类中的方法
+- 输出日志使用DebugEx类中的方法
+
+## DebugEx 日志调用方式
+
+**正确的方法**（在 `Assets/AAAGame/Scripts/Utils/DebugEx.cs` 中定义）：
+```csharp
+DebugEx.Log(scriptName, message);          // 普通日志
+DebugEx.Warning(scriptName, message);      // 警告日志
+DebugEx.Error(scriptName, message);        // 错误日志
+DebugEx.Success(scriptName, message);      // 成功日志（绿色）
+DebugEx.Fail(scriptName, message);         // 失败日志（红色）
+```
+
+**使用示例**：
+```csharp
+DebugEx.Log("ChessEXPManager", $"击败敌方棋子 [{deadChess.ChessId}]，奖励 +{expReward} EXP");
+DebugEx.Error("ChessEXPManager", $"❌ 棋子 {chess.Config.Name} 没有 ChessEXPComponent");
+```
+
+**注意**：❌ 不存在 `LogModule`、`WarningModule` 等方法，第一参数始终是脚本名称字符串
 
 ### 文档存放路径
 - **统一目录** - 所有 AI 生成的 .md 文档必须保存到 `项目知识库（AI自行维护）/` 文件夹

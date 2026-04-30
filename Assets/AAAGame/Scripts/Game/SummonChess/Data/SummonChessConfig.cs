@@ -14,7 +14,7 @@ public class SummonChessConfig
     public string Name; // 棋子名称
     public int Quality; // 品质（1-4：白、绿、蓝、紫）
     public int PopCost; // 人口消耗
-    public string Description; // 描述
+    public string[] Description; // 描述（按等级 1-3）
     #endregion
 
     #region 种族与职业
@@ -23,42 +23,36 @@ public class SummonChessConfig
     public int[] Classes; // 职业ID数组
     #endregion
 
-    #region 星级系统
+    #region 资源ID（按等级）
 
-    public int StarLevel; // 星级（1-3）
-    public int NextStarId; // 下一星级ID（0表示无法升星）
+    public int[] PrefabId; // 预制体资源ID（按等级 1-3）
+    public int[] IconId; // 图标资源ID（按等级 1-3）
     #endregion
 
-    #region 资源ID
+    #region 基础数值（按等级）
 
-    public int PrefabId; // 预制体资源ID
-    public int IconId; // 图标资源ID
+    public double[] MaxHp; // 最大生命值（按等级 1-3）
+    public double[] MaxMp; // 最大法力值（按等级 1-3）
+    public double[] InitialMp; // 初始法力值（按等级 1-3）
+    public double[] AtkDamage; // 攻击力（按等级 1-3）
+    public double[] AtkSpeed; // 攻击速度（按等级 1-3）
+    public double[] AtkRange; // 攻击范围（按等级 1-3）
+    public double[] Armor; // 护甲（按等级 1-3）
+    public double[] MagicResist; // 魔抗（按等级 1-3）
+    public double MoveSpeed; // 移动速度（不变等级）
+    public double[] CritRate; // 暴击率（按等级 1-3）
+    public double[] CritDamage; // 暴击伤害倍率（按等级 1-3）
+    public double[] SpellPower; // 法术强度（按等级 1-3）
+    public double Shield; // 初始护盾值（不变等级）
+    public double CooldownReduce; // 冷却缩减百分比（不变等级）
     #endregion
 
-    #region 基础数值
+    #region 技能与AI（按等级）
 
-    public double MaxHp; // 最大生命值
-    public double MaxMp; // 最大法力值
-    public double InitialMp; // 初始法力值
-    public double AtkDamage; // 攻击力
-    public double AtkSpeed; // 攻击速度
-    public double AtkRange; // 攻击范围
-    public double Armor; // 护甲
-    public double MagicResist; // 魔抗
-    public double MoveSpeed; // 移动速度
-    public double CritRate; // 暴击率
-    public double CritDamage; // 暴击伤害倍率
-    public double SpellPower; // 法术强度
-    public double Shield; // 初始护盾值
-    public double CooldownReduce; // 冷却缩减百分比
-    #endregion
-
-    #region 技能与AI
-
-    public int[] PassiveIds; // 被动技能ID数组
-    public int NormalAtkId; // 普攻效果配置ID
-    public int Skill1Id; // 技能一ID（0=无）
-    public int Skill2Id; // 技能二/大招ID（0=无）
+    public int[] PassiveIds; // 被动技能ID数组（按等级 1-3）
+    public int[] NormalAtkId; // 普攻效果配置ID（按等级 1-3）
+    public int[] Skill1Id; // 技能一ID（按等级 1-3）
+    public int[] Skill2Id; // 技能二/大招ID（按等级 1-3）
     public int AIType; // AI类型（1=近战，2=远程）
     public int AttackHitType; // 普攻命中检测类型（0=瞬间，1=近战，2=投射物，3=AOE，4=射线）
     public int ProjectilePrefabId; // 投射物预制体ID（AttackHitType=2时使用）
@@ -94,47 +88,40 @@ public class SummonChessConfig
             return false;
         }
 
-        // 验证星级
-        if (StarLevel < 1 || StarLevel > 3)
-        {
-            errorMsg = $"Invalid StarLevel: {StarLevel} for Id: {Id}";
-            return false;
-        }
-
         // 验证数值
-        if (MaxHp <= 0)
+        if (MaxHp == null || MaxHp.Length == 0 || MaxHp[0] <= 0)
         {
             errorMsg = $"Invalid MaxHp: {MaxHp} for Id: {Id}";
             return false;
         }
 
-        if (MaxMp < 0)
+        if (MaxMp == null || MaxMp.Length == 0 || MaxMp[0] < 0)
         {
-            errorMsg = $"Invalid MaxMp: {MaxMp} for Id: {Id}";
+            errorMsg = $"Invalid MaxMp for Id: {Id}";
             return false;
         }
 
-        if (InitialMp < 0 || InitialMp > MaxMp)
+        if (InitialMp == null || InitialMp.Length == 0 || InitialMp[0] < 0 || InitialMp[0] > MaxMp[0])
         {
-            errorMsg = $"Invalid InitialMp: {InitialMp} (MaxMp: {MaxMp}) for Id: {Id}";
+            errorMsg = $"Invalid InitialMp for Id: {Id}";
             return false;
         }
 
-        if (AtkDamage < 0)
+        if (AtkDamage == null || AtkDamage.Length == 0 || AtkDamage[0] < 0)
         {
-            errorMsg = $"Invalid AtkDamage: {AtkDamage} for Id: {Id}";
+            errorMsg = $"Invalid AtkDamage for Id: {Id}";
             return false;
         }
 
-        if (AtkSpeed <= 0)
+        if (AtkSpeed == null || AtkSpeed.Length == 0 || AtkSpeed[0] <= 0)
         {
-            errorMsg = $"Invalid AtkSpeed: {AtkSpeed} for Id: {Id}";
+            errorMsg = $"Invalid AtkSpeed for Id: {Id}";
             return false;
         }
 
-        if (AtkRange <= 0)
+        if (AtkRange == null || AtkRange.Length == 0 || AtkRange[0] <= 0)
         {
-            errorMsg = $"Invalid AtkRange: {AtkRange} for Id: {Id}";
+            errorMsg = $"Invalid AtkRange for Id: {Id}";
             return false;
         }
 
@@ -144,21 +131,21 @@ public class SummonChessConfig
             return false;
         }
 
-        if (CritRate < 0 || CritRate > 1)
+        if (CritRate == null || CritRate.Length == 0 || CritRate[0] < 0 || CritRate[0] > 1)
         {
-            errorMsg = $"Invalid CritRate: {CritRate} for Id: {Id}";
+            errorMsg = $"Invalid CritRate for Id: {Id}";
             return false;
         }
 
-        if (CritDamage < 1)
+        if (CritDamage == null || CritDamage.Length == 0 || CritDamage[0] < 1)
         {
-            errorMsg = $"Invalid CritDamage: {CritDamage} for Id: {Id} (should >= 1.0)";
+            errorMsg = $"Invalid CritDamage for Id: {Id}";
             return false;
         }
 
-        if (SpellPower < 0)
+        if (SpellPower == null || SpellPower.Length == 0 || SpellPower[0] < 0)
         {
-            errorMsg = $"Invalid SpellPower: {SpellPower} for Id: {Id}";
+            errorMsg = $"Invalid SpellPower for Id: {Id}";
             return false;
         }
 

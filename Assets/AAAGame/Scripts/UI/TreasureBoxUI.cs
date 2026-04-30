@@ -439,7 +439,7 @@ public partial class TreasureBoxUI : UIFormBase
             }
         }
         sb.AppendLine($"物品总数: {totalItems}");
-        DebugEx.LogModule("TreasureBoxUI", sb.ToString());
+        DebugEx.Log("TreasureBoxUI", sb.ToString());
     }
 
     #endregion

@@ -139,8 +139,8 @@ namespace GameExtension
                             targetImage.transform.localScale = size.Value;
                         }
 
-                        DebugEx.LogModule(
-                            "ResourceExtension",
+                        DebugEx.Log(
+                            nameof(ResourceExtension),
                             $"加载Sprite到Image成功: configId={configId}, alpha={alpha}, scale={targetImage.transform.localScale}"
                         );
                     }
@@ -240,8 +240,8 @@ namespace GameExtension
                     targetImage.transform.localScale = size.Value;
                 }
 
-                DebugEx.LogModule(
-                    "ResourceExtension",
+                DebugEx.Log(
+                    nameof(ResourceExtension),
                     $"加载Sprite到Image成功（UniTask）: configId={configId}, alpha={alpha}, scale={targetImage.transform.localScale}"
                 );
             }

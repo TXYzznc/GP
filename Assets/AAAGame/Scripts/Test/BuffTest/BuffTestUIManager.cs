@@ -116,7 +116,7 @@ public class BuffTestUIManager : MonoBehaviour
         // 创建关闭按钮
         CreateCloseButton(panelGO);
 
-        DebugEx.LogModule("BuffTestUIManager", "UI 创建完成");
+        DebugEx.Log("BuffTestUIManager", "UI 创建完成");
     }
 
     /// <summary>
@@ -466,7 +466,7 @@ public class BuffTestUIManager : MonoBehaviour
     {
         if (m_CurrentTarget == null)
         {
-            DebugEx.WarningModule("BuffTestUIManager", "请先选择目标");
+            DebugEx.Warning("BuffTestUIManager", "请先选择目标");
             return;
         }
 
@@ -489,7 +489,7 @@ public class BuffTestUIManager : MonoBehaviour
     {
         if (m_CurrentTarget == null)
         {
-            DebugEx.WarningModule("BuffTestUIManager", "请先选择目标");
+            DebugEx.Warning("BuffTestUIManager", "请先选择目标");
             return;
         }
 
@@ -505,7 +505,7 @@ public class BuffTestUIManager : MonoBehaviour
     {
         if (m_CurrentTarget == null)
         {
-            DebugEx.WarningModule("BuffTestUIManager", "请先选择目标");
+            DebugEx.Warning("BuffTestUIManager", "请先选择目标");
             return;
         }
 
@@ -542,7 +542,7 @@ public class BuffTestUIManager : MonoBehaviour
 
         if (target != null)
         {
-            DebugEx.LogModule("BuffTestUIManager", $"设置测试目标: {target.name}");
+            DebugEx.Log("BuffTestUIManager", $"设置测试目标: {target.name}");
         }
     }
 
@@ -558,7 +558,7 @@ public class BuffTestUIManager : MonoBehaviour
             m_UIRoot.SetActive(m_IsUIVisible);
         }
 
-        DebugEx.LogModule("BuffTestUIManager", $"UI 已{(m_IsUIVisible ? "打开" : "关闭")}");
+        DebugEx.Log("BuffTestUIManager", $"UI 已{(m_IsUIVisible ? "打开" : "关闭")}");
     }
 
     /// <summary>

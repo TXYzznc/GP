@@ -64,7 +64,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         if (m_SourceSlot == null)
         {
-            DebugEx.Warning("DragHandler", $"[OnBeginDrag] 无法找到 InventorySlotUI (GameObject={gameObject.name})");
+            DebugEx.Warning(nameof(InventoryDragHandler), $"[OnBeginDrag] 无法找到 InventorySlotUI (GameObject={gameObject.name})");
             return;
         }
 
@@ -82,7 +82,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             return;
         }
 
-        DebugEx.Log("DragHandler", $"[OnBeginDrag] 开始拖拽: 容器={m_SourceSlot.ContainerType} 格子={m_SourceSlot.SlotIndex}");
+        DebugEx.Log(nameof(InventoryDragHandler), $"[OnBeginDrag] 开始拖拽: 容器={m_SourceSlot.ContainerType} 格子={m_SourceSlot.SlotIndex}");
         CreateDragIcon();
 
         // 检测是否为装备物品（仅 Equip 容器支持拖拽到 3D 棋子）
@@ -90,7 +90,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         m_IsDraggingEquipment = item is EquipmentItem && m_SourceSlot.ContainerType == SlotContainerType.Equip;
         if (m_IsDraggingEquipment)
         {
-            DebugEx.LogModule("DragHandler", $"拖拽装备: {item.Name}");
+            DebugEx.Log(nameof(InventoryDragHandler), $"拖拽装备: {item.Name}");
         }
     }
 
@@ -137,7 +137,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         var targetSlot = GetTargetSlot(eventData.position);
         if (targetSlot != null && targetSlot != m_SourceSlot)
         {
-            DebugEx.Log("DragHandler", $"[OnEndDrag] 执行拖放 源={m_SourceSlot.ContainerType}/{m_SourceSlot.SlotIndex} → 目标={targetSlot.ContainerType}/{targetSlot.SlotIndex}");
+            DebugEx.Log(nameof(InventoryDragHandler), $"[OnEndDrag] 执行拖放 源={m_SourceSlot.ContainerType}/{m_SourceSlot.SlotIndex} → 目标={targetSlot.ContainerType}/{targetSlot.SlotIndex}");
             HandleDrop(m_SourceSlot, targetSlot);
         }
 
@@ -214,7 +214,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         if (slotIndex < 0)
         {
-            DebugEx.WarningModule("DragHandler", $"棋子 {chessId} 装备槽已满");
+            DebugEx.Warning(nameof(InventoryDragHandler), $"棋子 {chessId} 装备槽已满");
             return;
         }
 
@@ -224,7 +224,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         // 从背包移除
         InventoryManager.Instance.RemoveItem(equipItem.ItemId, 1);
 
-        DebugEx.LogModule("DragHandler", $"装备 {equipItem.Name} → 棋子 {chessId} 槽位 {slotIndex}");
+        DebugEx.Log(nameof(InventoryDragHandler), $"装备 {equipItem.Name} → 棋子 {chessId} 槽位 {slotIndex}");
     }
 
     /// <summary>
@@ -295,21 +295,21 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
     {
         if (src.SlotContainer == null || dst.SlotContainer == null)
         {
-            DebugEx.Warning("DragHandler", "[HandleDrop] 源或目标容器为 null");
+            DebugEx.Warning(nameof(InventoryDragHandler), "[HandleDrop] 源或目标容器为 null");
             return;
         }
 
-        DebugEx.Log("DragHandler", $"[HandleDrop] 拖放: {src.ContainerType}/{src.SlotIndex} → {dst.ContainerType}/{dst.SlotIndex}");
+        DebugEx.Log(nameof(InventoryDragHandler), $"[HandleDrop] 拖放: {src.ContainerType}/{src.SlotIndex} → {dst.ContainerType}/{dst.SlotIndex}");
 
         bool success = src.SlotContainer.TryMoveToContainer(src.SlotIndex, dst.SlotContainer, dst.SlotIndex);
 
         if (success)
         {
-            DebugEx.Log("DragHandler", "[HandleDrop] 拖放成功");
+            DebugEx.Log(nameof(InventoryDragHandler), "[HandleDrop] 拖放成功");
         }
         else
         {
-            DebugEx.Warning("DragHandler", $"[HandleDrop] 拖放失败: {src.ContainerType} → {dst.ContainerType}");
+            DebugEx.Warning(nameof(InventoryDragHandler), $"[HandleDrop] 拖放失败: {src.ContainerType} → {dst.ContainerType}");
         }
     }
 
@@ -363,7 +363,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             var slot = r.gameObject.GetComponent<InventorySlotUI>();
             if (slot != null)
             {
-                DebugEx.Log("DragHandler", $"[GetTargetSlot] 找到目标格子: 容器={slot.ContainerType} 格子={slot.SlotIndex}");
+                DebugEx.Log(nameof(InventoryDragHandler), $"[GetTargetSlot] 找到目标格子: 容器={slot.ContainerType} 格子={slot.SlotIndex}");
                 return slot;
             }
         }

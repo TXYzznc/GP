@@ -1,4 +1,4 @@
-﻿//---------------------------------
+//---------------------------------
 //此文件由工具自动生成,请勿手动修改
 //更新自:DESKTOP-7JQ11GM
 //---------------------------------
@@ -13,4 +13,6 @@ public partial class SettlementUIForm
 	[SerializeField] private TextMeshProUGUI varExperienceText = null;
 	[SerializeField] private TextMeshProUGUI varCurrencyText = null;
 	[SerializeField] private Button varCloseButton = null;
+	[SerializeField] private GridLayoutGroup varContent = null;
+	[SerializeField] private GameObject varAwardItemUI = null;
 }

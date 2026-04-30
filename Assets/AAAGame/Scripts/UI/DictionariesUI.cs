@@ -102,8 +102,8 @@ public partial class DictionariesUI : UIFormBase
             if (varText0Arr != null && i < varText0Arr.Length && varText0Arr[i] != null)
             {
                 varText0Arr[i].text = CategoryConfig[i].Name;
-                DebugEx.LogModule(
-                    "DictionariesUI",
+                DebugEx.Log(
+                    this.GetType().Name,
                     $"设置分类按钮 {i} 名称: {CategoryConfig[i].Name}"
                 );
             }
@@ -153,7 +153,7 @@ public partial class DictionariesUI : UIFormBase
                 int total = DictionaryManager.Instance.GetTotalCount(cat);
                 varText_CatCount_0Arr[i].text = $"{unlocked}/{total}";
 
-                DebugEx.LogModule("DictionariesUI", $"更新分类 {i} 进度: {unlocked}/{total}");
+                DebugEx.Log(this.GetType().Name, $"更新分类 {i} 进度: {unlocked}/{total}");
             }
         }
 
@@ -181,7 +181,7 @@ public partial class DictionariesUI : UIFormBase
 
         if (varSlotTemplate == null || varItemContent == null)
         {
-            DebugEx.Error("DictionariesUI", "格子模板或内容容器未设置");
+            DebugEx.Error(this.GetType().Name, "格子模板或内容容器未设置");
             return;
         }
 
@@ -202,7 +202,7 @@ public partial class DictionariesUI : UIFormBase
             }
         }
 
-        DebugEx.LogModule("DictionariesUI", $"刷新图鉴: {category}, 共{allIds.Count}条");
+        DebugEx.Log(this.GetType().Name, $"刷新图鉴: {category}, 共{allIds.Count}条");
     }
 
     /// <summary>
@@ -350,7 +350,7 @@ public partial class DictionariesUI : UIFormBase
         }
         catch (Exception e)
         {
-            DebugEx.Error("DictionariesUI", $"加载详情图标异常: {e.Message}");
+            DebugEx.Error(this.GetType().Name, $"加载详情图标异常: {e.Message}");
         }
     }
 
@@ -366,10 +366,10 @@ public partial class DictionariesUI : UIFormBase
             if (row == null)
                 return;
 
-            SetAttrText(varAttr1, "生命", row.MaxHp.ToString("F0"));
-            SetAttrText(varAttr2, "攻击", row.AtkDamage.ToString("F0"));
-            SetAttrText(varAttr3, "护甲", row.Armor.ToString("F0"));
-            SetAttrText(varAttr4, "攻速", row.AtkSpeed.ToString("F2"));
+            SetAttrText(varAttr1, "生命", row.GetMaxHp(1).ToString("F0"));
+            SetAttrText(varAttr2, "攻击", row.GetAtkDamage(1).ToString("F0"));
+            SetAttrText(varAttr3, "护甲", row.GetArmor(1).ToString("F0"));
+            SetAttrText(varAttr4, "攻速", row.GetAtkSpeed(1).ToString("F2"));
         }
         else if (entryData.Category == DictionaryCategory.Equipment)
         {

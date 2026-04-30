@@ -35,7 +35,7 @@ public class HouyiPassive : IChessPassive
         // 初始化时根据昼夜状态应用被动
         CheckAndApplyDayBuff();
 
-        DebugEx.LogModule("HouyiPassive", "日月长弓被动初始化完成");
+        DebugEx.Log("HouyiPassive", "日月长弓被动初始化完成");
     }
 
     public void Tick(float dt)
@@ -75,14 +75,14 @@ public class HouyiPassive : IChessPassive
             // 白天：添加日月长弓Buff（伤害+15%，射程+30）
             m_Ctx.BuffManager.AddBuff(5, m_Ctx.Owner, m_Ctx.Attribute);
             m_DayBuffApplied = true;
-            DebugEx.LogModule("HouyiPassive", "白天，日月长弓增益生效");
+            DebugEx.Log("HouyiPassive", "白天，日月长弓增益生效");
         }
         else if (!m_IsDay && m_DayBuffApplied)
         {
             // 夜晚：移除日月长弓Buff
             m_Ctx.BuffManager.RemoveBuff(5);
             m_DayBuffApplied = false;
-            DebugEx.LogModule("HouyiPassive", "夜晚，日月长弓增益移除");
+            DebugEx.Log("HouyiPassive", "夜晚，日月长弓增益移除");
         }
     }
 

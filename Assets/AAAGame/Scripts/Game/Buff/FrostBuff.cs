@@ -72,7 +72,7 @@ public class FrostBuff : BuffBase
         Ctx.OwnerAttribute.ModifyAtkSpeed(-m_AtkSpeedReduced);
         m_IsSlowApplied = true;
 
-        DebugEx.LogModule("FrostBuff", $"冰霜生效: 移速-{m_MoveSpeedReduced:F1} 攻速-{m_AtkSpeedReduced:F3}");
+        DebugEx.Log(nameof(FrostBuff), $"冰霜生效: 移速-{m_MoveSpeedReduced:F1} 攻速-{m_AtkSpeedReduced:F3}");
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ public class FrostBuff : BuffBase
         var burnBuff = Ctx.OwnerBuffManager.GetBuff(1) as BurnBuff;
         if (burnBuff != null && burnBuff.StackCount > 0)
         {
-            DebugEx.LogModule("FrostBuff", $"检测到灼烧{burnBuff.StackCount}层，触发融化!");
+            DebugEx.Log(nameof(FrostBuff), $"检测到灼烧{burnBuff.StackCount}层，触发融化!");
 
             // 添加融化Buff（融化施加者属性，用于计算法强伤害）
             Ctx.OwnerBuffManager.AddBuff(3, Ctx.Caster, Ctx.CasterAttribute);

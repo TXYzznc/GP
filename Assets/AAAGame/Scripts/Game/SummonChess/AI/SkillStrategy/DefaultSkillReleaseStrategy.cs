@@ -13,8 +13,8 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
     public virtual void Init(ChessContext context)
     {
         m_Context = context;
-        
-        DebugEx.LogModule("DefaultSkillReleaseStrategy",
+
+        DebugEx.Log("DefaultSkillReleaseStrategy",
             $"{context.Entity.Config.Name} 使用默认技能释放策略");
     }
 
@@ -44,14 +44,14 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
         // 默认优先级：大招 > 技能1
         if (ShouldUseSkill2())
         {
-            DebugEx.LogModule("DefaultSkillReleaseStrategy",
+            DebugEx.Log("DefaultSkillReleaseStrategy",
                 $"{m_Context.Entity.Config.Name} 决策: 使用大招");
             return 2;
         }
 
         if (ShouldUseSkill1())
         {
-            DebugEx.LogModule("DefaultSkillReleaseStrategy",
+            DebugEx.Log("DefaultSkillReleaseStrategy",
                 $"{m_Context.Entity.Config.Name} 决策: 使用技能1");
             return 1;
         }

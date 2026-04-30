@@ -13,13 +13,13 @@ public class ExplorationState : FsmState<InGameState>
     protected override void OnInit(IFsm<InGameState> fsm)
     {
         base.OnInit(fsm);
-        DebugEx.LogModule("ExplorationState", "初始化");
+        DebugEx.Log("ExplorationState", "初始化");
     }
 
     protected override void OnEnter(IFsm<InGameState> fsm)
     {
         base.OnEnter(fsm);
-        DebugEx.LogModule("ExplorationState", "进入探索状态");
+        DebugEx.Log("ExplorationState", "进入探索状态");
 
         // ⭐ 恢复战斗前的视角模式
         RestoreCameraViewMode();
@@ -45,7 +45,7 @@ public class ExplorationState : FsmState<InGameState>
 
     protected override void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
     {
-        DebugEx.LogModule("ExplorationState", "离开探索状态");
+        DebugEx.Log("ExplorationState", "离开探索状态");
 
         // 禁用玩家控制器
         DisablePlayerController();
@@ -69,7 +69,7 @@ public class ExplorationState : FsmState<InGameState>
 
     protected override void OnDestroy(IFsm<InGameState> fsm)
     {
-        DebugEx.LogModule("ExplorationState", "销毁");
+        DebugEx.Log("ExplorationState", "销毁");
         base.OnDestroy(fsm);
     }
 
@@ -92,21 +92,21 @@ public class ExplorationState : FsmState<InGameState>
                 if (controller != null)
                 {
                     controller.enabled = true;
-                    DebugEx.LogModule("ExplorationState", "PlayerController 已启用");
+                    DebugEx.Log("ExplorationState", "PlayerController 已启用");
                 }
                 else
                 {
-                    DebugEx.WarningModule("ExplorationState", "玩家角色上未找到 PlayerController 组件");
+                    DebugEx.Warning("ExplorationState", "玩家角色上未找到 PlayerController 组件");
                 }
             }
             else
             {
-                DebugEx.WarningModule("ExplorationState", "未找到当前玩家角色");
+                DebugEx.Warning("ExplorationState", "未找到当前玩家角色");
             }
         }
         else
         {
-            DebugEx.WarningModule("ExplorationState", "PlayerCharacterManager 未初始化");
+            DebugEx.Warning("ExplorationState", "PlayerCharacterManager 未初始化");
         }
     }
 
@@ -124,7 +124,7 @@ public class ExplorationState : FsmState<InGameState>
                 if (controller != null)
                 {
                     controller.enabled = false;
-                    DebugEx.LogModule("ExplorationState", "PlayerController 已禁用");
+                    DebugEx.Log("ExplorationState", "PlayerController 已禁用");
                 }
             }
         }
@@ -143,11 +143,11 @@ public class ExplorationState : FsmState<InGameState>
         if (skillManager != null)
         {
             skillManager.enabled = true;
-            DebugEx.LogModule("ExplorationState", "PlayerSkillManager 已启用");
+            DebugEx.Log("ExplorationState", "PlayerSkillManager 已启用");
         }
         else
         {
-            DebugEx.WarningModule("ExplorationState", "未找到 PlayerSkillManager");
+            DebugEx.Warning("ExplorationState", "未找到 PlayerSkillManager");
         }
     }
 
@@ -163,11 +163,11 @@ public class ExplorationState : FsmState<InGameState>
         if (PlayerInputManager.Instance != null)
         {
             PlayerInputManager.Instance.SetEnable(true);
-            DebugEx.LogModule("ExplorationState", "PlayerInputManager 已启用");
+            DebugEx.Log("ExplorationState", "PlayerInputManager 已启用");
         }
         else
         {
-            DebugEx.WarningModule("ExplorationState", "PlayerInputManager 未初始化");
+            DebugEx.Warning("ExplorationState", "PlayerInputManager 未初始化");
         }
     }
 
@@ -183,7 +183,7 @@ public class ExplorationState : FsmState<InGameState>
         if (PlayerInputManager.Instance != null)
         {
             PlayerInputManager.Instance.SetCursorLock(true);
-            DebugEx.LogModule("ExplorationState", "光标已锁定");
+            DebugEx.Log("ExplorationState", "光标已锁定");
         }
     }
 
@@ -199,12 +199,12 @@ public class ExplorationState : FsmState<InGameState>
         {
             GF.UI.CloseUIForm(m_InventoryFormId);
             m_InventoryFormId = -1;
-            DebugEx.LogModule("ExplorationState", "关闭背包");
+            DebugEx.Log("ExplorationState", "关闭背包");
         }
         else
         {
             m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
-            DebugEx.LogModule("ExplorationState", "打开背包");
+            DebugEx.Log("ExplorationState", "打开背包");
         }
     }
 
@@ -221,11 +221,11 @@ public class ExplorationState : FsmState<InGameState>
         if (cameraController != null)
         {
             cameraController.RestoreCachedViewMode();
-            DebugEx.LogModule("ExplorationState", "已恢复战斗前的视角模式");
+            DebugEx.Log("ExplorationState", "已恢复战斗前的视角模式");
         }
         else
         {
-            DebugEx.WarningModule("ExplorationState", "未找到第三人称相机控制器");
+            DebugEx.Warning("ExplorationState", "未找到第三人称相机控制器");
         }
     }
 

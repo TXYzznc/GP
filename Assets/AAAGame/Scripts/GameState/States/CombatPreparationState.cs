@@ -26,13 +26,13 @@ public class CombatPreparationState : FsmState<InGameState>
     protected override void OnInit(IFsm<InGameState> fsm)
     {
         base.OnInit(fsm);
-        DebugEx.LogModule("CombatPreparationState", "初始化");
+        DebugEx.Log(nameof(CombatPreparationState), "初始化");
     }
 
     protected override void OnEnter(IFsm<InGameState> fsm)
     {
         base.OnEnter(fsm);
-        DebugEx.LogModule("CombatPreparationState", "进入战斗准备状态");
+        DebugEx.Log(nameof(CombatPreparationState), "进入战斗准备状态");
 
         m_Fsm = fsm;
 
@@ -50,7 +50,7 @@ public class CombatPreparationState : FsmState<InGameState>
     /// </summary>
     private async UniTaskVoid ShowEnterCombatTipAndContinue(CancellationToken ct)
     {
-        DebugEx.LogModule("CombatPreparationState", "显示战斗进入提示...");
+        DebugEx.Log(nameof(CombatPreparationState), "显示战斗进入提示...");
 
         try
         {
@@ -64,30 +64,30 @@ public class CombatPreparationState : FsmState<InGameState>
 
             if (uiFormId <= 0)
             {
-                DebugEx.Error("CombatPreparationState", "战斗进入提示UI打开失败，直接继续初始化");
+                DebugEx.Error(nameof(CombatPreparationState), "战斗进入提示UI打开失败，直接继续初始化");
                 await ContinueCombatPreparationInitAsync(ct);
                 return;
             }
 
-            DebugEx.LogModule("CombatPreparationState", $"战斗进入提示UI已打开 (ID: {uiFormId})，等待UI关闭...");
+            DebugEx.Log(nameof(CombatPreparationState), $"战斗进入提示UI已打开 (ID: {uiFormId})，等待UI关闭...");
 
             // 使用事件监听机制等待UI关闭，避免轮询延迟
             await WaitForUIFormClosedByEvent(uiFormId);
 
             ct.ThrowIfCancellationRequested();
 
-            DebugEx.Success("CombatPreparationState", "战斗进入提示已完成，开始战斗准备初始化");
+            DebugEx.Success(nameof(CombatPreparationState), "战斗进入提示已完成，开始战斗准备初始化");
 
             // 继续战斗准备的初始化流程
             await ContinueCombatPreparationInitAsync(ct);
         }
         catch (System.OperationCanceledException)
         {
-            DebugEx.LogModule("CombatPreparationState", "战斗进入提示流程已取消");
+            DebugEx.Log(nameof(CombatPreparationState), "战斗进入提示流程已取消");
         }
         catch (System.Exception ex)
         {
-            DebugEx.Error("CombatPreparationState", $"战斗进入提示流程异常: {ex.Message}");
+            DebugEx.Error(nameof(CombatPreparationState), $"战斗进入提示流程异常: {ex.Message}");
             // 异常情况下也要继续初始化，确保游戏流程不中断
             if (!ct.IsCancellationRequested)
                 await ContinueCombatPreparationInitAsync(ct);
@@ -105,8 +105,8 @@ public class CombatPreparationState : FsmState<InGameState>
     {
         var ruleRow = DataTableExtension.GetRowById<CombatRuleTable>(1);
         float timeoutSeconds = ruleRow != null ? ruleRow.EnterCombatTipCloseTimeoutSeconds : 5f;
-        
-        DebugEx.LogModule("CombatPreparationState", $"开始监听UI窗体关闭事件，ID: {uiFormId}");
+
+        DebugEx.Log(nameof(CombatPreparationState), $"开始监听UI窗体关闭事件，ID: {uiFormId}");
 
         var startTime = Time.unscaledTime;
         bool uiClosed = false;
@@ -119,7 +119,7 @@ public class CombatPreparationState : FsmState<InGameState>
             {
                 if (closeArgs.SerialId == uiFormId)
                 {
-                    DebugEx.Success("CombatPreparationState", $"UI窗体关闭事件触发，ID: {uiFormId}，耗时: {Time.unscaledTime - startTime:F3}秒");
+                    DebugEx.Success(nameof(CombatPreparationState), $"UI窗体关闭事件触发，ID: {uiFormId}，耗时: {Time.unscaledTime - startTime:F3}秒");
                     uiClosed = true;
                     // 移除事件监听
                     GF.Event.Unsubscribe(UnityGameFramework.Runtime.CloseUIFormCompleteEventArgs.EventId, onUIFormClosed);
@@ -139,7 +139,7 @@ public class CombatPreparationState : FsmState<InGameState>
         // 超时处理
         if (!uiClosed)
         {
-            DebugEx.Warning("CombatPreparationState", $"等待UI窗体关闭超时 ({timeoutSeconds}秒)，强制继续流程");
+            DebugEx.Warning(nameof(CombatPreparationState), $"等待UI窗体关闭超时 ({timeoutSeconds}秒)，强制继续流程");
             
             // 移除事件监听
             GF.Event.Unsubscribe(UnityGameFramework.Runtime.CloseUIFormCompleteEventArgs.EventId, onUIFormClosed);
@@ -150,12 +150,12 @@ public class CombatPreparationState : FsmState<InGameState>
                 if (GF.UI.HasUIForm(uiFormId))
                 {
                     GF.UI.CloseUIForm(uiFormId);
-                    DebugEx.LogModule("CombatPreparationState", "已强制关闭UI窗体");
+                    DebugEx.Log(nameof(CombatPreparationState), "已强制关闭UI窗体");
                 }
             }
             catch (System.Exception ex)
             {
-                DebugEx.Error("CombatPreparationState", $"强制关闭UI窗体失败: {ex.Message}");
+                DebugEx.Error(nameof(CombatPreparationState), $"强制关闭UI窗体失败: {ex.Message}");
             }
         }
 
@@ -173,7 +173,7 @@ public class CombatPreparationState : FsmState<InGameState>
         float timeoutSeconds = ruleRow != null ? ruleRow.EnterCombatTipCloseTimeoutSeconds : 5f;
         float elapsedTime = 0f;
 
-        DebugEx.LogModule("CombatPreparationState", $"开始等待UI窗体关闭，ID: {uiFormId}");
+        DebugEx.Log(nameof(CombatPreparationState), $"开始等待UI窗体关闭，ID: {uiFormId}");
 
         // 等待UI窗体关闭，带超时保护
         while (GF.UI.HasUIForm(uiFormId) && elapsedTime < timeoutSeconds)
@@ -185,7 +185,7 @@ public class CombatPreparationState : FsmState<InGameState>
         if (elapsedTime >= timeoutSeconds)
         {
             DebugEx.Warning(
-                "CombatPreparationState",
+                nameof(CombatPreparationState),
                 $"等待UI窗体关闭超时 ({timeoutSeconds}秒)，强制继续流程"
             );
 
@@ -195,18 +195,18 @@ public class CombatPreparationState : FsmState<InGameState>
                 if (GF.UI.HasUIForm(uiFormId))
                 {
                     GF.UI.CloseUIForm(uiFormId);
-                    DebugEx.LogModule("CombatPreparationState", "已强制关闭UI窗体");
+                    DebugEx.Log(nameof(CombatPreparationState), "已强制关闭UI窗体");
                 }
             }
             catch (System.Exception ex)
             {
-                DebugEx.Error("CombatPreparationState", $"强制关闭UI窗体失败: {ex.Message}");
+                DebugEx.Error(nameof(CombatPreparationState), $"强制关闭UI窗体失败: {ex.Message}");
             }
         }
         else
         {
             DebugEx.Success(
-                "CombatPreparationState",
+                nameof(CombatPreparationState),
                 $"UI窗体已正常关闭，耗时: {elapsedTime:F2}秒"
             );
         }
@@ -220,7 +220,7 @@ public class CombatPreparationState : FsmState<InGameState>
     /// </summary>
     private async UniTask ContinueCombatPreparationInitAsync(CancellationToken ct)
     {
-        DebugEx.LogModule("CombatPreparationState", "开始战斗准备初始化流程");
+        DebugEx.Log(nameof(CombatPreparationState), "开始战斗准备初始化流程");
 
         // ⭐ 缓存当前视角模式并切换到战斗视角
         SetupCombatCamera();
@@ -235,19 +235,19 @@ public class CombatPreparationState : FsmState<InGameState>
 
         // ⭐ 获取或创建棋子管理器（单例懒加载，不存在则自动创建）
         CombatEntityTracker.Instance.Clear();
-        DebugEx.LogModule("CombatPreparationState", "CombatEntityTracker 已准备就绪");
+        DebugEx.Log(nameof(CombatPreparationState), "CombatEntityTracker 已准备就绪");
 
         // 确保 SummonChessManager 存在
         if (SummonChessManager.Instance == null)
         {
             GameObject managerObj = new GameObject("SummonChessManager");
             managerObj.AddComponent<SummonChessManager>();
-            DebugEx.LogModule("CombatPreparationState", "已创建 SummonChessManager");
+            DebugEx.Log(nameof(CombatPreparationState), "已创建 SummonChessManager");
         }
 
         // ⭐ 注意：棋子库存已在 InGameState.OnEnter() 时初始化，这里不需要重复初始化
         // ChessDeploymentTracker.Instance.Initialize(); // 已移除
-        DebugEx.LogModule("CombatPreparationState", "使用已初始化的棋子库存");
+        DebugEx.Log(nameof(CombatPreparationState), "使用已初始化的棋子库存");
 
         // 初始化战斗管理器
         await InitializeCombatManagersAsync();
@@ -278,7 +278,7 @@ public class CombatPreparationState : FsmState<InGameState>
 
         // 打开战斗准备UI
         m_CombatPreparationUIFormId = GF.UI.OpenUIForm(UIViews.CombatPreparationUI);
-        DebugEx.LogModule("CombatPreparationState", $"已打开战斗准备UI (序列号: {m_CombatPreparationUIFormId})");
+        DebugEx.Log(nameof(CombatPreparationState), $"已打开战斗准备UI (序列号: {m_CombatPreparationUIFormId})");
 
         // 阻塞等待UI完全初始化（GF框架打开UI是异步的，必须等待UI加载完成）
         float waitTime = 0f;
@@ -289,7 +289,7 @@ public class CombatPreparationState : FsmState<InGameState>
             waitTime += 0.05f;
         }
 
-        DebugEx.LogModule("CombatPreparationState", $"CombatPreparationUI已初始化，耗时{waitTime:F2}秒");
+        DebugEx.Log(nameof(CombatPreparationState), $"CombatPreparationUI已初始化，耗时{waitTime:F2}秒");
 
         // 检查并显示先手效果
         await ShowInitiativeEffectIfNeededAsync();
@@ -312,12 +312,12 @@ public class CombatPreparationState : FsmState<InGameState>
         var sneakDebuffPool = CombatTriggerEvents.LastSneakDebuffPool;
         if (sneakDebuffPool != null && sneakDebuffPool.Count > 0)
         {
-            DebugEx.LogModule("CombatPreparationState", $"检测到偷袭，候选Debuff数={sneakDebuffPool.Count}");
+            DebugEx.Log(nameof(CombatPreparationState), $"检测到偷袭，候选Debuff数={sneakDebuffPool.Count}");
 
             if (preparationUI != null)
             {
                 preparationUI.ShowSneakDebuffSelection(sneakDebuffPool);
-                DebugEx.LogModule("CombatPreparationState", "已显示偷袭Debuff三选一面板");
+                DebugEx.Log(nameof(CombatPreparationState), "已显示偷袭Debuff三选一面板");
             }
             return;
         }
@@ -326,12 +326,12 @@ public class CombatPreparationState : FsmState<InGameState>
         var playerBuffPool = CombatTriggerEvents.LastPlayerInitiativeBuffPool;
         if (playerBuffPool != null && playerBuffPool.Count > 0)
         {
-            DebugEx.LogModule("CombatPreparationState", $"检测到玩家先手，候选Buff数={playerBuffPool.Count}");
+            DebugEx.Log(nameof(CombatPreparationState), $"检测到玩家先手，候选Buff数={playerBuffPool.Count}");
 
             if (preparationUI != null)
             {
                 preparationUI.ShowInitiativeBuffSelection(playerBuffPool);
-                DebugEx.LogModule("CombatPreparationState", "已显示玩家先手Buff三选一面板");
+                DebugEx.Log(nameof(CombatPreparationState), "已显示玩家先手Buff三选一面板");
             }
             return;
         }
@@ -348,29 +348,29 @@ public class CombatPreparationState : FsmState<InGameState>
         // 等待一帧，确保UI已经初始化完成
         await UniTask.Yield();
 
-        DebugEx.LogModule("CombatPreparationState", "检查敌方先手效果...");
+        DebugEx.Log(nameof(CombatPreparationState), "检查敌方先手效果...");
 
         // 通过 CombatTriggerEvents.LastEnemyInitiativeEffectId 读取（解耦自 CombatTriggerManager）
         int effectId = CombatTriggerEvents.LastEnemyInitiativeEffectId;
-        DebugEx.LogModule("CombatPreparationState", $"LastEnemyInitiativeEffectId: {effectId}");
+        DebugEx.Log(nameof(CombatPreparationState), $"LastEnemyInitiativeEffectId: {effectId}");
 
         if (effectId > 0)
         {
-            DebugEx.LogModule("CombatPreparationState", "检测到敌方先手，获取CombatPreparationUI...");
+            DebugEx.Log(nameof(CombatPreparationState), "检测到敌方先手，获取CombatPreparationUI...");
 
             var uiForm = GF.UI.GetUIForm(m_CombatPreparationUIFormId);
-            DebugEx.LogModule("CombatPreparationState", $"UIForm: {(uiForm != null ? "存在" : "为null")}");
+            DebugEx.Log(nameof(CombatPreparationState), $"UIForm: {(uiForm != null ? "存在" : "为null")}");
 
             if (uiForm != null)
             {
                 var preparationUI = uiForm.Logic as CombatPreparationUI;
-                DebugEx.LogModule("CombatPreparationState", $"preparationUI: {(preparationUI != null ? "存在" : "为null")}");
+                DebugEx.Log(nameof(CombatPreparationState), $"preparationUI: {(preparationUI != null ? "存在" : "为null")}");
 
                 if (preparationUI != null)
                 {
-                    DebugEx.LogModule("CombatPreparationState", $"调用ShowEnemyInitiativeBuffNotification: {effectId}");
+                    DebugEx.Log(nameof(CombatPreparationState), $"调用ShowEnemyInitiativeBuffNotification: {effectId}");
                     preparationUI.ShowEnemyInitiativeBuffNotification(effectId);
-                    DebugEx.LogModule("CombatPreparationState", $"显示敌方先手Buff通知: {effectId}");
+                    DebugEx.Log(nameof(CombatPreparationState), $"显示敌方先手Buff通知: {effectId}");
                 }
             }
         }
@@ -378,7 +378,7 @@ public class CombatPreparationState : FsmState<InGameState>
 
     protected override void OnLeave(IFsm<InGameState> fsm, bool isShutdown)
     {
-        DebugEx.LogModule("CombatPreparationState", "离开战斗准备状态");
+        DebugEx.Log(nameof(CombatPreparationState), "离开战斗准备状态");
 
         // 取消所有正在进行的异步操作
         m_Cts?.Cancel();
@@ -404,7 +404,7 @@ public class CombatPreparationState : FsmState<InGameState>
 
     protected override void OnDestroy(IFsm<InGameState> fsm)
     {
-        DebugEx.LogModule("CombatPreparationState", "销毁");
+        DebugEx.Log(nameof(CombatPreparationState), "销毁");
         base.OnDestroy(fsm);
     }
 
@@ -420,27 +420,27 @@ public class CombatPreparationState : FsmState<InGameState>
         ThirdPersonCamera cameraController = CameraRegistry.ThirdPersonCamera;
         if (cameraController == null)
         {
-            DebugEx.ErrorModule("CombatPreparationState", "未找到第三人称相机控制器");
+            DebugEx.Error(nameof(CombatPreparationState), "未找到第三人称相机控制器");
             return;
         }
 
         // 缓存当前视角模式
         cameraController.CacheCurrentViewMode();
-        DebugEx.LogModule("CombatPreparationState", "已缓存战斗前的视角模式");
+        DebugEx.Log(nameof(CombatPreparationState), "已缓存战斗前的视角模式");
 
         // 切换到战斗视角
         cameraController.SetViewMode(CameraViewMode.Combat);
-        DebugEx.LogModule("CombatPreparationState", "已切换到战斗视角");
+        DebugEx.Log(nameof(CombatPreparationState), "已切换到战斗视角");
 
         // 锁定视角切换
         cameraController.SetViewModeLocked(true);
-        DebugEx.LogModule("CombatPreparationState", "已锁定视角切换");
+        DebugEx.Log(nameof(CombatPreparationState), "已锁定视角切换");
 
         // ⭐ 同时锁定 PlayerInputManager 的视角模式（新增）
         if (PlayerInputManager.Instance != null)
         {
             PlayerInputManager.Instance.SetViewMode(CameraViewMode.Combat);
-            DebugEx.LogModule("CombatPreparationState", "已设置 PlayerInputManager 视角为 Combat");
+            DebugEx.Log(nameof(CombatPreparationState), "已设置 PlayerInputManager 视角为 Combat");
         }
     }
 
@@ -449,13 +449,13 @@ public class CombatPreparationState : FsmState<InGameState>
     /// </summary>
     private void StartCameraSmoothMove()
     {
-        DebugEx.LogModule("CombatPreparationState", "开始相机平滑移动...");
+        DebugEx.Log(nameof(CombatPreparationState), "开始相机平滑移动...");
 
         // 获取战斗场地
         var arena = BattleArenaManager.Instance?.CurrentArena;
         if (arena == null)
         {
-            DebugEx.WarningModule("CombatPreparationState", "战斗场地不存在，跳过相机移动");
+            DebugEx.Warning(nameof(CombatPreparationState), "战斗场地不存在，跳过相机移动");
             return;
         }
 
@@ -463,7 +463,7 @@ public class CombatPreparationState : FsmState<InGameState>
         Transform cameraAnchor = arena.transform.Find("CameraAnchor");
         if (cameraAnchor == null)
         {
-            DebugEx.WarningModule("CombatPreparationState", "未找到 CameraAnchor，跳过相机移动");
+            DebugEx.Warning(nameof(CombatPreparationState), "未找到 CameraAnchor，跳过相机移动");
             return;
         }
 
@@ -471,7 +471,7 @@ public class CombatPreparationState : FsmState<InGameState>
         ThirdPersonCamera cameraController = CameraRegistry.ThirdPersonCamera;
         if (cameraController == null)
         {
-            DebugEx.ErrorModule("CombatPreparationState", "未找到第三人称相机控制器");
+            DebugEx.Error(nameof(CombatPreparationState), "未找到第三人称相机控制器");
             return;
         }
 
@@ -483,8 +483,8 @@ public class CombatPreparationState : FsmState<InGameState>
         float cameraView = ruleRow != null ? ruleRow.CameraView : 35f;
         cameraController.SetOverrideFOV(cameraView);
 
-        DebugEx.LogModule(
-            "CombatPreparationState",
+        DebugEx.Log(
+            nameof(CombatPreparationState),
             $"相机开始移动到 CameraAnchor: Pos={cameraAnchor.position}, Rot={cameraAnchor.rotation.eulerAngles}, FOV={cameraView}"
         );
     }
@@ -498,7 +498,7 @@ public class CombatPreparationState : FsmState<InGameState>
     /// </summary>
     private void OnPreparationReady(object sender, GameEventArgs e)
     {
-        DebugEx.LogModule("CombatPreparationState", "收到准备完成事件，切换到战斗状态");
+        DebugEx.Log(nameof(CombatPreparationState), "收到准备完成事件，切换到战斗状态");
 
         // 通过 InGameState 切换到战斗状态
         if (m_Fsm != null)
@@ -531,7 +531,7 @@ public class CombatPreparationState : FsmState<InGameState>
         ChessSelectionManager.Instance.Initialize();
         ChessSelectionManager.Instance.Enable(); // 启用选择系统，允许玩家点击查看棋子
 
-        DebugEx.LogModule("CombatPreparationState", "战斗管理器初始化完成");
+        DebugEx.Log(nameof(CombatPreparationState), "战斗管理器初始化完成");
     }
 
     /// <summary>
@@ -548,7 +548,7 @@ public class CombatPreparationState : FsmState<InGameState>
                 if (controller != null)
                 {
                     controller.enabled = false;
-                    DebugEx.LogModule("CombatPreparationState", "PlayerController 已禁用");
+                    DebugEx.Log(nameof(CombatPreparationState), "PlayerController 已禁用");
                 }
             }
         }
@@ -562,7 +562,7 @@ public class CombatPreparationState : FsmState<InGameState>
         if (PlayerInputManager.Instance != null)
         {
             PlayerInputManager.Instance.SetCursorLock(false);
-            DebugEx.LogModule("CombatPreparationState", "光标已解锁");
+            DebugEx.Log(nameof(CombatPreparationState), "光标已解锁");
         }
     }
 
@@ -625,7 +625,7 @@ public class CombatPreparationState : FsmState<InGameState>
         }
         else
         {
-            DebugEx.WarningModule("CombatPreparationState", "BattleArenaManager 未初始化");
+            DebugEx.Warning(nameof(CombatPreparationState), "BattleArenaManager 未初始化");
         }
     }
 
@@ -637,7 +637,7 @@ public class CombatPreparationState : FsmState<InGameState>
         var enemyManager = EnemyEntityManager.Instance;
         if (enemyManager == null || enemyManager.CurrentCombatData == null)
         {
-            DebugEx.WarningModule("CombatPreparationState", "未找到战斗数据，使用默认配置");
+            DebugEx.Warning(nameof(CombatPreparationState), "未找到战斗数据，使用默认配置");
             EnemySpawnManager.Instance.LoadWaveFromConfig(1);
             return;
         }
@@ -665,8 +665,8 @@ public class CombatPreparationState : FsmState<InGameState>
         // 使用 LoadFromEnemyTable 保留槽位顺序，支持跨战斗 HP 继承
         EnemySpawnManager.Instance.LoadFromEnemyTable(enemyData.BattleConfigId, enemyGuid);
 
-        DebugEx.LogModule(
-            "CombatPreparationState",
+        DebugEx.Log(
+            nameof(CombatPreparationState),
             $"单敌人战斗: {enemyData.EnemyName}, BattleConfigId={enemyData.BattleConfigId}"
         );
     }
@@ -690,8 +690,8 @@ public class CombatPreparationState : FsmState<InGameState>
 
         EnemySpawnManager.Instance.SetEnemyData(selectedChessIds);
 
-        DebugEx.LogModule(
-            "CombatPreparationState",
+        DebugEx.Log(
+            nameof(CombatPreparationState),
             $"群体战斗: 第一波={firstEnemy.EnemyName}, 出战人数={firstEnemy.MaxPopulation}, 总敌人数={combatData.EnemyDataList.Count}"
         );
     }
@@ -727,7 +727,7 @@ public class CombatPreparationState : FsmState<InGameState>
         if (skillManager != null)
         {
             skillManager.enabled = false;
-            DebugEx.LogModule("CombatPreparationState", "PlayerSkillManager 已禁用");
+            DebugEx.Log(nameof(CombatPreparationState), "PlayerSkillManager 已禁用");
         }
     }
 
@@ -745,7 +745,7 @@ public class CombatPreparationState : FsmState<InGameState>
                 if (controller != null)
                 {
                     controller.enabled = true;
-                    DebugEx.LogModule("CombatPreparationState", "PlayerController 已启用");
+                    DebugEx.Log(nameof(CombatPreparationState), "PlayerController 已启用");
                 }
             }
         }
@@ -756,13 +756,13 @@ public class CombatPreparationState : FsmState<InGameState>
     /// </summary>
     private void MoveCameraToCameraAnchor()
     {
-        DebugEx.LogModule("CombatPreparationState", "开始移动相机到 CameraAnchor...");
+        DebugEx.Log(nameof(CombatPreparationState), "开始移动相机到 CameraAnchor...");
 
         // 获取战斗场地
         var arena = BattleArenaManager.Instance?.CurrentArena;
         if (arena == null)
         {
-            DebugEx.WarningModule("CombatPreparationState", "战斗场地不存在，跳过相机移动");
+            DebugEx.Warning(nameof(CombatPreparationState), "战斗场地不存在，跳过相机移动");
             return;
         }
 
@@ -770,7 +770,7 @@ public class CombatPreparationState : FsmState<InGameState>
         Transform cameraAnchor = arena.transform.Find("CameraAnchor");
         if (cameraAnchor == null)
         {
-            DebugEx.WarningModule("CombatPreparationState", "未找到 CameraAnchor，跳过相机移动");
+            DebugEx.Warning(nameof(CombatPreparationState), "未找到 CameraAnchor，跳过相机移动");
             return;
         }
 
@@ -778,25 +778,25 @@ public class CombatPreparationState : FsmState<InGameState>
         ThirdPersonCamera cameraController = CameraRegistry.ThirdPersonCamera;
         if (cameraController == null)
         {
-            DebugEx.ErrorModule(
-                "CombatPreparationState",
+            DebugEx.Error(
+                nameof(CombatPreparationState),
                 "未找到第三人称相机控制器（CameraRegistry.ThirdPersonCamera 为空）"
             );
             return;
         }
 
-        DebugEx.LogModule("CombatPreparationState", $"找到相机控制器: {cameraController.name}");
+        DebugEx.Log(nameof(CombatPreparationState), $"找到相机控制器: {cameraController.name}");
 
         // ⭐ 禁用相机控制器，防止它在 LateUpdate 中覆盖我们的设置
         cameraController.enabled = false;
-        DebugEx.LogModule("CombatPreparationState", "已禁用相机控制器");
+        DebugEx.Log(nameof(CombatPreparationState), "已禁用相机控制器");
 
         // 移动相机控制器的 GameObject 到锚点位置（世界坐标）
         cameraController.transform.position = cameraAnchor.position;
         cameraController.transform.rotation = cameraAnchor.rotation;
 
-        DebugEx.LogModule(
-            "CombatPreparationState",
+        DebugEx.Log(
+            nameof(CombatPreparationState),
             $"相机已移动到 CameraAnchor: Pos={cameraAnchor.position}, Rot={cameraAnchor.rotation.eulerAngles}"
         );
     }

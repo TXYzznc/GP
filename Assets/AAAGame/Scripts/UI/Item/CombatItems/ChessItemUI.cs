@@ -137,14 +137,14 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
                 varNameText.text = config.Name;
             }
 
-            // 设置星级
+            // 设置等级显示（固定为Rank 1）
             if (varStar != null)
             {
-                varStar.text = new string('★', config.StarLevel);
+                varStar.text = "Lv1";
             }
 
-            // 加载图标（异步）
-            LoadIconAsync(config.IconId);
+            // 加载图标（异步，使用Rank 1）
+            LoadIconAsync(config.GetIconId(1));
 
             // ⭐ 根据稀有度设置卡牌框、背景和名字背景
             SetQualityUI(config.Quality);
@@ -152,15 +152,15 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
             // 刷新出战/死亡状态显示
             RefreshDeployStatus();
 
-            DebugEx.LogModule(
-                "ChessItemUI",
-                $"SetData: chessId={chessId}, name={config.Name}, star={config.StarLevel}, quality={config.Quality}"
+            DebugEx.Log(
+                nameof(ChessItemUI),
+                $"SetData: chessId={chessId}, name={config.Name}, quality={config.Quality}"
             );
         }
         else
         {
-            DebugEx.ErrorModule(
-                "ChessItemUI",
+            DebugEx.Error(
+                nameof(ChessItemUI),
                 $"SetData failed: config not found for chessId={chessId}"
             );
         }
@@ -180,8 +180,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         if (varCardFrame != null)
         {
             await GameExtension.ResourceExtension.LoadSpriteAsync(cardFrameId, varCardFrame);
-            DebugEx.LogModule(
-                "ChessItemUI",
+            DebugEx.Log(
+                nameof(ChessItemUI),
                 $"SetQualityUI: 加载卡牌框 quality={quality}, resourceId={cardFrameId}"
             );
         }
@@ -190,8 +190,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         if (varBg != null)
         {
             await GameExtension.ResourceExtension.LoadSpriteAsync(bgId, varBg);
-            DebugEx.LogModule(
-                "ChessItemUI",
+            DebugEx.Log(
+                nameof(ChessItemUI),
                 $"SetQualityUI: 加载卡片背景 quality={quality}, resourceId={bgId}"
             );
         }
@@ -203,8 +203,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
             if (maskImage != null)
             {
                 await GameExtension.ResourceExtension.LoadSpriteAsync(maskId, maskImage);
-                DebugEx.LogModule(
-                    "ChessItemUI",
+                DebugEx.Log(
+                    nameof(ChessItemUI),
                     $"SetQualityUI: 加载名字背景 quality={quality}, resourceId={maskId}"
                 );
             }
@@ -244,8 +244,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         var instance = ChessDeploymentTracker.Instance.GetInstance(m_InstanceId);
         if (instance == null)
         {
-            DebugEx.ErrorModule(
-                "ChessItemUI",
+            DebugEx.Error(
+                nameof(ChessItemUI),
                 $"OnButtonClick: 实例不存在 instanceId={m_InstanceId}"
             );
             return;
@@ -254,8 +254,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // ⭐ 检查是否已死亡
         if (instance.IsDead)
         {
-            DebugEx.LogModule(
-                "ChessItemUI",
+            DebugEx.Log(
+                nameof(ChessItemUI),
                 $"OnButtonClick: 棋子已死亡，无法选中 instanceId={m_InstanceId}"
             );
             return;
@@ -264,7 +264,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // ⭐ 修改：已出战的棋子也可以点击显示详情（由回调方决定如何处理）
         // 触发选中回调（无论已出战还是未出战）
         m_OnSelectCallback?.Invoke(m_InstanceId);
-        DebugEx.LogModule("ChessItemUI", $"OnButtonClick: 选中棋子 instanceId={m_InstanceId}, IsDeployed={instance.IsDeployed}");
+        DebugEx.Log(nameof(ChessItemUI), $"OnButtonClick: 选中棋子 instanceId={m_InstanceId}, IsDeployed={instance.IsDeployed}");
     }
 
     #endregion
@@ -277,8 +277,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         var instance = ChessDeploymentTracker.Instance.GetInstance(m_InstanceId);
         if (instance == null)
         {
-            DebugEx.ErrorModule(
-                "ChessItemUI",
+            DebugEx.Error(
+                nameof(ChessItemUI),
                 $"OnBeginDrag: 实例不存在 instanceId={m_InstanceId}"
             );
             return;
@@ -287,8 +287,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // ⭐ 检查是否已死亡
         if (instance.IsDead)
         {
-            DebugEx.LogModule(
-                "ChessItemUI",
+            DebugEx.Log(
+                nameof(ChessItemUI),
                 $"OnBeginDrag: 棋子已死亡，无法拖拽 instanceId={m_InstanceId}"
             );
             return;
@@ -297,8 +297,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // 检查是否已出战
         if (instance.IsDeployed)
         {
-            DebugEx.LogModule(
-                "ChessItemUI",
+            DebugEx.Log(
+                nameof(ChessItemUI),
                 $"OnBeginDrag: 棋子已出战，无法拖拽 instanceId={m_InstanceId}"
             );
             return;
@@ -312,7 +312,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // ⭐ 触发拖拽开始回调（由 CombatPreparationUI 处理放置逻辑）
         m_OnDragBeginCallback?.Invoke(m_InstanceId);
 
-        DebugEx.LogModule("ChessItemUI", $"OnBeginDrag: instanceId={m_InstanceId}");
+        DebugEx.Log(nameof(ChessItemUI), $"OnBeginDrag: instanceId={m_InstanceId}");
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -333,7 +333,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // 触发拖拽结束回调
         m_OnDragEndCallback?.Invoke(m_InstanceId);
 
-        DebugEx.LogModule("ChessItemUI", $"OnEndDrag: instanceId={m_InstanceId}");
+        DebugEx.Log(nameof(ChessItemUI), $"OnEndDrag: instanceId={m_InstanceId}");
     }
 
     #endregion

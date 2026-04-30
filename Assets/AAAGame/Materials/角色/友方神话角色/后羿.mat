@@ -27,6 +27,7 @@ Material:
   m_ValidKeywords:
   - USE_SMOOTH_NORMAL
   - _DISSOLVE_MODE_SINGLE
+  - _DISSOLVE_ON
   m_InvalidKeywords:
   - _METALLICSPECGLOSSMAP
   - _NORMALMAP
@@ -118,7 +119,7 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DissolveEdgeWidth: 0.1
-    - _DissolveEnabled: 0
+    - _DissolveEnabled: 1
     - _DissolveThreshold: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0

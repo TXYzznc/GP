@@ -36,7 +36,7 @@ public class ChessAnimationEventReceiver : MonoBehaviour
     public void AnimEvent_AttackExecute()
     {
         OnAttackExecute?.Invoke();
-        DebugEx.LogModule("ChessAnimationEventReceiver", $"{gameObject.name} 执行普攻效果");
+        DebugEx.Log(nameof(ChessAnimationEventReceiver), $"{gameObject.name} 执行普攻效果");
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public class ChessAnimationEventReceiver : MonoBehaviour
     public void AnimEvent_Skill1Execute()
     {
         OnSkill1Execute?.Invoke();
-        DebugEx.LogModule("ChessAnimationEventReceiver", $"{gameObject.name} 执行技能1效果");
+        DebugEx.Log(nameof(ChessAnimationEventReceiver), $"{gameObject.name} 执行技能1效果");
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class ChessAnimationEventReceiver : MonoBehaviour
     public void AnimEvent_Skill2Execute()
     {
         OnSkill2Execute?.Invoke();
-        DebugEx.LogModule("ChessAnimationEventReceiver", $"{gameObject.name} 执行大招效果");
+        DebugEx.Log(nameof(ChessAnimationEventReceiver), $"{gameObject.name} 执行大招效果");
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class ChessAnimationEventReceiver : MonoBehaviour
     public void AnimEvent_AnimationComplete(string animName)
     {
         OnAnimationComplete?.Invoke(animName);
-        DebugEx.LogModule("ChessAnimationEventReceiver", $"{animName} 动画完成");
+        DebugEx.Log(nameof(ChessAnimationEventReceiver), $"{animName} 动画完成");
     }
 
     #endregion

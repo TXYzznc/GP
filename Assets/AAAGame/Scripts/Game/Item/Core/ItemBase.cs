@@ -81,7 +81,7 @@ public abstract class ItemBase
         m_ItemData = itemData;
         m_UniqueId = GenerateUniqueId();
 
-        DebugEx.Log("ItemBase", $"创建物品实例: {Name} (ID:{itemId}, UniqueId:{m_UniqueId})");
+        DebugEx.Log(nameof(ItemBase), $"创建物品实例: {Name} (ID:{itemId}, UniqueId:{m_UniqueId})");
     }
 
     #endregion
@@ -95,11 +95,11 @@ public abstract class ItemBase
     {
         if (!CanUse)
         {
-            DebugEx.Warning("ItemBase", $"物品不可使用: {Name}");
+            DebugEx.Warning(nameof(ItemBase), $"物品不可使用: {Name}");
             return false;
         }
 
-        DebugEx.Log("ItemBase", $"使用物品: {Name}");
+        DebugEx.Log(nameof(ItemBase), $"使用物品: {Name}");
         return OnUse();
     }
 

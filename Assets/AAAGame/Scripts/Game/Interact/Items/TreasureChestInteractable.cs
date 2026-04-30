@@ -95,34 +95,34 @@ public class TreasureChestInteractable : InteractableBase
     {
         base.Awake();
 
-        DebugEx.Log("TreasureChest", $"[Awake] 宝箱 [{m_TreasureBoxId}] 初始化开始");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] 宝箱 [{m_TreasureBoxId}] 初始化开始");
 
         m_Animator = GetComponent<Animator>();
         bool animatorEnabled = m_Animator != null && m_Animator.enabled;
-        DebugEx.Log("TreasureChest", $"[Awake] m_Animator={m_Animator}, enabled={animatorEnabled}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] m_Animator={m_Animator}, enabled={animatorEnabled}");
 
         m_OutlineController = GetComponent<OutlineController>();
-        DebugEx.Log("TreasureChest", $"[Awake] m_OutlineController={m_OutlineController}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] m_OutlineController={m_OutlineController}");
 
         // 从 Inspector 中获取 Lid 对象引用，并获取其 Animation 组件
         if (m_LidTransform != null)
         {
             m_Animation = m_LidTransform.GetComponent<Animation>();
-            DebugEx.Log("TreasureChest", $"[Awake] m_LidTransform设置，m_Animation={m_Animation}");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] m_LidTransform设置，m_Animation={m_Animation}");
 
             // 验证动画数组是否配置
             if (m_AnimationClips == null || m_AnimationClips.Length < 2 || m_AnimationClips[0] == null || m_AnimationClips[1] == null)
             {
-                DebugEx.Warning("TreasureChest", $"[Awake] 动画数组未配置或元素为空。请在 Inspector 中设置：[0]=Open动画, [1]=Close动画");
+                DebugEx.Warning(nameof(TreasureChestInteractable), $"[Awake] 动画数组未配置或元素为空。请在 Inspector 中设置：[0]=Open动画, [1]=Close动画");
             }
             else
             {
-                DebugEx.Log("TreasureChest", $"[Awake] 动画片段已配置: Open={m_AnimationClips[0].name}, Close={m_AnimationClips[1].name}");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] 动画片段已配置: Open={m_AnimationClips[0].name}, Close={m_AnimationClips[1].name}");
             }
         }
         else
         {
-            DebugEx.Warning("TreasureChest", $"[Awake] 宝箱 [{m_TreasureBoxId}] 未设置 Lid Transform 引用");
+            DebugEx.Warning(nameof(TreasureChestInteractable), $"[Awake] 宝箱 [{m_TreasureBoxId}] 未设置 Lid Transform 引用");
         }
 
         // 使用反射获取 ChestEffectCycler，避免编译时类型检查问题
@@ -130,25 +130,25 @@ public class TreasureChestInteractable : InteractableBase
         if (effectCyclerType != null)
         {
             m_EffectCycler = GetComponentInChildren(effectCyclerType) as MonoBehaviour;
-            DebugEx.Log("TreasureChest", $"[Awake] m_EffectCycler={m_EffectCycler}");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] m_EffectCycler={m_EffectCycler}");
         }
         else
         {
-            DebugEx.Warning("TreasureChest", $"[Awake] 找不到ChestEffectCycler类型");
+            DebugEx.Warning(nameof(TreasureChestInteractable), $"[Awake] 找不到ChestEffectCycler类型");
         }
 
         // 为这个宝箱创建独立的容器，用于存储物品列表
         m_Container = gameObject.AddComponent<TreasureBoxSlotContainerImpl>();
-        DebugEx.Log("TreasureChest", $"[Awake] 容器已创建");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] 容器已创建");
 
         // 初始化时禁用特效循环器，等待靠近时启用
         if (m_EffectCycler != null)
         {
             m_EffectCycler.enabled = false;
-            DebugEx.Log("TreasureChest", $"[Awake] 特效循环器已禁用");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[Awake] 特效循环器已禁用");
         }
 
-        DebugEx.Success("TreasureChest", $"[Awake] 宝箱 [{m_TreasureBoxId}] 初始化完成");
+        DebugEx.Success(nameof(TreasureChestInteractable), $"[Awake] 宝箱 [{m_TreasureBoxId}] 初始化完成");
     }
 
     private void OnDestroy()
@@ -173,7 +173,7 @@ public class TreasureChestInteractable : InteractableBase
             if (m_State == ChestState.Locked && m_EffectCycler != null)
             {
                 m_EffectCycler.enabled = true;
-                DebugEx.Log("TreasureChest", $"宝箱 [{m_TreasureBoxId}] 特效循环已启用");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"宝箱 [{m_TreasureBoxId}] 特效循环已启用");
             }
         }
         else
@@ -183,7 +183,7 @@ public class TreasureChestInteractable : InteractableBase
             if (m_EffectCycler != null)
             {
                 m_EffectCycler.enabled = false;
-                DebugEx.Log("TreasureChest", $"宝箱 [{m_TreasureBoxId}] 特效循环已禁用");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"宝箱 [{m_TreasureBoxId}] 特效循环已禁用");
             }
         }
     }
@@ -191,12 +191,12 @@ public class TreasureChestInteractable : InteractableBase
     /// <summary>打开宝箱的异步流程</summary>
     private async UniTask OpenChestAsync()
     {
-        DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 开箱流程开始");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 开箱流程开始");
         m_IsAnimating = true;
 
         if (m_State == ChestState.Locked)
         {
-            DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 状态为Locked，准备播放Open动画");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 状态为Locked，准备播放Open动画");
 
             // 检查是否有动画组件（Animator 或 Legacy Animation）
             bool hasAnimator = m_Animator != null;
@@ -204,24 +204,24 @@ public class TreasureChestInteractable : InteractableBase
 
             if (hasAnimator || hasLegacyAnimation)
             {
-                DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 检测到动画组件，开始播放Open动画");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 检测到动画组件，开始播放Open动画");
                 PlayOpenAnimation();
-                DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] PlayOpenAnimation已调用");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] PlayOpenAnimation已调用");
 
                 // 延迟 0.3 秒后打开 UI（动画继续播放）
                 await UniTask.Delay(300, cancellationToken: this.GetCancellationTokenOnDestroy());
-                DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 延迟 0.3 秒完成，准备打开UI");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 延迟 0.3 秒完成，准备打开UI");
 
                 // 打开宝箱界面
                 OpenChestUI();
 
                 // 继续等待动画完全播放完成
                 await WaitForAnimationCompleteAsync();
-                DebugEx.Success("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] Open动画已完成");
+                DebugEx.Success(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] Open动画已完成");
             }
             else
             {
-                DebugEx.Warning("TreasureChest",
+                DebugEx.Warning(nameof(TreasureChestInteractable),
                     $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 没有有效的动画组件(m_Animator={m_Animator}, m_Animation={m_Animation}, m_LidTransform={m_LidTransform})，跳过Open动画");
                 // 没有动画的情况下也要打开 UI
                 OpenChestUI();
@@ -229,11 +229,11 @@ public class TreasureChestInteractable : InteractableBase
 
             // 转换状态
             m_State = ChestState.Opened;
-            DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 状态已转换为Opened");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 状态已转换为Opened");
         }
         else
         {
-            DebugEx.Log("TreasureChest", $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 状态不是Locked（已打开过），跳过Open动画");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestAsync] 宝箱 [{m_TreasureBoxId}] 状态不是Locked（已打开过），跳过Open动画");
             // 已打开过的情况下直接打开 UI
             OpenChestUI();
         }
@@ -244,21 +244,21 @@ public class TreasureChestInteractable : InteractableBase
     /// <summary>触发开箱动画</summary>
     private void PlayOpenAnimation()
     {
-        DebugEx.Log("TreasureChest", $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 开始播放Open动画");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 开始播放Open动画");
         bool animatorEnabled = m_Animator != null && m_Animator.enabled;
-        DebugEx.Log("TreasureChest", $"[PlayOpenAnimation] m_Animator={m_Animator}, m_Animator.enabled={animatorEnabled}, openAnimTrigger={openAnimTrigger}");
-        DebugEx.Log("TreasureChest", $"[PlayOpenAnimation] m_Animation={m_Animation}, m_LidTransform={m_LidTransform}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] m_Animator={m_Animator}, m_Animator.enabled={animatorEnabled}, openAnimTrigger={openAnimTrigger}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] m_Animation={m_Animation}, m_LidTransform={m_LidTransform}");
 
         // 优先使用 Animator（如果存在且激活）
         if (m_Animator != null && m_Animator.enabled)
         {
-            DebugEx.Success("TreasureChest", $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 使用Animator，触发Trigger: {openAnimTrigger}");
+            DebugEx.Success(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 使用Animator，触发Trigger: {openAnimTrigger}");
             m_Animator.SetTrigger(openAnimTrigger);
-            DebugEx.Log("TreasureChest", $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] Trigger已设置，检查动画参数");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] Trigger已设置，检查动画参数");
 
             // 输出当前动画状态
             var stateInfo = m_Animator.GetCurrentAnimatorStateInfo(0);
-            DebugEx.Log("TreasureChest", $"[PlayOpenAnimation] 当前动画状态: {stateInfo.shortNameHash}, normalizedTime={stateInfo.normalizedTime}");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 当前动画状态: {stateInfo.shortNameHash}, normalizedTime={stateInfo.normalizedTime}");
         }
         // 否则使用 Legacy Animation 组件
         else if (m_Animation != null && m_LidTransform != null)
@@ -266,23 +266,23 @@ public class TreasureChestInteractable : InteractableBase
             // 使用数组索引访问 Open 动画（第一个元素）
             if (m_AnimationClips != null && m_AnimationClips.Length > 0 && m_AnimationClips[0] != null)
             {
-                DebugEx.Success("TreasureChest", $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 使用LegacyAnimation，播放: {m_AnimationClips[0].name}");
+                DebugEx.Success(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 使用LegacyAnimation，播放: {m_AnimationClips[0].name}");
                 m_Animation.clip = m_AnimationClips[0];
                 m_Animation.Play();
-                DebugEx.Log("TreasureChest", $"[PlayOpenAnimation] 动画已播放，isPlaying={m_Animation.isPlaying}");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 动画已播放，isPlaying={m_Animation.isPlaying}");
             }
             else
             {
-                DebugEx.Error("TreasureChest", $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 动画数组未配置或Open动画为空");
+                DebugEx.Error(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 动画数组未配置或Open动画为空");
             }
         }
         else
         {
-            DebugEx.Error("TreasureChest",
+            DebugEx.Error(nameof(TreasureChestInteractable),
                 $"[PlayOpenAnimation] 宝箱 [{m_TreasureBoxId}] 动画播放失败! m_Animator={m_Animator}, m_Animation={m_Animation}, m_LidTransform={m_LidTransform}");
             if (m_Animator != null && !m_Animator.enabled)
             {
-                DebugEx.Error("TreasureChest", $"[PlayOpenAnimation] Animator存在但被禁用!");
+                DebugEx.Error(nameof(TreasureChestInteractable), $"[PlayOpenAnimation] Animator存在但被禁用!");
             }
         }
     }
@@ -290,16 +290,16 @@ public class TreasureChestInteractable : InteractableBase
     /// <summary>等待 Animator 动画播放完成</summary>
     private async UniTask WaitForAnimationCompleteAsync()
     {
-        DebugEx.Log("TreasureChest", $"[WaitForAnimationCompleteAsync] 宝箱 [{m_TreasureBoxId}] 等待动画完成开始");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 宝箱 [{m_TreasureBoxId}] 等待动画完成开始");
 
         // 等一帧让动画状态生效
         await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
-        DebugEx.Log("TreasureChest", $"[WaitForAnimationCompleteAsync] 已等待一帧");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 已等待一帧");
 
         // 使用 Animator 模式
         if (m_Animator != null && m_Animator.enabled)
         {
-            DebugEx.Log("TreasureChest", $"[WaitForAnimationCompleteAsync] 使用Animator模式等待动画完成");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 使用Animator模式等待动画完成");
 
             int checkCount = 0;
             // 等待 normalizedTime >= 1f（动画完成）
@@ -308,7 +308,7 @@ public class TreasureChestInteractable : InteractableBase
                 {
                     if (m_Animator == null || m_Animator.gameObject == null)
                     {
-                        DebugEx.Warning("TreasureChest", $"[WaitForAnimationCompleteAsync] Animator对象已销毁");
+                        DebugEx.Warning(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] Animator对象已销毁");
                         return true;
                     }
 
@@ -316,19 +316,19 @@ public class TreasureChestInteractable : InteractableBase
                     checkCount++;
 
                     if (checkCount % 10 == 0)
-                        DebugEx.Log("TreasureChest", $"[WaitForAnimationCompleteAsync] 检查动画状态 ({checkCount}次): normalizedTime={stateInfo.normalizedTime:F3}");
+                        DebugEx.Log(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 检查动画状态 ({checkCount}次): normalizedTime={stateInfo.normalizedTime:F3}");
 
                     return stateInfo.normalizedTime >= 1f;
                 },
                 cancellationToken: this.GetCancellationTokenOnDestroy()
             );
 
-            DebugEx.Success("TreasureChest", $"[WaitForAnimationCompleteAsync] Animator动画已完成，共检查{checkCount}次");
+            DebugEx.Success(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] Animator动画已完成，共检查{checkCount}次");
         }
         // 使用 Legacy Animation 模式
         else if (m_Animation != null)
         {
-            DebugEx.Log("TreasureChest", $"[WaitForAnimationCompleteAsync] 使用LegacyAnimation模式等待动画完成");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 使用LegacyAnimation模式等待动画完成");
 
             int checkCount = 0;
             // 等待 Legacy Animation 播放完成
@@ -337,7 +337,7 @@ public class TreasureChestInteractable : InteractableBase
                 {
                     if (m_Animation == null || m_LidTransform == null)
                     {
-                        DebugEx.Warning("TreasureChest", $"[WaitForAnimationCompleteAsync] Animation对象已销毁");
+                        DebugEx.Warning(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] Animation对象已销毁");
                         return true;
                     }
 
@@ -345,59 +345,59 @@ public class TreasureChestInteractable : InteractableBase
                     bool isPlaying = m_Animation.isPlaying;
 
                     if (checkCount % 10 == 0)
-                        DebugEx.Log("TreasureChest", $"[WaitForAnimationCompleteAsync] 检查动画状态 ({checkCount}次): isPlaying={isPlaying}");
+                        DebugEx.Log(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 检查动画状态 ({checkCount}次): isPlaying={isPlaying}");
 
                     return !isPlaying;
                 },
                 cancellationToken: this.GetCancellationTokenOnDestroy()
             );
 
-            DebugEx.Success("TreasureChest", $"[WaitForAnimationCompleteAsync] LegacyAnimation动画已完成，共检查{checkCount}次");
+            DebugEx.Success(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] LegacyAnimation动画已完成，共检查{checkCount}次");
         }
         else
         {
-            DebugEx.Error("TreasureChest", $"[WaitForAnimationCompleteAsync] 宝箱 [{m_TreasureBoxId}] 没有有效的动画组件!");
+            DebugEx.Error(nameof(TreasureChestInteractable), $"[WaitForAnimationCompleteAsync] 宝箱 [{m_TreasureBoxId}] 没有有效的动画组件!");
         }
     }
 
     /// <summary>打开宝箱界面 - 首次打开时生成物品，后续直接打开 UI</summary>
     private void OpenChestUI()
     {
-        DebugEx.Log("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 打开UI流程开始");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 打开UI流程开始");
 
         // 首次打开时初始化容器内的物品
         if (!m_HasInitialized)
         {
-            DebugEx.Log("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 首次打开，生成物品");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 首次打开，生成物品");
             var initialItems = GenerateTreasureItems();
             if (initialItems == null)
             {
-                DebugEx.Error("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 物品生成失败");
+                DebugEx.Error(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 物品生成失败");
                 return;
             }
 
             m_Container.Initialize(initialItems);
             m_HasInitialized = true;
-            DebugEx.Log("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 容器初始化完成");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 容器初始化完成");
         }
 
         // 读取宝箱配置获取名称
         var treasureBoxTable = GF.DataTable.GetDataTable<TreasureBoxTable>();
         if (treasureBoxTable == null)
         {
-            DebugEx.Error("TreasureChest", "[OpenChestUI] TreasureBoxTable 未加载");
+            DebugEx.Error(nameof(TreasureChestInteractable), "[OpenChestUI] TreasureBoxTable 未加载");
             return;
         }
 
         var treasureBoxRow = treasureBoxTable.GetDataRow(m_TreasureBoxId);
         if (treasureBoxRow == null)
         {
-            DebugEx.Error("TreasureChest", $"[OpenChestUI] 宝箱 ID {m_TreasureBoxId} 不存在");
+            DebugEx.Error(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 ID {m_TreasureBoxId} 不存在");
             return;
         }
 
         // 打开宝箱 UI（传递容器引用，UI 将直接从容器读取数据）
-        DebugEx.Log("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 打开TreasureBoxUI");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 打开TreasureBoxUI");
         var uiParams = UIParams.Create();
         uiParams.Set("TreasureBoxContainer", m_Container);
         uiParams.Set("TreasureBoxName", treasureBoxRow.Name);
@@ -405,21 +405,21 @@ public class TreasureChestInteractable : InteractableBase
 
         // 订阅 UI 关闭事件，用于播放关闭动画
         string treasureBoxUIAssetName = GF.UI.GetUIFormAssetName(UIViews.TreasureBoxUI);
-        DebugEx.Log("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 订阅UI关闭事件，UIAssetName={treasureBoxUIAssetName}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 订阅UI关闭事件，UIAssetName={treasureBoxUIAssetName}");
 
         m_UIFormClosedHandler = (sender, e) =>
         {
             if (e is CloseUIFormCompleteEventArgs closeArgs)
             {
-                DebugEx.Log("TreasureChest", $"[UIFormClosedHandler] 收到UI关闭事件，UIAssetName={closeArgs.UIFormAssetName}");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[UIFormClosedHandler] 收到UI关闭事件，UIAssetName={closeArgs.UIFormAssetName}");
 
                 if (closeArgs.UIFormAssetName == treasureBoxUIAssetName)
                 {
-                    DebugEx.Log("TreasureChest", $"[UIFormClosedHandler] 宝箱 [{m_TreasureBoxId}] UI已关闭，开始播放Close动画");
+                    DebugEx.Log(nameof(TreasureChestInteractable), $"[UIFormClosedHandler] 宝箱 [{m_TreasureBoxId}] UI已关闭，开始播放Close动画");
                     PlayCloseAnimationAsync().Forget();
 
                     // 移除事件监听
-                    DebugEx.Log("TreasureChest", $"[UIFormClosedHandler] 宝箱 [{m_TreasureBoxId}] 取消订阅UI关闭事件");
+                    DebugEx.Log(nameof(TreasureChestInteractable), $"[UIFormClosedHandler] 宝箱 [{m_TreasureBoxId}] 取消订阅UI关闭事件");
                     GF.Event.Unsubscribe(
                         CloseUIFormCompleteEventArgs.EventId,
                         m_UIFormClosedHandler
@@ -434,11 +434,11 @@ public class TreasureChestInteractable : InteractableBase
         if (m_EffectCycler != null)
         {
             m_EffectCycler.enabled = false;
-            DebugEx.Log("TreasureChest", $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 特效循环已禁用（已打开）");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] 特效循环已禁用（已打开）");
         }
 
         DebugEx.Success(
-            "TreasureChest",
+            nameof(TreasureChestInteractable),
             $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] {treasureBoxRow.Name} (稀有度={treasureBoxRow.Rarity}) UI已打开"
         );
     }
@@ -446,20 +446,20 @@ public class TreasureChestInteractable : InteractableBase
     /// <summary>播放关闭动画的异步流程</summary>
     private async UniTask PlayCloseAnimationAsync()
     {
-        DebugEx.Log("TreasureChest", $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 播放Close动画开始");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 播放Close动画开始");
 
         bool animatorEnabled = m_Animator != null && m_Animator.enabled;
-        DebugEx.Log("TreasureChest", $"[PlayCloseAnimationAsync] m_Animator={m_Animator}, m_Animator.enabled={animatorEnabled}, closeAnimTrigger={closeAnimTrigger}");
-        DebugEx.Log("TreasureChest", $"[PlayCloseAnimationAsync] m_Animation={m_Animation}, m_LidTransform={m_LidTransform}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] m_Animator={m_Animator}, m_Animator.enabled={animatorEnabled}, closeAnimTrigger={closeAnimTrigger}");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] m_Animation={m_Animation}, m_LidTransform={m_LidTransform}");
 
         // 优先使用 Animator（如果存在且激活）
         if (m_Animator != null && m_Animator.enabled)
         {
-            DebugEx.Success("TreasureChest", $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 使用Animator，触发Trigger: {closeAnimTrigger}");
+            DebugEx.Success(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 使用Animator，触发Trigger: {closeAnimTrigger}");
             m_Animator.SetTrigger(closeAnimTrigger);
 
             var stateInfo = m_Animator.GetCurrentAnimatorStateInfo(0);
-            DebugEx.Log("TreasureChest", $"[PlayCloseAnimationAsync] 当前动画状态: {stateInfo.shortNameHash}, normalizedTime={stateInfo.normalizedTime}");
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 当前动画状态: {stateInfo.shortNameHash}, normalizedTime={stateInfo.normalizedTime}");
         }
         // 否则使用 Legacy Animation 组件
         else if (m_Animation != null && m_LidTransform != null)
@@ -467,30 +467,30 @@ public class TreasureChestInteractable : InteractableBase
             // 使用数组索引访问 Close 动画（第二个元素）
             if (m_AnimationClips != null && m_AnimationClips.Length > 1 && m_AnimationClips[1] != null)
             {
-                DebugEx.Success("TreasureChest", $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 使用LegacyAnimation，播放: {m_AnimationClips[1].name}");
+                DebugEx.Success(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 使用LegacyAnimation，播放: {m_AnimationClips[1].name}");
                 m_Animation.clip = m_AnimationClips[1];
                 m_Animation.Play();
-                DebugEx.Log("TreasureChest", $"[PlayCloseAnimationAsync] 动画已播放，isPlaying={m_Animation.isPlaying}");
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 动画已播放，isPlaying={m_Animation.isPlaying}");
             }
             else
             {
-                DebugEx.Error("TreasureChest", $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 动画数组未配置或Close动画为空");
+                DebugEx.Error(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 动画数组未配置或Close动画为空");
             }
         }
         else
         {
-            DebugEx.Error("TreasureChest",
+            DebugEx.Error(nameof(TreasureChestInteractable),
                 $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 动画播放失败! m_Animator={m_Animator}, m_Animation={m_Animation}, m_LidTransform={m_LidTransform}");
             return;
         }
 
-        DebugEx.Log("TreasureChest", $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 等待Close动画完成");
+        DebugEx.Log(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] 等待Close动画完成");
         await WaitForAnimationCompleteAsync();
 
         // Close 动画播放完成后，重置宝箱状态为 Locked，允许下次再次打开
         // 注：交互标记不在这里重置，要等玩家离开范围时才重置
         m_State = ChestState.Locked;
-        DebugEx.Success("TreasureChest", $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] Close动画已完成，状态已重置为Locked");
+        DebugEx.Success(nameof(TreasureChestInteractable), $"[PlayCloseAnimationAsync] 宝箱 [{m_TreasureBoxId}] Close动画已完成，状态已重置为Locked");
     }
 
     /// <summary>生成宝箱物品列表（只在第一次调用，后续由缓存复用）</summary>
@@ -503,14 +503,14 @@ public class TreasureChestInteractable : InteractableBase
         var treasureBoxTable = GF.DataTable.GetDataTable<TreasureBoxTable>();
         if (treasureBoxTable == null)
         {
-            DebugEx.Error("TreasureChest", "TreasureBoxTable 未加载");
+            DebugEx.Error(nameof(TreasureChestInteractable), "TreasureBoxTable 未加载");
             return null;
         }
 
         var treasureBoxRow = treasureBoxTable.GetDataRow(m_TreasureBoxId);
         if (treasureBoxRow == null)
         {
-            DebugEx.Error("TreasureChest", $"宝箱 ID {m_TreasureBoxId} 不存在");
+            DebugEx.Error(nameof(TreasureChestInteractable), $"宝箱 ID {m_TreasureBoxId} 不存在");
             return null;
         }
 
@@ -518,7 +518,7 @@ public class TreasureChestInteractable : InteractableBase
         var itemGroupIds = treasureBoxRow.ItemGroupIds;
         if (itemGroupIds == null || itemGroupIds.Length == 0)
         {
-            DebugEx.Error("TreasureChest", $"宝箱 ID {m_TreasureBoxId} 没有配置物品组");
+            DebugEx.Error(nameof(TreasureChestInteractable), $"宝箱 ID {m_TreasureBoxId} 没有配置物品组");
             return null;
         }
 
@@ -526,7 +526,7 @@ public class TreasureChestInteractable : InteractableBase
         var itemGroupTable = GF.DataTable.GetDataTable<ItemGroupTable>();
         if (itemGroupTable == null)
         {
-            DebugEx.Error("TreasureChest", "ItemGroupTable 未加载");
+            DebugEx.Error(nameof(TreasureChestInteractable), "ItemGroupTable 未加载");
             return null;
         }
 
@@ -537,7 +537,7 @@ public class TreasureChestInteractable : InteractableBase
             var itemGroupRow = itemGroupTable.GetDataRow(groupId);
             if (itemGroupRow == null)
             {
-                DebugEx.Warning("TreasureChest", $"物品组 ID {groupId} 不存在，跳过");
+                DebugEx.Warning(nameof(TreasureChestInteractable), $"物品组 ID {groupId} 不存在，跳过");
                 continue;
             }
 
@@ -546,20 +546,20 @@ public class TreasureChestInteractable : InteractableBase
             {
                 allItemIds.AddRange(itemIds);
                 DebugEx.Log(
-                    "TreasureChest",
+                    nameof(TreasureChestInteractable),
                     $"[GenerateTreasureItems] 物品组 {groupId} 添加 {itemIds.Length} 个物品"
                 );
             }
             else
             {
-                DebugEx.Warning("TreasureChest", $"物品组 {groupId} 为空");
+                DebugEx.Warning(nameof(TreasureChestInteractable), $"物品组 {groupId} 为空");
             }
         }
 
         // 检查合并后的物品列表
         if (allItemIds.Count == 0)
         {
-            DebugEx.Warning("TreasureChest", $"宝箱 ID {m_TreasureBoxId} 的所有物品组都为空");
+            DebugEx.Warning(nameof(TreasureChestInteractable), $"宝箱 ID {m_TreasureBoxId} 的所有物品组都为空");
             return items; // 返回空列表
         }
 
@@ -571,7 +571,7 @@ public class TreasureChestInteractable : InteractableBase
         );
 
         DebugEx.Log(
-            "TreasureChest",
+            nameof(TreasureChestInteractable),
             $"[GenerateTreasureItems] 宝箱 {m_TreasureBoxId} 生成 {itemCount} 个物品，总物品池大小 {allItemIds.Count}"
         );
 
@@ -586,14 +586,14 @@ public class TreasureChestInteractable : InteractableBase
             {
                 items.Add(new ItemStack(item, 1));
                 DebugEx.Log(
-                    "TreasureChest",
+                    nameof(TreasureChestInteractable),
                     $"[GenerateTreasureItems] 生成物品: {item.Name} (ID: {itemId})"
                 );
             }
             else
             {
                 DebugEx.Warning(
-                    "TreasureChest",
+                    nameof(TreasureChestInteractable),
                     $"[GenerateTreasureItems] 无法创建物品 ID {itemId}"
                 );
             }
@@ -612,7 +612,7 @@ public class TreasureChestInteractable : InteractableBase
             {
                 items.Add(new ItemStack(coinItem, totalCoins));
                 DebugEx.Log(
-                    "TreasureChest",
+                    nameof(TreasureChestInteractable),
                     $"[GenerateTreasureItems] 生成金币物品: {coinItem.Name} x{totalCoins}（虚拟物品，待用户获取）"
                 );
             }
@@ -644,7 +644,7 @@ public class TreasureChestInteractable : InteractableBase
             {
                 items.Add(new ItemStack(spiritStoneItem, totalMagicaStone));
                 DebugEx.Log(
-                    "TreasureChest",
+                    nameof(TreasureChestInteractable),
                     $"[GenerateTreasureItems] 生成灵石物品: {spiritStoneItem.Name} x{totalMagicaStone}（虚拟物品，待用户获取）"
                 );
             }
@@ -731,6 +731,6 @@ public class TreasureChestInteractable : InteractableBase
 
         sb.AppendLine("═══════════════════════════════════════════════════════");
 
-        DebugEx.Log("TreasureChest", sb.ToString());
+        DebugEx.Log(nameof(TreasureChestInteractable), sb.ToString());
     }
 }

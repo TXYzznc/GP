@@ -42,7 +42,7 @@ public class FastBarSlotContainerImpl : SlotContainerBase
             var itemData = ItemManager.Instance?.GetItemData(itemId);
             if (itemData != null && itemData.Type == ItemType.Virtual)
             {
-                DebugEx.Warning("FastBarSlotContainer",
+                DebugEx.Warning(nameof(FastBarSlotContainerImpl),
                     $"虚拟物品不能进入快捷栏: ID={itemId}");
                 return false;
             }
@@ -53,7 +53,7 @@ public class FastBarSlotContainerImpl : SlotContainerBase
         bool targetIsEmpty = targetSlot == null || targetSlot.IsEmpty;
 
         string targetStatus = targetIsEmpty ? "为空" : "非空";
-        DebugEx.Log("FastBarSlotContainer",
+        DebugEx.Log(nameof(FastBarSlotContainerImpl),
             $"[快捷栏→{targetContainer.ContainerType}] {fromSlotIndex} → {targetSlotIndex} (目标{targetStatus})");
 
         bool success = targetContainer switch

@@ -45,7 +45,7 @@ public class CardPreviewDisplay : MonoBehaviour
         if (s_Instance == null)
         {
             s_Instance = this;
-            DebugEx.LogModule("CardPreviewDisplay", "初始化完成");
+            DebugEx.Log("CardPreviewDisplay", "初始化完成");
         }
         else
         {
@@ -106,7 +106,7 @@ public class CardPreviewDisplay : MonoBehaviour
         // 脉冲
         PlayActionPulseAnimation();
 
-        DebugEx.LogModule("CardPreviewDisplay", $"显示作用范围：位置={position}，半径={radius}");
+        DebugEx.Log("CardPreviewDisplay", $"显示作用范围：位置={position}，半径={radius}");
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ public class CardPreviewDisplay : MonoBehaviour
         m_InvalidFadeTween = DOTween.To(() => m_InvalidAlpha, x => m_InvalidAlpha = x, 1f, FADE_DURATION)
             .SetEase(Ease.OutQuad);
 
-        DebugEx.LogModule("CardPreviewDisplay", "显示无效区域预览");
+        DebugEx.Log("CardPreviewDisplay", "显示无效区域预览");
     }
 
     /// <summary>

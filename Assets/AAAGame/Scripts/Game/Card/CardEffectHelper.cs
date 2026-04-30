@@ -17,7 +17,7 @@ public static class CardEffectHelper
     {
         if (target == null || target.Attribute == null)
         {
-            DebugEx.ErrorModule("CardEffectHelper", "目标或目标属性为空");
+            DebugEx.Error("CardEffectHelper", "目标或目标属性为空");
             return;
         }
 
@@ -26,7 +26,7 @@ public static class CardEffectHelper
         bool isTrueDamage = damageType == 3;
 
         target.Attribute.TakeDamage(damage, isMagic, isTrueDamage, attacker: attacker);
-        DebugEx.LogModule("CardEffectHelper", $"对 {target.Config?.Name} 造成 {damage} 伤害 (类型: {damageType})");
+        DebugEx.Log("CardEffectHelper", $"对 {target.Config?.Name} 造成 {damage} 伤害 (类型: {damageType})");
     }
 
     /// <summary>
@@ -36,12 +36,12 @@ public static class CardEffectHelper
     {
         if (target == null || target.Attribute == null)
         {
-            DebugEx.ErrorModule("CardEffectHelper", "目标或目标属性为空");
+            DebugEx.Error("CardEffectHelper", "目标或目标属性为空");
             return;
         }
 
         target.Attribute.ModifyHp(healAmount);
-        DebugEx.LogModule("CardEffectHelper", $"恢复 {target.Config?.Name} {healAmount} HP");
+        DebugEx.Log("CardEffectHelper", $"恢复 {target.Config?.Name} {healAmount} HP");
     }
 
     /// <summary>
@@ -51,19 +51,19 @@ public static class CardEffectHelper
     {
         if (target == null)
         {
-            DebugEx.ErrorModule("CardEffectHelper", "目标为空");
+            DebugEx.Error("CardEffectHelper", "目标为空");
             return;
         }
 
         var buffManager = target.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            DebugEx.ErrorModule("CardEffectHelper", $"{target.Config?.Name} 没有 BuffManager 组件");
+            DebugEx.Error("CardEffectHelper", $"{target.Config?.Name} 没有 BuffManager 组件");
             return;
         }
 
         buffManager.AddBuff(buffId, caster);
-        DebugEx.LogModule("CardEffectHelper", $"对 {target.Config?.Name} 应用 Buff: {buffId}");
+        DebugEx.Log("CardEffectHelper", $"对 {target.Config?.Name} 应用 Buff: {buffId}");
     }
 
     /// <summary>
@@ -73,12 +73,12 @@ public static class CardEffectHelper
     {
         if (effectId <= 0)
         {
-            DebugEx.WarningModule("CardEffectHelper", "特效 ID 无效");
+            DebugEx.Warning("CardEffectHelper", "特效 ID 无效");
             return;
         }
 
         // 通过 CombatVFXManager 播放特效（静态类，直接调用）
         CombatVFXManager.PlayEffect(effectId, position);
-        DebugEx.LogModule("CardEffectHelper", $"播放特效: ID={effectId}, 位置={position}");
+        DebugEx.Log("CardEffectHelper", $"播放特效: ID={effectId}, 位置={position}");
     }
 }

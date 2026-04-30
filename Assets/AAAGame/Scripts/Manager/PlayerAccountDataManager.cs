@@ -44,7 +44,7 @@ public class PlayerAccountDataManager
     private void OnChessUnlocked(int chessId)
     {
         // 棋子数据已直接存储在 OwnedUnitCardIds 中，无需额外同步
-        DebugEx.LogModule("PlayerAccountDataManager", $"棋子已解锁: {chessId}");
+        DebugEx.Log("PlayerAccountDataManager", $"棋子已解锁: {chessId}");
     }
 
     // 当前玩家存档数据
@@ -72,10 +72,7 @@ public class PlayerAccountDataManager
                 if (!Directory.Exists(m_SaveRootPath))
                 {
                     Directory.CreateDirectory(m_SaveRootPath);
-                    DebugEx.LogModule(
-                        "PlayerAccountDataManager",
-                        $"创建存档根目录: {m_SaveRootPath}"
-                    );
+                    DebugEx.Log("PlayerAccountDataManager", $"创建存档根目录: {m_SaveRootPath}");
                 }
             }
             return m_SaveRootPath;
@@ -91,7 +88,7 @@ public class PlayerAccountDataManager
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
-            DebugEx.LogModule("PlayerAccountDataManager", $"创建账号目录: {path}");
+            DebugEx.Log("PlayerAccountDataManager", $"创建账号目录: {path}");
         }
         return path;
     }
@@ -152,7 +149,7 @@ public class PlayerAccountDataManager
                 SaveIdStack = new List<string>(),
             };
             SaveAccountInfo();
-            DebugEx.LogModule("PlayerAccountDataManager", $"创建新账号信息: {m_CurrentAccountId}");
+            DebugEx.Log("PlayerAccountDataManager", $"创建新账号信息: {m_CurrentAccountId}");
         }
         else
         {
@@ -162,14 +159,11 @@ public class PlayerAccountDataManager
                 m_CurrentAccountInfo = JsonUtility.FromJson<PlayerAccountInfo>(json);
                 m_CurrentAccountInfo.LastLoginTime = GetCurrentTimestamp();
                 SaveAccountInfo();
-                DebugEx.LogModule(
-                    "PlayerAccountDataManager",
-                    $"加载账号信息成功: {m_CurrentAccountId}"
-                );
+                DebugEx.Log("PlayerAccountDataManager", $"加载账号信息成功: {m_CurrentAccountId}");
             }
             catch (Exception e)
             {
-                DebugEx.ErrorModule("PlayerAccountDataManager", $"加载账号信息失败: {e.Message}");
+                DebugEx.Error("PlayerAccountDataManager", $"加载账号信息失败: {e.Message}");
                 m_CurrentAccountInfo = new PlayerAccountInfo
                 {
                     AccountId = m_CurrentAccountId,
@@ -197,7 +191,7 @@ public class PlayerAccountDataManager
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", $"保存账号信息失败: {e.Message}");
+            DebugEx.Error("PlayerAccountDataManager", $"保存账号信息失败: {e.Message}");
         }
     }
 
@@ -240,17 +234,14 @@ public class PlayerAccountDataManager
         var initTable = GF.DataTable.GetDataTable<PlayerInitTable>();
         if (initTable == null)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", "PlayerInitTable 未加载");
+            DebugEx.Error("PlayerAccountDataManager", "PlayerInitTable 未加载");
             return null;
         }
 
         var initConfig = initTable.GetDataRow(1);
         if (initConfig == null)
         {
-            DebugEx.ErrorModule(
-                "PlayerAccountDataManager",
-                "找不到 PlayerInitTable 的初始配置 (Id=1)"
-            );
+            DebugEx.Error("PlayerAccountDataManager", "找不到 PlayerInitTable 的初始配置 (Id=1)");
             return null;
         }
 
@@ -258,14 +249,14 @@ public class PlayerAccountDataManager
         var summonerTable = GF.DataTable.GetDataTable<SummonerTable>();
         if (summonerTable == null)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", "SummonerTable 未加载");
+            DebugEx.Error("PlayerAccountDataManager", "SummonerTable 未加载");
             return null;
         }
 
         var summonerConfig = summonerTable.GetDataRow(summonerId);
         if (summonerConfig == null)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", $"找不到召唤师配置 (Id={summonerId})");
+            DebugEx.Error("PlayerAccountDataManager", $"找不到召唤师配置 (Id={summonerId})");
             return null;
         }
 
@@ -370,10 +361,7 @@ public class PlayerAccountDataManager
         // 11. 将存档ID添加到栈顶
         MoveToStackTop(newSaveId);
 
-        DebugEx.LogModule(
-            "PlayerAccountDataManager",
-            $"创建新存档成功: {saveName}, 召唤师: {summonerConfig.Name}, SaveId: {newSaveId}"
-        );
+        DebugEx.Log("PlayerAccountDataManager", $"创建新存档成功: {saveName}, 召唤师: {summonerConfig.Name}, SaveId: {newSaveId}");
 
         return saveData;
     }
@@ -398,7 +386,7 @@ public class PlayerAccountDataManager
     {
         if (m_CurrentSaveData == null)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", "当前存档为空，无法保存");
+            DebugEx.Error("PlayerAccountDataManager", "当前存档为空，无法保存");
             return;
         }
 
@@ -412,8 +400,7 @@ public class PlayerAccountDataManager
             {
                 var inventoryData = InventoryManager.Instance.SaveInventory();
                 m_CurrentSaveData.SetInventoryItems(inventoryData);
-                DebugEx.Log(
-                    "PlayerAccountDataManager",
+                DebugEx.Log("PlayerAccountDataManager",
                     $"背包数据已保存，物品数量:{inventoryData.Count()}"
                 );
             }
@@ -427,25 +414,16 @@ public class PlayerAccountDataManager
             // 写入文件
             File.WriteAllText(filePath, json, System.Text.Encoding.UTF8);
 
-            DebugEx.LogModule("PlayerAccountDataManager", "=== 存档已保存 ===");
-            DebugEx.LogModule(
-                "PlayerAccountDataManager",
-                $"存档名称: {m_CurrentSaveData.SaveName}"
-            );
-            DebugEx.LogModule("PlayerAccountDataManager", $"存档ID: {m_CurrentSaveData.SaveId}");
-            DebugEx.LogModule("PlayerAccountDataManager", $"文件路径: {filePath}");
-            DebugEx.LogModule(
-                "PlayerAccountDataManager",
-                $"玩家等级: {m_CurrentSaveData.GlobalLevel}"
-            );
-            DebugEx.LogModule("PlayerAccountDataManager", "==================");
+            DebugEx.Log("PlayerAccountDataManager", "=== 存档已保存 ===");
+            DebugEx.Log("PlayerAccountDataManager", $"存档名称: {m_CurrentSaveData.SaveName}");
+            DebugEx.Log("PlayerAccountDataManager", $"存档ID: {m_CurrentSaveData.SaveId}");
+            DebugEx.Log("PlayerAccountDataManager", $"文件路径: {filePath}");
+            DebugEx.Log("PlayerAccountDataManager", $"玩家等级: {m_CurrentSaveData.GlobalLevel}");
+            DebugEx.Log("PlayerAccountDataManager", "==================");
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule(
-                "PlayerAccountDataManager",
-                $"保存存档失败: {e.Message}\n{e.StackTrace}"
-            );
+            DebugEx.Error("PlayerAccountDataManager", $"保存存档失败: {e.Message}\n{e.StackTrace}");
         }
     }
 
@@ -456,14 +434,14 @@ public class PlayerAccountDataManager
     {
         if (m_CurrentSaveData == null)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", "当前没有加载存档");
+            DebugEx.Error("PlayerAccountDataManager", "当前没有加载存档");
             return;
         }
 
         m_CurrentSaveData.HasCompletedTutorial = true;
         SaveCurrentSave();
 
-        DebugEx.LogModule("PlayerAccountDataManager", "教程已完成");
+        DebugEx.Log("PlayerAccountDataManager", "教程已完成");
     }
 
     /// <summary>
@@ -475,7 +453,7 @@ public class PlayerAccountDataManager
 
         if (!File.Exists(filePath))
         {
-            DebugEx.WarningModule("PlayerAccountDataManager", $"存档不存在: {saveId}");
+            DebugEx.Warning("PlayerAccountDataManager", $"存档不存在: {saveId}");
             return null;
         }
 
@@ -485,7 +463,7 @@ public class PlayerAccountDataManager
 
             if (string.IsNullOrEmpty(json))
             {
-                DebugEx.WarningModule("PlayerAccountDataManager", $"存档文件为空: {saveId}");
+                DebugEx.Warning("PlayerAccountDataManager", $"存档文件为空: {saveId}");
                 return null;
             }
 
@@ -496,7 +474,7 @@ public class PlayerAccountDataManager
             // 上次未正常结算（异常退出），回滚到快照状态
             if (!string.IsNullOrEmpty(saveData.InGameSnapshot))
             {
-                DebugEx.WarningModule("PlayerAccountDataManager",
+                DebugEx.Warning("PlayerAccountDataManager",
                     "检测到未结算的局内快照，自动回滚账号数据");
                 RestoreFromSnapshot();
             }
@@ -510,18 +488,12 @@ public class PlayerAccountDataManager
             // 将此存档移到栈顶
             MoveToStackTop(saveId);
 
-            DebugEx.LogModule(
-                "PlayerAccountDataManager",
-                $"加载存档成功: {saveData.SaveName} (SaveId: {saveId})"
-            );
+            DebugEx.Log("PlayerAccountDataManager", $"加载存档成功: {saveData.SaveName} (SaveId: {saveId})");
             return saveData;
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule(
-                "PlayerAccountDataManager",
-                $"加载存档失败: {e.Message}\n{e.StackTrace}"
-            );
+            DebugEx.Error("PlayerAccountDataManager", $"加载存档失败: {e.Message}\n{e.StackTrace}");
             return null;
         }
     }
@@ -546,10 +518,7 @@ public class PlayerAccountDataManager
         if (ChessUnlockManager.Instance != null)
         {
             ChessUnlockManager.Instance.Initialize(saveData);
-            DebugEx.LogModule(
-                "PlayerAccountDataManager",
-                $"棋子管理器已初始化，已解锁棋子数: {saveData.OwnedUnitCardIds?.Count ?? 0}"
-            );
+            DebugEx.Log("PlayerAccountDataManager", $"棋子管理器已初始化，已解锁棋子数: {saveData.OwnedUnitCardIds?.Count ?? 0}");
         }
 
         // 加载背包数据
@@ -576,7 +545,7 @@ public class PlayerAccountDataManager
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
-                DebugEx.LogModule("PlayerAccountDataManager", $"存档已删除: {saveId}");
+                DebugEx.Log("PlayerAccountDataManager", $"存档已删除: {saveId}");
             }
 
             // 从栈中移除
@@ -594,10 +563,7 @@ public class PlayerAccountDataManager
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule(
-                "PlayerAccountDataManager",
-                $"删除存档失败: {e.Message}\n{e.StackTrace}"
-            );
+            DebugEx.Error("PlayerAccountDataManager", $"删除存档失败: {e.Message}\n{e.StackTrace}");
         }
     }
 
@@ -653,7 +619,7 @@ public class PlayerAccountDataManager
         }
         catch (Exception e)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", $"获取存档信息失败: {e.Message}");
+            DebugEx.Error("PlayerAccountDataManager", $"获取存档信息失败: {e.Message}");
             return null;
         }
     }
@@ -747,7 +713,7 @@ public class PlayerAccountDataManager
         }
 
         GF.Event.Fire(this, PlayerLevelUpEventArgs.Create(oldLevel, m_CurrentSaveData.GlobalLevel));
-        DebugEx.LogModule("PlayerAccountDataManager", $"玩家升级: {oldLevel} -> {m_CurrentSaveData.GlobalLevel}");
+        DebugEx.Log("PlayerAccountDataManager", $"玩家升级: {oldLevel} -> {m_CurrentSaveData.GlobalLevel}");
     }
 
     /// <summary>
@@ -769,7 +735,7 @@ public class PlayerAccountDataManager
         {
             if (items.Count >= m_CurrentSaveData.InventoryCapacity)
             {
-                DebugEx.WarningModule("PlayerAccountDataManager", "背包已满");
+                DebugEx.Warning("PlayerAccountDataManager", "背包已满");
                 return false;
             }
 
@@ -884,8 +850,7 @@ public class PlayerAccountDataManager
             return false;
         if (m_CurrentSaveData.OriginStone < amount)
         {
-            DebugEx.Warning(
-                "PlayerAccountDataManager",
+            DebugEx.Warning("PlayerAccountDataManager",
                 $"起源石不足: 需要 {amount}, 当前 {m_CurrentSaveData.OriginStone}"
             );
             return false;
@@ -921,8 +886,7 @@ public class PlayerAccountDataManager
             return false;
         if (m_CurrentSaveData.SpiritStone < amount)
         {
-            DebugEx.Warning(
-                "PlayerAccountDataManager",
+            DebugEx.Warning("PlayerAccountDataManager",
                 $"灵石不足: 需要 {amount}, 当前 {m_CurrentSaveData.SpiritStone}"
             );
             return false;
@@ -953,7 +917,7 @@ public class PlayerAccountDataManager
         var unlockedIds = m_CurrentSaveData.GetUnlockedSummonerIds();
         if (!unlockedIds.Contains(summonerId))
         {
-            DebugEx.WarningModule("PlayerAccountDataManager", $"召唤师 {summonerId} 未解锁");
+            DebugEx.Warning("PlayerAccountDataManager", $"召唤师 {summonerId} 未解锁");
             return false;
         }
 
@@ -974,7 +938,7 @@ public class PlayerAccountDataManager
         var unlockedIds = m_CurrentSaveData.GetUnlockedSummonerIds();
         if (unlockedIds.Contains(summonerId))
         {
-            DebugEx.WarningModule("PlayerAccountDataManager", $"召唤师 {summonerId} 已解锁");
+            DebugEx.Warning("PlayerAccountDataManager", $"召唤师 {summonerId} 已解锁");
             return false;
         }
 
@@ -985,7 +949,7 @@ public class PlayerAccountDataManager
         var summonerConfig = summonerTable.GetDataRow(summonerId);
         if (summonerConfig == null)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", $"找不到召唤师配置 {summonerId}");
+            DebugEx.Error("PlayerAccountDataManager", $"找不到召唤师配置 {summonerId}");
             return false;
         }
 
@@ -993,7 +957,7 @@ public class PlayerAccountDataManager
         m_CurrentSaveData.SetUnlockedSummonerIds(unlockedIds);
 
         SaveCurrentSave();
-        DebugEx.LogModule("PlayerAccountDataManager", $"解锁召唤师: {summonerConfig.Name}");
+        DebugEx.Log("PlayerAccountDataManager", $"解锁召唤师: {summonerConfig.Name}");
         return true;
     }
 
@@ -1014,7 +978,7 @@ public class PlayerAccountDataManager
         var currentConfig = summonerTable.GetDataRow(currentPhaseId);
         if (currentConfig == null || currentConfig.NextPhaseId == 0)
         {
-            DebugEx.WarningModule("PlayerAccountDataManager", "已达最高阶段");
+            DebugEx.Warning("PlayerAccountDataManager", "已达最高阶段");
             return false;
         }
 
@@ -1038,10 +1002,7 @@ public class PlayerAccountDataManager
         }
 
         SaveCurrentSave();
-        DebugEx.LogModule(
-            "PlayerAccountDataManager",
-            $"召唤师进阶成功: {currentPhaseId} -> {currentConfig.NextPhaseId}"
-        );
+        DebugEx.Log("PlayerAccountDataManager", $"召唤师进阶成功: {currentPhaseId} -> {currentConfig.NextPhaseId}");
         return true;
     }
 
@@ -1058,10 +1019,7 @@ public class PlayerAccountDataManager
             case 1:
                 if (m_CurrentSaveData.GlobalLevel < config.AdvanceValue)
                 {
-                    DebugEx.WarningModule(
-                        "PlayerAccountDataManager",
-                        $"需要等级 {config.AdvanceValue}"
-                    );
+                    DebugEx.Warning("PlayerAccountDataManager", $"需要等级 {config.AdvanceValue}");
                     return false;
                 }
                 return true;
@@ -1071,7 +1029,7 @@ public class PlayerAccountDataManager
                 var item = items.Find(i => i.ItemId == config.AdvanceValue);
                 if (item == null || item.Count <= 0)
                 {
-                    DebugEx.WarningModule("PlayerAccountDataManager", "缺少进阶道具");
+                    DebugEx.Warning("PlayerAccountDataManager", "缺少进阶道具");
                     return false;
                 }
                 ConsumeItem(config.AdvanceValue, 1);
@@ -1080,7 +1038,7 @@ public class PlayerAccountDataManager
             case 3:
                 if (!m_CurrentSaveData.CompletedQuestIds.Contains(config.AdvanceValue))
                 {
-                    DebugEx.WarningModule("PlayerAccountDataManager", "需要完成指定任务");
+                    DebugEx.Warning("PlayerAccountDataManager", "需要完成指定任务");
                     return false;
                 }
                 return true;
@@ -1114,15 +1072,15 @@ public class PlayerAccountDataManager
         switch (featureName)
         {
             case "SecondCardSlot":
-                DebugEx.LogModule("PlayerAccountDataManager", "解锁第二卡槽");
+                DebugEx.Log("PlayerAccountDataManager", "解锁第二卡槽");
                 break;
 
             case "InfiniteMode":
-                DebugEx.LogModule("PlayerAccountDataManager", "解锁无限模式");
+                DebugEx.Log("PlayerAccountDataManager", "解锁无限模式");
                 break;
 
             default:
-                DebugEx.LogModule("PlayerAccountDataManager", $"解锁功能: {featureName}");
+                DebugEx.Log("PlayerAccountDataManager", $"解锁功能: {featureName}");
                 break;
         }
     }
@@ -1157,7 +1115,7 @@ public class PlayerAccountDataManager
         m_CurrentSaveData.InGameSnapshot = JsonUtility.ToJson(snapshot);
         SaveCurrentSave();
 
-        DebugEx.LogModule("PlayerAccountDataManager",
+        DebugEx.Log("PlayerAccountDataManager",
             $"已创建局内快照: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}");
     }
 
@@ -1170,7 +1128,7 @@ public class PlayerAccountDataManager
             return;
 
         m_CurrentSaveData.InGameSnapshot = null;
-        DebugEx.LogModule("PlayerAccountDataManager", "局内快照已清除");
+        DebugEx.Log("PlayerAccountDataManager", "局内快照已清除");
     }
 
     /// <summary>
@@ -1222,12 +1180,12 @@ public class PlayerAccountDataManager
 
             SaveCurrentSave();
 
-            DebugEx.LogModule("PlayerAccountDataManager",
+            DebugEx.Log("PlayerAccountDataManager",
                 $"已从快照恢复: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}");
         }
         catch (System.Exception e)
         {
-            DebugEx.ErrorModule("PlayerAccountDataManager", $"快照恢复失败: {e.Message}");
+            DebugEx.Error("PlayerAccountDataManager", $"快照恢复失败: {e.Message}");
         }
     }
 

@@ -74,7 +74,7 @@ public class BurnBuff : BuffBase
         double damage = m_DamagePerStack * StackCount;
         Ctx.OwnerAttribute.TakeDamage(damage, false, true, false, DamageFloatingTextManager.DamageType.火焰伤害);
 
-        DebugEx.LogModule("BurnBuff", $"灼烧伤害: {damage:F1} ({StackCount}层 × {m_DamagePerStack})");
+        DebugEx.Log(nameof(BurnBuff), $"灼烧伤害: {damage:F1} ({StackCount}层 × {m_DamagePerStack})");
     }
 
     public override void OnExit()
@@ -151,7 +151,7 @@ public class BurnBuff : BuffBase
             IsFinished = true;
         }
 
-        DebugEx.LogModule("BurnBuff", $"灼烧层数减少: {oldStacks} -> {StackCount}");
+        DebugEx.Log(nameof(BurnBuff), $"灼烧层数减少: {oldStacks} -> {StackCount}");
     }
 
     #endregion
@@ -166,14 +166,14 @@ public class BurnBuff : BuffBase
         {
             Ctx.OwnerAttribute.ModifyArmor(-ARMOR_REDUCE_AT_5);
             m_ArmorReduced5 = true;
-            DebugEx.LogModule("BurnBuff", "灼烧达到5层，护甲-50");
+            DebugEx.Log(nameof(BurnBuff), "灼烧达到5层，护甲-50");
         }
 
         if (StackCount >= 10 && !m_ArmorReduced10)
         {
             Ctx.OwnerAttribute.ModifyArmor(-ARMOR_REDUCE_AT_10);
             m_ArmorReduced10 = true;
-            DebugEx.LogModule("BurnBuff", "灼烧达到10层，护甲再-50");
+            DebugEx.Log(nameof(BurnBuff), "灼烧达到10层，护甲再-50");
         }
     }
 

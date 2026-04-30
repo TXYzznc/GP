@@ -72,7 +72,7 @@ public abstract class ChessSkillBase : IChessSkill
         double cdReduce = m_Ctx.Attribute.CooldownReduce;
         m_CooldownRemain = (float)(m_Config.Cooldown * (1.0 - cdReduce));
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             GetType().Name,
             $"技能释放成功！消耗MP={m_Config.MpCost}, 原始冷却={m_Config.Cooldown}s, "
                 + $"冷却缩减={cdReduce:P0}, 实际冷却={m_CooldownRemain:F1}s"
@@ -157,7 +157,7 @@ public abstract class ChessSkillBase : IChessSkill
 
             CombatVFXManager.PlaySkillEffect(caster.transform, m_Config.EffectId, offset);
 
-            DebugEx.LogModule(
+            DebugEx.Log(
                 GetType().Name,
                 $"{caster.Config?.Name} 播放技能特效: ID={m_Config.EffectId}, 高度={spawnHeight:F2}"
             );

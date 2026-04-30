@@ -42,7 +42,7 @@ public partial class DetailInfoUI : UIItemBase
         m_RectTransform = GetComponent<RectTransform>();
         if (m_RectTransform == null)
         {
-            DebugEx.ErrorModule("DetailInfoUI", "未找到 RectTransform 组件");
+            DebugEx.Error(nameof(DetailInfoUI), "未找到 RectTransform 组件");
         }
 
         InitEquipSlots();
@@ -72,7 +72,7 @@ public partial class DetailInfoUI : UIItemBase
         m_ChessEntity = null;
         m_CurrentMode = 0;
         m_CurrentChessId = -1;
-        DebugEx.LogModule("DetailInfoUI", $"设置卡牌数据: {cardData?.Name ?? "null"}");
+        DebugEx.Log(nameof(DetailInfoUI), $"设置卡牌数据: {cardData?.Name ?? "null"}");
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public partial class DetailInfoUI : UIItemBase
         m_CurrentMode = 1;
         m_CurrentChessId = chessEntity?.ChessId ?? -1;
         UpdateEquipContainerChessId();
-        DebugEx.LogModule("DetailInfoUI", $"设置棋子数据: {chessEntity?.Config?.Name ?? "null"}");
+        DebugEx.Log(nameof(DetailInfoUI), $"设置棋子数据: {chessEntity?.Config?.Name ?? "null"}");
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public partial class DetailInfoUI : UIItemBase
         m_CurrentMode = 2;
         m_CurrentChessId = config?.Id ?? -1;
         UpdateEquipContainerChessId();
-        DebugEx.LogModule("DetailInfoUI", $"设置棋子配置: {config?.Name ?? "null"}");
+        DebugEx.Log(nameof(DetailInfoUI), $"设置棋子配置: {config?.Name ?? "null"}");
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public partial class DetailInfoUI : UIItemBase
         if (entity != null)
         {
             m_ChessEntity = entity;
-            DebugEx.LogModule("DetailInfoUI", $"已关联ChessEntity用于准备阶段: {entity.Config?.Name ?? "null"}");
+            DebugEx.Log(nameof(DetailInfoUI), $"已关联ChessEntity用于准备阶段: {entity.Config?.Name ?? "null"}");
         }
     }
 
@@ -147,7 +147,7 @@ public partial class DetailInfoUI : UIItemBase
     {
         if (m_CardData == null)
         {
-            DebugEx.WarningModule("DetailInfoUI", "卡牌数据为空，无法刷新UI");
+            DebugEx.Warning(nameof(DetailInfoUI), "卡牌数据为空，无法刷新UI");
             return;
         }
 
@@ -163,7 +163,7 @@ public partial class DetailInfoUI : UIItemBase
         if (varDesc_2Text != null)
             varDesc_2Text.text = m_CardData.Desc;
 
-        DebugEx.LogModule("DetailInfoUI", $"卡牌UI已刷新: {m_CardData.Name}");
+        DebugEx.Log(nameof(DetailInfoUI), $"卡牌UI已刷新: {m_CardData.Name}");
     }
 
     /// <summary>
@@ -173,7 +173,7 @@ public partial class DetailInfoUI : UIItemBase
     {
         if (m_ChessEntity == null || m_ChessEntity.Config == null)
         {
-            DebugEx.WarningModule("DetailInfoUI", "棋子数据为空，无法刷新UI");
+            DebugEx.Warning(nameof(DetailInfoUI), "棋子数据为空，无法刷新UI");
             return;
         }
 
@@ -184,24 +184,24 @@ public partial class DetailInfoUI : UIItemBase
         var attr = m_ChessEntity.Attribute;
 
         if (varTitleText != null)
-            varTitleText.text = $"{config.Name} {new string('★', config.StarLevel)}";
+            varTitleText.text = $"{config.Name} Lv{m_ChessEntity.Rank}";
 
         if (varDesc_1Text != null)
         {
             varDesc_1Text.text = $"HP: {attr.CurrentHp:F0}/{attr.MaxHp:F0}\n"
-                               + $"MP: {attr.CurrentMp:F0}/{config.MaxMp:F0}\n"
+                               + $"MP: {attr.CurrentMp:F0}/{config.GetMaxMp(m_ChessEntity.Rank):F0}\n"
                                + $"攻击: {attr.AtkDamage:F0}  护甲: {attr.Armor:F0}\n"
                                + $"魔抗: {attr.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
-                               + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+                               + $"暴击率: {config.GetCritRate(m_ChessEntity.Rank) * 100:F0}%  人口: {config.PopCost}";
         }
 
         if (varDesc_2Text != null)
-            varDesc_2Text.text = config.Description;
+            varDesc_2Text.text = config.GetDescription(m_ChessEntity.Rank);
 
         RefreshAllBuffs();
         RefreshEquipmentUI();
 
-        DebugEx.LogModule("DetailInfoUI", $"棋子UI已刷新: {config.Name}");
+        DebugEx.Log(nameof(DetailInfoUI), $"棋子UI已刷新: {config.Name}");
     }
 
     /// <summary>
@@ -212,7 +212,7 @@ public partial class DetailInfoUI : UIItemBase
     {
         if (m_ChessConfig == null)
         {
-            DebugEx.WarningModule("DetailInfoUI", "棋子配置为空，无法刷新UI");
+            DebugEx.Warning(nameof(DetailInfoUI), "棋子配置为空，无法刷新UI");
             return;
         }
 
@@ -222,7 +222,7 @@ public partial class DetailInfoUI : UIItemBase
         var config = m_ChessConfig;
 
         if (varTitleText != null)
-            varTitleText.text = $"{config.Name} {new string('★', config.StarLevel)}";
+            varTitleText.text = $"{config.Name}";
 
         if (varDesc_1Text != null)
         {
@@ -237,30 +237,30 @@ public partial class DetailInfoUI : UIItemBase
 
                 varDesc_1Text.text = $"等级: {level}  经验: {experience}\n"
                                    + $"HP: {attr.CurrentHp:F0}/{attr.MaxHp:F0}\n"
-                                   + $"MP: {attr.CurrentMp:F0}/{config.MaxMp:F0}\n"
+                                   + $"MP: {attr.CurrentMp:F0}/{config.GetMaxMp(m_ChessEntity.Rank):F0}\n"
                                    + $"攻击: {attr.AtkDamage:F0}  护甲: {attr.Armor:F0}\n"
                                    + $"魔抗: {attr.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
-                                   + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+                                   + $"暴击率: {config.GetCritRate(m_ChessEntity.Rank) * 100:F0}%  人口: {config.PopCost}";
 
-                DebugEx.LogModule("DetailInfoUI", $"棋子配置UI已刷新（使用实体属性）: {config.Name} HP={attr.CurrentHp:F0}/{attr.MaxHp:F0}");
+                DebugEx.Log(nameof(DetailInfoUI), $"棋子配置UI已刷新（使用实体属性）: {config.Name} HP={attr.CurrentHp:F0}/{attr.MaxHp:F0}");
             }
             else if (m_GlobalState != null)
             {
-                // 使用全局状态（静态数据）
+                // 使用全局状态（静态数据，显示Rank 1的配置）
                 var state = m_GlobalState;
                 varDesc_1Text.text = $"等级: {state.Level}  经验: {state.Experience}\n"
                                    + $"HP: {state.CurrentHp:F0}/{state.MaxHp:F0}\n"
-                                   + $"MP: {config.InitialMp:F0}/{config.MaxMp:F0}\n"
-                                   + $"攻击: {config.AtkDamage:F0}  护甲: {config.Armor:F0}\n"
-                                   + $"魔抗: {config.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
-                                   + $"暴击率: {config.CritRate * 100:F0}%  人口: {config.PopCost}";
+                                   + $"MP: 0/{config.GetMaxMp(1):F0}\n"
+                                   + $"攻击: {config.GetAtkDamage(1):F0}  护甲: {config.GetArmor(1):F0}\n"
+                                   + $"魔抗: {config.GetMagicResist(1):F0}  速度: {config.MoveSpeed:F1}\n"
+                                   + $"暴击率: {config.GetCritRate(1) * 100:F0}%  人口: {config.PopCost}";
 
-                DebugEx.LogModule("DetailInfoUI", $"棋子配置UI已刷新（使用全局状态）: {config.Name}");
+                DebugEx.Log(nameof(DetailInfoUI), $"棋子配置UI已刷新（使用全局状态）: {config.Name}");
             }
         }
 
         if (varDesc_2Text != null)
-            varDesc_2Text.text = config.Description;
+            varDesc_2Text.text = config.GetDescription(1);
 
         RefreshEquipmentUI();
     }
@@ -337,7 +337,7 @@ public partial class DetailInfoUI : UIItemBase
     {
         if (m_RectTransform == null)
         {
-            DebugEx.ErrorModule("DetailInfoUI", "RectTransform 为空，无法播放动画");
+            DebugEx.Error(nameof(DetailInfoUI), "RectTransform 为空，无法播放动画");
             gameObject.SetActive(true);
             return;
         }
@@ -389,7 +389,7 @@ public partial class DetailInfoUI : UIItemBase
     {
         if (varEquipBg == null || varInventorySlotUI == null)
         {
-            DebugEx.WarningModule("DetailInfoUI", "装备槽模板或容器为空，跳过初始化");
+            DebugEx.Warning(nameof(DetailInfoUI), "装备槽模板或容器为空，跳过初始化");
             return;
         }
 
@@ -429,7 +429,7 @@ public partial class DetailInfoUI : UIItemBase
             }
         }
 
-        DebugEx.LogModule("DetailInfoUI", $"装备槽初始化完成，共 {ChessEquipmentManager.EQUIP_SLOT_COUNT} 个槽位");
+        DebugEx.Log(nameof(DetailInfoUI), $"装备槽初始化完成，共 {ChessEquipmentManager.EQUIP_SLOT_COUNT} 个槽位");
     }
 
     /// <summary>
@@ -513,11 +513,11 @@ public partial class DetailInfoUI : UIItemBase
             {
                 // 背包满了，重新穿上
                 equipMgr.EquipItem(m_CurrentChessId, item, slotIndex);
-                DebugEx.WarningModule("DetailInfoUI", "背包已满，无法卸下装备");
+                DebugEx.Warning(nameof(DetailInfoUI), "背包已满，无法卸下装备");
             }
             else
             {
-                DebugEx.LogModule("DetailInfoUI", $"卸下装备 {item.Name} → 背包");
+                DebugEx.Log(nameof(DetailInfoUI), $"卸下装备 {item.Name} → 背包");
             }
         }
     }

@@ -65,7 +65,7 @@ public class InventorySlot
         }
 
         m_ItemStack = new ItemStack(item, count);
-        DebugEx.Log("InventorySlot", $"格子 {m_SlotIndex} 设置物品: {item.Name}, 数量:{count}");
+        DebugEx.Log(nameof(InventorySlot), $"格子 {m_SlotIndex} 设置物品: {item.Name}, 数量:{count}");
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class InventorySlot
         if (itemStack != null && !itemStack.IsEmpty)
         {
             DebugEx.Log(
-                "InventorySlot",
+                nameof(InventorySlot),
                 $"格子 {m_SlotIndex} 设置物品堆叠: {itemStack.Item.Name}, 数量:{itemStack.Count}"
             );
         }
@@ -90,7 +90,7 @@ public class InventorySlot
     {
         if (m_ItemStack == null || m_ItemStack.IsEmpty)
         {
-            DebugEx.Warning("InventorySlot", $"格子 {m_SlotIndex} 为空，无法添加");
+            DebugEx.Warning(nameof(InventorySlot), $"格子 {m_SlotIndex} 为空，无法添加");
             return 0;
         }
 
@@ -122,7 +122,7 @@ public class InventorySlot
     /// </summary>
     public void Clear()
     {
-        DebugEx.Log("InventorySlot", $"清空格子 {m_SlotIndex}");
+        DebugEx.Log(nameof(InventorySlot), $"清空格子 {m_SlotIndex}");
         m_ItemStack = null;
     }
 

@@ -54,7 +54,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
 
         LoadEscapeRule();
 
-        DebugEx.LogModule("CombatEscapeSystem", $"脱战系统已初始化，敌人: {enemy?.Config?.Name}");
+        DebugEx.Log("CombatEscapeSystem", $"脱战系统已初始化，敌人: {enemy?.Config?.Name}");
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         m_EscapeFailCooldown = 0;
         m_CurrentRule = null;
 
-        DebugEx.LogModule("CombatEscapeSystem", "脱战系统已清除");
+        DebugEx.Log("CombatEscapeSystem", "脱战系统已清除");
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         if (IsOnCooldown)
         {
             m_EscapeFailCooldown--;
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "CombatEscapeSystem",
                 $"脱战冷却减少，剩余: {m_EscapeFailCooldown}回合"
             );
@@ -100,7 +100,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
             LoadEscapeRule();
             if (m_CurrentRule == null)
             {
-                DebugEx.WarningModule("CombatEscapeSystem", "脱战规则未找到，返回默认成功率50%");
+                DebugEx.Warning("CombatEscapeSystem", "脱战规则未找到，返回默认成功率50%");
                 return 0.5f;
             }
         }
@@ -130,7 +130,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
     {
         if (IsOnCooldown)
         {
-            DebugEx.WarningModule("CombatEscapeSystem", "脱战在冷却中，无法尝试");
+            DebugEx.Warning("CombatEscapeSystem", "脱战在冷却中，无法尝试");
             return false;
         }
 
@@ -161,7 +161,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
     {
         if (m_CurrentEnemy == null)
         {
-            DebugEx.WarningModule("CombatEscapeSystem", "当前敌人为空，无法加载脱战规则");
+            DebugEx.Warning("CombatEscapeSystem", "当前敌人为空，无法加载脱战规则");
             return;
         }
 
@@ -172,7 +172,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         var escapeRuleTable = GF.DataTable.GetDataTable<EscapeRuleTable>();
         if (escapeRuleTable == null)
         {
-            DebugEx.WarningModule("CombatEscapeSystem", "EscapeRuleTable未加载");
+            DebugEx.Warning("CombatEscapeSystem", "EscapeRuleTable未加载");
             return;
         }
 
@@ -181,7 +181,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
 
         if (m_CurrentRule != null)
         {
-            DebugEx.LogModule(
+            DebugEx.Log(
                 "CombatEscapeSystem",
                 $"已加载脱战规则: 基础成功率={m_CurrentRule.BaseSuccessRate:P0}"
             );
@@ -196,7 +196,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         if (m_CurrentRule == null)
             return;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "CombatEscapeSystem",
             $"脱战成功！消耗污染值: {m_CurrentRule.CorruptionCost}"
         );
@@ -222,7 +222,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         if (m_CurrentRule == null)
             return;
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "CombatEscapeSystem",
             $"脱战失败！召唤师生命损失: {m_CurrentRule.HealthLossPenalty:P0}, 冷却: {m_CurrentRule.CooldownTurns}回合"
         );
@@ -265,10 +265,10 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         }
         catch (System.Exception ex)
         {
-            DebugEx.ErrorModule("CombatEscapeSystem", $"打开EscapeResultUI失败: {ex.Message}");
+            DebugEx.Error("CombatEscapeSystem", $"打开EscapeResultUI失败: {ex.Message}");
         }
 
-        DebugEx.LogModule(
+        DebugEx.Log(
             "CombatEscapeSystem",
             success ? "显示脱战成功结果UI" : "显示脱战失败结果UI"
         );
@@ -279,7 +279,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
     /// </summary>
     private void ExitCombat()
     {
-        DebugEx.LogModule("CombatEscapeSystem", "脱战成功，准备返回探索");
+        DebugEx.Log("CombatEscapeSystem", "脱战成功，准备返回探索");
 
         // 清除脱战系统状态
         Clear();
@@ -288,7 +288,7 @@ public class CombatEscapeSystem : SingletonBase<CombatEscapeSystem>
         if (CombatTriggerManager.Instance != null)
         {
             CombatTriggerManager.Instance.ClearContext();
-            DebugEx.LogModule("CombatEscapeSystem", "战斗触发上下文已清除");
+            DebugEx.Log("CombatEscapeSystem", "战斗触发上下文已清除");
         }
 
         // 关键：不需要手动转移状态，由于将不再满足继续战斗的条件，

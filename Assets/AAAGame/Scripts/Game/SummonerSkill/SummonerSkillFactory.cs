@@ -25,7 +25,7 @@ public static class SummonerSkillFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"SummonerSkillFactory.Register: creator is null, id={id}");
+            DebugEx.Error(nameof(SummonerSkillFactory), $"Register: creator is null, id={id}");
             return;
         }
         s_SkillCreators[id] = creator;
@@ -35,7 +35,7 @@ public static class SummonerSkillFactory
     {
         if (creator == null)
         {
-            DebugEx.Error($"SummonerSkillFactory.RegisterPassive: creator is null, id={id}");
+            DebugEx.Error(nameof(SummonerSkillFactory), $"RegisterPassive: creator is null, id={id}");
             return;
         }
         s_PassiveCreators[id] = creator;
@@ -46,7 +46,7 @@ public static class SummonerSkillFactory
         if (s_SkillCreators.TryGetValue(id, out var creator))
             return creator();
 
-        DebugEx.Error($"SummonerSkillFactory.Create: 未注册的主动技能 id={id}");
+        DebugEx.Error(nameof(SummonerSkillFactory), $"Create: 未注册的主动技能 id={id}");
         return null;
     }
 
@@ -55,7 +55,7 @@ public static class SummonerSkillFactory
         if (s_PassiveCreators.TryGetValue(id, out var creator))
             return creator();
 
-        DebugEx.Error($"SummonerSkillFactory.CreatePassive: 未注册的被动技能 id={id}");
+        DebugEx.Error(nameof(SummonerSkillFactory), $"CreatePassive: 未注册的被动技能 id={id}");
         return null;
     }
 }

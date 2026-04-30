@@ -133,7 +133,7 @@ public partial class BuffItem : UIItemBase, IPointerEnterHandler, IPointerExitHa
     {
         if (m_BuffConfig == null) return;
 
-        DebugEx.LogModule("BuffItem", $"点击了Buff - {m_BuffConfig.Name} (ID:{m_BuffId})");
+        DebugEx.Log(this.GetType().Name, $"点击了Buff - {m_BuffConfig.Name} (ID:{m_BuffId})");
         ShowBuffTip();
     }
 
@@ -170,7 +170,7 @@ public partial class BuffItem : UIItemBase, IPointerEnterHandler, IPointerExitHa
             var btnRect = varBtn.GetComponent<RectTransform>();
             // offset.x=0 居中对齐图标，offset.y=8 在左上角再往上留一点间距
             m_FloatingTipId = GF.UI.ShowFloatingTipAt(tipText, btnRect, new Vector2(0f, 40f));
-            DebugEx.LogModule("BuffItem", $"显示Buff提示: {m_BuffConfig.Name}, TipId={m_FloatingTipId}");
+            DebugEx.Log(this.GetType().Name, $"显示Buff提示: {m_BuffConfig.Name}, TipId={m_FloatingTipId}");
         }
     }
 

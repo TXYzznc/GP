@@ -39,14 +39,14 @@ public class BuffTestTool
     {
         if (target == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", "目标对象为空");
+            DebugEx.Error(nameof(BuffTestTool), "目标对象为空");
             return;
         }
 
         var buffManager = target.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", $"目标 {target.name} 没有 BuffManager 组件");
+            DebugEx.Error(nameof(BuffTestTool), $"目标 {target.name} 没有 BuffManager 组件");
             return;
         }
 
@@ -55,7 +55,7 @@ public class BuffTestTool
 
         var buffTable = GF.DataTable.GetDataTable<BuffTable>();
         var buffName = buffTable?.GetDataRow(buffId)?.Name ?? $"Buff_{buffId}";
-        DebugEx.LogModule("BuffTestTool", $"✓ 应用 Buff: {buffName} (ID={buffId}) 到 {target.name}");
+        DebugEx.Log(nameof(BuffTestTool), $"✓ 应用 Buff: {buffName} (ID={buffId}) 到 {target.name}");
 
         OnBuffListChanged?.Invoke(target);
     }
@@ -67,7 +67,7 @@ public class BuffTestTool
     {
         if (buffIds == null || buffIds.Length == 0)
         {
-            DebugEx.WarningModule("BuffTestTool", "Buff ID 列表为空");
+            DebugEx.Warning(nameof(BuffTestTool), "Buff ID 列表为空");
             return;
         }
 
@@ -76,7 +76,7 @@ public class BuffTestTool
             ApplyBuffToTarget(buffId, target, caster);
         }
 
-        DebugEx.LogModule("BuffTestTool", $"批量应用 {buffIds.Length} 个 Buff 到 {target.name}");
+        DebugEx.Log(nameof(BuffTestTool), $"批量应用 {buffIds.Length} 个 Buff 到 {target.name}");
     }
 
     /// <summary>
@@ -86,21 +86,21 @@ public class BuffTestTool
     {
         if (target == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", "目标对象为空");
+            DebugEx.Error(nameof(BuffTestTool), "目标对象为空");
             return false;
         }
 
         var buffManager = target.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", $"目标 {target.name} 没有 BuffManager 组件");
+            DebugEx.Error(nameof(BuffTestTool), $"目标 {target.name} 没有 BuffManager 组件");
             return false;
         }
 
         // 检查是否存在
         if (!buffManager.HasBuff(buffId))
         {
-            DebugEx.WarningModule("BuffTestTool", $"✗ 目标 {target.name} 上没有 Buff (ID={buffId})");
+            DebugEx.Warning(nameof(BuffTestTool), $"✗ 目标 {target.name} 上没有 Buff (ID={buffId})");
             return false;
         }
 
@@ -108,7 +108,7 @@ public class BuffTestTool
         OnBuffRemoved?.Invoke(target, buffId);
         var buffTable = GF.DataTable.GetDataTable<BuffTable>();
         var buffName = buffTable?.GetDataRow(buffId)?.Name ?? $"Buff_{buffId}";
-        DebugEx.LogModule("BuffTestTool", $"✓ 移除 Buff: {buffName} (ID={buffId}) 从 {target.name}");
+        DebugEx.Log(nameof(BuffTestTool), $"✓ 移除 Buff: {buffName} (ID={buffId}) 从 {target.name}");
         OnBuffListChanged?.Invoke(target);
 
         return true;
@@ -121,14 +121,14 @@ public class BuffTestTool
     {
         if (target == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", "目标对象为空");
+            DebugEx.Error(nameof(BuffTestTool), "目标对象为空");
             return;
         }
 
         var buffManager = target.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", $"目标 {target.name} 没有 BuffManager 组件");
+            DebugEx.Error(nameof(BuffTestTool), $"目标 {target.name} 没有 BuffManager 组件");
             return;
         }
 
@@ -140,7 +140,7 @@ public class BuffTestTool
             buffManager.RemoveBuff(buff.BuffId);
         }
 
-        DebugEx.LogModule("BuffTestTool", $"✓ 清空 {target.name} 的所有 Buff（共 {count} 个）");
+        DebugEx.Log(nameof(BuffTestTool), $"✓ 清空 {target.name} 的所有 Buff（共 {count} 个）");
         OnBuffListChanged?.Invoke(target);
     }
 
@@ -176,13 +176,13 @@ public class BuffTestTool
         var buff = GetBuff(buffId, target);
         if (buff == null)
         {
-            DebugEx.WarningModule("BuffTestTool", $"未找到 Buff (ID={buffId})");
+            DebugEx.Warning(nameof(BuffTestTool), $"未找到 Buff (ID={buffId})");
             return;
         }
 
         // 这里简化处理，只支持修改基础参数
         // 实际复杂的修改需要反射或特定的接口支持
-        DebugEx.LogModule("BuffTestTool", $"修改 Buff (ID={buffId}) 参数: {paramType} = {value}");
+        DebugEx.Log(nameof(BuffTestTool), $"修改 Buff (ID={buffId}) 参数: {paramType} = {value}");
     }
 
     /// <summary>
@@ -195,7 +195,7 @@ public class BuffTestTool
 
         if (buffTable == null)
         {
-            DebugEx.ErrorModule("BuffTestTool", "BuffTable 未加载");
+            DebugEx.Error(nameof(BuffTestTool), "BuffTable 未加载");
             return result;
         }
 

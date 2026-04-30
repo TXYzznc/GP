@@ -29,7 +29,7 @@ public class MeleeHitDetector : HitDetectorBase
 
         if (m_WeaponCollider == null)
         {
-            DebugEx.Warning($"[MeleeHitDetector] {context.Attacker?.Config?.Name} 没有武器碰撞器，降级到瞬发模式");
+            DebugEx.Warning(nameof(MeleeHitDetector), $"{context.Attacker?.Config?.Name} 没有武器碰撞器，降级到瞬发模式");
             // 降级到瞬发模式
             FallbackToInstant(context);
             return;
@@ -46,7 +46,7 @@ public class MeleeHitDetector : HitDetectorBase
         // 启用武器碰撞
         m_WeaponCollider.EnableCollider();
 
-        DebugEx.LogModule("MeleeHitDetector", $"{context.Attacker?.Config?.Name} 启用武器碰撞");
+        DebugEx.Log(nameof(MeleeHitDetector), $"{context.Attacker?.Config?.Name} 启用武器碰撞");
 
         // 注意：这里不会立即完成，需要等待动画事件调用
         // 这里不调用 Complete()
@@ -79,7 +79,7 @@ public class MeleeHitDetector : HitDetectorBase
         // 造成伤害
         ApplyDamage(target, m_CurrentContext);
 
-        DebugEx.LogModule("MeleeHitDetector", $"武器命中: {target.Config?.Name}，当前命中数: {m_CurrentHitCount}");
+        DebugEx.Log(nameof(MeleeHitDetector), $"武器命中: {target.Config?.Name}，当前命中数: {m_CurrentHitCount}");
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class MeleeHitDetector : HitDetectorBase
         m_HitTargets.Clear();
         Complete();
 
-        DebugEx.LogModule("MeleeHitDetector", $"近战检测结束，命中: {m_CurrentHitCount} 个目标");
+        DebugEx.Log(nameof(MeleeHitDetector), $"近战检测结束，命中: {m_CurrentHitCount} 个目标");
     }
 
     public override void Cancel()

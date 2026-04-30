@@ -84,7 +84,7 @@ public class ChessDeploymentTracker
         // 如果已初始化，不做任何操作，保持当前状态
         if (m_IsInitialized)
         {
-            DebugEx.Log($"[ChessDeploymentTracker] 已初始化，保持当前状态 (已出战={GetDeployedCount()}, 未出战={GetAvailableCount()})");
+            DebugEx.Log(nameof(ChessDeploymentTracker), $"已初始化，保持当前状态 (已出战={GetDeployedCount()}, 未出战={GetAvailableCount()})");
             return;
         }
 
@@ -106,7 +106,7 @@ public class ChessDeploymentTracker
         ChessStateEvents.OnAllChessHPRestored -= OnAllChessHPRestored;
         ChessStateEvents.OnAllChessHPRestored += OnAllChessHPRestored;
 
-        DebugEx.Log($"[ChessDeploymentTracker] 初始化完成，共 {m_AllChessInstances.Count} 个棋子实例");
+        DebugEx.Log(nameof(ChessDeploymentTracker), $"初始化完成，共 {m_AllChessInstances.Count} 个棋子实例");
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class ChessDeploymentTracker
             instance.Entity = null;
         }
         m_EntityToInstanceId.Clear();
-        DebugEx.Log($"[ChessDeploymentTracker] 已重置所有棋子的出战状态");
+        DebugEx.Log(nameof(ChessDeploymentTracker), $"已重置所有棋子的出战状态");
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public class ChessDeploymentTracker
             instance.Entity = null;
         }
         m_EntityToInstanceId.Clear();
-        DebugEx.Log($"[ChessDeploymentTracker] 战斗结束，已重置出战状态 (存活={GetAvailableCount()}, 死亡={GetDeadCount()})");
+        DebugEx.Log(nameof(ChessDeploymentTracker), $"战斗结束，已重置出战状态 (存活={GetAvailableCount()}, 死亡={GetDeadCount()})");
     }
 
     /// <summary>
@@ -148,7 +148,7 @@ public class ChessDeploymentTracker
         if (instance != null)
         {
             instance.IsDead = true;
-            DebugEx.Log($"[ChessDeploymentTracker] 棋子死亡: chessId={instance.ChessId}, instanceId={instanceId}");
+            DebugEx.Log(nameof(ChessDeploymentTracker), $"棋子死亡: chessId={instance.ChessId}, instanceId={instanceId}");
             OnChessDied?.Invoke(instanceId);
         }
     }
@@ -183,7 +183,7 @@ public class ChessDeploymentTracker
                 resetCount++;
             }
         }
-        DebugEx.LogModule("ChessDeploymentTracker", $"死亡状态已重置：{resetCount} 个棋子复活");
+        DebugEx.Log(nameof(ChessDeploymentTracker), $"死亡状态已重置：{resetCount} 个棋子复活");
         OnDeathStateReset?.Invoke();
     }
 
@@ -306,13 +306,13 @@ public class ChessDeploymentTracker
         var instance = GetInstance(instanceId);
         if (instance == null)
         {
-            DebugEx.Error($"[ChessDeploymentTracker] DeployChess failed: instance not found, instanceId={instanceId}");
+            DebugEx.Error(nameof(ChessDeploymentTracker), $"DeployChess failed: instance not found, instanceId={instanceId}");
             return false;
         }
 
         if (!instance.CanDeploy)
         {
-            DebugEx.Warning($"[ChessDeploymentTracker] DeployChess failed: cannot deploy (IsDeployed={instance.IsDeployed}, IsDead={instance.IsDead}), instanceId={instanceId}");
+            DebugEx.Warning(nameof(ChessDeploymentTracker), $"DeployChess failed: cannot deploy (IsDeployed={instance.IsDeployed}, IsDead={instance.IsDead}), instanceId={instanceId}");
             return false;
         }
 
@@ -328,7 +328,7 @@ public class ChessDeploymentTracker
         // 触发事件
         OnChessDeployed?.Invoke(instance);
 
-        DebugEx.Log($"[ChessDeploymentTracker] DeployChess success: chessId={instance.ChessId}, instanceId={instanceId}");
+        DebugEx.Log(nameof(ChessDeploymentTracker), $"DeployChess success: chessId={instance.ChessId}, instanceId={instanceId}");
         return true;
     }
 
@@ -342,13 +342,13 @@ public class ChessDeploymentTracker
         var instance = GetInstance(instanceId);
         if (instance == null)
         {
-            DebugEx.Error($"[ChessDeploymentTracker] RecallChess failed: instance not found, instanceId={instanceId}");
+            DebugEx.Error(nameof(ChessDeploymentTracker), $"RecallChess failed: instance not found, instanceId={instanceId}");
             return false;
         }
 
         if (!instance.IsDeployed)
         {
-            DebugEx.Warning($"[ChessDeploymentTracker] RecallChess failed: not deployed, instanceId={instanceId}");
+            DebugEx.Warning(nameof(ChessDeploymentTracker), $"RecallChess failed: not deployed, instanceId={instanceId}");
             return false;
         }
 
@@ -364,7 +364,7 @@ public class ChessDeploymentTracker
         // 触发事件
         OnChessRecalled?.Invoke(instance);
 
-        DebugEx.Log($"[ChessDeploymentTracker] RecallChess success: chessId={instance.ChessId}, instanceId={instanceId}");
+        DebugEx.Log(nameof(ChessDeploymentTracker), $"RecallChess success: chessId={instance.ChessId}, instanceId={instanceId}");
         return true;
     }
 

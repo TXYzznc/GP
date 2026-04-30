@@ -11,7 +11,7 @@ public class QuestItem : ItemBase
     public QuestItem(int itemId, ItemData itemData)
         : base(itemId, itemData)
     {
-        DebugEx.Log("QuestItem", $"创建任务道具: {Name}");
+        DebugEx.Log(nameof(QuestItem), $"创建任务道具: {Name}");
     }
 
     #endregion
@@ -24,7 +24,7 @@ public class QuestItem : ItemBase
 
     protected override bool OnUse()
     {
-        DebugEx.Warning("QuestItem", $"任务道具不可使用: {Name}");
+        DebugEx.Warning(nameof(QuestItem), $"任务道具不可使用: {Name}");
         return false;
     }
 

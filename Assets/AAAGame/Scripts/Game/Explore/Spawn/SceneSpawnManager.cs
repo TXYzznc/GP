@@ -19,49 +19,49 @@ public class SceneSpawnManager : MonoBehaviour
     public void Initialize(int mapId)
     {
         m_MapId = mapId;
-        DebugEx.Log("SceneSpawn", $"[初始化] SceneSpawnManager.Initialize 被调用，MapId={mapId}");
+        DebugEx.Log("SceneSpawnManager", $"[初始化] SceneSpawnManager.Initialize 被调用，MapId={mapId}");
         SpawnAllAsync().Forget();
     }
 
     private async UniTask SpawnAllAsync()
     {
-        DebugEx.Log("SceneSpawn", "[开始生成] SpawnAllAsync 开始执行");
+        DebugEx.Log("SceneSpawnManager", "[开始生成] SpawnAllAsync 开始执行");
 
         // 等一帧确保 DataTable 加载完成
         await UniTask.Yield();
-        DebugEx.Log("SceneSpawn", "[Yield完成] 等待一帧后继续");
+        DebugEx.Log("SceneSpawnManager", "[Yield完成] 等待一帧后继续");
 
         // 读表获取配置
         var mapSpawnTable = GF.DataTable.GetDataTable<MapSpawnTable>();
         if (mapSpawnTable == null)
         {
-            DebugEx.Log("SceneSpawn", "[错误] MapSpawnTable 未加载");
+            DebugEx.Log("SceneSpawnManager", "[错误] MapSpawnTable 未加载");
             return;
         }
 
-        DebugEx.Log("SceneSpawn", "[表加载] MapSpawnTable 已加载");
+        DebugEx.Log("SceneSpawnManager", "[表加载] MapSpawnTable 已加载");
 
         // 获取当前地图的所有生成配置
         var mapConfigs = GetMapConfigs(mapSpawnTable);
-        DebugEx.Log("SceneSpawn", $"[配置查询] MapId={m_MapId}, 找到 {mapConfigs.Count} 个配置");
+        DebugEx.Log("SceneSpawnManager", $"[配置查询] MapId={m_MapId}, 找到 {mapConfigs.Count} 个配置");
 
         if (mapConfigs.Count == 0)
         {
-            DebugEx.Log("SceneSpawn", $"[警告] 地图 {m_MapId} 无生成配置，检查MapSpawnTable是否有数据");
+            DebugEx.Log("SceneSpawnManager", $"[警告] 地图 {m_MapId} 无生成配置，检查MapSpawnTable是否有数据");
             return;
         }
 
         // 收集场景中的生成点
         var spawnPoints = FindObjectsOfType<SpawnPoint>();
-        DebugEx.Log("SceneSpawn", $"[SpawnPoint查询] 找到 {spawnPoints.Length} 个生成点");
+        DebugEx.Log("SceneSpawnManager", $"[SpawnPoint查询] 找到 {spawnPoints.Length} 个生成点");
 
         if (spawnPoints.Length == 0)
         {
-            DebugEx.Log("SceneSpawn", "[警告] 场景中无 SpawnPoint，请检查场景配置或使用编辑器工具生成");
+            DebugEx.Log("SceneSpawnManager", "[警告] 场景中无 SpawnPoint，请检查场景配置或使用编辑器工具生成");
             return;
         }
 
-        DebugEx.Log("SceneSpawn", $"[开始生成敌人宝箱] 地图 {m_MapId} 有 {spawnPoints.Length} 个生成点");
+        DebugEx.Log("SceneSpawnManager", $"[开始生成敌人宝箱] 地图 {m_MapId} 有 {spawnPoints.Length} 个生成点");
 
         // 按类型分组配置
         var enemyConfigs = new List<MapSpawnTable>();
@@ -72,42 +72,42 @@ public class SceneSpawnManager : MonoBehaviour
             if (config.SpawnType == 0)
             {
                 enemyConfigs.Add(config);
-                DebugEx.Log("SceneSpawn", $"  [敌人配置] Id={config.Id}, TargetId={config.SpawnTargetId}, Weight={config.Weight}");
+                DebugEx.Log("SceneSpawnManager", $"  [敌人配置] Id={config.Id}, TargetId={config.SpawnTargetId}, Weight={config.Weight}");
             }
             else if (config.SpawnType == 1)
             {
                 chestConfigs.Add(config);
-                DebugEx.Log("SceneSpawn", $"  [宝箱配置] Id={config.Id}, TargetId={config.SpawnTargetId}, Level={config.ChestLevel}, Weight={config.Weight}");
+                DebugEx.Log("SceneSpawnManager", $"  [宝箱配置] Id={config.Id}, TargetId={config.SpawnTargetId}, Level={config.ChestLevel}, Weight={config.Weight}");
             }
         }
 
-        DebugEx.Log("SceneSpawn", $"[配置分类] 敌人配置数={enemyConfigs.Count}, 宝箱配置数={chestConfigs.Count}");
+        DebugEx.Log("SceneSpawnManager", $"[配置分类] 敌人配置数={enemyConfigs.Count}, 宝箱配置数={chestConfigs.Count}");
 
         // 对每个生成点执行生成
         int spawnCount = 0;
         foreach (var spawnPoint in spawnPoints)
         {
-            DebugEx.Log("SceneSpawn", $"[处理生成点] {spawnPoint.name}, Type={spawnPoint.Type}, Pos={spawnPoint.transform.position}");
+            DebugEx.Log("SceneSpawnManager", $"[处理生成点] {spawnPoint.name}, Type={spawnPoint.Type}, Pos={spawnPoint.transform.position}");
 
             if (spawnPoint.Type == SpawnPointType.Enemy && enemyConfigs.Count > 0)
             {
-                DebugEx.Log("SceneSpawn", $"  └─ 执行敌人生成");
+                DebugEx.Log("SceneSpawnManager", $"  └─ 执行敌人生成");
                 await TrySpawnAsync(spawnPoint, enemyConfigs, isEnemy: true);
                 spawnCount++;
             }
             else if (spawnPoint.Type == SpawnPointType.TreasureBox && chestConfigs.Count > 0)
             {
-                DebugEx.Log("SceneSpawn", $"  └─ 执行宝箱生成");
+                DebugEx.Log("SceneSpawnManager", $"  └─ 执行宝箱生成");
                 await TrySpawnAsync(spawnPoint, chestConfigs, isEnemy: false);
                 spawnCount++;
             }
             else
             {
-                DebugEx.Log("SceneSpawn", $"  └─ 跳过（无匹配的配置）");
+                DebugEx.Log("SceneSpawnManager", $"  └─ 跳过（无匹配的配置）");
             }
         }
 
-        DebugEx.Log("SceneSpawn", $"[生成完成] 共处理 {spawnCount} 个生成点");
+        DebugEx.Log("SceneSpawnManager", $"[生成完成] 共处理 {spawnCount} 个生成点");
     }
 
     private List<MapSpawnTable> GetMapConfigs(IDataTable<MapSpawnTable> dataTable)
@@ -153,11 +153,11 @@ public class SceneSpawnManager : MonoBehaviour
         if (!foundValidPos)
         {
             if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"生成点 {spawnPoint.name} 无法找到有效 NavMesh 位置");
+                DebugEx.Log("SceneSpawnManager", $"生成点 {spawnPoint.name} 无法找到有效 NavMesh 位置");
             return;
         }
 
-        DebugEx.Log("SceneSpawn", $"[NavMesh采样] NavMesh Y位置={spawnPos.y:F3}, X={spawnPos.x:F3}, Z={spawnPos.z:F3}");
+        DebugEx.Log("SceneSpawnManager", $"[NavMesh采样] NavMesh Y位置={spawnPos.y:F3}, X={spawnPos.x:F3}, Z={spawnPos.z:F3}");
 
         // 获取预制体配置 ID 并异步加载
         int prefabId = 0;
@@ -174,7 +174,7 @@ public class SceneSpawnManager : MonoBehaviour
         if (prefabId == 0)
         {
             if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"找不到生成目标 {selectedConfig.SpawnTargetId} 的预制体配置");
+                DebugEx.Log("SceneSpawnManager", $"找不到生成目标 {selectedConfig.SpawnTargetId} 的预制体配置");
             return;
         }
 
@@ -184,16 +184,16 @@ public class SceneSpawnManager : MonoBehaviour
         if (prefab == null)
         {
             if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"加载预制体失败：prefabId={prefabId}");
+                DebugEx.Log("SceneSpawnManager", $"加载预制体失败：prefabId={prefabId}");
             return;
         }
 
         var spawnedObject = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-        DebugEx.Log("SceneSpawn", $"[生成后初始位置] {spawnedObject.name} Y={spawnedObject.transform.position.y:F3}");
+        DebugEx.Log("SceneSpawnManager", $"[生成后初始位置] {spawnedObject.name} Y={spawnedObject.transform.position.y:F3}");
 
         Vector3 bottomBeforeAdjust = EntityPositionHelper.GetBottomPosition(spawnedObject);
-        DebugEx.Log("SceneSpawn", $"[调整前底部位置] {spawnedObject.name} 底部Y={bottomBeforeAdjust.y:F3}, 中心Y={spawnedObject.transform.position.y:F3}");
+        DebugEx.Log("SceneSpawnManager", $"[调整前底部位置] {spawnedObject.name} 底部Y={bottomBeforeAdjust.y:F3}, 中心Y={spawnedObject.transform.position.y:F3}");
 
         // 调整敌人/宝箱底部贴在 NavMesh 上（计算 Collider 高度偏移）
         AdjustPositionToNavMesh(spawnedObject, spawnPos);
@@ -206,7 +206,7 @@ public class SceneSpawnManager : MonoBehaviour
             {
                 enemyEntity.SetEntityConfigId((int)selectedConfig.SpawnTargetId);
                 if (m_ShowSpawnLogs)
-                    DebugEx.Log("SceneSpawn", $"生成敌人 {selectedConfig.SpawnTargetId} at {spawnPos}");
+                    DebugEx.Log("SceneSpawnManager", $"生成敌人 {selectedConfig.SpawnTargetId} at {spawnPos}");
             }
         }
         else
@@ -216,7 +216,7 @@ public class SceneSpawnManager : MonoBehaviour
             {
                 chest.SetTreasureBoxData((int)selectedConfig.SpawnTargetId, (int)selectedConfig.ChestLevel);
                 if (m_ShowSpawnLogs)
-                    DebugEx.Log("SceneSpawn", $"生成宝箱 {selectedConfig.SpawnTargetId}(等级{selectedConfig.ChestLevel}) at {spawnPos}");
+                    DebugEx.Log("SceneSpawnManager", $"生成宝箱 {selectedConfig.SpawnTargetId}(等级{selectedConfig.ChestLevel}) at {spawnPos}");
             }
         }
 
@@ -236,7 +236,7 @@ public class SceneSpawnManager : MonoBehaviour
         if (enemyData == null)
         {
             if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"EnemyEntityTable 中找不到 ID {enemyEntityTableId}");
+                DebugEx.Log("SceneSpawnManager", $"EnemyEntityTable 中找不到 ID {enemyEntityTableId}");
             return 0;
         }
 
@@ -256,7 +256,7 @@ public class SceneSpawnManager : MonoBehaviour
         if (treasureBoxData == null)
         {
             if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawn", $"TreasureBoxTable 中找不到 ID {treasureBoxTableId}");
+                DebugEx.Log("SceneSpawnManager", $"TreasureBoxTable 中找不到 ID {treasureBoxTableId}");
             return 0;
         }
 
@@ -273,16 +273,16 @@ public class SceneSpawnManager : MonoBehaviour
         Vector3 bottomPos = EntityPositionHelper.GetBottomPosition(obj);
         Vector3 adjustedPos = navMeshSurfacePos + Vector3.up * heightOffset;
 
-        DebugEx.Log("SceneSpawn", $"[调整位置计算] {obj.name}");
-        DebugEx.Log("SceneSpawn", $"  NavMesh表面Y={navMeshSurfacePos.y:F3}");
-        DebugEx.Log("SceneSpawn", $"  当前底部Y={bottomPos.y:F3}");
-        DebugEx.Log("SceneSpawn", $"  底部偏移={heightOffset:F3}");
-        DebugEx.Log("SceneSpawn", $"  目标Y位置={adjustedPos.y:F3}");
+        DebugEx.Log("SceneSpawnManager", $"[调整位置计算] {obj.name}");
+        DebugEx.Log("SceneSpawnManager", $"  NavMesh表面Y={navMeshSurfacePos.y:F3}");
+        DebugEx.Log("SceneSpawnManager", $"  当前底部Y={bottomPos.y:F3}");
+        DebugEx.Log("SceneSpawnManager", $"  底部偏移={heightOffset:F3}");
+        DebugEx.Log("SceneSpawnManager", $"  目标Y位置={adjustedPos.y:F3}");
 
         obj.transform.position = adjustedPos;
 
         Vector3 bottomAfter = EntityPositionHelper.GetBottomPosition(obj);
-        DebugEx.Log("SceneSpawn", $"[调整完成] 调整后底部Y={bottomAfter.y:F3}");
+        DebugEx.Log("SceneSpawnManager", $"[调整完成] 调整后底部Y={bottomAfter.y:F3}");
     }
 
     private MapSpawnTable PickWeightedRandom(List<MapSpawnTable> configs)

@@ -324,35 +324,38 @@ Shader "Custom/PlayerCartoon"
             half4 frag(Varyings input) : SV_Target
             {
                 #ifdef _DISSOLVE_ON
-                    DissolveData dissolveData;
+                    if (_DissolveThreshold > 0.001)
+                    {
+                        DissolveData dissolveData;
 
-                    #if defined(_DISSOLVE_MODE_TWOCOLOR)
-                        dissolveData = CalculateDissolve_TwoColor(
-                            input.uv, _DissolveThreshold,
-                            _DissolveOuterColor, _DissolveInnerColor,
-                            _DissolveEdgeWidth, _DissolveTex_ST
-                        );
-                    #elif defined(_DISSOLVE_MODE_THREECOLOR)
-                        dissolveData = CalculateDissolve_ThreeColor(
-                            input.uv, _DissolveThreshold,
-                            _DissolveOuterColor, _DissolveMidColor, _DissolveInnerColor,
-                            _DissolveEdgeWidth, _DissolveTex_ST
-                        );
-                    #elif defined(_DISSOLVE_MODE_RAINBOW)
-                        dissolveData = CalculateDissolve_Rainbow(
-                            input.uv, _DissolveThreshold,
-                            _DissolveEdgeWidth, _RainbowIntensity,
-                            _DissolveTex_ST
-                        );
-                    #else
-                        dissolveData = CalculateDissolve(
-                            input.uv, _DissolveThreshold,
-                            _DissolveEdgeColor, _DissolveEdgeWidth,
-                            _DissolveTex_ST
-                        );
-                    #endif
+                        #if defined(_DISSOLVE_MODE_TWOCOLOR)
+                            dissolveData = CalculateDissolve_TwoColor(
+                                input.uv, _DissolveThreshold,
+                                _DissolveOuterColor, _DissolveInnerColor,
+                                _DissolveEdgeWidth, _DissolveTex_ST
+                            );
+                        #elif defined(_DISSOLVE_MODE_THREECOLOR)
+                            dissolveData = CalculateDissolve_ThreeColor(
+                                input.uv, _DissolveThreshold,
+                                _DissolveOuterColor, _DissolveMidColor, _DissolveInnerColor,
+                                _DissolveEdgeWidth, _DissolveTex_ST
+                            );
+                        #elif defined(_DISSOLVE_MODE_RAINBOW)
+                            dissolveData = CalculateDissolve_Rainbow(
+                                input.uv, _DissolveThreshold,
+                                _DissolveEdgeWidth, _RainbowIntensity,
+                                _DissolveTex_ST
+                            );
+                        #else
+                            dissolveData = CalculateDissolve(
+                                input.uv, _DissolveThreshold,
+                                _DissolveEdgeColor, _DissolveEdgeWidth,
+                                _DissolveTex_ST
+                            );
+                        #endif
 
-                    clip(dissolveData.alpha);
+                        clip(dissolveData.alpha);
+                    }
                 #endif
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
@@ -387,7 +390,38 @@ Shader "Custom/PlayerCartoon"
                 half3 finalColor = directLight + ambientLight;
 
                 #ifdef _DISSOLVE_ON
-                    finalColor = ApplyDissolveEmission(finalColor, dissolveData);
+                    if (_DissolveThreshold > 0.001)
+                    {
+                        DissolveData dissolveData;
+
+                        #if defined(_DISSOLVE_MODE_TWOCOLOR)
+                            dissolveData = CalculateDissolve_TwoColor(
+                                input.uv, _DissolveThreshold,
+                                _DissolveOuterColor, _DissolveInnerColor,
+                                _DissolveEdgeWidth, _DissolveTex_ST
+                            );
+                        #elif defined(_DISSOLVE_MODE_THREECOLOR)
+                            dissolveData = CalculateDissolve_ThreeColor(
+                                input.uv, _DissolveThreshold,
+                                _DissolveOuterColor, _DissolveMidColor, _DissolveInnerColor,
+                                _DissolveEdgeWidth, _DissolveTex_ST
+                            );
+                        #elif defined(_DISSOLVE_MODE_RAINBOW)
+                            dissolveData = CalculateDissolve_Rainbow(
+                                input.uv, _DissolveThreshold,
+                                _DissolveEdgeWidth, _RainbowIntensity,
+                                _DissolveTex_ST
+                            );
+                        #else
+                            dissolveData = CalculateDissolve(
+                                input.uv, _DissolveThreshold,
+                                _DissolveEdgeColor, _DissolveEdgeWidth,
+                                _DissolveTex_ST
+                            );
+                        #endif
+
+                        finalColor = ApplyDissolveEmission(finalColor, dissolveData);
+                    }
                 #endif
 
                 return half4(finalColor, _StealthAlpha);

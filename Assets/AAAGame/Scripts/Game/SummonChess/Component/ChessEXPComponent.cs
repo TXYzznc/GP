@@ -21,9 +21,22 @@ public class ChessEXPComponent : MonoBehaviour
 
     public void AddEXP(int amount)
     {
-        if (amount <= 0) return;
+        if (amount <= 0)
+        {
+            DebugEx.Log("ChessEXPComponent", $"❌ AddEXP 被调用但amount无效: {amount}");
+            return;
+        }
         int old = CurrentEXP;
         CurrentEXP += amount;
-        OnEXPChanged?.Invoke(old, CurrentEXP);
+        DebugEx.Log("ChessEXPComponent", $"📊 AddEXP 成功: 棋子={gameObject.name}, 增加经验={amount}, {old} → {CurrentEXP}");
+        if (OnEXPChanged != null)
+        {
+            DebugEx.Log("ChessEXPComponent", $"✅ OnEXPChanged 触发，订阅者数={OnEXPChanged.GetInvocationList().Length}");
+            OnEXPChanged?.Invoke(old, CurrentEXP);
+        }
+        else
+        {
+            DebugEx.Warning("ChessEXPComponent", $"⚠️ OnEXPChanged 为null，没有订阅者");
+        }
     }
 }

@@ -37,7 +37,7 @@ public partial class BuffChooseItem : UIItemBase
 
         if (effectConfig == null)
         {
-            DebugEx.WarningModule("BuffChooseItem", $"效果配置为空: ID={effectId}");
+            DebugEx.Warning("BuffChooseItem", $"效果配置为空: ID={effectId}");
             return;
         }
 
@@ -63,7 +63,7 @@ public partial class BuffChooseItem : UIItemBase
             varBtn.onClick.AddListener(OnBuffSelected);
         }
 
-        DebugEx.LogModule("BuffChooseItem", $"设置效果数据: {effectConfig.Name} (ID={effectId})");
+        DebugEx.Log("BuffChooseItem", $"设置效果数据: {effectConfig.Name} (ID={effectId})");
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public partial class BuffChooseItem : UIItemBase
 
         if (buffConfig == null)
         {
-            DebugEx.WarningModule("BuffChooseItem", $"Buff配置为空: ID={buffId}");
+            DebugEx.Warning("BuffChooseItem", $"Buff配置为空: ID={buffId}");
             return;
         }
 
@@ -103,7 +103,7 @@ public partial class BuffChooseItem : UIItemBase
             varBtn.onClick.AddListener(OnBuffSelected);
         }
 
-        DebugEx.LogModule("BuffChooseItem", $"设置Buff数据: {buffConfig.Name}");
+        DebugEx.Log("BuffChooseItem", $"设置Buff数据: {buffConfig.Name}");
     }
 
     #endregion
@@ -117,7 +117,7 @@ public partial class BuffChooseItem : UIItemBase
     {
         // 优先使用 effectId，如果为 0 则使用 buffId
         int selectedId = m_EffectId > 0 ? m_EffectId : m_BuffId;
-        DebugEx.LogModule("BuffChooseItem", $"选中效果: ID={selectedId}");
+        DebugEx.Log("BuffChooseItem", $"选中效果: ID={selectedId}");
 
         // 获取父UI（CombatPreparationUI）并通知选择
         Transform parentTransform = transform.parent;
@@ -132,7 +132,7 @@ public partial class BuffChooseItem : UIItemBase
             parentTransform = parentTransform.parent;
         }
 
-        DebugEx.WarningModule("BuffChooseItem", "未找到父UI: CombatPreparationUI");
+        DebugEx.Warning("BuffChooseItem", "未找到父UI: CombatPreparationUI");
     }
 
     #endregion

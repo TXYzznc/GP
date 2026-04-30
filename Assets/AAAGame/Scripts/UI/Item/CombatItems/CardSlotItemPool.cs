@@ -84,7 +84,7 @@ public class CardSlotItemPool : MonoBehaviour
 
         if (m_CardSlotItemPrefab == null)
         {
-            DebugEx.ErrorModule("CardSlotItemPool", $"无法加载 CardSlotItem 预制体: {CARD_SLOT_ITEM_PREFAB_PATH}");
+            DebugEx.Error(this.GetType().Name, $"无法加载 CardSlotItem 预制体: {CARD_SLOT_ITEM_PREFAB_PATH}");
             return;
         }
 
@@ -101,7 +101,7 @@ public class CardSlotItemPool : MonoBehaviour
             CreateNewCard();
         }
 
-        DebugEx.LogModule("CardSlotItemPool", $"对象池初始化完成，初始大小={INITIAL_POOL_SIZE}");
+        DebugEx.Log(this.GetType().Name, $"对象池初始化完成，初始大小={INITIAL_POOL_SIZE}");
     }
 
     private void LoadCardSlotItemPrefab()
@@ -114,7 +114,7 @@ public class CardSlotItemPool : MonoBehaviour
         m_CardSlotItemPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<CardSlotItem>(CARD_SLOT_ITEM_PREFAB_PATH);
         if (m_CardSlotItemPrefab != null)
         {
-            DebugEx.LogModule("CardSlotItemPool", $"从资源文件夹加载 CardSlotItem 预制体");
+            DebugEx.Log(this.GetType().Name, $"从资源文件夹加载 CardSlotItem 预制体");
             return;
         }
 #endif
@@ -123,11 +123,11 @@ public class CardSlotItemPool : MonoBehaviour
         m_CardSlotItemPrefab = Resources.Load<CardSlotItem>("Prefabs/UI/Items/CardSlotItem");
         if (m_CardSlotItemPrefab != null)
         {
-            DebugEx.LogModule("CardSlotItemPool", $"从 Resources 加载 CardSlotItem 预制体");
+            DebugEx.Log(this.GetType().Name, $"从 Resources 加载 CardSlotItem 预制体");
             return;
         }
 
-        DebugEx.ErrorModule("CardSlotItemPool", $"无法加载 CardSlotItem 预制体");
+        DebugEx.Error(this.GetType().Name, $"无法加载 CardSlotItem 预制体");
     }
 
     #endregion
@@ -160,7 +160,7 @@ public class CardSlotItemPool : MonoBehaviour
             card.gameObject.SetActive(true);
             m_ActiveCards.Add(card);
 
-            DebugEx.LogModule("CardSlotItemPool", $"从池中获取卡牌，可用池大小={m_AvailableCards.Count}，活跃卡数={m_ActiveCards.Count}");
+            DebugEx.Log(this.GetType().Name, $"从池中获取卡牌，可用池大小={m_AvailableCards.Count}，活跃卡数={m_ActiveCards.Count}");
         }
 
         return card;
@@ -173,13 +173,13 @@ public class CardSlotItemPool : MonoBehaviour
     {
         if (card == null)
         {
-            DebugEx.WarningModule("CardSlotItemPool", "尝试归还空卡牌");
+            DebugEx.Warning(this.GetType().Name, "尝试归还空卡牌");
             return;
         }
 
         if (!m_ActiveCards.Contains(card))
         {
-            DebugEx.WarningModule("CardSlotItemPool", $"卡牌不在活跃列表中: {card.name}");
+            DebugEx.Warning(this.GetType().Name, $"卡牌不在活跃列表中: {card.name}");
             return;
         }
 
@@ -191,7 +191,7 @@ public class CardSlotItemPool : MonoBehaviour
 
         m_AvailableCards.Push(card);
 
-        DebugEx.LogModule("CardSlotItemPool", $"将卡牌归还到池，可用池大小={m_AvailableCards.Count}，活跃卡数={m_ActiveCards.Count}");
+        DebugEx.Log(this.GetType().Name, $"将卡牌归还到池，可用池大小={m_AvailableCards.Count}，活跃卡数={m_ActiveCards.Count}");
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public class CardSlotItemPool : MonoBehaviour
     {
         if (m_CardSlotItemPrefab == null)
         {
-            DebugEx.ErrorModule("CardSlotItemPool", "预制体为空，无法创建卡牌");
+            DebugEx.Error(this.GetType().Name, "预制体为空，无法创建卡牌");
             return null;
         }
 
@@ -209,7 +209,7 @@ public class CardSlotItemPool : MonoBehaviour
         card.gameObject.SetActive(false);
         card.gameObject.name = $"CardSlotItem_Pool_{m_AvailableCards.Count + m_ActiveCards.Count}";
 
-        DebugEx.LogModule("CardSlotItemPool", $"创建新卡牌，当前池大小={m_AvailableCards.Count + m_ActiveCards.Count}");
+        DebugEx.Log(this.GetType().Name, $"创建新卡牌，当前池大小={m_AvailableCards.Count + m_ActiveCards.Count}");
         return card;
     }
 
@@ -219,7 +219,7 @@ public class CardSlotItemPool : MonoBehaviour
 
     public void DebugPoolState()
     {
-        DebugEx.LogModule("CardSlotItemPool", $"对象池状态 - 可用: {m_AvailableCards.Count}, 活跃: {m_ActiveCards.Count}, 总数: {m_AvailableCards.Count + m_ActiveCards.Count}");
+        DebugEx.Log(this.GetType().Name, $"对象池状态 - 可用: {m_AvailableCards.Count}, 活跃: {m_ActiveCards.Count}, 总数: {m_AvailableCards.Count + m_ActiveCards.Count}");
     }
 
     #endregion

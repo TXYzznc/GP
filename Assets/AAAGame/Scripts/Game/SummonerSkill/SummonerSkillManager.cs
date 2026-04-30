@@ -46,7 +46,7 @@ public class SummonerSkillManager : MonoBehaviour
         var table = GF.DataTable.GetDataTable<SummonerSkillTable>();
         if (table == null)
         {
-            DebugEx.Error("[SummonerSkillManager] SummonerSkillTable 未加载");
+            DebugEx.Error(nameof(SummonerSkillManager), "SummonerSkillTable 未加载");
             return;
         }
 
@@ -56,7 +56,7 @@ public class SummonerSkillManager : MonoBehaviour
             var row = table.GetDataRow(id);
             if (row == null)
             {
-                DebugEx.Error($"[SummonerSkillManager] SummonerSkillTable 中未找到 id={id}");
+                DebugEx.Error(nameof(SummonerSkillManager), $"SummonerSkillTable 中未找到 id={id}");
                 continue;
             }
 
@@ -77,7 +77,7 @@ public class SummonerSkillManager : MonoBehaviour
             }
         }
 
-        DebugEx.Log($"[SummonerSkillManager] 已加载 {Skills.Count} 个主动技能，{Passives.Count} 个被动技能");
+        DebugEx.Log(nameof(SummonerSkillManager), $"已加载 {Skills.Count} 个主动技能，{Passives.Count} 个被动技能");
     }
 
     private void Update()

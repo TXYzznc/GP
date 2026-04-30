@@ -27,7 +27,7 @@ public abstract class SingletonBase<T> : MonoBehaviour
                     GameObject go = new GameObject($"[{typeof(T).Name}]");
                     s_Instance = go.AddComponent<T>();
                     DontDestroyOnLoad(go);
-                    DebugEx.LogModule(typeof(T).Name, $"自动创建单例实例");
+                    DebugEx.Log(typeof(T).Name, $"自动创建单例实例");
                 }
             }
             return s_Instance;
@@ -43,7 +43,7 @@ public abstract class SingletonBase<T> : MonoBehaviour
         // 检查是否已存在实例
         if (s_Instance != null && s_Instance != this)
         {
-            DebugEx.WarningModule(typeof(T).Name, $"检测到重复的单例实例，销毁当前对象");
+            DebugEx.Warning(typeof(T).Name, $"检测到重复的单例实例，销毁当前对象");
             Destroy(gameObject);
             return;
         }
@@ -51,7 +51,7 @@ public abstract class SingletonBase<T> : MonoBehaviour
         s_Instance = this as T;
         DontDestroyOnLoad(gameObject);
 
-        DebugEx.LogModule(typeof(T).Name, $"单例初始化完成");
+        DebugEx.Log(typeof(T).Name, $"单例初始化完成");
     }
 
     protected virtual void OnDestroy()
@@ -59,7 +59,7 @@ public abstract class SingletonBase<T> : MonoBehaviour
         if (s_Instance == this)
         {
             s_Instance = null;
-            DebugEx.LogModule(typeof(T).Name, $"单例已销毁");
+            DebugEx.Log(typeof(T).Name, $"单例已销毁");
         }
     }
 
@@ -85,7 +85,7 @@ public abstract class SingletonBase<T> : MonoBehaviour
         {
             if (s_Instance != null)
             {
-                DebugEx.LogModule(typeof(T).Name, $"编辑器停止播放，清理单例对象");
+                DebugEx.Log(typeof(T).Name, $"编辑器停止播放，清理单例对象");
                 DestroyImmediate(s_Instance.gameObject);
                 s_Instance = null;
             }
@@ -105,7 +105,7 @@ public abstract class SingletonBase<T> : MonoBehaviour
         {
             Destroy(s_Instance.gameObject);
             s_Instance = null;
-            DebugEx.LogModule(typeof(T).Name, $"单例已手动销毁");
+            DebugEx.Log(typeof(T).Name, $"单例已手动销毁");
         }
     }
 }

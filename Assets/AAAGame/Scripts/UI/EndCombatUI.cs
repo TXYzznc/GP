@@ -31,7 +31,7 @@ public partial class EndCombatUI : UIFormBase
         m_TreasureOpened = false;
         m_OpenTime = Time.time;
         m_OpenFrame = Time.frameCount;
-        DebugEx.LogModule("EndCombatUI", $"OnOpen isVictory={m_IsVictory} t={Time.time:F3} f={Time.frameCount}");
+        DebugEx.Log(this.GetType().Name, $"OnOpen isVictory={m_IsVictory} t={Time.time:F3} f={Time.frameCount}");
 
         if (varVector != null) varVector.SetActive(m_IsVictory);
         if (varDefeat != null) varDefeat.SetActive(!m_IsVictory);
@@ -76,7 +76,7 @@ public partial class EndCombatUI : UIFormBase
         if (varTreasure != null)
         {
             varTreasure.gameObject.SetActive(true);
-            DebugEx.LogModule("EndCombatUI", $"Treasure show t={Time.time:F3} f={Time.frameCount} dt={(Time.time - m_OpenTime):F3} df={(Time.frameCount - m_OpenFrame)}");
+            DebugEx.Log(this.GetType().Name, $"Treasure show t={Time.time:F3} f={Time.frameCount} dt={(Time.time - m_OpenTime):F3} df={(Time.frameCount - m_OpenFrame)}");
         }
     }
 
@@ -107,7 +107,7 @@ public partial class EndCombatUI : UIFormBase
         float startTime = Time.time;
         int startFrame = Time.frameCount;
         string dtClick = m_TreasureClickTime > 0f ? (startTime - m_TreasureClickTime).ToString("F3") : "n/a";
-        DebugEx.LogModule("EndCombatUI", $"GenerateItemAwards start t={startTime:F3} f={startFrame} dtClick={dtClick}");
+        DebugEx.Log(this.GetType().Name, $"GenerateItemAwards start t={startTime:F3} f={startFrame} dtClick={dtClick}");
 
         if (varAwardShowPanel == null || varAwardItemUI == null)
         {
@@ -134,7 +134,7 @@ public partial class EndCombatUI : UIFormBase
         int min = Mathf.Max(0, minAwardCount);
         int max = Mathf.Max(min, maxAwardCount);
         int awardCount = UnityEngine.Random.Range(min, max + 1);
-        DebugEx.LogModule("EndCombatUI", $"GenerateItemAwards count={awardCount} rows={allRows.Length} t={Time.time:F3} f={Time.frameCount}");
+        DebugEx.Log(this.GetType().Name, $"GenerateItemAwards count={awardCount} rows={allRows.Length} t={Time.time:F3} f={Time.frameCount}");
 
         for (int i = 0; i < awardCount; i++)
         {
@@ -161,7 +161,7 @@ public partial class EndCombatUI : UIFormBase
 
             if (i == 0)
             {
-                DebugEx.LogModule("EndCombatUI", $"First award spawned itemId={row.Id} t={Time.time:F3} f={Time.frameCount} dt={(Time.time - startTime):F3} df={(Time.frameCount - startFrame)}");
+                DebugEx.Log(this.GetType().Name, $"First award spawned itemId={row.Id} t={Time.time:F3} f={Time.frameCount} dt={(Time.time - startTime):F3} df={(Time.frameCount - startFrame)}");
             }
 
             await UniTask.Delay(TimeSpan.FromSeconds(0.15f), cancellationToken: token);
@@ -170,7 +170,7 @@ public partial class EndCombatUI : UIFormBase
         if (varItemAwardBtn != null)
         {
             varItemAwardBtn.gameObject.SetActive(true);
-            DebugEx.LogModule("EndCombatUI", $"ItemAwardBtn show t={Time.time:F3} f={Time.frameCount} totalDt={(Time.time - startTime):F3} totalDf={(Time.frameCount - startFrame)}");
+            DebugEx.Log(this.GetType().Name, $"ItemAwardBtn show t={Time.time:F3} f={Time.frameCount} totalDt={(Time.time - startTime):F3} totalDf={(Time.frameCount - startFrame)}");
         }
     }
 
@@ -200,7 +200,7 @@ public partial class EndCombatUI : UIFormBase
         GF.UI.CloseAllFloatingTips();
         m_TreasureClickTime = Time.time;
         m_TreasureClickFrame = Time.frameCount;
-        DebugEx.LogModule("EndCombatUI", $"Treasure click t={m_TreasureClickTime:F3} f={m_TreasureClickFrame}");
+        DebugEx.Log(this.GetType().Name, $"Treasure click t={m_TreasureClickTime:F3} f={m_TreasureClickFrame}");
 
         if (varTreasure != null)
         {
@@ -224,17 +224,17 @@ public partial class EndCombatUI : UIFormBase
 
         var eventDispatcher = varTreasure.GetComponent<UIAnimationEventDispatcher>();
         var animator = varTreasure.GetComponent<Animator>();
-        DebugEx.LogModule("EndCombatUI", $"Treasure anim start hasDispatcher={(eventDispatcher != null)} hasAnimator={(animator != null)} t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+        DebugEx.Log(this.GetType().Name, $"Treasure anim start hasDispatcher={(eventDispatcher != null)} hasAnimator={(animator != null)} t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
 
         Action<string> onEventTriggered = (eventName) =>
         {
-            DebugEx.LogModule("EndCombatUI", $"Treasure anim event={eventName} t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+            DebugEx.Log(this.GetType().Name, $"Treasure anim event={eventName} t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
             if (eventName == "SpawnAwards" || eventName == "Open")
             {
                 if (!hasAwardsStarted)
                 {
                     hasAwardsStarted = true;
-                    DebugEx.LogModule("EndCombatUI", $"SpawnAwards start awards t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+                    DebugEx.Log(this.GetType().Name, $"SpawnAwards start awards t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
                     GenerateItemAwardsAsync(token).Forget();
                 }
             }
@@ -243,11 +243,11 @@ public partial class EndCombatUI : UIFormBase
         Action<string> onAnimComplete = (animName) =>
         {
             hasAnimationCompleted = true;
-            DebugEx.LogModule("EndCombatUI", $"Treasure anim complete={animName} t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+            DebugEx.Log(this.GetType().Name, $"Treasure anim complete={animName} t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
             if (!hasAwardsStarted)
             {
                 hasAwardsStarted = true;
-                DebugEx.LogModule("EndCombatUI", $"AnimComplete start awards t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+                DebugEx.Log(this.GetType().Name, $"AnimComplete start awards t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
                 GenerateItemAwardsAsync(token).Forget();
             }
         };
@@ -261,16 +261,16 @@ public partial class EndCombatUI : UIFormBase
         if (animator != null)
         {
             animator.SetTrigger("Open");
-            DebugEx.LogModule("EndCombatUI", $"Animator.SetTrigger(Open) t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+            DebugEx.Log(this.GetType().Name, $"Animator.SetTrigger(Open) t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
         }
         else
         {
-            DebugEx.Warning("EndCombatUI", "Treasure 上没有 Animator 或动画事件，将使用默认延时。");
+            DebugEx.Warning(this.GetType().Name, "Treasure 上没有 Animator 或动画事件，将使用默认延时。");
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: token);
             if (!hasAwardsStarted)
             {
                 hasAwardsStarted = true;
-                DebugEx.LogModule("EndCombatUI", $"Fallback start awards t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+                DebugEx.Log(this.GetType().Name, $"Fallback start awards t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
                 GenerateItemAwardsAsync(token).Forget();
             }
             await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: token);
@@ -306,7 +306,7 @@ public partial class EndCombatUI : UIFormBase
         }
 
         varTreasure.gameObject.SetActive(false);
-        DebugEx.LogModule("EndCombatUI", $"Treasure hide t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
+        DebugEx.Log(this.GetType().Name, $"Treasure hide t={Time.time:F3} f={Time.frameCount} dtClick={(Time.time - m_TreasureClickTime):F3}");
     }
 
     private void OnClickItemAwardBtn()
@@ -320,7 +320,7 @@ public partial class EndCombatUI : UIFormBase
             {
                 InventoryManager.Instance.AddItem(itemId, 1);
             }
-            DebugEx.LogModule("EndCombatUI", $"奖励已入背包，共 {m_PendingAwardItemIds.Count} 件");
+            DebugEx.Log(this.GetType().Name, $"奖励已入背包，共 {m_PendingAwardItemIds.Count} 件");
         }
         m_PendingAwardItemIds.Clear();
 

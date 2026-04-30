@@ -49,7 +49,7 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
         float bestScore = float.MinValue;
 
         DebugEx.Log(
-            "DefaultTargetSearchStrategy",
+            nameof(DefaultTargetSearchStrategy),
             $"{self.Config?.Name} 开始索敌，候选目标数量: {enemies.Count}"
         );
 
@@ -68,7 +68,7 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
             if (m_Config.SearchRange > 0 && distance > m_Config.SearchRange)
             {
                 DebugEx.Log(
-                    "DefaultTargetSearchStrategy",
+                    nameof(DefaultTargetSearchStrategy),
                     $"  - {enemyCache.Entity?.Config?.Name ?? "召唤师"} 超出索敌范围 ({distance:F2} > {m_Config.SearchRange:F2})"
                 );
                 continue;
@@ -78,7 +78,7 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
             float score = EvaluateTarget(self, enemyCache, distance);
 
             DebugEx.Log(
-                "DefaultTargetSearchStrategy",
+                nameof(DefaultTargetSearchStrategy),
                 $"  - {enemyCache.Entity?.Config?.Name ?? "召唤师"}: 距离={distance:F2}, 血量={enemyCache.HpPercent:P0}, 评分={score:F2}"
             );
 
@@ -100,13 +100,13 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
 
             string targetName = bestTarget?.Config?.Name ?? "召唤师";
             DebugEx.Success(
-                "DefaultTargetSearchStrategy",
+                nameof(DefaultTargetSearchStrategy),
                 $"{self.Config?.Name} 选择目标: {targetName} (评分={bestScore:F2})"
             );
         }
         else
         {
-            DebugEx.Warning("DefaultTargetSearchStrategy", $"{self.Config?.Name} 未找到合适的目标");
+            DebugEx.Warning(nameof(DefaultTargetSearchStrategy), $"{self.Config?.Name} 未找到合适的目标");
         }
 
         return bestTarget;

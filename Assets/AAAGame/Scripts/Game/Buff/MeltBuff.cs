@@ -28,7 +28,7 @@ public class MeltBuff : BuffBase
         var burnBuff = Ctx.OwnerBuffManager.GetBuff(1) as BurnBuff;
         if (burnBuff == null || burnBuff.StackCount <= 0)
         {
-            DebugEx.LogModule("MeltBuff", "目标没有灼烧层数，融化无效");
+            DebugEx.Log("MeltBuff", "目标没有灼烧层数，融化无效");
             IsFinished = true;
             return;
         }
@@ -40,7 +40,7 @@ public class MeltBuff : BuffBase
         double casterSpellPower = Ctx.CasterAttribute != null ? Ctx.CasterAttribute.SpellPower : 0;
         double meltDamage = casterSpellPower * SPELL_POWER_RATIO * burnStacks;
 
-        DebugEx.LogModule("MeltBuff", $"融化触发: 法强={casterSpellPower:F1} × {SPELL_POWER_RATIO} × {burnStacks}层 = {meltDamage:F1}真实伤害");
+        DebugEx.Log("MeltBuff", $"融化触发: 法强={casterSpellPower:F1} × {SPELL_POWER_RATIO} × {burnStacks}层 = {meltDamage:F1}真实伤害");
 
         // 造成真实伤害
         if (meltDamage > 0)
@@ -50,7 +50,7 @@ public class MeltBuff : BuffBase
 
         // 消耗灼烧层数
         burnBuff.ReduceStacks(burnStacks);
-        DebugEx.LogModule("MeltBuff", $"消耗灼烧{burnStacks}层，剩余{burnBuff.StackCount}层");
+        DebugEx.Log("MeltBuff", $"消耗灼烧{burnStacks}层，剩余{burnBuff.StackCount}层");
 
         // 融化是即时效果，立即结束
         IsFinished = true;

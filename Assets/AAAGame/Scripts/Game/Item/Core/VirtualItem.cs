@@ -9,7 +9,7 @@ public class VirtualItem : ItemBase
     public VirtualItem(int itemId, ItemData itemData)
         : base(itemId, itemData)
     {
-        DebugEx.Log("VirtualItem", $"创建虚拟物品: {Name} (ID:{itemId})");
+        DebugEx.Log(nameof(VirtualItem), $"创建虚拟物品: {Name} (ID:{itemId})");
     }
 
     #endregion
@@ -35,7 +35,7 @@ public class VirtualItem : ItemBase
     /// </summary>
     protected override bool OnUse()
     {
-        DebugEx.Warning("VirtualItem", $"虚拟物品不能使用: {Name}");
+        DebugEx.Warning(nameof(VirtualItem), $"虚拟物品不能使用: {Name}");
         return false;
     }
 

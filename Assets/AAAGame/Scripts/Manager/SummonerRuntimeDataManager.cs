@@ -90,7 +90,7 @@ public class SummonerRuntimeDataManager
     {
         if (m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "已经初始化，跳过重复初始化");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "已经初始化，跳过重复初始化");
             return;
         }
 
@@ -118,13 +118,13 @@ public class SummonerRuntimeDataManager
             m_CurrentMP = m_MaxMP;
             m_MPRegen = 1f;
 
-            DebugEx.WarningModule("SummonerRuntimeDataManager", 
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager),
                 "未找到召唤师配置，使用默认值 - HP:100/100, MP:50/50, MPRegen:1");
         }
 
         m_IsInitialized = true;
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"召唤师运行时数据初始化完成 - HP:{m_CurrentHP}/{m_MaxHP}, MP:{m_CurrentMP}/{m_MaxMP}");
     }
 
@@ -145,7 +145,7 @@ public class SummonerRuntimeDataManager
         if (oldMP != m_CurrentMP)
             OnMPChanged?.Invoke(oldMP, m_CurrentMP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager",
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"战斗初始化回满 - HP:{m_CurrentHP}/{m_MaxHP}, MP:{m_CurrentMP}/{m_MaxMP}");
     }
 
@@ -166,7 +166,7 @@ public class SummonerRuntimeDataManager
         m_MPRegen = 1f;
         m_IsInitialized = false;
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", "召唤师运行时数据已清理");
+        DebugEx.Log(nameof(SummonerRuntimeDataManager), "召唤师运行时数据已清理");
     }
 
     #endregion
@@ -181,14 +181,14 @@ public class SummonerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "未初始化，无法增加生命值");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "未初始化，无法增加生命值");
             return;
         }
 
         float oldValue = m_CurrentHP;
         m_CurrentHP = Mathf.Clamp(m_CurrentHP + amount, 0f, m_MaxHP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"生命值增加: {oldValue:F1} -> {m_CurrentHP:F1} (+{amount:F1})");
 
         // 触发事件
@@ -203,14 +203,14 @@ public class SummonerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "未初始化，无法减少生命值");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "未初始化，无法减少生命值");
             return;
         }
 
         float oldValue = m_CurrentHP;
         m_CurrentHP = Mathf.Clamp(m_CurrentHP - amount, 0f, m_MaxHP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"生命值减少: {oldValue:F1} -> {m_CurrentHP:F1} (-{amount:F1})");
 
         // 触发事件
@@ -219,7 +219,7 @@ public class SummonerRuntimeDataManager
         // 检查是否死亡
         if (m_CurrentHP <= 0f)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "召唤师生命值归零！");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "召唤师生命值归零！");
         }
     }
 
@@ -231,14 +231,14 @@ public class SummonerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "未初始化，无法设置生命值");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "未初始化，无法设置生命值");
             return;
         }
 
         float oldValue = m_CurrentHP;
         m_CurrentHP = Mathf.Clamp(value, 0f, m_MaxHP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"生命值设置: {oldValue:F1} -> {m_CurrentHP:F1}");
 
         // 触发事件
@@ -257,7 +257,7 @@ public class SummonerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "未初始化，无法增加灵力值");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "未初始化，无法增加灵力值");
             return;
         }
 
@@ -280,13 +280,13 @@ public class SummonerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "未初始化，无法消耗灵力值");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "未初始化，无法消耗灵力值");
             return false;
         }
 
         if (m_CurrentMP < amount)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", 
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager),
                 $"灵力值不足: 需要{amount:F1}, 当前{m_CurrentMP:F1}");
             return false;
         }
@@ -294,7 +294,7 @@ public class SummonerRuntimeDataManager
         float oldValue = m_CurrentMP;
         m_CurrentMP = Mathf.Clamp(m_CurrentMP - amount, 0f, m_MaxMP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"灵力值消耗: {oldValue:F1} -> {m_CurrentMP:F1} (-{amount:F1})");
 
         // 触发事件
@@ -311,14 +311,14 @@ public class SummonerRuntimeDataManager
     {
         if (!m_IsInitialized)
         {
-            DebugEx.WarningModule("SummonerRuntimeDataManager", "未初始化，无法设置灵力值");
+            DebugEx.Warning(nameof(SummonerRuntimeDataManager), "未初始化，无法设置灵力值");
             return;
         }
 
         float oldValue = m_CurrentMP;
         m_CurrentMP = Mathf.Clamp(value, 0f, m_MaxMP);
 
-        DebugEx.LogModule("SummonerRuntimeDataManager", 
+        DebugEx.Log(nameof(SummonerRuntimeDataManager),
             $"灵力值设置: {oldValue:F1} -> {m_CurrentMP:F1}");
 
         // 触发事件

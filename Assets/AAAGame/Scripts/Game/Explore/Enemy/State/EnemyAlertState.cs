@@ -40,7 +40,7 @@ public class EnemyAlertState : IEnemyState
 
         m_AlertTimer = 0f;
 
-        DebugEx.LogModule("EnemyAlertState",
+        DebugEx.Log(nameof(EnemyAlertState),
             $"{m_AI.Entity.Config.Name} 进入警戒状态！");
 
         // TODO: 显示感叹号特效
@@ -55,7 +55,7 @@ public class EnemyAlertState : IEnemyState
             // 警觉度衰减到0，返回巡逻
             if (detector.AlertLevel <= 0f)
             {
-                DebugEx.LogModule("EnemyAlertState",
+                DebugEx.Log(nameof(EnemyAlertState),
                     $"{m_AI.Entity.Config.Name} 警觉度消散，返回巡逻");
                 m_AI.ChangeState(EnemyAIState.Patrol);
                 return;
@@ -64,7 +64,7 @@ public class EnemyAlertState : IEnemyState
             // 警觉度达到阈值，开始追击
             if (detector.AlertLevel >= m_AI.Entity.Config.AlertThreshold)
             {
-                DebugEx.LogModule("EnemyAlertState",
+                DebugEx.Log(nameof(EnemyAlertState),
                     $"{m_AI.Entity.Config.Name} 警觉度达到阈值，开始追击！");
                 m_AI.ChangeState(EnemyAIState.Chase);
                 return;
@@ -74,7 +74,7 @@ public class EnemyAlertState : IEnemyState
         // 检查玩家是否还在检测范围内
         if (!m_AI.IsPlayerDetected)
         {
-            DebugEx.LogModule("EnemyAlertState",
+            DebugEx.Log(nameof(EnemyAlertState),
                 $"{m_AI.Entity.Config.Name} 玩家离开，返回巡逻");
             m_AI.ChangeState(EnemyAIState.Patrol);
             return;
@@ -102,7 +102,7 @@ public class EnemyAlertState : IEnemyState
         // 警戒时间结束，开始追击
         if (m_AlertTimer >= m_AI.Entity.Config.AlertTime)
         {
-            DebugEx.LogModule("EnemyAlertState",
+            DebugEx.Log(nameof(EnemyAlertState),
                 $"{m_AI.Entity.Config.Name} 警戒结束，开始追击！");
             m_AI.ChangeState(EnemyAIState.Chase);
         }

@@ -5,18 +5,18 @@ public abstract class ItemEffectBase : IItemEffect
 {
     public abstract bool Execute(ItemEffectContext context);
 
-    protected void LogSuccess(string moduleName, string message)
+    protected void LogSuccess(string scriptName, string message)
     {
-        DebugEx.Success(moduleName, message);
+        DebugEx.Success(scriptName, message);
     }
 
-    protected void LogWarning(string moduleName, string message)
+    protected void LogWarning(string scriptName, string message)
     {
-        DebugEx.Warning(moduleName, message);
+        DebugEx.Warning(scriptName, message);
     }
 
-    protected void LogError(string moduleName, string message)
+    protected void LogError(string scriptName, string message)
     {
-        DebugEx.Error(moduleName, message);
+        DebugEx.Error(scriptName, message);
     }
 }

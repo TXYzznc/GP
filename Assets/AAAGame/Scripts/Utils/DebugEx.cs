@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
 /// <summary>
 /// 增强版 Debug 工具类
-/// 支持彩色输出、条件编译、模块标签等功能
+/// 所有方法均支持按脚本级别控制日志输出
+/// 通过 scriptName 参数标识日志来源脚本，LogConfigPanel 可对每个脚本的日志进行独立控制
 /// </summary>
 public static class DebugEx
 {
@@ -31,77 +33,94 @@ public static class DebugEx
     #region 配置
 
     /// <summary>
-    /// 是否启用日志输出（Release 版本可设为 false）
+    /// 全局总开关
     /// </summary>
     public static bool EnableLog = true;
 
     /// <summary>
-    /// 是否启用警告输出
+    /// 脚本级别的日志控制字典（由 LogConfigPanel 管理）
     /// </summary>
-    public static bool EnableWarning = true;
+    private static Dictionary<string, bool> scriptLogEnabled = new();
+
+    #endregion
+
+    #region 脚本日志控制方法
 
     /// <summary>
-    /// 是否启用错误输出
+    /// 获取所有脚本的日志启用状态
     /// </summary>
-    public static bool EnableError = true;
+    public static Dictionary<string, bool> GetAllScriptLogStates()
+    {
+        return new Dictionary<string, bool>(scriptLogEnabled);
+    }
+
+    /// <summary>
+    /// 设置所有脚本的日志启用状态
+    /// </summary>
+    public static void SetAllScriptLogEnabled(Dictionary<string, bool> states)
+    {
+        scriptLogEnabled = new Dictionary<string, bool>(states);
+    }
+
+    /// <summary>
+    /// 清除脚本日志配置
+    /// </summary>
+    public static void ClearScriptLogConfig()
+    {
+        scriptLogEnabled.Clear();
+    }
+
+    /// <summary>
+    /// 检查某个脚本的日志是否启用
+    /// </summary>
+    private static bool IsScriptLogEnabled(string scriptName)
+    {
+        if (!EnableLog)
+            return false;
+
+        if (!scriptLogEnabled.ContainsKey(scriptName))
+        {
+            scriptLogEnabled[scriptName] = true;
+        }
+
+        return scriptLogEnabled[scriptName];
+    }
 
     #endregion
 
     #region Log 方法
 
     /// <summary>
-    /// 普通日志
+    /// 普通日志（仅限于脚本）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Log(object message, string color = "")
+    public static void Log(string scriptName, object message)
     {
-        if (!EnableLog)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.Log($"[{message}] {color}");
+        UnityEngine.Debug.Log($"[{scriptName}] {message}");
     }
 
     /// <summary>
-    /// 带颜色的日志
+    /// 带颜色的日志（仅限于脚本）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void LogColor(object message, string color)
+    public static void LogColor(string scriptName, object message, string color)
     {
-        if (!EnableLog)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.Log($"<color={color}>{message}</color>");
+        UnityEngine.Debug.Log($"<color={color}>[{scriptName}] {message}</color>");
     }
 
     /// <summary>
-    /// 带模块标签的日志
+    /// 带 Context 的日志（仅限于脚本，可在 Console 中点击定位到对象）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void LogModule(string module, object message)
+    public static void Log(string scriptName, object message, Object context)
     {
-        if (!EnableLog)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.Log($"[{module}] {message}");
-    }
-
-    /// <summary>
-    /// 带模块标签和颜色的日志
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void LogModule(string module, object message, string color)
-    {
-        if (!EnableLog)
-            return;
-        UnityEngine.Debug.Log($"<color={color}>[{module}] {message}</color>");
-    }
-
-    /// <summary>
-    /// 带 Context 的日志（可在 Console 中点击定位到对象）
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Log(object message, Object context)
-    {
-        if (!EnableLog)
-            return;
-        UnityEngine.Debug.Log(message, context);
+        UnityEngine.Debug.Log($"[{scriptName}] {message}", context);
     }
 
     #endregion
@@ -109,36 +128,25 @@ public static class DebugEx
     #region Warning 方法
 
     /// <summary>
-    /// 警告日志
+    /// 警告日志（仅限于脚本）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Warning(object message, string color = "")
+    public static void Warning(string scriptName, object message)
     {
-        if (!EnableWarning)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.LogWarning($"[{message}] {color}");
+        UnityEngine.Debug.LogWarning($"[{scriptName}] {message}");
     }
 
     /// <summary>
-    /// 带模块标签的警告日志
+    /// 带 Context 的警告日志（仅限于脚本）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void WarningModule(string module, object message)
+    public static void Warning(string scriptName, object message, Object context)
     {
-        if (!EnableWarning)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.LogWarning($"[{module}] {message}");
-    }
-
-    /// <summary>
-    /// 带 Context 的警告日志
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Warning(object message, Object context)
-    {
-        if (!EnableWarning)
-            return;
-        UnityEngine.Debug.LogWarning(message, context);
+        UnityEngine.Debug.LogWarning($"[{scriptName}] {message}", context);
     }
 
     #endregion
@@ -146,33 +154,23 @@ public static class DebugEx
     #region Error 方法
 
     /// <summary>
-    /// 错误日志
+    /// 错误日志（仅限于脚本）
     /// </summary>
-    public static void Error(object message, string color = "")
+    public static void Error(string scriptName, object message)
     {
-        if (!EnableError)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.LogError($"[{message}] {color}");
+        UnityEngine.Debug.LogError($"[{scriptName}] {message}");
     }
 
     /// <summary>
-    /// 带模块标签的错误日志
+    /// 带 Context 的错误日志（仅限于脚本）
     /// </summary>
-    public static void ErrorModule(string module, object message)
+    public static void Error(string scriptName, object message, Object context)
     {
-        if (!EnableError)
+        if (!IsScriptLogEnabled(scriptName))
             return;
-        UnityEngine.Debug.LogError($"[{module}] {message}");
-    }
-
-    /// <summary>
-    /// 带 Context 的错误日志
-    /// </summary>
-    public static void Error(object message, Object context)
-    {
-        if (!EnableError)
-            return;
-        UnityEngine.Debug.LogError(message, context);
+        UnityEngine.Debug.LogError($"[{scriptName}] {message}", context);
     }
 
     #endregion
@@ -180,35 +178,21 @@ public static class DebugEx
     #region 便捷方法
 
     /// <summary>
-    /// 成功日志（绿色，带模块标签）
+    /// 成功日志（绿色）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Success(string module, object message)
+    public static void Success(string scriptName, object message)
     {
-        LogModule(module, message, Color.Green);
+        LogColor(scriptName, message, Color.Green);
     }
 
     /// <summary>
-    /// 失败日志（红色，带模块标签）
+    /// 失败日志（红色）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Fail(string module, object message)
+    public static void Fail(string scriptName, object message)
     {
-        LogModule(module, message, Color.Red);
-    }
-
-    /// <summary>
-    /// 分隔线
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Separator(string title = "")
-    {
-        if (!EnableLog)
-            return;
-        string line = string.IsNullOrEmpty(title)
-            ? "========================================"
-            : $"========== {title} ==========";
-        UnityEngine.Debug.Log($"<color={Color.Yellow}>{line}</color>");
+        LogColor(scriptName, message, Color.Red);
     }
 
     #endregion
@@ -219,23 +203,11 @@ public static class DebugEx
     /// 断言（条件为 false 时输出错误）
     /// </summary>
     [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Assert(bool condition, string message)
+    public static void Assert(string scriptName, bool condition, string message)
     {
         if (!condition)
         {
-            Error($"断言失败: {message}");
-        }
-    }
-
-    /// <summary>
-    /// 断言（条件为 false 时输出错误，带模块标签）
-    /// </summary>
-    [Conditional("UNITY_EDITOR"), Conditional("DEVELOPMENT_BUILD")]
-    public static void Assert(bool condition, string module, string message)
-    {
-        if (!condition)
-        {
-            ErrorModule(module, $"断言失败: {message}");
+            Error(scriptName, $"断言失败: {message}");
         }
     }
 
