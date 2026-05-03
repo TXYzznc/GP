@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 溶解效果控制器 - 控制单个物体的材质溶解动画
@@ -42,10 +42,15 @@ public class DissolveController : MonoBehaviour
 
     private void Update()
     {
-        if (!m_IsAnimating) return;
+        if (!m_IsAnimating)
+            return;
 
         // 平滑过渡到目标值
-        m_CurrentAmount = Mathf.MoveTowards(m_CurrentAmount, m_TargetAmount, m_Speed * Time.deltaTime);
+        m_CurrentAmount = Mathf.MoveTowards(
+            m_CurrentAmount,
+            m_TargetAmount,
+            m_Speed * Time.deltaTime
+        );
         ApplyDissolveAmount(m_CurrentAmount);
 
         // 检查是否完成

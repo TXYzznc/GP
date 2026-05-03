@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 /// <summary>
 /// 溶解过渡管理器 - 管理战斗场景切换时的溶解效果
@@ -10,7 +10,8 @@ public class DissolveTransitionManager
     #region 单例
 
     private static DissolveTransitionManager s_Instance;
-    public static DissolveTransitionManager Instance => s_Instance ??= new DissolveTransitionManager();
+    public static DissolveTransitionManager Instance =>
+        s_Instance ??= new DissolveTransitionManager();
 
     #endregion
 
@@ -51,8 +52,9 @@ public class DissolveTransitionManager
     {
         // 强制重置过渡状态，防止上次异常导致卡住
         m_IsTransitioning = false;
-        
-        if (m_IsTransitioning) return;
+
+        if (m_IsTransitioning)
+            return;
         m_IsTransitioning = true;
 
         try
@@ -71,7 +73,7 @@ public class DissolveTransitionManager
                     obj.SetActive(true);
                 }
             }
-            
+
             // 重新收集材质，因为刚被激活
             foreach (var ctrl in m_EnvironmentControllers)
             {
@@ -81,7 +83,7 @@ public class DissolveTransitionManager
                     ctrl.SetDissolveAmount(0f);
                 }
             }
-            
+
             if (m_ArenaObject != null)
             {
                 m_ArenaObject.SetActive(true);
@@ -144,8 +146,9 @@ public class DissolveTransitionManager
     {
         // 强制重置过渡状态
         m_IsTransitioning = false;
-        
-        if (m_IsTransitioning) return;
+
+        if (m_IsTransitioning)
+            return;
         m_IsTransitioning = true;
 
         try
@@ -158,7 +161,7 @@ public class DissolveTransitionManager
                     obj.SetActive(true);
                 }
             }
-            
+
             // 重新收集材质并设置初始状态
             foreach (var ctrl in m_EnvironmentControllers)
             {
@@ -249,7 +252,10 @@ public class DissolveTransitionManager
         int envLayer = LayerMask.NameToLayer(EnvironmentLayerName);
         if (envLayer < 0)
         {
-            DebugEx.Warning(nameof(DissolveTransitionManager), $"未找到 Layer: {EnvironmentLayerName}");
+            DebugEx.Warning(
+                nameof(DissolveTransitionManager),
+                $"未找到 Layer: {EnvironmentLayerName}"
+            );
             return;
         }
 
@@ -260,7 +266,7 @@ public class DissolveTransitionManager
             if (obj.layer == envLayer)
             {
                 m_EnvironmentObjects.Add(obj);
-                
+
                 // 获取或添加 DissolveController
                 var controller = obj.GetComponent<DissolveController>();
                 if (controller == null)
@@ -271,7 +277,10 @@ public class DissolveTransitionManager
             }
         }
 
-        DebugEx.Log(nameof(DissolveTransitionManager), $"收集到 {m_EnvironmentControllers.Count} 个环境物体");
+        DebugEx.Log(
+            nameof(DissolveTransitionManager),
+            $"收集到 {m_EnvironmentControllers.Count} 个环境物体"
+        );
     }
 
     /// <summary>
@@ -280,7 +289,7 @@ public class DissolveTransitionManager
     private void SetupArenaController(GameObject battleArena)
     {
         m_ArenaObject = battleArena;
-        
+
         if (battleArena == null)
         {
             m_ArenaController = null;
