@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 9
+  selectedIndex: 1
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -57,3 +57,15 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u65E5\u5FD7\u8282\u70B9\u63A7\u5236\u5668"
     description: "\u6309\u811A\u672C\u540D\u79F0\u63A7\u5236\u65E5\u5FD7\u8F93\u51FA\uFF0C\u652F\u6301\u6279\u91CF\u64CD\u4F5C\u548C\u914D\u7F6E\u4FDD\u5B58"
+  - typeName: MaterialConverterPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u6750\u8D28\u6279\u91CF\u8F6C\u6362\u5668"
+    description: "\u6279\u91CF\u5C06\u6750\u8D28\u4ECE\u4E00\u79CD\u6E32\u67D3\u7BA1\u7EBF\u8F6C\u6362\u5230\u53E6\u4E00\u79CD\uFF08Standard/URP/HDRP\uFF09"
+  - typeName: CurvePlacerPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u66F2\u7EBF\u5BF9\u8C61\u653E\u7F6E\u5DE5\u5177"
+    description: "\u6CBF Catmull-Rom \u66F2\u7EBF\u6279\u91CF\u653E\u7F6E\u9884\u5236\u4F53"
+  - typeName: BatchMeshColliderPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: "\u6279\u91CF\u6DFB\u52A0MeshCollider"
+    description: "\u6279\u91CF\u7ED9\u5BF9\u8C61\u53CA\u5B50\u5BF9\u8C61\u4E2D\u7F3A\u5C11Collider\u7684\u8282\u70B9\u6DFB\u52A0MeshCollider"
