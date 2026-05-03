@@ -1254,6 +1254,11 @@ MonoBehaviour:
     - {fileID: 8449315048678655510}
     VarType: UnityEngine.UI.Button
     VarPrefix: 0
+  - VarName: varChessImg
+    Targets:
+    - {fileID: 1108456193723516360}
+    VarType: UnityEngine.UI.Image
+    VarPrefix: 0
   m_HpPerCell: 50
   m_LineWidthUV: 0.002
   m_GridLineColor: {r: 0, g: 0, b: 0, a: 0.85}
@@ -1271,6 +1276,7 @@ MonoBehaviour:
   varChessName: {fileID: 331675334585260643}
   varChessEXPText: {fileID: 4359554634176685266}
   varLevelUpBtn: {fileID: 2145506913357414268}
+  varChessImg: {fileID: 8784555102303662706}
 --- !u!1 &5065152081490464561
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:DESKTOP-7JQ11GM
+//更新自:一只靓仔的电脑
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,4 +22,5 @@ public partial class SummonChessStateUI
 	[SerializeField] private TextMeshProUGUI varChessName = null;
 	[SerializeField] private TextMeshProUGUI varChessEXPText = null;
 	[SerializeField] private Button varLevelUpBtn = null;
+	[SerializeField] private Image varChessImg = null;
 }

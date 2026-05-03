@@ -83,9 +83,18 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// UI图标资源ID（阶级数组，暂时三阶相同）
+        /// 棋子图标资源ID（阶级数组，暂时三阶相同）
         /// </summary>
         public int[] IconId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 棋子头像资源ID（阶级数组，暂时三阶相同）
+        /// </summary>
+        public int[] HeadImgId
         {
             get;
             private set;
@@ -290,6 +299,7 @@ public partial class SummonChessTable : DataRowBase
             Classes = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             PrefabId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             IconId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            HeadImgId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             MaxHp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
             MaxMp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
             InitialMp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
@@ -328,6 +338,7 @@ public partial class SummonChessTable : DataRowBase
                     Classes = binaryReader.ReadArray<int>();
                     PrefabId = binaryReader.ReadArray<int>();
                     IconId = binaryReader.ReadArray<int>();
+                    HeadImgId = binaryReader.ReadArray<int>();
                     MaxHp = binaryReader.ReadArray<double>();
                     MaxMp = binaryReader.ReadArray<double>();
                     InitialMp = binaryReader.ReadArray<double>();

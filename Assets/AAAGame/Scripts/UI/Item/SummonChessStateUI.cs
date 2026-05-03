@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityGameFramework.Runtime;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityGameFramework.Runtime;
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
 #endif
@@ -11,7 +11,9 @@ public partial class SummonChessStateUI : UIItemBase
 {
     [Header("HP格子配置")]
     [SerializeField]
-    [Tooltip("单格代表的血量（固定血量/格）。格子数 = ceil(MaxHp / 该值)，总宽不变；该值越小格子越多、越密集。")]
+    [Tooltip(
+        "单格代表的血量（固定血量/格）。格子数 = ceil(MaxHp / 该值)，总宽不变；该值越小格子越多、越密集。"
+    )]
     private float m_HpPerCell = 50f;
 
     [SerializeField]
@@ -44,7 +46,20 @@ public partial class SummonChessStateUI : UIItemBase
 
     private ChessEXPComponent m_EXPComp;
 
-    private static readonly string[] RankNames = { "", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十" };
+    private static readonly string[] RankNames =
+    {
+        "",
+        "一",
+        "二",
+        "三",
+        "四",
+        "五",
+        "六",
+        "七",
+        "八",
+        "九",
+        "十",
+    };
 
     // Buff管理
     private Dictionary<int, BuffItem> m_BuffItems = new Dictionary<int, BuffItem>();
@@ -58,14 +73,33 @@ public partial class SummonChessStateUI : UIItemBase
         base.OnInit();
         m_Cam = CameraRegistry.PlayerCamera;
 
-        if (varHPBarImage != null) m_HpImg = varHPBarImage.GetComponent<Image>();
-        if (varMPBarImage != null) m_MpImg = varMPBarImage.GetComponent<Image>();
-        if (varShieldBarImage != null) m_ShieldImg = varShieldBarImage.GetComponent<Image>();
+        if (varHPBarImage != null)
+            m_HpImg = varHPBarImage.GetComponent<Image>();
+        if (varMPBarImage != null)
+            m_MpImg = varMPBarImage.GetComponent<Image>();
+        if (varShieldBarImage != null)
+            m_ShieldImg = varShieldBarImage.GetComponent<Image>();
 
-        if (m_HpImg != null) { m_HpImg.type = Image.Type.Filled; m_HpImg.fillMethod = Image.FillMethod.Horizontal; }
-        if (m_MpImg != null) { m_MpImg.type = Image.Type.Filled; m_MpImg.fillMethod = Image.FillMethod.Horizontal; }
-        if (m_ShieldImg != null) { m_ShieldImg.type = Image.Type.Filled; m_ShieldImg.fillMethod = Image.FillMethod.Horizontal; }
-        if (varChessEXP != null) { varChessEXP.type = Image.Type.Filled; varChessEXP.fillMethod = Image.FillMethod.Horizontal; }
+        if (m_HpImg != null)
+        {
+            m_HpImg.type = Image.Type.Filled;
+            m_HpImg.fillMethod = Image.FillMethod.Horizontal;
+        }
+        if (m_MpImg != null)
+        {
+            m_MpImg.type = Image.Type.Filled;
+            m_MpImg.fillMethod = Image.FillMethod.Horizontal;
+        }
+        if (m_ShieldImg != null)
+        {
+            m_ShieldImg.type = Image.Type.Filled;
+            m_ShieldImg.fillMethod = Image.FillMethod.Horizontal;
+        }
+        if (varChessEXP != null)
+        {
+            varChessEXP.type = Image.Type.Filled;
+            varChessEXP.fillMethod = Image.FillMethod.Horizontal;
+        }
 
         SetupHpMaterial();
 
@@ -85,12 +119,19 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void SetupHpMaterial()
     {
-        if (m_HpImg == null) return;
+        if (m_HpImg == null)
+            return;
 
-        Shader s = m_HpImg.material != null ? m_HpImg.material.shader : Shader.Find("Custom/HealthBarGrid");
+        Shader s =
+            m_HpImg.material != null
+                ? m_HpImg.material.shader
+                : Shader.Find("Custom/HealthBarGrid");
         if (s == null)
         {
-            DebugEx.Warning("SummonChessStateUI", "未找到 Custom/HealthBarGrid Shader，HP将不绘制格子");
+            DebugEx.Warning(
+                "SummonChessStateUI",
+                "未找到 Custom/HealthBarGrid Shader，HP将不绘制格子"
+            );
             return;
         }
 
@@ -111,8 +152,10 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void TryBindOwner()
     {
-        if (m_Owner == null) m_Owner = GetComponentInParent<ChessEntity>();
-        if (m_Owner == null) return;
+        if (m_Owner == null)
+            m_Owner = GetComponentInParent<ChessEntity>();
+        if (m_Owner == null)
+            return;
         Bind(m_Owner);
     }
 
@@ -143,8 +186,10 @@ public partial class SummonChessStateUI : UIItemBase
 
         if (m_Billboard)
         {
-            if (m_Cam == null) m_Cam = CameraRegistry.PlayerCamera;
-            if (m_Cam != null) transform.forward = m_Cam.transform.forward;
+            if (m_Cam == null)
+                m_Cam = CameraRegistry.PlayerCamera;
+            if (m_Cam != null)
+                transform.forward = m_Cam.transform.forward;
         }
     }
 
@@ -173,10 +218,14 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void UpdateHpGridParams()
     {
-        if (m_HpMatInst == null || m_Attr == null) return;
+        if (m_HpMatInst == null || m_Attr == null)
+            return;
         // 格子数基于 (Shield + MaxHp) 总容量
         double totalCapacity = m_Attr.Shield + m_Attr.MaxHp;
-        int cells = Mathf.Max(1, Mathf.CeilToInt((float)totalCapacity / Mathf.Max(1f, m_HpPerCell)));
+        int cells = Mathf.Max(
+            1,
+            Mathf.CeilToInt((float)totalCapacity / Mathf.Max(1f, m_HpPerCell))
+        );
         float gridWidth = 1f / cells;
         m_HpMatInst.SetFloat("_GridWidth", gridWidth);
 
@@ -189,7 +238,8 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void UpdateHpFill()
     {
-        if (m_HpImg == null || m_Attr == null) return;
+        if (m_HpImg == null || m_Attr == null)
+            return;
         // 血条 = CurrentHp / (Shield + MaxHp)
         double totalCapacity = m_Attr.Shield + m_Attr.MaxHp;
         m_HpImg.fillAmount = (float)(m_Attr.CurrentHp / Math.Max(1f, totalCapacity));
@@ -197,13 +247,15 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void UpdateMpFill()
     {
-        if (m_MpImg == null || m_Attr == null) return;
+        if (m_MpImg == null || m_Attr == null)
+            return;
         m_MpImg.fillAmount = (float)(m_Attr.CurrentMp / Mathf.Max(1f, (float)m_Attr.MaxMp));
     }
 
     private void UpdateShieldFill()
     {
-        if (m_ShieldImg == null || m_Attr == null) return;
+        if (m_ShieldImg == null || m_Attr == null)
+            return;
         // 护盾条 = Shield / (Shield + MaxHp)
         // 例如：MaxHp=500, CurrentHp=400, Shield=100 → 总容量=600
         // HPBar=400/600=0.667, ShieldBar=100/600=0.167
@@ -213,7 +265,8 @@ public partial class SummonChessStateUI : UIItemBase
 
     public void Bind(ChessEntity owner)
     {
-        if (owner == null) return;
+        if (owner == null)
+            return;
 
         if (m_Attr != null)
         {
@@ -224,7 +277,8 @@ public partial class SummonChessStateUI : UIItemBase
 
         m_Owner = owner;
         m_Attr = owner.Attribute;
-        if (m_Attr == null) return;
+        if (m_Attr == null)
+            return;
 
         m_Attr.OnHpChanged += OnHpChanged;
         m_Attr.OnMpChanged += OnMpChanged;
@@ -238,11 +292,17 @@ public partial class SummonChessStateUI : UIItemBase
         if (m_EXPComp != null)
         {
             m_EXPComp.OnEXPChanged += OnEXPChanged;
-            DebugEx.Log("SummonChessStateUI", $"[Bind] ✅ 棋子 {owner.Config.Name} 的经验事件已订阅");
+            DebugEx.Log(
+                "SummonChessStateUI",
+                $"[Bind] ✅ 棋子 {owner.Config.Name} 的经验事件已订阅"
+            );
         }
         else
         {
-            DebugEx.Error("SummonChessStateUI", $"[Bind] ❌ 棋子 {owner.Config.Name} 没有 ChessEXPComponent");
+            DebugEx.Error(
+                "SummonChessStateUI",
+                $"[Bind] ❌ 棋子 {owner.Config.Name} 没有 ChessEXPComponent"
+            );
         }
 
         // 订阅升阶事件
@@ -251,6 +311,34 @@ public partial class SummonChessStateUI : UIItemBase
         UpdateHpGridParams();
         RefreshAll();
         UpdateEXPDisplay();
+        LoadChessHeadImgAsync().Forget();
+    }
+
+    private async Cysharp.Threading.Tasks.UniTaskVoid LoadChessHeadImgAsync()
+    {
+        if (varChessImg == null || m_Owner == null)
+            return;
+
+        var chessTable = GF.DataTable.GetDataTable<SummonChessTable>();
+        var dr = chessTable?.GetDataRow(m_Owner.ChessId);
+        if (dr == null || dr.HeadImgId == null || dr.HeadImgId.Length == 0)
+        {
+            DebugEx.Warning(
+                "SummonChessStateUI",
+                $"LoadChessHeadImg: 找不到棋子头像配置 ChessId={m_Owner.ChessId}"
+            );
+            return;
+        }
+
+        // 按当前阶段取头像ID，越界则取最后一个
+        int rankIndex = Mathf.Clamp(m_Owner.Rank - 1, 0, dr.HeadImgId.Length - 1);
+        int headImgId = dr.HeadImgId[rankIndex];
+
+        await GameExtension.ResourceExtension.LoadSpriteAsync(headImgId, varChessImg);
+        DebugEx.Success(
+            "SummonChessStateUI",
+            $"棋子头像加载完成: ChessId={m_Owner.ChessId}, HeadImgId={headImgId}"
+        );
     }
 
     public void Unbind()
@@ -286,9 +374,12 @@ public partial class SummonChessStateUI : UIItemBase
 
     public void SetBarsVisible(bool showHp, bool showMp, bool showShield)
     {
-        if (varHPBarParent != null) varHPBarParent.gameObject.SetActive(showHp);
-        if (varMPBarParent != null) varMPBarParent.gameObject.SetActive(showMp);
-        if (varOtherBarParent != null) varOtherBarParent.gameObject.SetActive(showShield);
+        if (varHPBarParent != null)
+            varHPBarParent.gameObject.SetActive(showHp);
+        if (varMPBarParent != null)
+            varMPBarParent.gameObject.SetActive(showMp);
+        if (varOtherBarParent != null)
+            varOtherBarParent.gameObject.SetActive(showShield);
     }
 
     public void SetFollowTarget(Transform target, Vector3 offset)
@@ -307,13 +398,17 @@ public partial class SummonChessStateUI : UIItemBase
 
     private void OnEXPChanged(int oldExp, int newExp)
     {
-        DebugEx.Log("SummonChessStateUI", $"[OnEXPChanged] 棋子={m_Owner?.Config?.Name ?? "null"}, 经验: {oldExp} → {newExp}");
+        DebugEx.Log(
+            "SummonChessStateUI",
+            $"[OnEXPChanged] 棋子={m_Owner?.Config?.Name ?? "null"}, 经验: {oldExp} → {newExp}"
+        );
         UpdateEXPDisplay();
     }
 
     private void UpdateEXPDisplay()
     {
-        if (m_Owner == null) return;
+        if (m_Owner == null)
+            return;
 
         if (varChessName != null)
         {
@@ -338,10 +433,12 @@ public partial class SummonChessStateUI : UIItemBase
         }
 
         if (varChessEXP != null)
-            varChessEXP.fillAmount = requiredEXP > 0 ? Mathf.Clamp01((float)currentEXP / requiredEXP) : 1f;
+            varChessEXP.fillAmount =
+                requiredEXP > 0 ? Mathf.Clamp01((float)currentEXP / requiredEXP) : 1f;
 
         if (varChessEXPText != null)
-            varChessEXPText.text = requiredEXP > 0 ? $"{currentEXP}/{requiredEXP}" : $"{currentEXP}/--";
+            varChessEXPText.text =
+                requiredEXP > 0 ? $"{currentEXP}/{requiredEXP}" : $"{currentEXP}/--";
 
         // 检查是否可以升阶
         UpdateLevelUpBtnState(currentEXP, requiredEXP);
@@ -422,7 +519,8 @@ public partial class SummonChessStateUI : UIItemBase
     /// </summary>
     private void BindBuffManager()
     {
-        if (m_Owner == null || m_Owner.BuffManager == null) return;
+        if (m_Owner == null || m_Owner.BuffManager == null)
+            return;
 
         var buffManager = m_Owner.BuffManager;
 
@@ -440,7 +538,8 @@ public partial class SummonChessStateUI : UIItemBase
     /// </summary>
     private void UnbindBuffManager()
     {
-        if (m_Owner == null || m_Owner.BuffManager == null) return;
+        if (m_Owner == null || m_Owner.BuffManager == null)
+            return;
 
         var buffManager = m_Owner.BuffManager;
 
@@ -457,7 +556,8 @@ public partial class SummonChessStateUI : UIItemBase
     {
         ClearAllBuffItems();
 
-        if (m_Owner == null || m_Owner.BuffManager == null) return;
+        if (m_Owner == null || m_Owner.BuffManager == null)
+            return;
 
         var allBuffs = m_Owner.BuffManager.GetAllBuffs();
         foreach (var buff in allBuffs)
@@ -501,7 +601,8 @@ public partial class SummonChessStateUI : UIItemBase
     /// </summary>
     private void AddBuffItem(int buffId, int stackCount)
     {
-        if (varBuffPanel == null || varBuffItem == null) return;
+        if (varBuffPanel == null || varBuffItem == null)
+            return;
 
         // 检查是否已存在
         if (m_BuffItems.ContainsKey(buffId))
