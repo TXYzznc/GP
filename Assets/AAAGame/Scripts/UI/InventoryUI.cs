@@ -91,6 +91,9 @@ public partial class InventoryUI : UIFormBase
         OutputInventoryData();
         LockPlayerMovement(true);
 
+        // 加载召唤师立绘
+        LoadSummonerPortraitAsync().Forget();
+
         // 请求解锁鼠标（通过引用计数管理）
         var input = PlayerInputManager.Instance;
         if (input != null)
@@ -202,9 +205,10 @@ public partial class InventoryUI : UIFormBase
 
         // Screen Space-Camera 模式必须传 worldCamera，否则坐标换算错误
         var parentCanvas = GetComponentInParent<Canvas>();
-        Camera cam = parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-            ? parentCanvas.worldCamera
-            : null;
+        Camera cam =
+            parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? parentCanvas.worldCamera
+                : null;
 
         if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition, cam))
         {
@@ -732,6 +736,50 @@ public partial class InventoryUI : UIFormBase
     {
         // TODO: 接入玩家控制器
         DebugEx.Log("InventoryUI", $"玩家移动已{(locked ? "锁定" : "解锁")}");
+    }
+
+    #endregion
+
+    #region 召唤师立绘
+
+    /// <summary>
+    /// 异步加载当前召唤师立绘到 varPlayerImg
+    /// </summary>
+    private async UniTaskVoid LoadSummonerPortraitAsync()
+    {
+        var saveData = PlayerAccountDataManager.Instance?.CurrentSaveData;
+        if (saveData == null)
+        {
+            DebugEx.Warning("InventoryUI", "LoadSummonerPortrait: 存档数据为空");
+            return;
+        }
+
+        int summonerId = saveData.CurrentSummonerId;
+        var summonerTable = GF.DataTable.GetDataTable<SummonerTable>();
+        if (summonerTable == null || !summonerTable.HasDataRow(summonerId))
+        {
+            DebugEx.Warning(
+                "InventoryUI",
+                $"LoadSummonerPortrait: 找不到召唤师配置 ID={summonerId}"
+            );
+            return;
+        }
+
+        int portraitId = summonerTable.GetDataRow(summonerId).PortraitId;
+        if (varPlayerImg == null || portraitId <= 0)
+        {
+            DebugEx.Warning(
+                "InventoryUI",
+                $"LoadSummonerPortrait: varPlayerImg 为空或 PortraitId 无效 ({portraitId})"
+            );
+            return;
+        }
+
+        await ResourceExtension.LoadSpriteAsync(portraitId, varPlayerImg);
+        DebugEx.Success(
+            "InventoryUI",
+            $"召唤师立绘加载完成: SummonerId={summonerId}, PortraitId={portraitId}"
+        );
     }
 
     #endregion
