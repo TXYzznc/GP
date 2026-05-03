@@ -6,7 +6,7 @@
 	2		WorldScene	2	scene.world.name	scene.world.desc	1		1	1
 	3		TutorialScene	3	scene.tutorial.name	scene.tutorial.desc	0		1	1
 	0		StartGame	5	scene.menu.name	scene.menu.desc	0		0	1
-	10		TiangongScene	4	scene.tiangong.name	scene.tiangong.desc	3	1	1	1
+	10		TiangongScene	4	scene.tiangong.name	scene.tiangong.desc	3	1	2	1
 	11		HerheimScene	4	scene.herheim.name	scene.herheim.desc	3	10	1	10
 	12		TakamaharaScene	4	scene.takamahara.name	scene.takamahara.desc	3	8	1	8
 	13		OlympusScene	4	scene.olympus.name	scene.olympus.desc	3	25	1	25

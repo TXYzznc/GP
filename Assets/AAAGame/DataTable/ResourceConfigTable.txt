@@ -11,9 +11,13 @@
 	1103		1	UI/Items/MagicalStone.png	灵石图标
 	1104		1	UI/Items/Circle.png	战斗交互预览图标
 	1105		1	Summoner/狂战士.png	召唤师-狂战士立绘
-	1106		1	Summoner/狂战士.png	召唤师-术士立绘
-	1107		1	Summoner/狂战士.png	召唤师-混沌立绘
-	1108		1	Summoner/狂战士.png	召唤师-德鲁伊立绘
+	1106		1	Summoner/术士.png	召唤师-术士立绘
+	1107		1	Summoner/混沌.png	召唤师-混沌立绘
+	1108		1	Summoner/德鲁伊.png	召唤师-德鲁伊立绘
+	1155		1	Summoner/召唤师头像/狂战士.png	狂战士头像
+	1156		1	Summoner/召唤师头像/术士.png	术士头像
+	1157		1	Summoner/召唤师头像/混沌.png	混沌头像
+	1158		1	Summoner/召唤师头像/德鲁伊.png	德鲁伊头像
 	1201		1	Card/策略卡/神圣庇护.png	神圣庇护-策略卡图标
 	1202		1	Card/策略卡/烈焰风暴.png	烈焰风暴-策略卡图标
 	1203		1	Card/策略卡/时间回溯.png	时间回溯-策略卡图标
@@ -134,6 +138,12 @@
 	2399		2	角色/测试/靶子	棋子-靶子预制体
 	2401		3	DamagePopup	伤害飘字预制体
 	2402		3	InteractTip	交互提示预制体
+	2501		2	Game/Interact/破损的宝箱	破损的宝箱
+	2502		2	Game/Interact/精致的宝箱	精致的宝箱
+	2503		2	Game/Interact/华丽的宝箱	华丽的宝箱
+	2504		2	Game/Interact/神秘的宝箱	神秘的宝箱
+	2600		2	Enemy/后羿(敌人测试)	敌人-测试预制体
+	2601		2	Enemy/邪灵	敌人-邪灵预制体
 	2901		2	Combat/BattleArena	战斗场景预制体
 	3001		3	SummonChessEffect/HouYi_Skill1	后羿技能1特效
 	3002		3	SummonChessEffect/Projectile_HouYi_Attack	后羿普攻子弹
@@ -153,6 +163,7 @@
 	10201		1	Buff/4001.png	战意激昂Buff图标
 	10202		1	Buff/4002.png	狂怒之心Buff图标
 	10203		1	Buff/4003.png	暗影咒体Buff图标
+	11001		1	Enemy/默认.png	敌人图标
 	15001		1	Buff/5001.png	神圣庇护Buff图标
 	15002	(不再使用)	1	Buff/5002.png	烈焰风暴·灼烧Buff图标
 	15003		1	Buff/5003.png	战争号角Buff图标
@@ -181,17 +192,6 @@
 	19022		1	Card/Component/Mask/Mask2.png	名字背景-稀有度2
 	19023		1	Card/Component/Mask/Mask3.png	名字背景-稀有度3
 	19024		1	Card/Component/Mask/Mask4.png	名字背景-稀有度4
-	11001		1	Enemy/默认.png	敌人图标
-	2501		2	Game/Interact/破损的宝箱	破损的宝箱
-	2502		2	Game/Interact/精致的宝箱	精致的宝箱
-	2503		2	Game/Interact/华丽的宝箱	华丽的宝箱
-	2504		2	Game/Interact/神秘的宝箱	神秘的宝箱
-	2600		2	Enemy/后羿(敌人测试)	敌人-测试预制体
-	2601		2	Enemy/邪灵	敌人-邪灵预制体
-	1155		1	Summoner/召唤师头像/狂战士.png	狂战士头像
-	1156		1	Summoner/召唤师头像/术士.png	术士头像
-	1157		1	Summoner/召唤师头像/混沌.png	混沌头像
-	1158		1	Summoner/召唤师头像/德鲁伊.png	德鲁伊头像
 	60001		7	BGM/游戏启动主菜单BGM	游戏启动/主菜单
 	60002		7	BGM/基地场景BGM	基地场景
 	60003		7	BGM/大世界探索BGM	大世界探索
@@ -275,3 +275,5 @@
 	60081		7	SFX/UI/金币消耗音效	金币消耗
 	60082		7	SFX/UI/宝石消耗音效	宝石消耗
 	60083		7	SFX/UI/交易音效	交易音效
+	13001		1	Chess/后羿/后羿头像.png	棋子后羿头像
+	13004		1	Chess/嫦娥/嫦娥头像.png	棋子嫦娥头像
