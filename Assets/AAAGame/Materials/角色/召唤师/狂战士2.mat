@@ -25,6 +25,9 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - USE_DISTANCE_OUTLINE
+  - USE_LOCAL_DEPTH_OUTLINE
+  - USE_OIL_PAINTING
   - _DISSOLVE_MODE_SINGLE
   - _DISSOLVE_ON
   m_InvalidKeywords:
@@ -130,9 +133,15 @@ Material:
     - _LocalOutlineDepthNear: 0.5
     - _LocalOutlineRate: 1
     - _LocalOutlineWidthFar: 0.005
+    - _LocalOutlineWidthFarRate: 0.2
     - _LocalOutlineWidthNear: 0.03
+    - _LocalOutlineWidthNearRate: 1.2
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OilPaintingBrushScale: 5
+    - _OilPaintingHardness: 20
+    - _OilPaintingRadius: 2
+    - _OilPaintingSharpness: 1
     - _OutlineDistanceCurve: 1
     - _OutlineDistanceMax: 2
     - _OutlineDistanceMin: 20
@@ -145,7 +154,7 @@ Material:
     - _QueueOffset: 0
     - _RainbowIntensity: 2
     - _RampSmooth: 0
-    - _RampThreshold: 0.5
+    - _RampThreshold: 0.3
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
@@ -155,8 +164,9 @@ Material:
     - _StealthAlpha: 1
     - _Surface: 0
     - _ToonSteps: 4
-    - _UseDistanceOutline: 0
-    - _UseLocalDepthOutline: 0
+    - _UseDistanceOutline: 1
+    - _UseLocalDepthOutline: 1
+    - _UseOilPainting: 1
     - _UseSmoothNormal: 0
     - _WorkflowMode: 1
     - _ZWrite: 1

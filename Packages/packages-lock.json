@@ -31,6 +31,12 @@
       "dependencies": {},
       "hash": "59804e17a0d1562ca0f847db986ed93b25825b6d"
     },
+    "com.coffee.unmask": {
+      "version": "file:C:/Users/86135/Downloads/UnmaskForUGUI-main/UnmaskForUGUI-main",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

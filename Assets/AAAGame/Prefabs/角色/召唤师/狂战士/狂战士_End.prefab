@@ -57,15 +57,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -18.489
+      value: 4.091
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.304
+      value: 2.361
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.724
+      value: 95.55234
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -217,15 +217,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5465940246521907071, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 220
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5465940246521907071, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 220
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5465940246521907071, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_LocalScale.z
-      value: 220
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 5465940246521907071, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.092
       objectReference: {fileID: 0}
     - target: {fileID: 5465940246521907071, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       propertyPath: m_ConstrainProportionsScale
@@ -295,8 +299,8 @@ CharacterController:
   serializedVersion: 3
   m_Height: 2
   m_Radius: 0.2
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_SlopeLimit: 70
+  m_StepOffset: 0.6
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: -0.28, z: 0}
@@ -404,6 +408,8 @@ MonoBehaviour:
   distanceWeight: 5
   facingWeight: 3
   facingThreshold: 0.5
+  interactTipResourceId: 2402
+  tipHeightOffset: 1.5
   playerInteraction: {fileID: 0}
 --- !u!4 &9122629399051077876 stripped
 Transform:
