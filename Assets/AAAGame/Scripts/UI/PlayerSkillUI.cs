@@ -117,8 +117,23 @@ public partial class PlayerSkillUI : StateAwareUIForm
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        // 清理槽位
+        // 清理槽位数据
         ClearAllSlots();
+
+        // 销毁 SkillSlotContainer 中的所有子对象
+        if (varSkillSlotContainer != null)
+        {
+            int childCount = varSkillSlotContainer.childCount;
+            for (int i = childCount - 1; i >= 0; i--)
+            {
+                Transform child = varSkillSlotContainer.GetChild(i);
+                if (child != null)
+                {
+                    UnityEngine.Object.Destroy(child.gameObject);
+                }
+            }
+            DebugEx.Log("PlayerSkillUI", $"销毁了 {childCount} 个技能槽位子对象");
+        }
 
         base.OnClose(isShutdown, userData);
     }
@@ -212,7 +227,10 @@ public partial class PlayerSkillUI : StateAwareUIForm
                 cancellationToken: cts.Token
             );
 
-            DebugEx.Log("PlayerSkillUI", $"✓ 技能加载完成，共 {m_SkillManager.Skills.Count} 个技能");
+            DebugEx.Log(
+                "PlayerSkillUI",
+                $"✓ 技能加载完成，共 {m_SkillManager.Skills.Count} 个技能"
+            );
 
             // 绑定技能
             BindSkills();

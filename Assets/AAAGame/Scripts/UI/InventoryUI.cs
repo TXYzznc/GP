@@ -102,7 +102,25 @@ public partial class InventoryUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        base.OnClose(isShutdown, userData);
+        // 背包格子和装备格子在 OnInit 中创建，随 UI Prefab 生命周期管理，不在此销毁
+        // 只清理每次 OnOpen 时动态创建的对象
+
+        // 清理页签按钮（每次 OnOpen 时通过 BuildPageLabels 重建）
+        foreach (var btn in m_PageLabels)
+        {
+            if (btn != null && btn.gameObject != null)
+            {
+                UnityEngine.Object.Destroy(btn.gameObject);
+            }
+        }
+        m_PageLabels.Clear();
+
+        // 清理物品上下文菜单（动态创建到 Canvas，不随 UI Prefab 销毁）
+        if (m_CachedContextMenu != null && m_CachedContextMenu.gameObject != null)
+        {
+            UnityEngine.Object.Destroy(m_CachedContextMenu.gameObject);
+            m_CachedContextMenu = null;
+        }
 
         if (m_InventoryManager != null)
             m_InventoryManager.OnSlotChanged -= OnInventorySlotChanged;
@@ -120,6 +138,8 @@ public partial class InventoryUI : UIFormBase
         var input = PlayerInputManager.Instance;
         if (input != null)
             input.RequestMouseLock();
+
+        base.OnClose(isShutdown, userData);
     }
 
     private void OnInventorySlotChanged(SlotChangeEventArgs args)

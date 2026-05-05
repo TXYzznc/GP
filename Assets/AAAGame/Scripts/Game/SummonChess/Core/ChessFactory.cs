@@ -12,7 +12,8 @@ public static class ChessFactory
     #region AI创建
 
     /// <summary>AI创建器字典（AIType -> Creator）</summary>
-    private static readonly Dictionary<int, Func<IChessAI>> s_AICreators = new Dictionary<int, Func<IChessAI>>();
+    private static readonly Dictionary<int, Func<IChessAI>> s_AICreators =
+        new Dictionary<int, Func<IChessAI>>();
 
     /// <summary>
     /// 注册所有AI类型
@@ -23,10 +24,10 @@ public static class ChessFactory
         s_AICreators.Clear();
 
         // 旧版反应式AI（保留用于对比测试）
-        RegisterAI(3, () => new DummyAI());      // 假人测试AI
+        RegisterAI(3, () => new DummyAI()); // 假人测试AI
 
         // ✅ 新版状态机AI
-        RegisterAI(1, () => new FSMMeleeAI());  // 近战AI（状态机版）
+        RegisterAI(1, () => new FSMMeleeAI()); // 近战AI（状态机版）
         RegisterAI(2, () => new FSMRangedAI()); // 远程AI（状态机版）
 
         // 后续可扩展更多AI类型
@@ -45,13 +46,19 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterAI: creator is null, aiType={aiType}");
+            DebugEx.Error(
+                "ChessFactory",
+                $"ChessFactory.RegisterAI: creator is null, aiType={aiType}"
+            );
             return;
         }
 
         if (s_AICreators.ContainsKey(aiType))
         {
-            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterAI: AI类型 {aiType} 已注册，将被覆盖");
+            DebugEx.Warning(
+                "ChessFactory",
+                $"ChessFactory.RegisterAI: AI类型 {aiType} 已注册，将被覆盖"
+            );
         }
 
         s_AICreators[aiType] = creator;
@@ -76,13 +83,19 @@ public static class ChessFactory
                 }
                 else
                 {
-                    DebugEx.Error("ChessFactory", $"ChessFactory: AI创建器返回null (Type={aiType})");
+                    DebugEx.Error(
+                        "ChessFactory",
+                        $"ChessFactory: AI创建器返回null (Type={aiType})"
+                    );
                     return null;
                 }
             }
             catch (Exception e)
             {
-                DebugEx.Error("ChessFactory", $"ChessFactory: 创建AI失败 (Type={aiType}): {e.Message}\n{e.StackTrace}");
+                DebugEx.Error(
+                    "ChessFactory",
+                    $"ChessFactory: 创建AI失败 (Type={aiType}): {e.Message}\n{e.StackTrace}"
+                );
                 return null;
             }
         }
@@ -115,7 +128,8 @@ public static class ChessFactory
     #region 技能创建
 
     /// <summary>技能创建器字典（SkillId -> Creator）</summary>
-    private static readonly Dictionary<int, Func<IChessSkill>> s_SkillCreators = new Dictionary<int, Func<IChessSkill>>();
+    private static readonly Dictionary<int, Func<IChessSkill>> s_SkillCreators =
+        new Dictionary<int, Func<IChessSkill>>();
 
     /// <summary>
     /// 注册所有技能
@@ -133,6 +147,10 @@ public static class ChessFactory
         RegisterSkill(23, () => new ChangeSkill1());
         RegisterSkill(24, () => new ChangeUltimate());
 
+        // 邪灵技能
+        RegisterSkill(33, () => new EvilSpiritSkill1());
+        RegisterSkill(34, () => new EvilSpiritUltimate());
+
         DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_SkillCreators.Count} 个棋子技能");
     }
 
@@ -145,13 +163,19 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterSkill: creator is null, skillId={skillId}");
+            DebugEx.Error(
+                "ChessFactory",
+                $"ChessFactory.RegisterSkill: creator is null, skillId={skillId}"
+            );
             return;
         }
 
         if (s_SkillCreators.ContainsKey(skillId))
         {
-            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterSkill: 技能 {skillId} 已注册，将被覆盖");
+            DebugEx.Warning(
+                "ChessFactory",
+                $"ChessFactory.RegisterSkill: 技能 {skillId} 已注册，将被覆盖"
+            );
         }
 
         s_SkillCreators[skillId] = creator;
@@ -182,13 +206,19 @@ public static class ChessFactory
                 }
                 else
                 {
-                    DebugEx.Error("ChessFactory", $"ChessFactory: 技能创建器返回null (Id={skillId})");
+                    DebugEx.Error(
+                        "ChessFactory",
+                        $"ChessFactory: 技能创建器返回null (Id={skillId})"
+                    );
                     return null;
                 }
             }
             catch (Exception e)
             {
-                DebugEx.Error("ChessFactory", $"ChessFactory: 创建技能失败 (Id={skillId}): {e.Message}\n{e.StackTrace}");
+                DebugEx.Error(
+                    "ChessFactory",
+                    $"ChessFactory: 创建技能失败 (Id={skillId}): {e.Message}\n{e.StackTrace}"
+                );
                 return null;
             }
         }
@@ -221,7 +251,8 @@ public static class ChessFactory
     #region 技能策略创建
 
     // 技能策略注册表
-    private static Dictionary<int, System.Type> s_SkillStrategyRegistry = new Dictionary<int, System.Type>();
+    private static Dictionary<int, System.Type> s_SkillStrategyRegistry =
+        new Dictionary<int, System.Type>();
 
     /// <summary>
     /// 注册所有技能释放策略
@@ -239,8 +270,7 @@ public static class ChessFactory
 
         // 其他棋子使用默认策略（不需要注册）
 
-        DebugEx.Log("ChessFactory",
-            $"已注册 {s_SkillStrategyRegistry.Count} 个技能策略");
+        DebugEx.Log("ChessFactory", $"已注册 {s_SkillStrategyRegistry.Count} 个技能策略");
     }
 
     /// <summary>
@@ -250,14 +280,18 @@ public static class ChessFactory
     {
         if (!typeof(ISkillReleaseStrategy).IsAssignableFrom(strategyType))
         {
-            DebugEx.Error("ChessFactory",
-                $"策略类型 {strategyType.Name} 必须实现 ISkillReleaseStrategy 接口");
+            DebugEx.Error(
+                "ChessFactory",
+                $"策略类型 {strategyType.Name} 必须实现 ISkillReleaseStrategy 接口"
+            );
             return;
         }
 
         s_SkillStrategyRegistry[chessId] = strategyType;
-        DebugEx.Log("ChessFactory",
-            $"注册技能策略: ChessId={chessId}, Strategy={strategyType.Name}");
+        DebugEx.Log(
+            "ChessFactory",
+            $"注册技能策略: ChessId={chessId}, Strategy={strategyType.Name}"
+        );
     }
 
     /// <summary>
@@ -286,7 +320,8 @@ public static class ChessFactory
     #region 被动创建
 
     /// <summary>被动创建器字典（PassiveId -> Creator）</summary>
-    private static readonly Dictionary<int, Func<IChessPassive>> s_PassiveCreators = new Dictionary<int, Func<IChessPassive>>();
+    private static readonly Dictionary<int, Func<IChessPassive>> s_PassiveCreators =
+        new Dictionary<int, Func<IChessPassive>>();
 
     /// <summary>
     /// 注册所有被动技能
@@ -301,6 +336,9 @@ public static class ChessFactory
         // 嫦娥被动
         RegisterPassive(21, () => new ChangePassive());
 
+        // 邪灵被动
+        RegisterPassive(31, () => new EvilSpiritPassive());
+
         DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_PassiveCreators.Count} 个被动技能");
     }
 
@@ -311,13 +349,19 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterPassive: creator is null, passiveId={passiveId}");
+            DebugEx.Error(
+                "ChessFactory",
+                $"ChessFactory.RegisterPassive: creator is null, passiveId={passiveId}"
+            );
             return;
         }
 
         if (s_PassiveCreators.ContainsKey(passiveId))
         {
-            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterPassive: 被动 {passiveId} 已注册，将被覆盖");
+            DebugEx.Warning(
+                "ChessFactory",
+                $"ChessFactory.RegisterPassive: 被动 {passiveId} 已注册，将被覆盖"
+            );
         }
 
         s_PassiveCreators[passiveId] = creator;
@@ -328,7 +372,8 @@ public static class ChessFactory
     /// </summary>
     public static IChessPassive CreatePassive(int passiveId)
     {
-        if (passiveId == 0) return null;
+        if (passiveId == 0)
+            return null;
 
         if (s_PassiveCreators.TryGetValue(passiveId, out var creator))
         {
@@ -343,7 +388,10 @@ public static class ChessFactory
             }
             catch (Exception e)
             {
-                DebugEx.Error("ChessFactory", $"ChessFactory: 创建被动失败 (Id={passiveId}): {e.Message}");
+                DebugEx.Error(
+                    "ChessFactory",
+                    $"ChessFactory: 创建被动失败 (Id={passiveId}): {e.Message}"
+                );
             }
         }
 
@@ -356,7 +404,8 @@ public static class ChessFactory
     #region 普攻创建
 
     /// <summary>普攻创建器字典（AttackId -> Creator）</summary>
-    private static readonly Dictionary<int, Func<IChessNormalAttack>> s_NormalAtkCreators = new Dictionary<int, Func<IChessNormalAttack>>();
+    private static readonly Dictionary<int, Func<IChessNormalAttack>> s_NormalAtkCreators =
+        new Dictionary<int, Func<IChessNormalAttack>>();
 
     /// <summary>
     /// 注册所有普攻效果
@@ -371,6 +420,9 @@ public static class ChessFactory
         // 嫦娥普攻
         RegisterNormalAttack(22, () => new ChangeNormalAttack());
 
+        // 邪灵普攻
+        RegisterNormalAttack(32, () => new EvilSpiritNormalAttack());
+
         DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_NormalAtkCreators.Count} 个普攻效果");
     }
 
@@ -381,13 +433,19 @@ public static class ChessFactory
     {
         if (creator == null)
         {
-            DebugEx.Error("ChessFactory", $"ChessFactory.RegisterNormalAttack: creator is null, attackId={attackId}");
+            DebugEx.Error(
+                "ChessFactory",
+                $"ChessFactory.RegisterNormalAttack: creator is null, attackId={attackId}"
+            );
             return;
         }
 
         if (s_NormalAtkCreators.ContainsKey(attackId))
         {
-            DebugEx.Warning("ChessFactory", $"ChessFactory.RegisterNormalAttack: 普攻 {attackId} 已注册，将被覆盖");
+            DebugEx.Warning(
+                "ChessFactory",
+                $"ChessFactory.RegisterNormalAttack: 普攻 {attackId} 已注册，将被覆盖"
+            );
         }
 
         s_NormalAtkCreators[attackId] = creator;
@@ -398,7 +456,8 @@ public static class ChessFactory
     /// </summary>
     public static IChessNormalAttack CreateNormalAttack(int attackId)
     {
-        if (attackId == 0) return null;
+        if (attackId == 0)
+            return null;
 
         if (s_NormalAtkCreators.TryGetValue(attackId, out var creator))
         {
@@ -413,7 +472,10 @@ public static class ChessFactory
             }
             catch (Exception e)
             {
-                DebugEx.Error("ChessFactory", $"ChessFactory: 创建普攻效果失败 (Id={attackId}): {e.Message}");
+                DebugEx.Error(
+                    "ChessFactory",
+                    $"ChessFactory: 创建普攻效果失败 (Id={attackId}): {e.Message}"
+                );
             }
         }
 
@@ -430,7 +492,10 @@ public static class ChessFactory
     /// </summary>
     public static void DebugPrintAllAI()
     {
-        DebugEx.Log("ChessFactory", $"=== ChessFactory 已注册AI类型 (共{s_AICreators.Count}个) ===");
+        DebugEx.Log(
+            "ChessFactory",
+            $"=== ChessFactory 已注册AI类型 (共{s_AICreators.Count}个) ==="
+        );
         foreach (var kvp in s_AICreators)
         {
             DebugEx.Log("ChessFactory", $"AI Type: {kvp.Key}");
@@ -443,7 +508,10 @@ public static class ChessFactory
     /// </summary>
     public static void DebugPrintAllSkills()
     {
-        DebugEx.Log("ChessFactory", $"=== ChessFactory 已注册技能 (共{s_SkillCreators.Count}个) ===");
+        DebugEx.Log(
+            "ChessFactory",
+            $"=== ChessFactory 已注册技能 (共{s_SkillCreators.Count}个) ==="
+        );
         foreach (var kvp in s_SkillCreators)
         {
             DebugEx.Log("ChessFactory", $"Skill Id: {kvp.Key}");

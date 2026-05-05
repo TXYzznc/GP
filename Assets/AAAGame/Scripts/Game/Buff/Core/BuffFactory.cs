@@ -17,13 +17,13 @@ public static class BuffFactory
         s_Creators.Clear();
 
         // 元素效果 Buff
-        Register(1, () => new BurnBuff());       // 灼烧
-        Register(2, () => new FrostBuff());       // 冰霜
-        Register(3, () => new MeltBuff());        // 融化
+        Register(1, () => new BurnBuff()); // 灼烧
+        Register(2, () => new FrostBuff()); // 冰霜
+        Register(3, () => new MeltBuff()); // 融化
 
-        Register(4, () => new StatModBuff());      // 神力增益（配置驱动）
-        Register(5, () => new StatModBuff());      // 日落长弓（配置驱动）
-        Register(6, () => new StatModBuff());      // 九天玄冰（配置驱动）
+        Register(4, () => new StatModBuff()); // 神力增益（配置驱动）
+        Register(5, () => new StatModBuff()); // 日落长弓（配置驱动）
+        Register(6, () => new StatModBuff()); // 九天玄冰（配置驱动）
 
         Register(2001, () => new StatModBuff());
         Register(2002, () => new StatModBuff());
@@ -35,30 +35,35 @@ public static class BuffFactory
         Register(3003, () => new BleedBuff());
 
         // 狂战士技能 Buff
-        Register(4001, () => new StatModBuff());      // 战意激昂（攻速+20% 伤害+15%，配置驱动）
+        Register(4001, () => new StatModBuff()); // 战意激昂（攻速+20% 伤害+15%，配置驱动）
         Register(4002, () => new BerserkerRageBuff()); // 狂怒之心（普通单位+15%，召唤师+30%）
         // Register(4003, ...); // 暗影咒体，设计未完成暂不注册
 
         // ⭐ 新增：注册缺失的 Buff（来自其他英雄技能）
-        Register(5001, () => new StatModBuff());      // 神圣庇护·护盾（护盾增加）
-        Register(5002, () => new BurnBuff());         // 烈焰风暴·灼烧（周期伤害）
-        Register(5003, () => new StatModBuff());      // 战争号角（攻击+30%，移速+20%，配置驱动）
-        Register(5005, () => new StunBuff());         // 暗影突袭·眩晕
-        Register(5007, () => new StunBuff());         // 冰霜新星·冰冻（完全无法行动，SpecialState="Freeze"）
-        Register(5008, () => new StatModBuff());      // 狂暴（攻击+80%，防御-30%，配置驱动）
-        Register(5009, () => new ConfusedBuff());     // 混乱诅咒·混乱（特殊状态：有概率攻击队友）
+        Register(5001, () => new StatModBuff()); // 神圣庇护·护盾（护盾增加）
+        Register(5002, () => new BurnBuff()); // 烈焰风暴·灼烧（周期伤害）
+        Register(5003, () => new StatModBuff()); // 战争号角（攻击+30%，移速+20%，配置驱动）
+        Register(5005, () => new StunBuff()); // 暗影突袭·眩晕
+        Register(5007, () => new StunBuff()); // 冰霜新星·冰冻（完全无法行动，SpecialState="Freeze"）
+        Register(5008, () => new StatModBuff()); // 狂暴（攻击+80%，防御-30%，配置驱动）
+        Register(5009, () => new ConfusedBuff()); // 混乱诅咒·混乱（特殊状态：有概率攻击队友）
 
         // ⭐ 新增：更多英雄技能 Buff（属性修改类）
-        Register(5012, () => new StatModBuff());      // 圣域防线（护甲+30%，配置驱动）
-        Register(5017, () => new StatModBuff());      // 护甲破碎（护甲-5，配置驱动）
-        Register(5018, () => new StatModBuff());      // 虚弱诅咒（攻击-30%，配置驱动）
-        Register(5013, () => new ShieldRegenBuff());  // 护盾再生（每3秒恢复50护盾）
-        Register(5021, () => new PoisonBuff());       // 剧毒之雾（周期伤害）
-        Register(5019, () => new SilenceBuff());      // 沉默之符（禁用技能）
-        Register(5020, () => new TauntBuff());        // 嘲讽之声（强制索敌）
+        Register(5012, () => new StatModBuff()); // 圣域防线（护甲+30%，配置驱动）
+        Register(5017, () => new StatModBuff()); // 护甲破碎（护甲-5，配置驱动）
+        Register(5018, () => new StatModBuff()); // 虚弱诅咒（攻击-30%，配置驱动）
+        Register(5013, () => new ShieldRegenBuff()); // 护盾再生（每3秒恢复50护盾）
+        Register(5021, () => new PoisonBuff()); // 剧毒之雾（周期伤害）
+        Register(5019, () => new SilenceBuff()); // 沉默之符（禁用技能）
+        Register(5020, () => new TauntBuff()); // 嘲讽之声（强制索敌）
         Register(5011, () => new ReflectDamageBuff()); // 反伤之盾（返还伤害30%）
-        Register(5014, () => new MaxHpBuff());         // 血源强化（MaxHP+30%）
-        Register(5015, () => new LifestealBuff());    // 吸血之刃（吸血40%）
+        Register(5014, () => new MaxHpBuff()); // 血源强化（MaxHP+30%）
+        Register(5015, () => new LifestealBuff()); // 吸血之刃（吸血40%）
+
+        // 邪灵技能 Buff
+        Register(7, () => new CorrosionBuff()); // 腐蚀（降低护甲+魔抗，最多2层）
+        Register(8, () => new DarkFuryBuff()); // 黑暗狂暴（攻速+30%，持续5s）
+        Register(9, () => new FearBuff()); // 恐惧（攻击力-20%，持续2s）
 
         DebugEx.Log(nameof(BuffFactory), $"注册了 {s_Creators.Count} 个 Buff");
     }
@@ -95,4 +100,3 @@ public static class BuffFactory
         return null;
     }
 }
-

@@ -152,6 +152,8 @@
 	3005		3	SummonChessEffect/Change_Skill1	嫦娥技能一子弹
 	3006		3	SummonChessEffect/Change_Skill2	嫦娥大招法阵预制体
 	3007		3	SummonChessEffect/Change_Skill2_Projectile	嫦娥大招法阵生成的投射物
+	3008		3	SummonChessEffect/XieLing_Skill1_Effect	邪灵技能1特效
+	3009		3	SummonChessEffect/XieLing_Skill2	邪灵技能2法阵预制体
 	6001		6	Skills/SkillParamRegistry	技能参数注册表
 	10001		1	Buff/2001.png	先手·速度爆发图标
 	10002		1	Buff/2002.png	先手·攻击强化图标

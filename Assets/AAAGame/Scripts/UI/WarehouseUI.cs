@@ -53,6 +53,14 @@ public partial class WarehouseUI : UIFormBase
             m_WarehouseManager.OnCapacityChanged -= OnCapacityChanged;
         }
 
+        // 仓库格子通过 BuildSlots 复用，不在此销毁
+        // 只清理动态创建到 Canvas 的上下文菜单
+        if (m_CachedContextMenu != null && m_CachedContextMenu.gameObject != null)
+        {
+            UnityEngine.Object.Destroy(m_CachedContextMenu.gameObject);
+            m_CachedContextMenu = null;
+        }
+
         // 请求锁定鼠标（通过引用计数管理）
         var input = PlayerInputManager.Instance;
         if (input != null)
@@ -95,9 +103,10 @@ public partial class WarehouseUI : UIFormBase
             return;
 
         var parentCanvas = GetComponentInParent<Canvas>();
-        Camera cam = parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-            ? parentCanvas.worldCamera
-            : null;
+        Camera cam =
+            parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? parentCanvas.worldCamera
+                : null;
 
         if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition, cam))
         {
@@ -250,7 +259,10 @@ public partial class WarehouseUI : UIFormBase
         {
             if (varItemContextMenu == null)
             {
-                DebugEx.Error("WarehouseUI", "ShowItemContextMenu: varItemContextMenu 预制体未设置");
+                DebugEx.Error(
+                    "WarehouseUI",
+                    "ShowItemContextMenu: varItemContextMenu 预制体未设置"
+                );
                 return;
             }
 
@@ -267,7 +279,10 @@ public partial class WarehouseUI : UIFormBase
 
             if (m_CachedContextMenu == null)
             {
-                DebugEx.Error("WarehouseUI", "ShowItemContextMenu: 菜单预制体中没有 ItemContextMenu 组件");
+                DebugEx.Error(
+                    "WarehouseUI",
+                    "ShowItemContextMenu: 菜单预制体中没有 ItemContextMenu 组件"
+                );
                 Destroy(menuGO);
                 return;
             }

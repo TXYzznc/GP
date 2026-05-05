@@ -1,10 +1,10 @@
-using GameFramework.Fsm;
-using GameFramework.Procedure;
-using UnityGameFramework.Runtime;
-using GameFramework.Event;
-using UnityEngine;
 using System.Collections.Generic;
 using AAAGame.Audio;
+using GameFramework.Event;
+using GameFramework.Fsm;
+using GameFramework.Procedure;
+using UnityEngine;
+using UnityGameFramework.Runtime;
 
 /// <summary>
 /// 游戏流程 - 处理游戏场景中进行的游戏
@@ -82,7 +82,11 @@ public class GameProcedure : ProcedureBase
         Log.Info("GameProcedure 初始化完成");
     }
 
-    protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
+    protected override void OnUpdate(
+        IFsm<IProcedureManager> procedureOwner,
+        float elapseSeconds,
+        float realElapseSeconds
+    )
     {
         base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
 
@@ -93,6 +97,31 @@ public class GameProcedure : ProcedureBase
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
     {
         Log.Info("离开 GameProcedure");
+
+        // ⭐ 第一步：关闭所有由 OpenGameUIs 打开的 UI（防止场景切换时 UI 重复）
+        CloseGameUIs();
+
+        // ⭐ 第二步：清理敌人管理器的场景敌人列表（防止跨场景残留）
+        if (EnemyEntityManager.Instance != null)
+        {
+            EnemyEntityManager.Instance.Clear();
+            DebugEx.Log(nameof(GameProcedure), "EnemyEntityManager 已清理");
+        }
+
+        // ⭐ 第三步：防御性清理纯 C# 单例的脏状态
+        // 如果在战斗中切换场景，这些清理会确保下一场战斗有干净的初始状态
+        SummonerRuntimeDataManager.Instance.Cleanup();
+        DebugEx.Log(nameof(GameProcedure), "SummonerRuntimeDataManager 已清理");
+
+        CombatSessionData.Instance.Clear();
+        DebugEx.Log(nameof(GameProcedure), "CombatSessionData 已清理");
+
+        BattleChessManager.Instance.Clear();
+        DebugEx.Log(nameof(GameProcedure), "BattleChessManager 已清理");
+
+        // 清理战斗触发上下文
+        CombatTriggerManager.Instance?.ClearContext();
+        DebugEx.Log(nameof(GameProcedure), "CombatTriggerManager 上下文已清理");
 
         // 清理技能管理器
         if (m_SkillManager != null)
@@ -204,7 +233,10 @@ public class GameProcedure : ProcedureBase
         // 使用 ResourceExtension 异步加载技能参数注册表
         try
         {
-            var paramRegistry = await GameExtension.ResourceExtension.LoadScriptableObjectAsync<SkillParamRegistrySO>(ResourceIds.SO_SKILL_PARAM_REGISTRY);
+            var paramRegistry =
+                await GameExtension.ResourceExtension.LoadScriptableObjectAsync<SkillParamRegistrySO>(
+                    ResourceIds.SO_SKILL_PARAM_REGISTRY
+                );
 
             if (paramRegistry != null)
             {
@@ -314,7 +346,9 @@ public class GameProcedure : ProcedureBase
             Log.Info($"GameProcedure:   - Scene: Id={scene.Id}, Name='{scene.SceneName}'");
             if (scene.SceneName == currentSceneName)
             {
-                Log.Info($"GameProcedure: [匹配成功] 场景 '{currentSceneName}' 对应 MapId={scene.Id}");
+                Log.Info(
+                    $"GameProcedure: [匹配成功] 场景 '{currentSceneName}' 对应 MapId={scene.Id}"
+                );
                 return (int)scene.Id;
             }
         }
@@ -386,19 +420,24 @@ public class GameProcedure : ProcedureBase
         }
 
         // 获取或动态添加 CombatOpportunityDetector（文件迁移后预制体引用可能丢失，用 AddComponent 兜底）
-        CombatOpportunityDetector detector = playerCharacter.GetComponent<CombatOpportunityDetector>();
+        CombatOpportunityDetector detector =
+            playerCharacter.GetComponent<CombatOpportunityDetector>();
         if (detector == null)
         {
             detector = playerCharacter.AddComponent<CombatOpportunityDetector>();
             Log.Info("GameProcedure: 动态添加 CombatOpportunityDetector 到玩家角色");
-            DebugEx.Warning(nameof(GameProcedure),
-                "<color=red>[诊断] ⚠️ CombatOpportunityDetector 是动态 AddComponent 的！" +
-                "SerializeField（如 EnemyLayerMask）不会有值！需要手动设置或在预制体上预先挂载。</color>");
+            DebugEx.Warning(
+                nameof(GameProcedure),
+                "<color=red>[诊断] ⚠️ CombatOpportunityDetector 是动态 AddComponent 的！"
+                    + "SerializeField（如 EnemyLayerMask）不会有值！需要手动设置或在预制体上预先挂载。</color>"
+            );
         }
         else
         {
-            DebugEx.Log(nameof(GameProcedure),
-                "<color=cyan>[诊断] CombatOpportunityDetector 已在预制体上存在</color>");
+            DebugEx.Log(
+                nameof(GameProcedure),
+                "<color=cyan>[诊断] CombatOpportunityDetector 已在预制体上存在</color>"
+            );
         }
 
         // 初始化检测器
@@ -406,10 +445,12 @@ public class GameProcedure : ProcedureBase
         Log.Info("GameProcedure: 玩家角色的CombatOpportunityDetector已初始化");
 
         // 诊断：输出玩家角色信息
-        DebugEx.Log(nameof(GameProcedure),
-            $"<color=cyan>[诊断] 玩家角色: {playerCharacter.name}, " +
-            $"Layer={LayerMask.LayerToName(playerCharacter.layer)}({playerCharacter.layer}), " +
-            $"Position={playerCharacter.transform.position}</color>");
+        DebugEx.Log(
+            nameof(GameProcedure),
+            $"<color=cyan>[诊断] 玩家角色: {playerCharacter.name}, "
+                + $"Layer={LayerMask.LayerToName(playerCharacter.layer)}({playerCharacter.layer}), "
+                + $"Position={playerCharacter.transform.position}</color>"
+        );
     }
 
     /// <summary>
@@ -475,6 +516,42 @@ public class GameProcedure : ProcedureBase
     #endregion
 
     #region UI 管理
+
+    /// <summary>
+    /// 关闭所有由 OpenGameUIs 打开的 UI（场景切换时调用）
+    /// </summary>
+    private void CloseGameUIs()
+    {
+        // 关闭所有可能被打开的 UI（无论当前游戏状态是什么）
+        // 使用 HasUIForm 判断存在再关闭，避免报错
+
+        UIViews[] uiViewsToClose = new UIViews[]
+        {
+            UIViews.GamePlayInfoUI,
+            UIViews.CurrencyUI,
+            UIViews.StarPhoneUI,
+            UIViews.CombatUI,
+            UIViews.PlayerSkillUI,
+            UIViews.OutsiderFunctionUI,
+        };
+
+        int closedCount = 0;
+        foreach (var uiView in uiViewsToClose)
+        {
+            string uiAssetName = GF.UI.GetUIFormAssetName(uiView);
+            if (string.IsNullOrEmpty(uiAssetName))
+                continue;
+
+            if (GF.UI.HasUIForm(uiAssetName))
+            {
+                GF.UI.CloseUIForms(uiView);
+                closedCount++;
+                DebugEx.Log(nameof(GameProcedure), $"已关闭 UI: {uiView}");
+            }
+        }
+
+        DebugEx.Log(nameof(GameProcedure), $"场景切换时关闭了 {closedCount} 个 UI");
+    }
 
     /// <summary>
     /// 打开常驻游戏UI

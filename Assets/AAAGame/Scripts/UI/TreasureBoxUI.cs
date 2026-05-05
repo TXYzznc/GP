@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using UnityEngine;
+using UnityEngine.UI;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -15,23 +15,20 @@ public partial class TreasureBoxUI : UIFormBase
     private TreasureBoxSlotContainerImpl m_Container;
     private ItemContextMenu m_CachedContextMenu;
     private bool m_IsAnimating;
-    private int m_InitialSlotCount = -1;  // 首次打开时确定的格子数
-
+    private int m_InitialSlotCount = -1; // 首次打开时确定的格子数
     #endregion
 
     #region 动画参数
 
-    private const float SLOT_ANIMATION_DURATION = 0.2f;  // 每个格子动画时长
-    private const float SLOT_ANIMATION_DELAY = 0.05f;    // 格子间隔（产生瀑布效果）
-    private const float SLOT_SCALE_START = 0.5f;         // 起始缩放
-    private const float SLOT_ALPHA_START = 0f;           // 起始透明度
-
+    private const float SLOT_ANIMATION_DURATION = 0.2f; // 每个格子动画时长
+    private const float SLOT_ANIMATION_DELAY = 0.05f; // 格子间隔（产生瀑布效果）
+    private const float SLOT_SCALE_START = 0.5f; // 起始缩放
+    private const float SLOT_ALPHA_START = 0f; // 起始透明度
     #endregion
 
     #region 宝箱配置
 
-    private const int SLOTS_PER_ROW = 6;  // 一行6个格子
-
+    private const int SLOTS_PER_ROW = 6; // 一行6个格子
     #endregion
 
     #region 生命周期
@@ -83,18 +80,24 @@ public partial class TreasureBoxUI : UIFormBase
             const int maxRetries = 100;
             int retryCount = 0;
 
-            await UniTask.WaitUntil(() =>
-            {
-                retryCount++;
-                return retryCount >= maxRetries;
-            }, cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.WaitUntil(
+                () =>
+                {
+                    retryCount++;
+                    return retryCount >= maxRetries;
+                },
+                cancellationToken: this.GetCancellationTokenOnDestroy()
+            );
 
             // 最后一次尝试获取
             m_Container = Params?.Get("TreasureBoxContainer") as TreasureBoxSlotContainerImpl;
 
             if (m_Container == null)
             {
-                DebugEx.Error("TreasureBoxUI", "[WaitForContainerAndInitializeAsync] 超时：无法获取容器");
+                DebugEx.Error(
+                    "TreasureBoxUI",
+                    "[WaitForContainerAndInitializeAsync] 超时：无法获取容器"
+                );
                 return;
             }
 
@@ -110,14 +113,17 @@ public partial class TreasureBoxUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        base.OnClose(isShutdown, userData);
-
         // 取消订阅事件
         if (m_Container != null)
             m_Container.OnSlotChanged -= OnTreasureBoxChangedArgs;
 
-        // 清空格子显示（不销毁 GameObject，下次 OnOpen 复用）
-        ResetSlots();
+        // 宝箱格子通过追加复用模式管理，不在此销毁
+        // 只清理动态创建到 Canvas 的上下文菜单
+        if (m_CachedContextMenu != null && m_CachedContextMenu.gameObject != null)
+        {
+            UnityEngine.Object.Destroy(m_CachedContextMenu.gameObject);
+            m_CachedContextMenu = null;
+        }
 
         // 清空容器引用，防止下次打开不同宝箱时混淆
         m_Container = null;
@@ -131,6 +137,8 @@ public partial class TreasureBoxUI : UIFormBase
 
         // 重置初始格子数，下次打开时重新计算（如果是其他宝箱）
         m_InitialSlotCount = -1;
+
+        base.OnClose(isShutdown, userData);
 
         // 容器数据持久保存在 TreasureChestInteractable 中，下次打开时继续使用
     }
@@ -150,7 +158,10 @@ public partial class TreasureBoxUI : UIFormBase
         if (m_InitialSlotCount < 0)
         {
             m_InitialSlotCount = CalculateSlotCount();
-            DebugEx.Log("TreasureBoxUI", $"[InitializeTreasureBoxUI] 首次打开，确定格子数={m_InitialSlotCount}");
+            DebugEx.Log(
+                "TreasureBoxUI",
+                $"[InitializeTreasureBoxUI] 首次打开，确定格子数={m_InitialSlotCount}"
+            );
         }
         else
         {
@@ -229,10 +240,14 @@ public partial class TreasureBoxUI : UIFormBase
 
         for (int i = 0; i < m_Slots.Count; i++)
         {
-            if (!m_Slots[i].gameObject.activeSelf) continue;
+            if (!m_Slots[i].gameObject.activeSelf)
+                continue;
 
             // 播放该格子的动画（延迟错开，产生瀑布效果）
-            await UniTask.Delay((int)(SLOT_ANIMATION_DELAY * 1000), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(
+                (int)(SLOT_ANIMATION_DELAY * 1000),
+                cancellationToken: this.GetCancellationTokenOnDestroy()
+            );
 
             PlaySlotAnimationAsync(m_Slots[i]).Forget();
         }
@@ -240,12 +255,18 @@ public partial class TreasureBoxUI : UIFormBase
         // 所有格子动画启动完成后，立即恢复按钮交互（允许用户尽早操作）
         m_IsAnimating = false;
 
-        if (varCloseBtn != null) varCloseBtn.interactable = true;
-        if (varTakeAllBtn != null) varTakeAllBtn.interactable = true;
+        if (varCloseBtn != null)
+            varCloseBtn.interactable = true;
+        if (varTakeAllBtn != null)
+            varTakeAllBtn.interactable = true;
 
         // 继续等待动效完全播放完成（按钮已可用，但格子还在动画中）
-        float totalAnimationTime = (m_Slots.Count - 1) * SLOT_ANIMATION_DELAY + SLOT_ANIMATION_DURATION;
-        await UniTask.Delay((int)(totalAnimationTime * 1000), cancellationToken: this.GetCancellationTokenOnDestroy());
+        float totalAnimationTime =
+            (m_Slots.Count - 1) * SLOT_ANIMATION_DELAY + SLOT_ANIMATION_DURATION;
+        await UniTask.Delay(
+            (int)(totalAnimationTime * 1000),
+            cancellationToken: this.GetCancellationTokenOnDestroy()
+        );
     }
 
     /// <summary>
@@ -265,7 +286,8 @@ public partial class TreasureBoxUI : UIFormBase
             .SetEase(Ease.OutBack)
             .SetLink(slot.gameObject);
 
-        canvasGroup.DOFade(1f, SLOT_ANIMATION_DURATION)
+        canvasGroup
+            .DOFade(1f, SLOT_ANIMATION_DURATION)
             .SetEase(Ease.OutCubic)
             .SetLink(slot.gameObject);
 
@@ -301,7 +323,7 @@ public partial class TreasureBoxUI : UIFormBase
         {
             var go = Instantiate(varInventorySlotUI, varContent.transform);
             go.name = $"TreasureSlot_{i}";
-            go.SetActive(true);  // 激活让 OnInit 执行
+            go.SetActive(true); // 激活让 OnInit 执行
 
             var slotUI = go.GetComponent<InventorySlotUI>();
             if (slotUI == null)
@@ -323,7 +345,7 @@ public partial class TreasureBoxUI : UIFormBase
         {
             if (i < m_Slots.Count)
             {
-                m_Slots[i].SetSlotContainer(m_Container);  // ⭐ 重新绑定容器
+                m_Slots[i].SetSlotContainer(m_Container); // ⭐ 重新绑定容器
                 if (!m_Slots[i].gameObject.activeSelf)
                     m_Slots[i].gameObject.SetActive(true);
             }
@@ -342,7 +364,8 @@ public partial class TreasureBoxUI : UIFormBase
     {
         for (int i = 0; i < m_Slots.Count; i++)
         {
-            if (!m_Slots[i].gameObject.activeSelf) continue;
+            if (!m_Slots[i].gameObject.activeSelf)
+                continue;
 
             var slot = m_Container.GetSlot(i);
             var itemStack = (slot != null && !slot.IsEmpty) ? slot.ItemStack : null;
@@ -525,9 +548,10 @@ public partial class TreasureBoxUI : UIFormBase
             return;
 
         var parentCanvas = GetComponentInParent<Canvas>();
-        Camera cam = parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-            ? parentCanvas.worldCamera
-            : null;
+        Camera cam =
+            parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? parentCanvas.worldCamera
+                : null;
 
         if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition, cam))
         {
@@ -565,7 +589,7 @@ public partial class TreasureBoxUI : UIFormBase
             if (slot != null)
             {
                 slot.ClearItemQuantitySubscription();
-                slot.SetSlotContainer(null);  // 清空容器引用
+                slot.SetSlotContainer(null); // 清空容器引用
                 slot.SetData(null);
                 slot.gameObject.SetActive(false);
             }
