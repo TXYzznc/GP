@@ -30,6 +30,8 @@ public class ChessCombatController : MonoBehaviour
     /// <summary>当前使用的命中检测器（仅用于近战攻击结束回调）</summary>
     private IHitDetector m_CurrentHitDetector;
 
+    private GameObject m_CurrentActionEffectInstance;
+
     /// <summary>攻击目标修改器链：按顺序调用，每个修改器可替换目标（null = 本次攻击miss）</summary>
     private readonly System.Collections.Generic.List<Func<ChessEntity, ChessEntity>> m_AttackTargetModifiers = new();
 
@@ -100,6 +102,20 @@ public class ChessCombatController : MonoBehaviour
             DebugEx.Error("ChessCombatController",
                 $"初始化失败: {m_Entity.Config?.Name}, Animator.EventReceiver 为 null！");
         }
+    }
+
+    public void SetCurrentHitDetector(IHitDetector detector)
+    {
+        m_CurrentHitDetector = detector;
+    }
+
+    public void SetCurrentActionEffectInstance(GameObject instance)
+    {
+        if (m_CurrentActionEffectInstance != null && m_CurrentActionEffectInstance != instance)
+        {
+            Destroy(m_CurrentActionEffectInstance);
+        }
+        m_CurrentActionEffectInstance = instance;
     }
 
     #endregion
@@ -424,12 +440,14 @@ public class ChessCombatController : MonoBehaviour
             case "Attack":
                 DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 攻击动画完成");
+                EndCurrentMeleeDetection();
                 EndAttack();
                 break;
 
             case "Skill1":
                 DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 技能1动画完成");
+                EndCurrentMeleeDetection();
                 EndSkill(1);
 
                 // ⭐ 检查是否有待执行的玩家移动
@@ -439,6 +457,7 @@ public class ChessCombatController : MonoBehaviour
             case "Skill2":
                 DebugEx.Log("ChessCombatController",
                     $"{m_Entity.Config?.Name} 大招动画完成");
+                EndCurrentMeleeDetection();
                 EndSkill(2);
 
                 // ⭐ 检查是否有待执行的玩家移动
@@ -497,10 +516,7 @@ public class ChessCombatController : MonoBehaviour
     /// </summary>
     private void OnMeleeAttackEnd()
     {
-        if (m_CurrentHitDetector is MeleeHitDetector meleeDetector)
-        {
-            meleeDetector.EndMeleeDetection();
-        }
+        EndCurrentMeleeDetection();
     }
 
     /// <summary>
@@ -509,7 +525,12 @@ public class ChessCombatController : MonoBehaviour
     private void EndAttack()
     {
         m_PendingAttackTarget = null;
+        if (m_CurrentHitDetector != null && m_CurrentHitDetector.IsExecuting)
+        {
+            m_CurrentHitDetector.Cancel();
+        }
         m_CurrentHitDetector = null;
+        ClearCurrentActionEffectInstance();
 
         // ⭐ 通知 AI 攻击完成（支持新旧AI）
         if (m_Entity.AI != null)
@@ -528,6 +549,22 @@ public class ChessCombatController : MonoBehaviour
 
         DebugEx.Log("ChessCombatController",
             $"{m_Entity.Config?.Name} 攻击流程结束，AI 可以继续行动");
+    }
+
+    private void EndCurrentMeleeDetection()
+    {
+        if (m_CurrentHitDetector is IEndableHitDetector endable && endable.IsExecuting)
+            endable.End();
+        ClearCurrentActionEffectInstance();
+    }
+
+    private void ClearCurrentActionEffectInstance()
+    {
+        if (m_CurrentActionEffectInstance != null)
+        {
+            Destroy(m_CurrentActionEffectInstance);
+            m_CurrentActionEffectInstance = null;
+        }
     }
 
     private void EndSkill(int skillIndex)

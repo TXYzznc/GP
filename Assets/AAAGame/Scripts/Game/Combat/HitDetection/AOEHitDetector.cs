@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
@@ -5,64 +9,245 @@ using UnityEngine;
 /// 使用 OverlapSphere 检测范围内的所有敌人
 /// </summary>
 public class AOEHitDetector : HitDetectorBase
+    , IEndableHitDetector
 {
     public override AttackHitType HitType => AttackHitType.AOE;
 
-    /// <summary>碰撞缓冲区（避免 GC）</summary>
-    private static readonly Collider[] s_HitBuffer = new Collider[32];
+    [Serializable]
+    private class AOEOptions
+    {
+        public bool IsContinuous;
+        public string AOEShape = "Circle";
+        public float TickInterval = 0.05f;
+        public float SectorAngle = 0f;
+        public float InnerRadius = 0f;
+        public string HitPolicy = "OncePerTarget";
+    }
+
+    private enum AOEHitPolicy
+    {
+        OncePerTarget,
+        EveryTick,
+        OncePerTick,
+    }
+
+    private readonly Collider[] m_HitBuffer = new Collider[64];
+    private readonly HashSet<ChessEntity> m_HitTargets = new HashSet<ChessEntity>();
+    private readonly HashSet<ChessEntity> m_HitTargetsThisTick = new HashSet<ChessEntity>();
+    private CancellationTokenSource m_Cts;
+    private CancellationTokenSource m_LinkedCts;
+    private AOEOptions m_Options;
+    private AOEHitPolicy m_HitPolicy;
+    private HitContext m_Context;
 
     protected override void DoExecute(HitContext context)
     {
-        // 确定检测中心点
-        Vector3 center = context.TargetPosition;
-        float radius = context.AOERadius > 0 ? context.AOERadius : context.Range;
+        m_Context = context;
+        m_Options = ParseOptions(context.SkillConfig?.CustomData);
+        m_HitPolicy = ParseHitPolicy(m_Options?.HitPolicy);
+        m_HitTargets.Clear();
+        m_HitTargetsThisTick.Clear();
 
-        if (radius <= 0)
+        if (m_Options != null && m_Options.IsContinuous)
         {
-            DebugEx.Warning("AOEHitDetector", "检测半径为 0");
-            Complete();
+            StartContinuous();
             return;
         }
 
-        // 执行范围检测
-        int hitCount = Physics.OverlapSphereNonAlloc(center, radius, s_HitBuffer, context.EnemyLayerMask);
+        ScanAndApplyOncePerExecute();
+        Complete();
+    }
 
-        DebugEx.Log("AOEHitDetector", $"检测位置: {center}, 半径: {radius}, 检测到数量: {hitCount}");
+    public void End()
+    {
+        if (!IsExecuting)
+            return;
 
+        m_Cts?.Cancel();
+        m_LinkedCts?.Cancel();
+        m_Cts?.Dispose();
+        m_LinkedCts?.Dispose();
+        m_Cts = null;
+        m_LinkedCts = null;
+        Complete();
+    }
+
+    public override void Cancel()
+    {
+        End();
+    }
+
+    private void StartContinuous()
+    {
+        m_Cts?.Cancel();
+        m_LinkedCts?.Cancel();
+        m_Cts?.Dispose();
+        m_LinkedCts?.Dispose();
+        m_Cts = new CancellationTokenSource();
+
+        CancellationToken destroyToken = m_Context.Attacker != null
+            ? m_Context.Attacker.GetCancellationTokenOnDestroy()
+            : CancellationToken.None;
+
+        m_LinkedCts = CancellationTokenSource.CreateLinkedTokenSource(m_Cts.Token, destroyToken);
+        RunContinuousAsync(m_LinkedCts.Token).Forget();
+    }
+
+    private async UniTaskVoid RunContinuousAsync(CancellationToken token)
+    {
+        float interval = m_Options != null ? Mathf.Max(0f, m_Options.TickInterval) : 0.05f;
+        while (!token.IsCancellationRequested && IsExecuting)
+        {
+            ScanAndApplyOncePerTick();
+            if (interval <= 0f)
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
+            else
+                await UniTask.Delay(TimeSpan.FromSeconds(interval), DelayType.DeltaTime, PlayerLoopTiming.Update, token);
+        }
+    }
+
+    private void ScanAndApplyOncePerExecute()
+    {
+        m_HitTargetsThisTick.Clear();
+        ScanAndApplyInternal(isTick: false);
+    }
+
+    private void ScanAndApplyOncePerTick()
+    {
+        m_HitTargetsThisTick.Clear();
+        ScanAndApplyInternal(isTick: true);
+    }
+
+    private void ScanAndApplyInternal(bool isTick)
+    {
+        Vector3 center = m_Context.TargetPosition;
+        float radius = m_Context.AOERadius > 0 ? m_Context.AOERadius : m_Context.Range;
+        if (radius <= 0f)
+            return;
+
+        int hitCount = Physics.OverlapSphereNonAlloc(center, radius, m_HitBuffer, m_Context.EnemyLayerMask);
+
+        int maxHits = m_Context.MaxHitCount > 0 ? m_Context.MaxHitCount : int.MaxValue;
         int actualHitCount = 0;
-        int maxHits = context.MaxHitCount > 0 ? context.MaxHitCount : int.MaxValue;
 
         for (int i = 0; i < hitCount && actualHitCount < maxHits; i++)
         {
-            Collider col = s_HitBuffer[i];
-            if (col == null) continue;
+            Collider col = m_HitBuffer[i];
+            if (col == null)
+                continue;
 
-            // 获取棋子实体
-            ChessEntity target = col.GetComponent<ChessEntity>();
+            ChessEntity target = col.GetComponent<ChessEntity>() ?? col.GetComponentInParent<ChessEntity>();
             if (target == null)
-            {
-                target = col.GetComponentInParent<ChessEntity>();
-            }
+                continue;
 
-            if (target == null) continue;
+            if (target == m_Context.Attacker)
+                continue;
 
-            // 排除自己
-            if (target == context.Attacker) continue;
+            if (target.CurrentState == ChessState.Dead)
+                continue;
 
-            // 检查是否为敌人
-            if (!IsEnemy(target, context.AttackerCamp)) continue;
+            if (!IsEnemy(target, m_Context.AttackerCamp))
+                continue;
 
-            // 检查是否存活
-            if (target.CurrentState == ChessState.Dead) continue;
+            if (!PassShapeFilter(target.transform.position, center, radius))
+                continue;
 
-            // 造成伤害
-            ApplyDamage(target, context);
+            if (!PassHitPolicy(target, isTick))
+                continue;
+
+            ApplyDamage(target, m_Context);
             actualHitCount++;
         }
+    }
 
-        DebugEx.Log("AOEHitDetector", $"实际命中: {actualHitCount} 个目标");
+    private bool PassHitPolicy(ChessEntity target, bool isTick)
+    {
+        switch (m_HitPolicy)
+        {
+            case AOEHitPolicy.EveryTick:
+                return true;
 
-        // 完成检测
-        Complete();
+            case AOEHitPolicy.OncePerTick:
+                return m_HitTargetsThisTick.Add(target);
+
+            case AOEHitPolicy.OncePerTarget:
+            default:
+                if (!m_HitTargets.Add(target))
+                    return false;
+                if (isTick)
+                    m_HitTargetsThisTick.Add(target);
+                return true;
+        }
+    }
+
+    private bool PassShapeFilter(Vector3 targetPos, Vector3 center, float outerRadius)
+    {
+        if (m_Options == null)
+            return true;
+
+        string shape = m_Options.AOEShape ?? "Circle";
+        if (string.Equals(shape, "Circle", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (string.Equals(shape, "Ring", StringComparison.OrdinalIgnoreCase))
+        {
+            float sqrDist = (targetPos - center).sqrMagnitude;
+            float inner = Mathf.Max(0f, m_Options.InnerRadius);
+            if (inner <= 0f)
+                return true;
+            return sqrDist >= inner * inner && sqrDist <= outerRadius * outerRadius;
+        }
+
+        if (string.Equals(shape, "Sector", StringComparison.OrdinalIgnoreCase))
+        {
+            float angle = Mathf.Max(0f, m_Options.SectorAngle);
+            if (angle <= 0f || angle >= 360f)
+                return true;
+
+            Vector3 toTarget = targetPos - center;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude <= 0.0001f)
+                return true;
+
+            Vector3 forward = m_Context.AttackerForward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude <= 0.0001f)
+                forward = Vector3.forward;
+
+            float halfAngle = angle * 0.5f;
+            float actualAngle = Vector3.Angle(forward.normalized, toTarget.normalized);
+            return actualAngle <= halfAngle;
+        }
+
+        return true;
+    }
+
+    private AOEOptions ParseOptions(string customData)
+    {
+        if (string.IsNullOrEmpty(customData) || customData == "{}")
+            return null;
+
+        try
+        {
+            return JsonUtility.FromJson<AOEOptions>(customData);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private AOEHitPolicy ParseHitPolicy(string policy)
+    {
+        if (string.IsNullOrEmpty(policy))
+            return AOEHitPolicy.OncePerTarget;
+
+        if (string.Equals(policy, "EveryTick", StringComparison.OrdinalIgnoreCase))
+            return AOEHitPolicy.EveryTick;
+
+        if (string.Equals(policy, "OncePerTick", StringComparison.OrdinalIgnoreCase))
+            return AOEHitPolicy.OncePerTick;
+
+        return AOEHitPolicy.OncePerTarget;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 /// 近战攻击命中检测器
 /// 通过武器上的 Collider 进行碰撞检测
 /// </summary>
-public class MeleeHitDetector : HitDetectorBase
+public class MeleeHitDetector : HitDetectorBase, IEndableHitDetector
 {
     public override AttackHitType HitType => AttackHitType.Melee;
 
@@ -94,9 +94,17 @@ public class MeleeHitDetector : HitDetectorBase
         }
 
         m_HitTargets.Clear();
-        Complete();
+        if (IsExecuting)
+        {
+            Complete();
+        }
 
         DebugEx.Log(nameof(MeleeHitDetector), $"近战检测结束，命中: {m_CurrentHitCount} 个目标");
+    }
+
+    public void End()
+    {
+        EndMeleeDetection();
     }
 
     public override void Cancel()

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 邪灵：近战瞬发普通攻击 (ID=101)
@@ -35,8 +35,9 @@ public class EvilSpiritNormalAttack : ChessNormalAttackBase
 
         // 1. 计算伤害
         double damage = CalculateDamage(caster, out bool isCritical);
+        DebugEx.Log("EvilSpiritNormalAttack", $"普攻伤害: {damage:F1}{(isCritical ? " (暴击)" : "")}");
 
-        // 2. 构建命中检测上下文（近战瞬发）
+        // 2. 构建命中检测上下文（近战：武器Collider持续检测）
         HitContext context = new HitContext
         {
             Attacker = caster,
@@ -50,6 +51,7 @@ public class EvilSpiritNormalAttack : ChessNormalAttackBase
             IsMagicDamage = false,
             IsTrueDamage = false,
             Range = (float)caster.Attribute.AtkRange,
+            MaxHitCount = m_Config.HitCount > 0 ? m_Config.HitCount : 1,
             PenetrationCount = m_Config.PenetrationCount,
             EnemyLayerMask = CampRelationService.GetEnemyLayerMask(caster.Camp),
             EffectId = m_Config.EffectId,
@@ -60,8 +62,9 @@ public class EvilSpiritNormalAttack : ChessNormalAttackBase
         // 3. 播放普攻特效
         PlayAttackEffect(caster);
 
-        // 4. 执行命中检测（瞬发）
-        IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.Instant);
+        // 4. 执行命中检测（近战碰撞）
+        IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.Melee);
+        caster.CombatController?.SetCurrentHitDetector(detector);
         detector.Execute(context);
 
         // 5. 回复蓝量

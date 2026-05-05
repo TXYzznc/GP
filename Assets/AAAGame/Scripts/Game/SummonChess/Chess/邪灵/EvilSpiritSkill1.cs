@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+using Cysharp.Threading.Tasks;
+using GameExtension;
+using UnityEngine;
 
 /// <summary>
 /// 邪灵技能一：污染斩击 (ID=33)
@@ -28,9 +30,27 @@ public class EvilSpiritSkill1 : ChessSkillBase
         return true;
     }
 
-    /// <summary>
-    /// 执行技能：前方AOE物理伤害 + 2层腐蚀
-    /// </summary>
+    public override bool CanCast()
+    {
+        if (!base.CanCast())
+            return false;
+
+        ChessEntity caster = m_Ctx?.Entity;
+        if (caster == null)
+            return false;
+
+        ChessEntity nearest = FindNearestEnemy(caster);
+        if (nearest == null)
+            return false;
+
+        float range = (float)m_Config.CastRange;
+        if (range <= 0f)
+            range = (float)caster.Attribute.AtkRange;
+
+        float dist = Vector3.Distance(caster.transform.position, nearest.transform.position);
+        return dist <= range;
+    }
+
     public override void ExecuteSkill(ChessEntity caster)
     {
         if (caster == null)
@@ -39,18 +59,8 @@ public class EvilSpiritSkill1 : ChessSkillBase
             return;
         }
 
-        // 计算物理伤害
         double damage = CalculateDamage(caster, out bool isCritical);
-
-        DebugEx.Log(
-            "EvilSpiritSkill1",
-            $"执行污染斩击，伤害: {damage:F1}，AOE半径: {m_Config.AreaRadius}"
-        );
-
-        // 构建AOE命中上下文（以施法者前方为中心）
-        Vector3 aoeCenter =
-            caster.transform.position
-            + caster.transform.forward * (float)(m_Config.CastRange * 0.5f);
+        DebugEx.Log("EvilSpiritSkill1", $"污染斩击伤害: {damage:F1}{(isCritical ? " (暴击)" : "")}");
 
         HitContext context = new HitContext
         {
@@ -58,13 +68,14 @@ public class EvilSpiritSkill1 : ChessSkillBase
             AttackerPosition = caster.transform.position,
             AttackerForward = caster.transform.forward,
             AttackerCamp = caster.Camp,
-            TargetPosition = aoeCenter,
+            TargetPosition = caster.transform.position,
             BaseDamage = damage,
             IsCritical = isCritical,
-            IsMagicDamage = false,
-            IsTrueDamage = false,
-            Range = (float)m_Config.CastRange,
+            IsMagicDamage = m_Config.DamageType == 2,
+            IsTrueDamage = m_Config.DamageType == 3,
+            Range = (float)caster.Attribute.AtkRange,
             AOERadius = (float)m_Config.AreaRadius,
+            MaxHitCount = m_Config.HitCount,
             EnemyLayerMask = CampRelationService.GetEnemyLayerMask(caster.Camp),
             EffectId = m_Config.EffectId,
             HitEffectId = m_Config.HitEffectId,
@@ -72,19 +83,40 @@ public class EvilSpiritSkill1 : ChessSkillBase
             OnHitCallback = (target, dmg, isCrit) => ApplyCorrosion(caster, target),
         };
 
-        // 播放技能特效
-        PlaySkillEffect(caster);
-
-        // AOE命中检测
         IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.AOE);
+        caster.CombatController?.SetCurrentHitDetector(detector);
         detector.Execute(context);
 
+        SpawnSkillEffectAsync(caster).Forget();
         DebugEx.Success("EvilSpiritSkill1", "污染斩击执行完成");
     }
 
     #endregion
 
     #region 私有方法
+
+    private int m_EffectSpawnVersion;
+
+    private async UniTaskVoid SpawnSkillEffectAsync(ChessEntity caster)
+    {
+        if (caster == null || caster.CombatController == null)
+            return;
+
+        if (m_Config.EffectId <= 0)
+            return;
+
+        int version = ++m_EffectSpawnVersion;
+        GameObject prefab = await ResourceExtension.LoadPrefabAsync(m_Config.EffectId);
+        if (prefab == null || caster == null || caster.CurrentState == ChessState.Dead)
+            return;
+
+        if (version != m_EffectSpawnVersion)
+            return;
+
+        Vector3 pos = caster.GetEffectSpawnPosition(m_Config.EffectSpawnHeight);
+        GameObject instance = Object.Instantiate(prefab, pos, caster.transform.rotation);
+        caster.CombatController.SetCurrentActionEffectInstance(instance);
+    }
 
     /// <summary>
     /// 对命中目标施加2层腐蚀

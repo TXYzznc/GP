@@ -24,6 +24,10 @@ public static class HitDetectorFactory
         // 检查缓存
         if (s_DetectorCache.TryGetValue(hitType, out IHitDetector detector))
         {
+            if (detector != null && detector.IsExecuting)
+            {
+                return CreateDetector(hitType);
+            }
             return detector;
         }
 

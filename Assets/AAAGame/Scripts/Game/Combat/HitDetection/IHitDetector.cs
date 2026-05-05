@@ -28,6 +28,11 @@ public interface IHitDetector
     bool IsExecuting { get; }
 }
 
+public interface IEndableHitDetector : IHitDetector
+{
+    void End();
+}
+
 /// <summary>
 /// 命中检测器基类
 /// 提供通用功能实现

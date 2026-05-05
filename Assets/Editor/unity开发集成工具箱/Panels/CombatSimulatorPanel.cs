@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -452,6 +452,8 @@ public class CombatSimulatorPanel : IToolHubPanel
     private void StartAICombat()
     {
         if (m_AllyChess == null || m_EnemyChess == null) return;
+
+        _ = DamageFloatingTextManager.Instance;
 
         // 构建敌人缓存
         CombatEntityTracker.Instance?.BuildEnemyCache();

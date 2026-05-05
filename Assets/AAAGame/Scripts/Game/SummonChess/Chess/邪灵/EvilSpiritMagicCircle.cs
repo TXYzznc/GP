@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public partial class EvilSpiritMagicCircle : MonoBehaviour
@@ -10,8 +9,6 @@ public partial class EvilSpiritMagicCircle : MonoBehaviour
     {
         public float DotInterval = 1f;
         public float CorrosionInterval = 5f;
-        public float ExplosionDelay = 8f;
-        public float PostExplosionDelay = 1f;
         public float DotDamageCoeff = 0.25f;
         public float DotBaseDamage = 10f;
         public float ExplosionDamageCoeff = 1.2f;
@@ -91,30 +88,6 @@ public partial class EvilSpiritMagicCircle : MonoBehaviour
         m_IsFinished = true;
         m_IsActive = false;
         Destroy(gameObject);
-    }
-
-    public void BeginAutoLifecycleFromConfig()
-    {
-        if (m_CustomData == null)
-            m_CustomData = new CustomDataWrapper();
-
-        float explosionDelay = Mathf.Max(0f, m_CustomData.ExplosionDelay);
-        float postExplosionDelay = Mathf.Max(0f, m_CustomData.PostExplosionDelay);
-
-        AutoLifecycleAsync(explosionDelay, postExplosionDelay).Forget();
-    }
-
-    private async UniTaskVoid AutoLifecycleAsync(float explosionDelay, float postExplosionDelay)
-    {
-        AnimEvent_MagicCircleSpawn();
-
-        if (explosionDelay > 0f)
-            await UniTask.Delay(TimeSpan.FromSeconds(explosionDelay), DelayType.DeltaTime, PlayerLoopTiming.Update, this.GetCancellationTokenOnDestroy());
-        AnimEvent_MagicCircleExplosion();
-
-        if (postExplosionDelay > 0f)
-            await UniTask.Delay(TimeSpan.FromSeconds(postExplosionDelay), DelayType.DeltaTime, PlayerLoopTiming.Update, this.GetCancellationTokenOnDestroy());
-        AnimEvent_MagicCircleDisappear();
     }
 
     private void Update()

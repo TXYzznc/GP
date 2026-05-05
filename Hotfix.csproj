@@ -254,6 +254,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Escape\CombatEscapeSystem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\DataModelComponent.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\ItemStack.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\SpawnedEffectHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\PacketHandlerBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\CombatVFXManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\GameStateManager.cs" />

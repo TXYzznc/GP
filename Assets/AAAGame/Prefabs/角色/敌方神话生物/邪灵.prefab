@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.3322632
+      value: -2.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalPosition.y
@@ -18,11 +18,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -12.758282
+      value: 0.86
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalRotation.x
@@ -30,11 +30,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -42,7 +42,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
+      value: 360
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -228,11 +228,55 @@ PrefabInstance:
       addedObject: {fileID: 5546582686900142569}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4585294509266115013}
+      addedObject: {fileID: 7528121216716622387}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7528121216716622387}
+      addedObject: {fileID: 6240283523141920534}
+    - targetCorrespondingSourceObject: {fileID: -1681577543223528556, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2545859130930866900}
+    - targetCorrespondingSourceObject: {fileID: -1681577543223528556, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6847292000535303372}
   m_SourcePrefab: {fileID: 100100000, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
+--- !u!1 &4208149137139828032 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -1681577543223528556, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
+  m_PrefabInstance: {fileID: 5967145787333097172}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &2545859130930866900
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4208149137139828032}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.3242871, y: 1.5880888, z: 0.2941109}
+  m_Center: {x: -0.04314958, y: 0.4978905, z: -0.01805236}
+--- !u!114 &6847292000535303372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4208149137139828032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f641e89a9f31ba4191fdd97878c0d49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6777608113852255109 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 02ca745c9e90e19459e770dc474f0698, type: 3}
@@ -288,26 +332,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 1
---- !u!114 &4585294509266115013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6777608113852255109}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 280f4dba90fae0349afe16329f069b93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EnemyOutlineConfig: {fileID: 11400000, guid: 08bbf85987d15994e8840684507a0d05, type: 2}
-  m_AllyOutlineConfig: {fileID: 11400000, guid: 672bb44103caf4e47834980b3072d74a, type: 2}
-  m_SelectedOutlineConfig: {fileID: 11400000, guid: 3a78e0c4228bc43449795e24fd8ef630, type: 2}
-  m_NeutralOutlineConfig: {fileID: 11400000, guid: 60d7060d6c55858488d95b6cdab735f4, type: 2}
-  m_EnemyConfigPath: Assets/TA/OuterGlow/Enemy.asset
-  m_AllyConfigPath: Assets/TA/OuterGlow/Ally.asset
-  m_SelectedConfigPath: Assets/TA/OuterGlow/Selected.asset
-  m_NeutralConfigPath: Assets/TA/OuterGlow/Interactive.asset
 --- !u!114 &7528121216716622387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,3 +344,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42f2e1f6bb7e1dc4881454ae0718b081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6240283523141920534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6777608113852255109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a60886c3cc52e2e4986e004e6ea0370b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowHp: 1
+  m_ShowMp: 1
+  m_ShowOther: 1
+  m_FollowOffset: {x: 0, y: 0, z: 0}

@@ -74,36 +74,59 @@ public class EvilSpiritUltimate : ChessSkillBase
         Vector3 spawnPosition = Vector3.Lerp(targetBottom, targetTop, customData.SpawnHeight);
 
         GameObject prefab = await ResourceExtension.LoadPrefabAsync(customData.MagicCircleId);
-
-        GameObject circleInstance = null;
-        Animator animator = null;
-        if (prefab != null)
+        if (prefab == null)
         {
-            circleInstance = Object.Instantiate(prefab, spawnPosition, Quaternion.identity);
-            animator = circleInstance.GetComponentInChildren<Animator>(true);
+            DebugEx.Error("EvilSpiritUltimate", $"腐蚀法阵：加载法阵预制体失败 MagicCircleId={customData.MagicCircleId}");
+            return;
         }
 
-        if (circleInstance == null)
-        {
-            circleInstance = new GameObject("EvilSpiritMagicCircle_Runtime");
-            circleInstance.transform.position = spawnPosition;
-        }
+        GameObject circleInstance = Object.Instantiate(prefab, spawnPosition, Quaternion.identity);
+        Animator animator = circleInstance.GetComponentInChildren<Animator>(true);
+        Animation legacyAnimation = circleInstance.GetComponentInChildren<Animation>(true);
 
         var magicCircle = circleInstance.GetComponent<EvilSpiritMagicCircle>();
         if (magicCircle == null)
             magicCircle = circleInstance.AddComponent<EvilSpiritMagicCircle>();
         magicCircle.Initialize(m_Config, caster, spawnPosition);
 
-        if (animator == null)
+        GameObject eventHost = null;
+        if (animator != null)
+            eventHost = animator.gameObject;
+        else if (legacyAnimation != null)
+            eventHost = legacyAnimation.gameObject;
+
+        if (eventHost == null)
         {
-            magicCircle.BeginAutoLifecycleFromConfig();
+            DebugEx.Error("EvilSpiritUltimate", "腐蚀法阵：法阵预制体缺少 Animator/Animation，无法通过动画帧事件驱动");
+            Object.Destroy(circleInstance);
+            return;
         }
-        else
+
+        var bridge = eventHost.GetComponent<EvilSpiritMagicCircleAnimBridge>();
+        if (bridge == null)
+            bridge = eventHost.AddComponent<EvilSpiritMagicCircleAnimBridge>();
+        bridge.Bind(magicCircle);
+
+        if (animator == null && legacyAnimation != null)
         {
-            var bridge = animator.gameObject.GetComponent<EvilSpiritMagicCircleAnimBridge>();
-            if (bridge == null)
-                bridge = animator.gameObject.AddComponent<EvilSpiritMagicCircleAnimBridge>();
-            bridge.Bind(magicCircle);
+            string clipName = legacyAnimation.clip != null ? legacyAnimation.clip.name : null;
+            if (string.IsNullOrEmpty(clipName))
+            {
+                foreach (AnimationState state in legacyAnimation)
+                {
+                    clipName = state.name;
+                    break;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(clipName))
+            {
+                legacyAnimation.Play(clipName);
+            }
+            else
+            {
+                DebugEx.Error("EvilSpiritUltimate", "腐蚀法阵：Animation 组件未配置任何 Clip，无法播放也无法触发帧事件");
+            }
         }
 
         DebugEx.Log("EvilSpiritUltimate", $"腐蚀法阵已生成: center={spawnPosition}, radius={m_Config.AreaRadius}, prefabId={customData.MagicCircleId}");
