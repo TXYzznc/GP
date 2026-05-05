@@ -108,6 +108,7 @@
     <None Include="Assets\AAAGame\DataTable\AffixTable.txt" />
     <None Include="Assets\EnvironmentResources\云\SkyCloudsURP\Runtime\Shaders\SkyClouds.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_013947.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260505_221312.txt" />
     <None Include="Assets\EnvironmentResources\实验室和基地\Origin\Tools\Self_illum_reflective.shader" />
     <None Include="Assets\AAAGame\DataTable\LanguageTextTable.txt" />
@@ -120,6 +121,7 @@
     <None Include="Assets\特效\ARPG Effects\Readme.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260506_012212.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_013726.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
@@ -127,6 +129,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260506_012904.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260503_233214.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260504_111119.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_014025.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatRuleTable.txt" />
     <None Include="Assets\AAAGame\DataTable\TreasureBoxTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260504_110539.txt" />
@@ -193,6 +196,7 @@
     <None Include="Assets\AAAGame\DataTable\PlayerDataTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\AAAGame\DataTable\SceneTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_013829.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260506_010013.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260505_212514.txt" />
