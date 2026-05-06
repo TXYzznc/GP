@@ -161,6 +161,19 @@ public class InGameState : FsmState<GameStateManager>
 
         var uiParams = UIParams.Create(false);
         uiParams.Set<VarBoolean>(EndCombatUI.P_IsVictory, eventArgs.IsVictory);
+
+        // 获取敌人的奖励配置信息（在战斗清理前保存）
+        var enemyManager = EnemyEntityManager.Instance;
+        if (enemyManager != null && enemyManager.CurrentCombatEnemy != null)
+        {
+            var config = enemyManager.CurrentCombatEnemy.Config;
+            if (config != null)
+            {
+                uiParams.Set<VarInt32>(EndCombatUI.P_RewardId, config.RewardId);
+                uiParams.Set<VarInt32>(EndCombatUI.P_Difficulty, config.Difficulty);
+            }
+        }
+
         int formId = GF.UI.OpenUIForm(UIViews.EndCombatUI, uiParams);
         if (formId == -1)
         {

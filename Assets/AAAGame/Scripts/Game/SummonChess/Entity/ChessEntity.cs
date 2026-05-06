@@ -77,6 +77,15 @@ public class ChessEntity : MonoBehaviour
     /// <summary>棋子等级（1-3）</summary>
     public int Rank { get; private set; }
 
+    /// <summary>设置棋子等级（仅用于战斗中恢复等级）</summary>
+    public void SetRank(int rank)
+    {
+        if (rank >= 1 && rank <= 3)
+        {
+            Rank = rank;
+        }
+    }
+
     /// <summary>当前状态</summary>
     public ChessState CurrentState { get; private set; }
 
@@ -105,12 +114,26 @@ public class ChessEntity : MonoBehaviour
         ChessId = chessId;
         Config = config;
         Camp = camp;
-        Rank = 1;
         InstanceId = GetInstanceID();
+
+        // 从全局状态读取等级和经验值
+        // 注意：玩家棋子在 GlobalChessManager 中管理，敌方棋子可能尚未注册（由 BattleChessManager.RegisterChessEntity 处理）
+        var globalState = GlobalChessManager.Instance?.GetChessState(config.Id);
+        if (globalState != null)
+        {
+            Rank = globalState.Level;
+            DebugEx.Log("ChessEntity", $"✅ 棋子 {config.Name} 从全局状态加载等级: {Rank}");
+        }
+        else
+        {
+            // 敌方棋子或未注册的棋子，使用配置默认值
+            Rank = 1;
+            DebugEx.Log("ChessEntity", $"⚠️ 棋子 {config.Name} 无全局记录，使用默认等级 1");
+        }
 
         DebugEx.Log(
             nameof(ChessEntity),
-            $"Initialize: 开始初始化棋子 [{config.Name}] (Id={chessId}, Camp={camp})"
+            $"Initialize: 开始初始化棋子 [{config.Name}] (Id={chessId}, Camp={camp}, Rank={Rank})"
         );
 
         // 1. 初始化属性组件
@@ -131,7 +154,6 @@ public class ChessEntity : MonoBehaviour
 
         // 从全局状态读取经验值（保留跨战斗的经验数据）
         int initialExp = 0;
-        var globalState = GlobalChessManager.Instance?.GetChessState(config.Id);
         if (globalState != null)
         {
             initialExp = globalState.Experience;
@@ -779,7 +801,7 @@ public class ChessEntity : MonoBehaviour
     public event Action<int> OnRankAdvanced;
 
     /// <summary>
-    /// 升阶
+    /// 升阶（通过 GlobalChessManager 处理经验和等级）
     /// </summary>
     public void AdvanceRank()
     {
@@ -790,7 +812,31 @@ public class ChessEntity : MonoBehaviour
         }
 
         int oldRank = Rank;
-        Rank++;
+
+        // 通过 GlobalChessManager 处理升阶（自动消耗经验、提升等级）
+        bool advanceSuccess = GlobalChessManager.Instance.AdvanceChessRank(ChessId);
+        if (!advanceSuccess)
+        {
+            DebugEx.Warning(nameof(ChessEntity), $"棋子 {Config?.Name} 升阶失败（经验不足或等级已满）");
+            return;
+        }
+
+        // 获取全局状态，同步本地 Rank
+        var globalState = GlobalChessManager.Instance.GetChessState(ChessId);
+        if (globalState == null)
+        {
+            DebugEx.Error(nameof(ChessEntity), $"棋子 {ChessId} 升阶后无法同步全局状态");
+            return;
+        }
+
+        Rank = globalState.Level;
+
+        // 同步本地经验值到 ChessEXPComponent
+        var expComp = GetComponent<ChessEXPComponent>();
+        if (expComp != null)
+        {
+            expComp.SetEXP(globalState.Experience);
+        }
 
         // 更新属性（根据新等级）
         if (Attribute != null)

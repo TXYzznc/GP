@@ -63,15 +63,21 @@ public class ChessEXPManager : MonoBehaviour
                 continue;
             }
 
+            // 通过 GlobalChessManager 添加经验（所有经验处理统一在全局管理器中）
+            DebugEx.Log("ChessEXPManager", $"[9] ✅ 给棋子 {chess.Config.Name} 加经验: {expReward}");
+            GlobalChessManager.Instance.AddChessExperience(chess.ChessId, expReward);
+
+            // 同步到本地的 ChessEXPComponent（用于 UI 显示）
             var expComp = chess.GetComponent<ChessEXPComponent>();
-            if (expComp == null)
+            if (expComp != null)
             {
-                DebugEx.Error("ChessEXPManager", $"[8] ❌ 棋子 {chess.Config.Name} 没有 ChessEXPComponent 组件");
-                continue;
+                var globalState = GlobalChessManager.Instance.GetChessState(chess.ChessId);
+                if (globalState != null)
+                {
+                    expComp.SetEXP(globalState.Experience);
+                }
             }
 
-            DebugEx.Log("ChessEXPManager", $"[9] ✅ 给棋子 {chess.Config.Name} 加经验: {expReward}");
-            expComp.AddEXP(expReward);
             successCount++;
         }
 

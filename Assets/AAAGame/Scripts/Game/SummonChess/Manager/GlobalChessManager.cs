@@ -303,7 +303,74 @@ public class GlobalChessManager
     }
 
     /// <summary>
-    /// 更新棋子经验值（局内升级时调用）
+    /// 给棋子加经验（战斗击败敌方、获得奖励等时调用）
+    /// </summary>
+    public void AddChessExperience(int chessId, int expAmount)
+    {
+        if (!m_ChessStates.TryGetValue(chessId, out var state))
+        {
+            DebugEx.Warning(nameof(GlobalChessManager), $"AddChessExperience: 找不到棋子 {chessId}");
+            return;
+        }
+
+        int oldExp = state.Experience;
+        state.Experience += expAmount;
+
+        DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 获得经验：{oldExp} → {state.Experience}");
+        OnGlobalChessStateChanged?.Invoke(chessId, state);
+    }
+
+    /// <summary>
+    /// 棋子升阶（自动处理经验消耗和等级提升）
+    /// </summary>
+    /// <returns>升阶是否成功</returns>
+    public bool AdvanceChessRank(int chessId)
+    {
+        if (!m_ChessStates.TryGetValue(chessId, out var state))
+        {
+            DebugEx.Warning(nameof(GlobalChessManager), $"AdvanceChessRank: 找不到棋子 {chessId}");
+            return false;
+        }
+
+        if (state.Level >= 3)
+        {
+            DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 已是最高阶 (Lv{state.Level})，无法继续升阶");
+            return false;
+        }
+
+        // 从配置表读取升阶所需经验
+        var advanceTable = GF.DataTable.GetDataTable<ChessAdvanceTable>();
+        var advanceRow = advanceTable?.GetDataRow(chessId);
+        if (advanceRow == null || state.Level < 1 || state.Level >= advanceRow.RequiredEXP.Length)
+        {
+            DebugEx.Error(nameof(GlobalChessManager), $"棋子 {chessId} 升阶表配置不存在或等级越界");
+            return false;
+        }
+
+        int requiredExp = advanceRow.RequiredEXP[state.Level - 1];
+
+        // 检查经验是否足够
+        if (state.Experience < requiredExp)
+        {
+            DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 经验不足：{state.Experience} < {requiredExp}");
+            return false;
+        }
+
+        // 升阶：扣除经验、提升等级
+        int oldLevel = state.Level;
+        int consumedExp = requiredExp;
+        int remainingExp = state.Experience - consumedExp;
+
+        state.Level++;
+        state.Experience = remainingExp;
+
+        DebugEx.Log(nameof(GlobalChessManager), $"棋子 {chessId} 升阶成功：Lv{oldLevel} → Lv{state.Level}，消耗 {consumedExp} 经验，剩余 {remainingExp} 经验");
+        OnGlobalChessStateChanged?.Invoke(chessId, state);
+        return true;
+    }
+
+    /// <summary>
+    /// 更新棋子经验值（战斗结束时由 BattleChessManager 调用，用于同步持久化状态）
     /// </summary>
     public void UpdateChessLevelAndExp(int chessId, int level, int experience)
     {

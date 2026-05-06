@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     #region 字段
 
     private string m_InstanceId; // 棋子实例ID
+    private int m_ChessId; // 棋子配置ID
     private Action<string> m_OnSelectCallback; // 点击回调
     private Action<string> m_OnDragBeginCallback; // 拖拽开始回调
     private Action<string> m_OnDragEndCallback; // 拖拽结束回调
@@ -21,6 +23,9 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     // 扇形容器基准位置（由 ChessSlotContainer 设置，用于选中动画）
     private Vector2 m_BaseAnchoredPos;
     private float m_BaseRotZ;
+
+    // 升级相关字段
+    private Tween m_LevelUpBtnPulseTween;
     #endregion
 
     #region 生命周期
@@ -41,6 +46,13 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
             varBtn.onClick.AddListener(OnButtonClick);
         }
 
+        // 升级按钮初始化（默认隐藏）
+        if (varLevelUpBtn != null)
+        {
+            varLevelUpBtn.onClick.AddListener(OnLevelUpBtnClicked);
+            varLevelUpBtn.gameObject.SetActive(false);
+        }
+
         // 订阅死亡状态重置事件（回基地时刷新 UI 显示）
         ChessDeploymentTracker.Instance.OnDeathStateReset += RefreshDeployStatus;
         // 订阅棋子死亡事件（战斗中死亡时实时刷新 Mask）
@@ -53,6 +65,14 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         {
             varBtn.onClick.RemoveListener(OnButtonClick);
         }
+
+        if (varLevelUpBtn != null)
+        {
+            varLevelUpBtn.onClick.RemoveListener(OnLevelUpBtnClicked);
+        }
+
+        // 清除升级按钮脉冲动画
+        m_LevelUpBtnPulseTween?.Kill();
 
         // 取消订阅
         if (ChessDeploymentTracker.Instance != null)
@@ -124,6 +144,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     )
     {
         m_InstanceId = instanceId;
+        m_ChessId = chessId;
         m_OnSelectCallback = onSelectCallback;
         m_OnDragBeginCallback = onDragBeginCallback;
         m_OnDragEndCallback = onDragEndCallback;
@@ -151,6 +172,9 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
 
             // 刷新出战/死亡状态显示
             RefreshDeployStatus();
+
+            // 初始化升级系统
+            InitLevelUpSystem();
 
             DebugEx.Log(
                 nameof(ChessItemUI),
@@ -358,6 +382,134 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     /// 获取基准旋转（用于动画计算）
     /// </summary>
     public float GetBaseRotZ() => m_BaseRotZ;
+
+    #endregion
+
+    #region 升级系统
+
+    /// <summary>
+    /// 初始化升级系统（绑定全局数据）
+    /// </summary>
+    private void InitLevelUpSystem()
+    {
+        if (varLevelUpBtn == null)
+            return;
+
+        // 初始化升级按钮状态
+        UpdateLevelUpBtnState();
+
+        DebugEx.Log(
+            nameof(ChessItemUI),
+            $"InitLevelUpSystem: 初始化棋子升级系统 chessId={m_ChessId}"
+        );
+    }
+
+    /// <summary>
+    /// 检查升阶按钮状态：经验足够且不是最高阶时显示并闪烁
+    /// 从 GlobalChessManager 读取棋子全局数据
+    /// </summary>
+    private void UpdateLevelUpBtnState()
+    {
+        if (varLevelUpBtn == null)
+            return;
+
+        // 从全局状态读取棋子数据
+        var globalState = GlobalChessManager.Instance?.GetChessState(m_ChessId);
+        if (globalState == null)
+        {
+            varLevelUpBtn.gameObject.SetActive(false);
+            return;
+        }
+
+        // 获取升阶所需经验
+        int currentExp = globalState.Experience;
+        int currentRank = globalState.Level;
+        int requiredExp = 0;
+
+        var dt = GF.DataTable.GetDataTable<ChessAdvanceTable>();
+        var dr = dt?.GetDataRow(m_ChessId);
+        if (dr != null && currentRank > 0 && currentRank < 3)
+        {
+            int rankIndex = currentRank - 1;
+            if (rankIndex >= 0 && rankIndex < dr.RequiredEXP.Length)
+                requiredExp = dr.RequiredEXP[rankIndex];
+        }
+
+        bool canAdvance = currentRank < 3 && requiredExp > 0 && currentExp >= requiredExp;
+
+        if (canAdvance && !varLevelUpBtn.gameObject.activeSelf)
+        {
+            varLevelUpBtn.gameObject.SetActive(true);
+            PlayLevelUpPulse();
+        }
+        else if (!canAdvance && varLevelUpBtn.gameObject.activeSelf)
+        {
+            varLevelUpBtn.gameObject.SetActive(false);
+            m_LevelUpBtnPulseTween?.Kill();
+        }
+    }
+
+    /// <summary>
+    /// 升阶按钮的脉冲动画（alpha 闪烁）
+    /// </summary>
+    private void PlayLevelUpPulse()
+    {
+        if (varLevelUpBtn == null)
+            return;
+
+        m_LevelUpBtnPulseTween?.Kill();
+
+        CanvasGroup canvasGroup = varLevelUpBtn.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = varLevelUpBtn.gameObject.AddComponent<CanvasGroup>();
+
+        canvasGroup.alpha = 1f;
+        m_LevelUpBtnPulseTween = canvasGroup
+            .DOFade(0.5f, 0.5f)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutQuad);
+    }
+
+    /// <summary>
+    /// 升阶按钮点击处理
+    /// </summary>
+    private void OnLevelUpBtnClicked()
+    {
+        var globalState = GlobalChessManager.Instance?.GetChessState(m_ChessId);
+        if (globalState == null)
+        {
+            DebugEx.Error(
+                nameof(ChessItemUI),
+                $"OnLevelUpBtnClicked: 找不到棋子全局状态 chessId={m_ChessId}"
+            );
+            return;
+        }
+
+        int oldLevel = globalState.Level;
+
+        // 通过 GlobalChessManager 处理升阶（自动检查经验、消耗经验、提升等级）
+        bool advanceSuccess = GlobalChessManager.Instance.AdvanceChessRank(m_ChessId);
+        if (!advanceSuccess)
+        {
+            DebugEx.Warning(
+                nameof(ChessItemUI),
+                $"棋子升阶失败：可能已是最高阶或经验不足 (ChessId={m_ChessId})"
+            );
+            return;
+        }
+
+        var newState = GlobalChessManager.Instance.GetChessState(m_ChessId);
+        if (newState == null)
+            return;
+
+        // 刷新显示
+        UpdateLevelUpBtnState();
+
+        DebugEx.Log(
+            nameof(ChessItemUI),
+            $"✅ 棋子升阶完成：Rank {oldLevel} → {newState.Level}"
+        );
+    }
 
     #endregion
 }
