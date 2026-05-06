@@ -157,6 +157,24 @@ public static class ChessTargetFinder
         return Vector3.Distance(self.transform.position, target.transform.position);
     }
 
+    /// <summary>
+    /// 检查目标是否在施法范围内（用于技能）
+    /// </summary>
+    /// <param name="self">自身棋子</param>
+    /// <param name="target">目标棋子</param>
+    /// <param name="castRange">施法范围</param>
+    /// <returns>是否在施法范围内</returns>
+    public static bool IsInCastRange(ChessEntity self, ChessEntity target, double castRange)
+    {
+        if (self == null || target == null)
+            return false;
+
+        float range = (float)castRange;
+        float distSqr = (target.transform.position - self.transform.position).sqrMagnitude;
+
+        return distSqr <= range * range;
+    }
+
     #endregion
 
     #region 查找友方目标
@@ -378,6 +396,32 @@ public static class ChessTargetFinder
         }
 
         return lowestHp;
+    }
+
+    #endregion
+
+    #region 目标状态检查
+
+    /// <summary>
+    /// 检查目标是否符合目标死亡状态要求
+    /// </summary>
+    /// <param name="target">目标棋子</param>
+    /// <param name="targetDeadState">目标死亡状态：0=只对活着，1=只对死亡，2=全部</param>
+    /// <returns>是否符合要求</returns>
+    public static bool IsValidTargetByDeadState(ChessEntity target, int targetDeadState)
+    {
+        if (target == null)
+            return false;
+
+        bool isTargetDead = target.CurrentState == ChessState.Dead;
+
+        return targetDeadState switch
+        {
+            0 => !isTargetDead,      // 只对活着的目标
+            1 => isTargetDead,       // 只对死亡的目标
+            2 => true,               // 对所有目标
+            _ => !isTargetDead       // 默认只对活着的目标
+        };
     }
 
     #endregion

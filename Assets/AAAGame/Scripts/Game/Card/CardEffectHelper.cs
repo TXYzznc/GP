@@ -81,4 +81,18 @@ public static class CardEffectHelper
         CombatVFXManager.PlayEffect(effectId, position);
         DebugEx.Log("CardEffectHelper", $"播放特效: ID={effectId}, 位置={position}");
     }
+
+    /// <summary>
+    /// 检查目标是否符合目标死亡状态要求
+    /// </summary>
+    /// <param name="target">目标棋子</param>
+    /// <param name="targetDeadState">目标死亡状态：0=只对活着，1=只对死亡，2=全部</param>
+    /// <returns>是否符合要求</returns>
+    public static bool IsValidTargetByDeadState(ChessEntity target, int targetDeadState)
+    {
+        if (target == null)
+            return false;
+
+        return ChessTargetFinder.IsValidTargetByDeadState(target, targetDeadState);
+    }
 }
