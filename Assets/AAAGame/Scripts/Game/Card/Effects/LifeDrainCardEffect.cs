@@ -17,42 +17,31 @@ public class LifeDrainCardEffect : ICardEffect
     {
         if (m_CardData == null) return;
 
-        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0) return;
-
         float damage = m_CardData.TableRow.BaseDamage;
         int damageType = m_CardData.TableRow.DamageType;
         float healRatio = m_CardData.GetParam("healRatio", 0.5f);
 
-        // 对敌方全体造成伤害
+        // 使用 AllEnemiesSelector 选择有效敌方目标进行伤害
+        var enemySelector = new AllEnemiesSelector();
+        var enemies = enemySelector.SelectTargets(null, m_CardData, targetPosition);
+
         float totalDamage = 0f;
-        foreach (var chess in allChess)
+        if (enemies != null)
         {
-            if (chess != null && chess.Camp == (int)CampType.Enemy)
+            foreach (var enemy in enemies)
             {
-                CardEffectHelper.DealDamage(chess, damage, damageType);
+                CardEffectHelper.DealDamage(enemy, damage, damageType);
                 totalDamage += damage;
             }
         }
 
-        // 找到当前 HP 最低的友方棋子进行治疗
-        ChessEntity lowestHpAlly = null;
-        double lowestHp = double.MaxValue;
-        foreach (var chess in allChess)
-        {
-            if (chess != null && chess.Camp == (int)CampType.Player && chess.Attribute != null)
-            {
-                double currentHp = chess.Attribute.CurrentHp;
-                if (currentHp < lowestHp)
-                {
-                    lowestHp = currentHp;
-                    lowestHpAlly = chess;
-                }
-            }
-        }
+        // 使用 LowestHpAllySelector 选择有效友方进行治疗
+        var allySelector = new LowestHpAllySelector();
+        var healTargets = allySelector.SelectTargets(null, m_CardData, targetPosition);
 
-        if (lowestHpAlly != null)
+        if (healTargets != null && healTargets.Count > 0)
         {
+            var lowestHpAlly = healTargets[0];
             float healAmount = totalDamage * healRatio;
             CardEffectHelper.HealTarget(lowestHpAlly, healAmount);
             DebugEx.Log("LifeDrainCardEffect", $"治疗 HP 最低的友方 {lowestHpAlly.Config?.Name}，回复 {healAmount}");

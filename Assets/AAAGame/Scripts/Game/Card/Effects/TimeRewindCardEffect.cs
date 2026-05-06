@@ -19,31 +19,16 @@ public class TimeRewindCardEffect : ICardEffect
     {
         if (m_CardData == null) return;
 
-        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
-        if (allChess == null || allChess.Count == 0) return;
+        // 使用 ClosestAllySelector 选择有效目标
+        var selector = new ClosestAllySelector();
+        var targets = selector.SelectTargets(null, m_CardData, targetPosition);
 
-        float radius = m_CardData.AreaRadius;
-        ChessEntity closestAlly = null;
-        float closestDistance = float.MaxValue;
+        if (targets == null || targets.Count == 0)
+            return;
 
-        foreach (var chess in allChess)
-        {
-            if (chess != null && chess.Camp == (int)CampType.Player)
-            {
-                float distance = Vector3.Distance(chess.transform.position, targetPosition);
-                if (distance <= radius && distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestAlly = chess;
-                }
-            }
-        }
-
-        if (closestAlly != null)
-        {
-            float healAmount = m_CardData.GetParam("healAmount", 200f);
-            CardEffectHelper.HealTarget(closestAlly, healAmount);
-        }
+        var closestAlly = targets[0];
+        float healAmount = m_CardData.GetParam("healAmount", 200f);
+        CardEffectHelper.HealTarget(closestAlly, healAmount);
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
     }

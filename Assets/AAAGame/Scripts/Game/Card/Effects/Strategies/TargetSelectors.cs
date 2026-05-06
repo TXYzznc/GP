@@ -16,7 +16,11 @@ public class AllEnemiesSelector : ICardTargetSelector
         var enemies = CombatEntityTracker.Instance.GetEnemies((int)CampType.Player);
         if (enemies != null)
         {
-            targets.AddRange(enemies);
+            foreach (var enemy in enemies)
+            {
+                if (enemy != null && ChessTargetFinder.IsValidTargetByDeadState(enemy, cardData.TableRow.TargetDeadState))
+                    targets.Add(enemy);
+            }
         }
 
         return targets;
@@ -38,7 +42,11 @@ public class AllAlliesSelector : ICardTargetSelector
         var allies = CombatEntityTracker.Instance.GetAllies((int)CampType.Player);
         if (allies != null)
         {
-            targets.AddRange(allies);
+            foreach (var ally in allies)
+            {
+                if (ally != null && ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
+                    targets.Add(ally);
+            }
         }
 
         return targets;
@@ -64,7 +72,7 @@ public class ClosestEnemySelector : ICardTargetSelector
         {
             foreach (var enemy in enemies)
             {
-                if (enemy == null)
+                if (enemy == null || !ChessTargetFinder.IsValidTargetByDeadState(enemy, cardData.TableRow.TargetDeadState))
                     continue;
 
                 float distance = Vector3.Distance(enemy.transform.position, targetPosition);
@@ -99,7 +107,7 @@ public class ClosestAllySelector : ICardTargetSelector
         {
             foreach (var ally in allies)
             {
-                if (ally == null)
+                if (ally == null || !ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
                     continue;
 
                 float distance = Vector3.Distance(ally.transform.position, targetPosition);
@@ -134,7 +142,7 @@ public class LowestHpAllySelector : ICardTargetSelector
 
         foreach (var ally in allies)
         {
-            if (ally == null || ally.Attribute == null || ally.CurrentState == ChessState.Dead)
+            if (ally == null || ally.Attribute == null || !ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
                 continue;
 
             if (ally.Attribute.CurrentHp < minHp)
@@ -166,7 +174,7 @@ public class EnemiesInRadiusSelector : ICardTargetSelector
         {
             foreach (var enemy in enemies)
             {
-                if (enemy == null)
+                if (enemy == null || !ChessTargetFinder.IsValidTargetByDeadState(enemy, cardData.TableRow.TargetDeadState))
                     continue;
 
                 float distance = Vector3.Distance(enemy.transform.position, targetPosition);
@@ -223,7 +231,7 @@ public class AllAllyExcludeSummonerSelector : ICardTargetSelector
         {
             foreach (var ally in allies)
             {
-                if (ally != null && ally != summonerChess)
+                if (ally != null && ally != summonerChess && ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
                     targets.Add(ally);
             }
         }
@@ -263,7 +271,7 @@ public class AlliesInRadiusSelector : ICardTargetSelector
         {
             foreach (var ally in allies)
             {
-                if (ally == null)
+                if (ally == null || !ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
                     continue;
 
                 float distance = Vector3.Distance(ally.transform.position, targetPosition);
