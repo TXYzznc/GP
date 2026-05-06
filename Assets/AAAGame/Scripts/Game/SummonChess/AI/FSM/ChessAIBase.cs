@@ -425,6 +425,7 @@ public abstract class ChessAIBase : IChessAI
     /// 使用技能状态逻辑
     /// 转换规则：
     /// - 目标无效 → 待机
+    /// - 目标不在技能施法范围内 → 移动
     /// - 技能释放完成 → 待机（重新决策）
     /// - 技能释放失败 → 移动或待机
     /// </summary>
@@ -434,13 +435,25 @@ public abstract class ChessAIBase : IChessAI
         if (!IsTargetValid())
         {
             DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
+            m_IsUsingSkill = false;
             ChangeState(ChessAIState.Idle);
             return;
         }
 
-        // 如果还没有开始释放技能，通知 Controller 触发
+        // 如果还没有开始释放技能，检查是否在施法范围内
         if (!m_IsUsingSkill)
         {
+            // 检查目标是否在技能施法范围内（支持自我技能除外）
+            if (!IsSkillInRange(m_PendingSkillIndex, m_CurrentTarget))
+            {
+                DebugEx.Log(
+                    GetType().Name,
+                    $"{m_Context.Entity.Config.Name} 技能{m_PendingSkillIndex}的目标不在施法范围内，切换到移动"
+                );
+                ChangeState(ChessAIState.Moving);
+                return;
+            }
+
             // 面向目标
             FaceTarget(m_CurrentTarget);
 
@@ -468,6 +481,7 @@ public abstract class ChessAIBase : IChessAI
                     GetType().Name,
                     $"{m_Context.Entity.Config.Name} 技能索引无效: {m_PendingSkillIndex}"
                 );
+                m_IsUsingSkill = false;
                 ChangeState(ChessAIState.Idle);
                 return;
             }
@@ -763,6 +777,37 @@ public abstract class ChessAIBase : IChessAI
         return distance <= (float)m_Context.Entity.Attribute.AtkRange;
     }
 
+    /// <summary>
+    /// 检查目标是否在技能施法范围内
+    /// 特殊处理：如果技能是自我技能（作用对象是自己），则始终返回true
+    /// </summary>
+    protected bool IsSkillInRange(int skillIndex, ChessEntity target)
+    {
+        if (m_Context?.Entity == null || target == null)
+            return false;
+
+        // 获取对应的技能配置
+        IChessSkill skill = null;
+        if (skillIndex == 1)
+        {
+            skill = m_Context.Entity.Skill1;
+        }
+        else if (skillIndex == 2)
+        {
+            skill = m_Context.Entity.Skill2;
+        }
+
+        if (skill == null || skill.Config == null)
+            return false;
+
+        // 特殊处理：自我技能（目前只有后羿技能1，id=13）
+        if (skill.Config.Id == 13)
+            return true;
+
+        // 普通技能：检查是否在CastRange范围内
+        return ChessTargetFinder.IsInCastRange(m_Context.Entity, target, skill.Config.CastRange);
+    }
+
     #endregion
 
     #region 移动
@@ -777,6 +822,7 @@ public abstract class ChessAIBase : IChessAI
 
     /// <summary>
     /// 移动到目标位置
+    /// 如果有待命的技能，优先移动到技能施法范围内，否则移动到攻击范围内
     /// </summary>
     protected virtual void MoveToTarget(ChessEntity target)
     {
@@ -786,10 +832,31 @@ public abstract class ChessAIBase : IChessAI
         Vector3 targetPos = target.transform.position;
         Vector3 selfPos = m_Context.Entity.transform.position;
         Vector3 direction = (targetPos - selfPos).normalized;
-        float atkRange = (float)m_Context.Entity.Attribute.AtkRange;
 
-        // 移动到攻击范围边缘
-        Vector3 moveTarget = targetPos - direction * (atkRange * 0.8f);
+        // 确定要移动到的范围
+        double rangeToUse = (float)m_Context.Entity.Attribute.AtkRange;
+
+        // 如果有待命技能，优先检查技能范围
+        if (m_ShouldUseSkillAfterAttack || m_CurrentState == ChessAIState.Moving)
+        {
+            IChessSkill skill = null;
+            if (m_PendingSkillIndex == 1)
+            {
+                skill = m_Context.Entity.Skill1;
+            }
+            else if (m_PendingSkillIndex == 2)
+            {
+                skill = m_Context.Entity.Skill2;
+            }
+
+            if (skill != null && skill.Config != null && skill.Config.Id != 13)
+            {
+                rangeToUse = skill.Config.CastRange;
+            }
+        }
+
+        // 移动到范围边缘（留80%的距离作为缓冲）
+        Vector3 moveTarget = targetPos - direction * ((float)rangeToUse * 0.8f);
 
         m_Context.Entity.Movement?.MoveTo(moveTarget);
     }

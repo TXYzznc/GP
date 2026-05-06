@@ -3,10 +3,14 @@ using UnityEngine;
 
 /// <summary>
 /// 敌人奖励系统
-/// 处理战斗胜利后的奖励掉落
+/// 根据配置表计算战斗奖励（经验和战利品）
 /// </summary>
 public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
 {
+    #region 常量
+    private const int SOURCE_TYPE_ENEMY = 2; // ExpRuleTable 中敌人来源类型
+    #endregion
+
     #region Unity 生命周期
 
     protected override void Awake()
@@ -20,133 +24,114 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
     #region 公共方法
 
     /// <summary>
-    /// 计算并发放奖励
+    /// 计算敌人战斗奖励（根据配置表）
+    /// 返回经验和战利品配置，由上层系统负责发放
     /// </summary>
-    public void GrantRewards(List<EnemyEntity> defeatedEnemies, float rewardMultiplier)
+    public BattleRewardData CalculateRewards(List<EnemyEntity> defeatedEnemies, float rewardMultiplier)
     {
+        var result = new BattleRewardData();
+
         if (defeatedEnemies == null || defeatedEnemies.Count == 0)
         {
             DebugEx.Warning("EnemyRewardSystem", "没有被击败的敌人");
-            return;
+            return result;
         }
 
         DebugEx.Log(
             "EnemyRewardSystem",
-            $"开始发放奖励，敌人数量: {defeatedEnemies.Count}, 奖励倍率: {rewardMultiplier:F2}"
+            $"计算奖励: 敌人数量={defeatedEnemies.Count}, 倍率={rewardMultiplier:F2}"
         );
-
-        int totalExp = 0;
-        int totalGold = 0;
-        bool hasKey = false;
 
         foreach (var enemy in defeatedEnemies)
         {
             if (enemy == null)
                 continue;
 
-            // 根据奖励等级计算奖励
-            int baseExp = GetBaseExp(enemy.Config.RewardTier);
-            int baseGold = GetBaseGold(enemy.Config.RewardTier);
-
-            // 应用倍率
-            int exp = Mathf.RoundToInt(baseExp * rewardMultiplier);
-            int gold = Mathf.RoundToInt(baseGold * rewardMultiplier);
-
-            totalExp += exp;
-            totalGold += gold;
-
-            // Boss必定掉落钥匙
-            if (enemy.EnemyType == EnemyType.Boss)
+            // 计算经验
+            var expRule = GetExpRule(enemy.Config.Difficulty);
+            if (expRule != null)
             {
-                hasKey = true;
+                int currentLevel = PlayerAccountDataManager.Instance?.CurrentSaveData?.GlobalLevel ?? 1;
+                int exp = Mathf.RoundToInt((expRule.BaseExp + expRule.ExpPerLevel * currentLevel) * rewardMultiplier);
+                result.TotalExp += exp;
+            }
+
+            // 获取战利品配置（应用倍率）
+            var treasureBox = GetTreasureBoxConfig(enemy.Config.RewardId);
+            if (treasureBox != null)
+            {
+                result.TreasureBoxes.Add(new TreasureBoxData
+                {
+                    Config = treasureBox,
+                    ItemCountMin = Mathf.Max(1, Mathf.RoundToInt(treasureBox.ItemCountMin * rewardMultiplier)),
+                    ItemCountMax = Mathf.RoundToInt(treasureBox.ItemCountMax * rewardMultiplier),
+                    MinCoins = treasureBox.MinCoins,
+                    MaxCoins = treasureBox.MaxCoins,
+                    CoinsProbability = (float)treasureBox.CoinsProbability,
+                });
             }
 
             DebugEx.Log(
                 "EnemyRewardSystem",
-                $"{enemy.Config.Name} 奖励: 经验={exp}, 金币={gold}"
+                $"{enemy.Config.Name} 奖励: 经验={result.TotalExp}"
             );
         }
 
-        // 发放奖励
-        GrantExp(totalExp);
-        GrantGold(totalGold);
-
-        if (hasKey)
-        {
-            GrantKey();
-        }
-
-        DebugEx.Log(
-            "EnemyRewardSystem",
-            $"奖励发放完成: 总经验={totalExp}, 总金币={totalGold}, 钥匙={hasKey}"
-        );
+        return result;
     }
 
     #endregion
 
     #region 私有方法
 
-    /// <summary>
-    /// 获取基础经验值
-    /// </summary>
-    private int GetBaseExp(int rewardTier)
+    private ExpRuleTable GetExpRule(int enemyDifficulty)
     {
-        switch (rewardTier)
+        var table = GF.DataTable.GetDataTable<ExpRuleTable>();
+        if (table == null)
         {
-            case 1:
-                return 10; // 普通敌人
-            case 2:
-                return 30; // 精英敌人
-            case 3:
-                return 100; // Boss
-            default:
-                return 5;
+            DebugEx.Warning("EnemyRewardSystem", "ExpRuleTable 未加载");
+            return null;
         }
+
+        return table.GetDataRow(r => r.SourceType == SOURCE_TYPE_ENEMY && r.SourceParam == enemyDifficulty);
     }
 
-    /// <summary>
-    /// 获取基础金币
-    /// </summary>
-    private int GetBaseGold(int rewardTier)
+    private TreasureBoxTable GetTreasureBoxConfig(int rewardId)
     {
-        switch (rewardTier)
+        var table = GF.DataTable.GetDataTable<TreasureBoxTable>();
+        if (table == null)
         {
-            case 1:
-                return 5; // 普通敌人
-            case 2:
-                return 15; // 精英敌人
-            case 3:
-                return 50; // Boss
-            default:
-                return 2;
+            DebugEx.Warning("EnemyRewardSystem", "TreasureBoxTable 未加载");
+            return null;
         }
+
+        return table.GetDataRow(rewardId);
+    }
+
+    #endregion
+
+    #region 数据结构
+
+    /// <summary>
+    /// 战斗奖励数据
+    /// </summary>
+    public class BattleRewardData
+    {
+        public int TotalExp { get; set; }
+        public List<TreasureBoxData> TreasureBoxes { get; set; } = new List<TreasureBoxData>();
     }
 
     /// <summary>
-    /// 发放经验
+    /// 宝箱奖励数据（应用倍率）
     /// </summary>
-    private void GrantExp(int amount)
+    public class TreasureBoxData
     {
-        // TODO: 添加经验到玩家
-        DebugEx.Log("EnemyRewardSystem", $"获得经验: {amount}");
-    }
-
-    /// <summary>
-    /// 发放金币
-    /// </summary>
-    private void GrantGold(int amount)
-    {
-        // TODO: 添加金币到玩家
-        DebugEx.Log("EnemyRewardSystem", $"获得金币: {amount}");
-    }
-
-    /// <summary>
-    /// 发放钥匙
-    /// </summary>
-    private void GrantKey()
-    {
-        // TODO: 添加钥匙到玩家背包
-        DebugEx.Log("EnemyRewardSystem", "获得钥匙（可撤离）");
+        public TreasureBoxTable Config { get; set; }
+        public int ItemCountMin { get; set; }
+        public int ItemCountMax { get; set; }
+        public int MinCoins { get; set; }
+        public int MaxCoins { get; set; }
+        public float CoinsProbability { get; set; }
     }
 
     #endregion

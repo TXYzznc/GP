@@ -19,7 +19,8 @@ public class FSMRangedAI : ChessAIBase
     /// 远程单位会移动到攻击范围内
     /// 转换规则：
     /// - 目标丢失 → 待机
-    /// - 到达攻击范围 → 待机（重新决策进入攻击状态）
+    /// - 有待命技能 + 在技能范围内 → 待机（返回使用技能）
+    /// - 无待命技能 + 在攻击范围内 → 待机（重新决策进入攻击状态）
     /// </summary>
     protected override void TickMoving(float dt)
     {
@@ -32,8 +33,19 @@ public class FSMRangedAI : ChessAIBase
             return;
         }
 
-        // 检查是否到达攻击范围
-        if (IsInAttackRange(m_CurrentTarget))
+        // 如果有待命技能，检查是否在技能范围内
+        if (m_ShouldUseSkillAfterAttack && m_PendingSkillIndex > 0)
+        {
+            if (IsSkillInRange(m_PendingSkillIndex, m_CurrentTarget))
+            {
+                DebugEx.Log("FSMRangedAI",
+                    $"{m_Context.Entity.Config.Name} 已到达技能范围，返回待机释放技能");
+                ChangeState(ChessAIState.Idle);
+                return;
+            }
+        }
+        // 无待命技能，检查是否到达攻击范围
+        else if (IsInAttackRange(m_CurrentTarget))
         {
             DebugEx.Log("FSMRangedAI",
                 $"{m_Context.Entity.Config.Name} 到达攻击范围，返回待机重新决策");

@@ -48,44 +48,95 @@ public class EnemySpawnManager
 
     /// <summary>
     /// 从 EnemyTable 加载战斗配置
-    /// 根据 MinPopulation/MaxPopulation 随机确定敌人数量，并扩展 ChessIds 列表
+    /// 根据敌人类型（普通/Boss）加载不同的配置
     /// </summary>
     /// <param name="enemyTableId">EnemyTable 配置ID</param>
     /// <param name="enemyGuid">对应 EnemyEntity 的 GUID（用于读取历史 HP）</param>
     public void LoadFromEnemyTable(int enemyTableId, string enemyGuid = null)
     {
-        var dataTable = GF.DataTable.GetDataTable<EnemyTable>();
-        if (dataTable == null)
+        var enemyTable = GF.DataTable.GetDataTable<EnemyTable>();
+        if (enemyTable == null)
         {
             DebugEx.Error("EnemySpawnManager", "EnemyTable 数据表未加载");
             return;
         }
 
-        var enemyData = dataTable.GetDataRow(enemyTableId);
+        var enemyData = enemyTable.GetDataRow(enemyTableId);
         if (enemyData == null)
         {
             DebugEx.Error("EnemySpawnManager", $"未找到敌人配置 ID={enemyTableId}");
             return;
         }
 
-        // 从 EnemyTable 读取配置
-        if (enemyData.ChessIds == null || enemyData.ChessIds.Length == 0)
+        var entityTable = GF.DataTable.GetDataTable<EnemyEntityTable>();
+        if (entityTable == null)
         {
-            DebugEx.Warning("EnemySpawnManager", "敌人配置中没有棋子数据");
+            DebugEx.Error("EnemySpawnManager", "EnemyEntityTable 数据表未加载");
             return;
         }
 
-        // 根据 MinPopulation/MaxPopulation 随机确定敌人数量（范围内完全随机）
-        int minPopulation = Mathf.Max(1, enemyData.MinPopulation);
-        int maxPopulation = Mathf.Max(minPopulation, enemyData.MaxPopulation);
-        int targetCount = Random.Range(minPopulation, maxPopulation + 1);
-
-        // 从 ChessIds 中完全随机生成目标数量的敌人（可能重复）
-        List<int> randomizedChessIds = new List<int>();
-        for (int i = 0; i < targetCount; i++)
+        var entityRow = entityTable.GetDataRow(enemyTableId);
+        if (entityRow == null)
         {
-            int randomIndex = Random.Range(0, enemyData.ChessIds.Length);
-            randomizedChessIds.Add(enemyData.ChessIds[randomIndex]);
+            DebugEx.Error("EnemySpawnManager", $"未找到敌人实体配置 ID={enemyTableId}");
+            return;
+        }
+
+        int enemyDifficulty = entityRow.Difficulty;
+        int enemyType = entityRow.EnemyType;
+        List<int> randomizedChessIds = new List<int>();
+
+        // 根据敌人类型加载配置
+        if (enemyType == 2)
+        {
+            // Boss 类型：直接使用 ChessIds_Boss，解析波次数据
+            if (string.IsNullOrEmpty(enemyData.ChessIds_Boss))
+            {
+                DebugEx.Warning("EnemySpawnManager", $"Boss 敌人 {enemyData.EnemyName} 没有配置 ChessIds_Boss");
+                return;
+            }
+
+            randomizedChessIds = ParseBossWaves(enemyData.ChessIds_Boss);
+            DebugEx.Log("EnemySpawnManager",
+                $"加载 Boss 敌人: {enemyData.EnemyName}, 难度={enemyDifficulty}, 敌人总数={randomizedChessIds.Count}");
+        }
+        else
+        {
+            // 普通敌人：从 CombatDifficultyRule 读取配置
+            var difficultyTable = GF.DataTable.GetDataTable<CombatDifficultyRule>();
+            if (difficultyTable == null)
+            {
+                DebugEx.Error("EnemySpawnManager", "CombatDifficultyRule 数据表未加载");
+                return;
+            }
+
+            var difficultyRow = difficultyTable.GetDataRow(enemyDifficulty);
+            if (difficultyRow == null)
+            {
+                DebugEx.Error("EnemySpawnManager", $"未找到难度规则 Difficulty={enemyDifficulty}");
+                return;
+            }
+
+            if (enemyData.ChessIds == null || enemyData.ChessIds.Length == 0)
+            {
+                DebugEx.Warning("EnemySpawnManager", "敌人配置中没有棋子数据");
+                return;
+            }
+
+            // 根据难度规则随机确定敌人数量
+            int minPopulation = Mathf.Max(1, difficultyRow.MinPopulation);
+            int maxPopulation = Mathf.Max(minPopulation, difficultyRow.MaxPopulation);
+            int targetCount = Random.Range(minPopulation, maxPopulation + 1);
+
+            // 从 ChessIds 中随机生成目标数量的敌人
+            for (int i = 0; i < targetCount; i++)
+            {
+                int randomIndex = Random.Range(0, enemyData.ChessIds.Length);
+                randomizedChessIds.Add(enemyData.ChessIds[randomIndex]);
+            }
+
+            DebugEx.Log("EnemySpawnManager",
+                $"加载普通敌人: {enemyData.EnemyName}, 难度={enemyDifficulty}, 敌人数量={targetCount} (范围 {minPopulation}-{maxPopulation})");
         }
 
         m_CurrentWave = new EnemyWaveConfig
@@ -93,17 +144,11 @@ public class EnemySpawnManager
             WaveId = enemyTableId,
             EnemyChessIds = randomizedChessIds,
             FormationType = enemyData.FormationType,
-            Spacing = enemyData.Spacing
+            Spacing = enemyData.Spacing,
+            EnemyDifficulty = enemyDifficulty
         };
 
         m_CurrentEnemyGuid = enemyGuid;
-
-        DebugEx.Log("EnemySpawnManager",
-            $"从 EnemyTable 加载配置: ID={enemyTableId}, Name={enemyData.EnemyName}, " +
-            $"敌人数量={targetCount} (范围 {minPopulation}-{maxPopulation}), " +
-            $"棋子库大小={enemyData.ChessIds.Length}, 阵型={m_CurrentWave.FormationType}, 间距={m_CurrentWave.Spacing}");
-
-        // TODO: 后续根据敌人难度系数调整生成的棋子数量
     }
 
     /// <summary>
@@ -209,8 +254,21 @@ public class EnemySpawnManager
         var entity = await SummonChessManager.Instance.SpawnChessAsync(chessId, position, ENEMY_CAMP);
         if (entity != null)
         {
-            DebugEx.Log("EnemySpawnManager",
-                $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}");
+            // 根据敌方难度设置棋子等级
+            int difficultyRank = CalculateRankFromDifficulty(m_CurrentWave.EnemyDifficulty);
+            if (difficultyRank > 1)
+            {
+                entity.SetRank(difficultyRank);
+                // 更新全局状态
+                GlobalChessManager.Instance.UpdateChessLevelAndExp(chessId, difficultyRank, 0);
+                DebugEx.Log("EnemySpawnManager",
+                    $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}, 难度={m_CurrentWave.EnemyDifficulty}, 等级={difficultyRank}");
+            }
+            else
+            {
+                DebugEx.Log("EnemySpawnManager",
+                    $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}, 难度={m_CurrentWave.EnemyDifficulty}, 等级=1");
+            }
         }
         else
         {
@@ -218,6 +276,56 @@ public class EnemySpawnManager
         }
 
         return entity;
+    }
+
+    /// <summary>
+    /// 根据难度系数计算棋子等级
+    /// 难度1-2 → 等级1，难度3 → 等级2，难度4-5 → 等级3
+    /// </summary>
+    private int CalculateRankFromDifficulty(int difficulty)
+    {
+        if (difficulty <= 2)
+            return 1;
+        else if (difficulty == 3)
+            return 2;
+        else
+            return 3;
+    }
+
+    /// <summary>
+    /// 解析 Boss 波次配置字符串
+    /// 格式：波次通过 | 分隔，敌人通过 , 分隔
+    /// 示例：1,3,1|2,3,2 表示第一波[1,3,1]，第二波[2,3,2]
+    /// </summary>
+    private List<int> ParseBossWaves(string bossWaveConfig)
+    {
+        var result = new List<int>();
+
+        if (string.IsNullOrEmpty(bossWaveConfig))
+            return result;
+
+        var waves = bossWaveConfig.Split('|');
+
+        foreach (var wave in waves)
+        {
+            if (string.IsNullOrWhiteSpace(wave))
+                continue;
+
+            var chessIds = wave.Split(',');
+            foreach (var chessIdStr in chessIds)
+            {
+                if (int.TryParse(chessIdStr.Trim(), out int chessId))
+                {
+                    result.Add(chessId);
+                }
+                else
+                {
+                    DebugEx.Warning("EnemySpawnManager", $"无法解析Boss波次敌人ID: {chessIdStr}");
+                }
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -316,4 +424,5 @@ public class EnemyWaveConfig
     public List<int> EnemyChessIds;
     public int FormationType;
     public float Spacing;
+    public int EnemyDifficulty;  // 敌方实体的难度系数（1-5）
 }

@@ -39,6 +39,13 @@ public class EnemyCombatData
             return null;
         }
 
+        // 从 CombatDifficultyRule 读取难度相关数据
+        var difficultyTable = GF.DataTable.GetDataTable<CombatDifficultyRule>();
+        var difficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(entity.Config.Difficulty) : null;
+
+        int minPop = difficultyRow?.MinPopulation ?? 2;
+        int maxPop = difficultyRow?.MaxPopulation ?? 2;
+
         return new EnemyCombatData
         {
             IsGroupCombat = false,
@@ -50,8 +57,8 @@ public class EnemyCombatData
                     EnemyName = entity.Config.Name,
                     BattleConfigId = entity.Config.BattleConfigId,
                     EnemyType = entity.EnemyType,
-                    MinPopulation = enemyData.MinPopulation,
-                    MaxPopulation = enemyData.MaxPopulation,
+                    MinPopulation = minPop,
+                    MaxPopulation = maxPop,
                     ChessIds = enemyData.ChessIds,
                     TriggerPosition = entity.transform.position,
                 },
@@ -81,6 +88,9 @@ public class EnemyCombatData
             EnemyDataList = new List<SingleEnemyData>(),
         };
 
+        // 获取 CombatDifficultyRule
+        var difficultyTable = GF.DataTable.GetDataTable<CombatDifficultyRule>();
+
         // 第一个是触发者
         var firstEnemy = enemies[0];
         var firstEnemyData = enemyTable.GetDataRow(firstEnemy.Config.BattleConfigId);
@@ -93,6 +103,10 @@ public class EnemyCombatData
             return null;
         }
 
+        var firstDifficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(firstEnemy.Config.Difficulty) : null;
+        int firstMinPop = firstDifficultyRow?.MinPopulation ?? 2;
+        int firstMaxPop = firstDifficultyRow?.MaxPopulation ?? 2;
+
         data.EnemyDataList.Add(
             new SingleEnemyData
             {
@@ -100,8 +114,8 @@ public class EnemyCombatData
                 EnemyName = firstEnemy.Config.Name,
                 BattleConfigId = firstEnemy.Config.BattleConfigId,
                 EnemyType = firstEnemy.EnemyType,
-                MinPopulation = firstEnemyData.MinPopulation,
-                MaxPopulation = firstEnemyData.MaxPopulation,
+                MinPopulation = firstMinPop,
+                MaxPopulation = firstMaxPop,
                 ChessIds = firstEnemyData.ChessIds,
                 TriggerPosition = firstEnemy.transform.position,
             }
@@ -136,6 +150,10 @@ public class EnemyCombatData
                 continue;
             }
 
+            var difficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(enemy.Config.Difficulty) : null;
+            int minPop = difficultyRow?.MinPopulation ?? 2;
+            int maxPop = difficultyRow?.MaxPopulation ?? 2;
+
             data.EnemyDataList.Add(
                 new SingleEnemyData
                 {
@@ -143,8 +161,8 @@ public class EnemyCombatData
                     EnemyName = enemy.Config.Name,
                     BattleConfigId = enemy.Config.BattleConfigId,
                     EnemyType = enemy.EnemyType,
-                    MinPopulation = enemyData.MinPopulation,
-                    MaxPopulation = enemyData.MaxPopulation,
+                    MinPopulation = minPop,
+                    MaxPopulation = maxPop,
                     ChessIds = enemyData.ChessIds,
                     TriggerPosition = enemy.transform.position,
                 }

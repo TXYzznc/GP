@@ -233,7 +233,7 @@ public class EnemyEntity : MonoBehaviour
 
         DebugEx.Log(
             "EnemyEntity",
-            $"初始化完成: {m_Config.Name}, 类型={m_EnemyType}, 可广播={m_Config.CanBroadcast}, 奖励等级={m_Config.RewardTier}"
+            $"初始化完成: {m_Config.Name}, 类型={m_EnemyType}, 可广播={m_Config.CanBroadcast}, 奖励ID={m_Config.RewardId}"
         );
     }
 
