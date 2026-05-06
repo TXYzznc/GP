@@ -87,9 +87,28 @@ public class BattleChessManager
             // 将全局血量同步到 ChessAttribute（覆盖 Initialize 时设置的满血值）
             entity.Attribute.SetHp(globalState.CurrentHp);
 
+            // 同步等级：如果全局等级与当前等级不同，需要更新
+            if (entity.Rank != globalState.Level)
+            {
+                entity.SetRank(globalState.Level);
+                // 重新初始化属性组件以应用新等级的属性（HP、攻击力等）
+                entity.Attribute.Initialize(entity, entity.Config, globalState.Level);
+                DebugEx.Log(
+                    "BattleChessManager",
+                    $"棋子 {chessId} 等级已更新：{entity.Rank} (从全局状态恢复)"
+                );
+            }
+
+            // 将全局经验值同步到经验组件
+            var expComp = entity.GetComponent<ChessEXPComponent>();
+            if (expComp != null)
+            {
+                expComp.SetEXP(globalState.Experience);
+            }
+
             DebugEx.Log(
                 "BattleChessManager",
-                $"棋子 {chessId} HP 从全局状态加载：{globalState.CurrentHp:F0}/{globalState.MaxHp:F0}"
+                $"棋子 {chessId} 数据从全局状态加载：HP={globalState.CurrentHp:F0}/{globalState.MaxHp:F0}, Rank={globalState.Level}, Exp={globalState.Experience}"
             );
         }
         else
@@ -270,14 +289,17 @@ public class BattleChessManager
             // 1. 获取战斗结束时的血量
             double finalHp = entity.Attribute.CurrentHp;
 
-            // 2. 获取战斗结束时的经验值（仅针对玩家阵营）
+            // 2. 获取战斗结束时的经验值和等级（仅针对玩家阵营）
+            // 注意：等级和经验的最终值应该从 GlobalChessManager 读取（因为升阶时已经在那里处理过了）
             int finalExp = 0;
+            int finalLevel = entity.Rank;
             if (entity.Camp == 0)
             {
-                var expComp = entity.GetComponent<ChessEXPComponent>();
-                if (expComp != null)
+                var globalState = GlobalChessManager.Instance.GetChessState(chessId);
+                if (globalState != null)
                 {
-                    finalExp = expComp.CurrentEXP;
+                    finalLevel = globalState.Level;
+                    finalExp = globalState.Experience;
                 }
             }
 
@@ -288,7 +310,8 @@ public class BattleChessManager
             WriteBackHp(chessId, finalHp, entity.Camp);
             if (entity.Camp == 0)
             {
-                WriteBackExp(chessId, finalExp);
+                // 等级和经验已在 GlobalChessManager 中管理，这里只是确保状态一致
+                WriteBackExp(chessId, finalLevel, finalExp);
             }
 
             DebugEx.Log(
@@ -335,18 +358,18 @@ public class BattleChessManager
     /// <summary>
     /// 回写玩家棋子的经验值到全局状态
     /// </summary>
-    private void WriteBackExp(int chessId, int exp)
+    private void WriteBackExp(int chessId, int level, int exp)
     {
         var globalState = GlobalChessManager.Instance.GetChessState(chessId);
         if (globalState != null)
         {
-            // 保留等级，只更新经验值
-            GlobalChessManager.Instance.UpdateChessLevelAndExp(chessId, globalState.Level, exp);
-            DebugEx.Log("BattleChessManager", $"棋子 {chessId} 经验值回写: {exp}");
+            // 更新等级和经验值
+            GlobalChessManager.Instance.UpdateChessLevelAndExp(chessId, level, exp);
+            DebugEx.Log("BattleChessManager", $"棋子 {chessId} 等级和经验值回写: Level={level}, Exp={exp}");
         }
         else
         {
-            DebugEx.Warning("BattleChessManager", $"无法回写棋子 {chessId} 的经验值：全局状态不存在");
+            DebugEx.Warning("BattleChessManager", $"无法回写棋子 {chessId} 的等级和经验值：全局状态不存在");
         }
     }
 

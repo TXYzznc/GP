@@ -48,10 +48,9 @@ public class ChessLifecycleHandler : MonoBehaviour
         if (entity == null)
             return;
 
-        DebugEx.Log(nameof(ChessLifecycleHandler), $"棋子死亡: chessId={entity.ChessId}, name={entity.Config?.Name}");
+        DebugEx.Log(nameof(ChessLifecycleHandler), $"棋子死亡标记: chessId={entity.ChessId}, name={entity.Config?.Name}");
 
-        // 1. 玩家棋子（Camp=0）先标记死亡（必须在 UnregisterChess 之前，
-        //    因为注销可能同步触发战斗结束，清空 m_EntityToInstanceId）
+        // 1. 玩家棋子（Camp=0）标记死亡
         if (entity.Camp == 0)
         {
             string instanceId = ChessDeploymentTracker.Instance?.GetInstanceIdByEntity(entity);
@@ -63,15 +62,25 @@ public class ChessLifecycleHandler : MonoBehaviour
             }
         }
 
-        // 2. 从实时追踪器注销（可能同步触发战斗结束，必须在 MarkChessDead 之后）
+        // 2. 从实时追踪器注销（避免被AI或自动系统继续操作）
         if (CombatEntityTracker.Instance != null)
             CombatEntityTracker.Instance.UnregisterChess(entity);
 
-        // 3. 驱动棋子进入死亡状态（播放死亡动画等）
+        // 3. 驱动棋子进入死亡状态（播放死亡动画）
         entity.ChangeState(ChessState.Dead);
 
-        // 4. 延迟销毁，等待死亡动画
-        DestroyAfterDelay(entity, 1f).Forget();
+        // 4. 禁用碰撞器（不再受到伤害等物理效果）
+        var colliders = entity.GetComponentsInChildren<Collider>();
+        foreach (var col in colliders)
+        {
+            col.enabled = false;
+        }
+
+        DebugEx.Log(nameof(ChessLifecycleHandler),
+            $"已禁用碰撞器，棋子现在处于死亡状态，等待战斗结束统一处理");
+
+        // ✅ 不调用 DestroyAfterDelay，不销毁 GameObject
+        // 战斗结束时统一销毁所有死亡棋子
     }
 
     private async UniTaskVoid DestroyAfterDelay(ChessEntity entity, float delay)

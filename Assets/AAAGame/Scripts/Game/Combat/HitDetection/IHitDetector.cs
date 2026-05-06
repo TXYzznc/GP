@@ -89,8 +89,18 @@ public abstract class HitDetectorBase : IHitDetector
     /// </summary>
     protected void ApplyDamage(ChessEntity target, HitContext context)
     {
-        if (target == null || target.CurrentState == ChessState.Dead)
+        if (target == null)
             return;
+
+        // 检查目标是否符合目标死亡状态要求
+        if (!ChessTargetFinder.IsValidTargetByDeadState(target, context.SkillConfig?.TargetDeadState ?? 0))
+        {
+            DebugEx.Log(
+                nameof(HitDetectorBase),
+                $"[命中被过滤] {context.Attacker.Config?.Name} → {target.Config?.Name} (目标状态不符)"
+            );
+            return;
+        }
 
         DebugEx.Log(
             nameof(HitDetectorBase),

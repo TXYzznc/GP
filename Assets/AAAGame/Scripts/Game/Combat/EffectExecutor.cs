@@ -53,6 +53,14 @@ public static class EffectExecutor
         ChessEntity target,
         string timingName)
     {
+        // 检查目标是否符合目标死亡状态要求
+        if (target != null && !ChessTargetFinder.IsValidTargetByDeadState(target, config.TargetDeadState))
+        {
+            DebugEx.Log("EffectExecutor",
+                $"[{timingName}] {attacker.Config?.Name} 的效果不适用于 {target.Config?.Name} (目标状态不符，TargetDeadState={config.TargetDeadState})");
+            return;
+        }
+
         // 1. 给目标添加 Buff
         if (target != null && config.BuffIds != null && config.BuffIds.Length > 0)
         {
