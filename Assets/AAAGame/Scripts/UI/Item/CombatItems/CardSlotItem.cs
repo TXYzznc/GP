@@ -1285,126 +1285,29 @@ public partial class CardSlotItem
     /// <summary>
     /// 获取卡牌作用的目标列表
     /// </summary>
-    private List<ChessEntity> GetAffectedTargets(CardData cardData, Vector3 targetPos)
+        private List<ChessEntity> GetAffectedTargets(CardData cardData, Vector3 targetPos)
     {
-        var targets = new List<ChessEntity>();
-        var allChess = BattleChessManager.Instance?.GetAllChessEntities();
-
-        if (allChess == null || allChess.Count == 0)
-            return targets;
-
-        float radius = cardData.TableRow.AreaRadius;
-        CardTargetType targetType = cardData.CTargetType;
-
-        switch (targetType)
-        {
-            case CardTargetType.Self: // 自身（召唤师）— 暂用最近友方代替
-            {
-                ChessEntity nearest = null;
-                float nearestDist = float.MaxValue;
-                foreach (var chess in allChess)
-                {
-                    if (chess == null || chess.Camp != (int)CampType.Player)
-                        continue;
-                    float dist = Vector3.Distance(chess.transform.position, targetPos);
-                    if (dist < nearestDist)
-                    {
-                        nearestDist = dist;
-                        nearest = chess;
-                    }
-                }
-                if (nearest != null)
-                    targets.Add(nearest);
-                break;
-            }
-            case CardTargetType.AllAllyExcludeSummoner: // 全体友方（不含召唤师）
-            case CardTargetType.AllAlly: // 全体友方
-            {
-                foreach (var chess in allChess)
-                {
-                    if (chess != null && chess.Camp == (int)CampType.Player)
-                        targets.Add(chess);
-                }
-                break;
-            }
-            case CardTargetType.AllEnemy: // 敌方全体
-            {
-                foreach (var chess in allChess)
-                {
-                    if (chess != null && chess.Camp == (int)CampType.Enemy)
-                        targets.Add(chess);
-                }
-                break;
-            }
-            case CardTargetType.SingleAlly: // 单体友方（最近友方）
-            {
-                ChessEntity nearest = null;
-                float nearestDist = float.MaxValue;
-                foreach (var chess in allChess)
-                {
-                    if (chess == null || chess.Camp != (int)CampType.Player)
-                        continue;
-                    float dist = Vector3.Distance(chess.transform.position, targetPos);
-                    if (dist <= radius && dist < nearestDist)
-                    {
-                        nearestDist = dist;
-                        nearest = chess;
-                    }
-                }
-                if (nearest != null)
-                    targets.Add(nearest);
-                break;
-            }
-            case CardTargetType.SingleEnemy: // 单体敌方（最近敌方）
-            {
-                ChessEntity nearest = null;
-                float nearestDist = float.MaxValue;
-                foreach (var chess in allChess)
-                {
-                    if (chess == null || chess.Camp != (int)CampType.Enemy)
-                        continue;
-                    float dist = Vector3.Distance(chess.transform.position, targetPos);
-                    if (dist <= radius && dist < nearestDist)
-                    {
-                        nearestDist = dist;
-                        nearest = chess;
-                    }
-                }
-                if (nearest != null)
-                    targets.Add(nearest);
-                break;
-            }
-            case CardTargetType.AreaAlly: // 范围内友方
-            {
-                foreach (var chess in allChess)
-                {
-                    if (chess != null && chess.Camp == (int)CampType.Player)
-                    {
-                        float dist = Vector3.Distance(chess.transform.position, targetPos);
-                        if (dist <= radius)
-                            targets.Add(chess);
-                    }
-                }
-                break;
-            }
-            case CardTargetType.AreaEnemy: // 范围内敌方
-            {
-                foreach (var chess in allChess)
-                {
-                    if (chess != null && chess.Camp == (int)CampType.Enemy)
-                    {
-                        float dist = Vector3.Distance(chess.transform.position, targetPos);
-                        if (dist <= radius)
-                            targets.Add(chess);
-                    }
-                }
-                break;
-            }
-        }
-
-        return targets;
+        var targetSelector = GetTargetSelectorForPreview(cardData.CTargetType);
+        return targetSelector?.SelectTargets(null, cardData, targetPos) ?? new List<ChessEntity>();
     }
 
+    private ICardTargetSelector GetTargetSelectorForPreview(CardTargetType targetType)
+    {
+        return targetType switch
+        {
+            CardTargetType.Self => new SelfSelector(),
+            CardTargetType.AllAllyExcludeSummoner => new AllAllyExcludeSummonerSelector(),
+            CardTargetType.AllAlly => new AllAlliesSelector(),
+            CardTargetType.AllEnemy => new AllEnemiesSelector(),
+            CardTargetType.SingleAlly => new ClosestAllySelector(),
+            CardTargetType.AreaAlly => new AlliesInRadiusSelector(),
+            CardTargetType.AreaEnemy => new EnemiesInRadiusSelector(),
+            CardTargetType.SingleEnemy => new ClosestEnemySelector(),
+            _ => null
+        };
+    }
+
+    
     #endregion
 
     #endregion

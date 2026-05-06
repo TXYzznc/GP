@@ -101,6 +101,7 @@
     <None Include="Assets\AAAGame\DataTable\EquipmentTable.txt" />
     <None Include="Assets\测试输出日志\snapshot_20260506_140213.txt" />
     <None Include="Assets\AAAGame\DataTable\CardTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_174611.txt" />
     <None Include="Assets\AAAGame\DataTable\Core\UITable.txt" />
     <None Include="Assets\AAAGame\DataTable\ResourceConfigTable.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260506_172512.txt" />
@@ -127,6 +128,7 @@
     <None Include="Assets\AAAGame\DataTable\TreasureBoxTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles_Cutout.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_174446.txt" />
     <None Include="Assets\AAAGame\DataTable\AudioClipTable.txt" />
     <None Include="Assets\AAAGame\DataTable\BuffTable.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AdditiveMobile_Scroll01.shader" />
@@ -156,6 +158,7 @@
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Dilate.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_174911.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\HDRP URP Gamma Readme.txt" />
     <None Include="Assets\AAAGame\DataTable\ItemGroupTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessSkillTable.txt" />
@@ -166,10 +169,13 @@
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_EdgeSoft.shader" />
     <None Include="Assets\特效\爪击特效\Claw_Slash_fx\Documentation_ClawSlashfx\How to use 1_ClawSlashfx.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260506_171313.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_173652.txt" />
     <None Include="Assets\TA\Combat\CirclePreview.shader" />
     <None Include="Assets\TA\溶解\Dissolve.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_174946.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260506_112610.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_Scroll01.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_175550.txt" />
     <None Include="Assets\AAAGame\DataTable\ExpRuleTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\AAAGame\DataTable\EnemyEntityTable.txt" />
@@ -184,8 +190,10 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_back.shader" />
     <None Include="Assets\AAAGame\DataTable\PlayerDataTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_175031.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\AAAGame\DataTable\SceneTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260506_175422.txt" />
     <None Include="Assets\测试输出日志\unity_log_20260506_113721.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\AAAGame\DataTable\PosTable.txt" />
