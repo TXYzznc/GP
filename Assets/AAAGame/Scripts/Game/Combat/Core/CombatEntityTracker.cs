@@ -303,6 +303,36 @@ public class CombatEntityTracker : MonoBehaviour
     }
 
     /// <summary>
+    /// 获取指定阵营的所有敌人（包括已死亡的）
+    /// 用于某些特殊效果可能需要对死亡敌人操作
+    /// </summary>
+    /// <param name="myCamp">我方阵营</param>
+    /// <returns>敌人列表（包含死亡单位）</returns>
+    public List<ChessEntity> GetEnemiesIncludingDead(int myCamp)
+    {
+        List<ChessEntity> enemies = new();
+
+        foreach (var kvp in m_ChessByCamp)
+        {
+            int camp = kvp.Key;
+            CampRelation relation = CampRelationService.GetRelation(myCamp, camp);
+
+            if (relation == CampRelation.Enemy)
+            {
+                foreach (var chess in kvp.Value)
+                {
+                    if (chess != null)
+                    {
+                        enemies.Add(chess);
+                    }
+                }
+            }
+        }
+
+        return enemies;
+    }
+
+    /// <summary>
     /// 获取所有存活的棋子
     /// </summary>
     /// <returns>棋子列表</returns>

@@ -283,3 +283,158 @@ public class AlliesInRadiusSelector : ICardTargetSelector
         return targets;
     }
 }
+
+/// <summary>
+/// 获取所有棋子（包括死亡）
+/// 参数在 CardData 的 CustomData 中指定：
+/// - campType: 0=友方，1=敌方，2=全体
+/// </summary>
+public class AllChessIncludingDeadSelector : ICardTargetSelector
+{
+    public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
+    {
+        var targets = new List<ChessEntity>();
+
+        if (CombatEntityTracker.Instance == null)
+            return targets;
+
+        int campType = cardData.GetParam("campType", 0); // 0=友方, 1=敌方, 2=全体
+
+        if (campType == 0)
+        {
+            var allies = CombatEntityTracker.Instance.GetAlliesIncludingDead((int)CampType.Player);
+            if (allies != null)
+            {
+                foreach (var ally in allies)
+                {
+                    if (ally != null && ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
+                        targets.Add(ally);
+                }
+            }
+        }
+        else if (campType == 1)
+        {
+            var enemies = CombatEntityTracker.Instance.GetEnemiesIncludingDead((int)CampType.Player);
+            if (enemies != null)
+            {
+                foreach (var enemy in enemies)
+                {
+                    if (enemy != null && ChessTargetFinder.IsValidTargetByDeadState(enemy, cardData.TableRow.TargetDeadState))
+                        targets.Add(enemy);
+                }
+            }
+        }
+        else if (campType == 2)
+        {
+            var allies = CombatEntityTracker.Instance.GetAlliesIncludingDead((int)CampType.Player);
+            var enemies = CombatEntityTracker.Instance.GetEnemiesIncludingDead((int)CampType.Player);
+
+            if (allies != null)
+            {
+                foreach (var ally in allies)
+                {
+                    if (ally != null && ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
+                        targets.Add(ally);
+                }
+            }
+
+            if (enemies != null)
+            {
+                foreach (var enemy in enemies)
+                {
+                    if (enemy != null && ChessTargetFinder.IsValidTargetByDeadState(enemy, cardData.TableRow.TargetDeadState))
+                        targets.Add(enemy);
+                }
+            }
+        }
+
+        return targets;
+    }
+}
+
+/// <summary>
+/// 获取所有死亡的棋子（仅死亡）
+/// 参数在 CardData 的 CustomData 中指定：
+/// - campType: 0=友方，1=敌方，2=全体
+/// </summary>
+public class DeadChessOnlySelector : ICardTargetSelector
+{
+    public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
+    {
+        var targets = new List<ChessEntity>();
+
+        if (CombatEntityTracker.Instance == null)
+            return targets;
+
+        int campType = cardData.GetParam("campType", 0); // 0=友方, 1=敌方, 2=全体
+
+        var deadFilter = new List<ChessEntity>();
+
+        if (campType == 0)
+        {
+            var allies = CombatEntityTracker.Instance.GetAlliesIncludingDead((int)CampType.Player);
+            if (allies != null)
+                deadFilter.AddRange(allies);
+        }
+        else if (campType == 1)
+        {
+            var enemies = CombatEntityTracker.Instance.GetEnemiesIncludingDead((int)CampType.Player);
+            if (enemies != null)
+                deadFilter.AddRange(enemies);
+        }
+        else if (campType == 2)
+        {
+            var allies = CombatEntityTracker.Instance.GetAlliesIncludingDead((int)CampType.Player);
+            var enemies = CombatEntityTracker.Instance.GetEnemiesIncludingDead((int)CampType.Player);
+
+            if (allies != null)
+                deadFilter.AddRange(allies);
+            if (enemies != null)
+                deadFilter.AddRange(enemies);
+        }
+
+        foreach (var chess in deadFilter)
+        {
+            if (chess != null && chess.Attribute.IsDead && ChessTargetFinder.IsValidTargetByDeadState(chess, cardData.TableRow.TargetDeadState))
+                targets.Add(chess);
+        }
+
+        return targets;
+    }
+}
+
+/// <summary>
+/// 选择范围内最近的死亡友方
+/// 用于复活卡牌等需要定位死亡目标的效果
+/// </summary>
+public class ClosestDeadAllySelector : ICardTargetSelector
+{
+    public List<ChessEntity> SelectTargets(List<ChessEntity> allChess, CardData cardData, Vector3 targetPosition)
+    {
+        float radius = cardData.AreaRadius;
+        ChessEntity closest = null;
+        float closestDistance = float.MaxValue;
+
+        if (CombatEntityTracker.Instance == null)
+            return new List<ChessEntity>();
+
+        var allies = CombatEntityTracker.Instance.GetAlliesIncludingDead((int)CampType.Player);
+        if (allies != null)
+        {
+            foreach (var ally in allies)
+            {
+                if (ally == null || !ally.Attribute.IsDead || !ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
+                    continue;
+
+                float distance = Vector3.Distance(ally.transform.position, targetPosition);
+                if (distance <= radius && distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closest = ally;
+                }
+            }
+        }
+
+        return closest != null ? new List<ChessEntity> { closest } : new List<ChessEntity>();
+    }
+}

@@ -487,64 +487,29 @@ public class TreasureBoxSlotContainerImpl : SlotContainerBase
 
     /// <summary>
     /// 将所有物品放入背包（全部拿走按钮用）
-    /// ⭐ 虚拟物品特殊处理：直接转换为账号资源，不进入背包
+    /// ⭐ 虚拟物品也作为普通物品放入背包（局内不转换为账号资源）
+    /// 离开局内时，游戏结算才将虚拟物品转换为账号资源
     /// </summary>
     public int TakeAll()
     {
         int successCount = 0;
-        var accountManager = PlayerAccountDataManager.Instance;
+        var inv = InventoryManager.Instance;
 
         for (int i = 0; i < TREASURE_BOX_CAPACITY; i++)
         {
             if (m_Slots[i] != null)
             {
                 var item = m_Slots[i];
-
-                // ⭐ 虚拟物品特殊处理：直接转换为账号资源
-                switch (item.ItemId)
+                bool ok = inv != null && inv.AddItem(item.ItemId, item.Count);
+                if (ok)
                 {
-                    case InventoryManager.VIRTUAL_ITEM_GOLD:
-                        if (accountManager != null)
-                        {
-                            accountManager.AddGold(item.Count);
-                            DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"金币 x{item.Count} → 账号资源");
-                        }
-                        m_Slots[i] = null;
-                        successCount++;
-                        break;
-
-                    case InventoryManager.VIRTUAL_ITEM_ORIGIN_STONE:
-                        if (accountManager != null)
-                        {
-                            accountManager.AddOriginStone(item.Count);
-                            DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"起源石 x{item.Count} → 账号资源");
-                        }
-                        m_Slots[i] = null;
-                        successCount++;
-                        break;
-
-                    case InventoryManager.VIRTUAL_ITEM_SPIRIT_STONE:
-                        // 灵石直接删除（局内货币）
-                        DebugEx.Log(nameof(TreasureBoxSlotContainerImpl), $"灵石 x{item.Count} → 删除（局内货币）");
-                        m_Slots[i] = null;
-                        successCount++;
-                        break;
-
-                    default:
-                        // 普通物品才加到背包
-                        var inv = InventoryManager.Instance;
-                        bool ok = inv != null && inv.AddItem(item.ItemId, item.Count);
-                        if (ok)
-                        {
-                            m_Slots[i] = null;
-                            successCount++;
-                        }
-                        else
-                        {
-                            DebugEx.Warning(nameof(TreasureBoxSlotContainerImpl), "背包已满，剩余物品无法全部放入");
-                            goto EXIT_LOOP;
-                        }
-                        break;
+                    m_Slots[i] = null;
+                    successCount++;
+                }
+                else
+                {
+                    DebugEx.Warning(nameof(TreasureBoxSlotContainerImpl), "背包已满，剩余物品无法全部放入");
+                    goto EXIT_LOOP;
                 }
             }
         }

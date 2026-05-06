@@ -208,6 +208,20 @@ public partial class EndCombatUI : UIFormBase
             if (InventoryManager.Instance?.AddItem(InventoryManager.VIRTUAL_ITEM_GOLD, totalCoins) ?? false)
             {
                 m_PendingAwardItemIds.Add(InventoryManager.VIRTUAL_ITEM_GOLD);
+
+                // 创建虚拟物品 UI（金币）
+                var go = Instantiate(varAwardItemUI, varAwardShowPanel.transform);
+                go.SetActive(true);
+                m_SpawnedAwardItems.Add(go);
+
+                if (go.TryGetComponent<AwardItemUI>(out var awardUI))
+                {
+                    awardUI.SetData(InventoryManager.VIRTUAL_ITEM_GOLD);
+                }
+
+                go.transform.localScale = Vector3.one * 1.2f;
+                go.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack);
+
                 DebugEx.Log(this.GetType().Name, $"金币掉落: {totalCoins}（倍率: {rewardMultiplierForCoins:F2}）");
             }
         }
@@ -232,6 +246,20 @@ public partial class EndCombatUI : UIFormBase
             if (InventoryManager.Instance?.AddItem(InventoryManager.VIRTUAL_ITEM_SPIRIT_STONE, finalMagicaStone) ?? false)
             {
                 m_PendingAwardItemIds.Add(InventoryManager.VIRTUAL_ITEM_SPIRIT_STONE);
+
+                // 创建虚拟物品 UI（灵石）
+                var go = Instantiate(varAwardItemUI, varAwardShowPanel.transform);
+                go.SetActive(true);
+                m_SpawnedAwardItems.Add(go);
+
+                if (go.TryGetComponent<AwardItemUI>(out var awardUI))
+                {
+                    awardUI.SetData(InventoryManager.VIRTUAL_ITEM_SPIRIT_STONE);
+                }
+
+                go.transform.localScale = Vector3.one * 1.2f;
+                go.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack);
+
                 DebugEx.Log(this.GetType().Name, $"灵石掉落: {finalMagicaStone}（倍率: {rewardMultiplierForStone:F2}）");
             }
         }
