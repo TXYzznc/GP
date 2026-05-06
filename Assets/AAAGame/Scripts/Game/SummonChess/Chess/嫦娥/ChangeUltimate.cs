@@ -145,13 +145,20 @@ public class ChangeUltimate : ChessSkillBase
         magicCircle.Initialize(m_Config, caster, spawnPosition);
         DebugEx.Log(nameof(ChangeUltimate), "  └─ ✓ 组件初始化成功");
 
+        // 从 CustomData 获取持续时间
+        if (customData == null || customData.Duration <= 0)
+        {
+            DebugEx.Error(nameof(ChangeUltimate), "✗ CustomData 中未找到有效的 Duration");
+            return;
+        }
+
         DebugEx.Log(
             nameof(ChangeUltimate),
             $"✓ 法阵创建完成: " +
             $"技能={m_Config.Name}(ID={m_Config.Id}), " +
             $"预制体ID={magicCirclePrefabId}, " +
             $"生成位置={spawnPosition}, " +
-            $"持续时间={m_Config.Duration}s, " +
+            $"持续时间={customData.Duration}s, " +
             $"子弹数={m_Config.HitCount}发, " +
             $"AOE半径={m_Config.AreaRadius}米"
         );
@@ -186,7 +193,7 @@ public class ChangeUltimate : ChessSkillBase
 
     /// <summary>
     /// CustomData JSON 包装类
-    /// 格式: {"MagicCircleId":3006,"ProjectilePrefabId":3007,"SpawnHeight":5}
+    /// 格式: {"MagicCircleId":3006,"ProjectilePrefabId":3007,"SpawnHeight":0.15,"Duration":5}
     /// </summary>
     [System.Serializable]
     private class CustomDataWrapper
@@ -199,6 +206,9 @@ public class ChangeUltimate : ChessSkillBase
 
         /// <summary>法阵生成相对位置（0=底部对齐，1=顶部对齐）</summary>
         public float SpawnHeight = 0f;
+
+        /// <summary>法阵持续时间（秒）- 优先使用此值，为0时回退到表中的Duration</summary>
+        public double Duration = 0;
     }
 
     #endregion

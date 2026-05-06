@@ -122,15 +122,36 @@ public abstract class ChessSkillBase : IChessSkill
     }
 
     /// <summary>
+    /// 检查目标是否在施法范围内
+    /// </summary>
+    protected bool IsInCastRange(ChessEntity caster, ChessEntity target)
+    {
+        if (caster == null || target == null || m_Config == null)
+            return false;
+
+        return ChessTargetFinder.IsInCastRange(caster, target, m_Config.CastRange);
+    }
+
+    /// <summary>
     /// 计算技能伤害
     /// </summary>
     protected double CalculateDamage(ChessEntity caster, out bool isCritical)
     {
         // 根据伤害类型选择属性
-        double scalingStat =
-            m_Config.DamageType == 2
-                ? caster.Attribute.SpellPower // 魔法伤害用法强
-                : caster.Attribute.AtkDamage; // 物理伤害用攻击力
+        double scalingStat = 0;
+        switch (m_Config.DamageType)
+        {
+            case 1: // 物理伤害
+            case 3: // 真实伤害（使用攻击力，但不受护甲影响）
+                scalingStat = caster.Attribute.AtkDamage;
+                break;
+            case 2: // 魔法伤害
+                scalingStat = caster.Attribute.SpellPower;
+                break;
+            default:
+                scalingStat = caster.Attribute.AtkDamage;
+                break;
+        }
 
         double damage = scalingStat * m_Config.DamageCoeff + m_Config.BaseDamage;
 

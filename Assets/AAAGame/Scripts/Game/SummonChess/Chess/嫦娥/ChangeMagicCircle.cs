@@ -56,10 +56,20 @@ public class ChangeMagicCircle : MonoBehaviour
 
         m_Config = config;
         m_Caster = caster;
-        m_RemainingTime = (float)config.Duration;
+
+        // 从 CustomData 读取配置（包含持续时间）
+        m_CustomData = ParseCustomData(config.CustomData);
+        if (m_CustomData == null || m_CustomData.Duration <= 0)
+        {
+            DebugEx.Error("ChangeMagicCircle", "✗ CustomData 中未找到有效的 Duration，法阵无法初始化");
+            return;
+        }
+
+        double effectDuration = m_CustomData.Duration;
+        m_RemainingTime = (float)effectDuration;
 
         // 计算子弹发射间隔
-        m_ProjectileInterval = config.HitCount > 0 ? (float)config.Duration / config.HitCount : 1f;
+        m_ProjectileInterval = config.HitCount > 0 ? (float)effectDuration / config.HitCount : 1f;
 
         // ⭐ 设置初始延迟，避免第一帧就发射子弹
         m_ProjectileTimer = -0.1f; // 延迟 0.1 秒后开始发射第一枚子弹
@@ -74,8 +84,7 @@ public class ChangeMagicCircle : MonoBehaviour
             $"  ├─ 伤害计算: {scalingStat:F1}×{config.DamageCoeff}+{config.BaseDamage}={m_ProjectileDamage:F1}"
         );
 
-        // 从 CustomData 读取配置（子弹预制体 ID、法阵生成高度等）
-        m_CustomData = ParseCustomData(config.CustomData);
+        // CustomData 已在前面解析，检查子弹预制体配置
         if (m_CustomData != null && m_CustomData.ProjectilePrefabId > 0)
         {
             DebugEx.Log("ChangeMagicCircle", $"  ├─ ✓ 从 CustomData 读取配置: ProjectilePrefabId={m_CustomData.ProjectilePrefabId}, SpawnHeight={m_CustomData.SpawnHeight:F2}");
@@ -121,7 +130,7 @@ public class ChangeMagicCircle : MonoBehaviour
         DebugEx.Log(
             "ChangeMagicCircle",
             $"✓ 法阵初始化完成:\n" +
-            $"  ├─ 持续时间: {config.Duration}s\n" +
+            $"  ├─ 持续时间: {m_CustomData.Duration}s\n" +
             $"  ├─ 子弹总数: {config.HitCount}发\n" +
             $"  ├─ 发射间隔: {m_ProjectileInterval:F2}s\n" +
             $"  ├─ 单发伤害: {m_ProjectileDamage:F1}\n" +
@@ -131,7 +140,7 @@ public class ChangeMagicCircle : MonoBehaviour
 
         DebugEx.Log(
             "ChangeMagicCircle",
-            $"→ 法阵开始运作: 将在 {config.Duration}s 内发射 {config.HitCount} 枚子弹，首发延迟 0.1s"
+            $"→ 法阵开始运作: 将在 {m_CustomData.Duration}s 内发射 {config.HitCount} 枚子弹，首发延迟 0.1s"
         );
     }
 
@@ -409,6 +418,9 @@ public class ChangeMagicCircle : MonoBehaviour
 
         /// <summary>已不使用（高度现由生成平面决定）</summary>
         public float SpawnHeight = 5f;
+
+        /// <summary>法阵持续时间（秒）- 优先使用此值，为0时回退到表中的Duration</summary>
+        public double Duration = 0;
     }
 
     #endregion

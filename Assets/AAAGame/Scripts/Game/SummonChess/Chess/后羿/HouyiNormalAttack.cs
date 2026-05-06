@@ -48,8 +48,8 @@ public class HouyiNormalAttack : ChessNormalAttackBase
             TargetPosition = EntityPositionHelper.GetCenterPosition(target), // ⭐ 使用模型中心点
             BaseDamage = damage,
             IsCritical = isCritical,
-            IsMagicDamage = false,
-            IsTrueDamage = false,
+            IsMagicDamage = IsMagicDamage(),
+            IsTrueDamage = IsTrueDamage(),
             Range = (float)caster.Attribute.AtkRange,
             PenetrationCount = m_Config.PenetrationCount,
             ProjectilePrefabId = m_Config.ProjectilePrefabId,

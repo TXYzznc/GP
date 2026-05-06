@@ -48,11 +48,29 @@ public abstract class ChessNormalAttackBase : IChessNormalAttack
     #region 通用辅助方法
 
     /// <summary>
-    /// 计算普攻伤害
+    /// 计算普攻伤害（根据配置的伤害类型选择属性）
+    /// DamageType: 0=无伤害, 1=物理(AtkDamage), 2=魔法(SpellPower), 3=真实(SpellPower)
     /// </summary>
     protected double CalculateDamage(ChessEntity caster, out bool isCritical)
     {
-        double damage = caster.Attribute.AtkDamage * m_Config.DamageCoeff + m_Config.BaseDamage;
+        double scalingStat = 0;
+
+        // 根据伤害类型选择属性
+        switch (m_Config.DamageType)
+        {
+            case 1: // 物理伤害
+            case 3: // 真实伤害（使用攻击力，但不受护甲影响）
+                scalingStat = caster.Attribute.AtkDamage;
+                break;
+            case 2: // 魔法伤害
+                scalingStat = caster.Attribute.SpellPower;
+                break;
+            default:
+                scalingStat = caster.Attribute.AtkDamage; // 默认物理
+                break;
+        }
+
+        double damage = scalingStat * m_Config.DamageCoeff + m_Config.BaseDamage;
 
         isCritical = Random.value < caster.Attribute.CritRate;
         if (isCritical)
@@ -61,6 +79,22 @@ public abstract class ChessNormalAttackBase : IChessNormalAttack
         }
 
         return damage;
+    }
+
+    /// <summary>
+    /// 根据 DamageType 判断是否为魔法伤害
+    /// </summary>
+    protected bool IsMagicDamage()
+    {
+        return m_Config.DamageType == 2;
+    }
+
+    /// <summary>
+    /// 根据 DamageType 判断是否为真实伤害
+    /// </summary>
+    protected bool IsTrueDamage()
+    {
+        return m_Config.DamageType == 3;
     }
 
     /// <summary>
