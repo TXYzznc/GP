@@ -1362,6 +1362,7 @@
     <ProjectReference Include="Builtin.Runtime.csproj" />
     <ProjectReference Include="UniTask.Linq.csproj" />
     <ProjectReference Include="DOTween.Extension.csproj" />
+    <ProjectReference Include="Coffee.UnmaskForUGUI.csproj" />
     <ProjectReference Include="UniTask.DOTween.csproj" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

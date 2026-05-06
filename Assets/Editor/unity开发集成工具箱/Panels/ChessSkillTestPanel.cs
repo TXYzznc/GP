@@ -63,7 +63,6 @@ public class ChessSkillTestPanel : IToolHubPanel
         public double Cooldown = 0;
         public double CastRange = 0;
         public double AreaRadius = 0;
-        public double Duration = 0;
 
         // 触发次数
         public int HitCount = 1;
@@ -97,7 +96,6 @@ public class ChessSkillTestPanel : IToolHubPanel
             Cooldown = config.Cooldown;
             CastRange = config.CastRange;
             AreaRadius = config.AreaRadius;
-            Duration = config.Duration;
             HitCount = config.HitCount;
             PenetrationCount = config.PenetrationCount;
             ProjectileSpeed = config.ProjectileSpeed;
@@ -431,7 +429,6 @@ public class ChessSkillTestPanel : IToolHubPanel
         skillParams.MpCost = EditorGUILayout.DoubleField("法力消耗", skillParams.MpCost);
         skillParams.MpRestore = EditorGUILayout.DoubleField("法力回复", skillParams.MpRestore);
         skillParams.Cooldown = EditorGUILayout.DoubleField("冷却时间", skillParams.Cooldown);
-        skillParams.Duration = EditorGUILayout.DoubleField("持续时间", skillParams.Duration);
 
         EditorGUILayout.Space();
 

@@ -66,6 +66,24 @@ public class CombatTestController : MonoBehaviour
             return;
         }
 
+        // 从 EnemyEntityTable 获取 Difficulty，然后从 CombatDifficultyRule 获取倍率
+        var entityTable = GF.DataTable.GetDataTable<EnemyEntityTable>();
+        var difficultyTable = GF.DataTable.GetDataTable<CombatDifficultyRule>();
+
+        float difficultyMultiplier = 1f;
+        if (entityTable != null && difficultyTable != null)
+        {
+            var entityRow = entityTable.GetDataRow(m_TestBattleConfigId);
+            if (entityRow != null)
+            {
+                var diffRow = difficultyTable.GetDataRow(entityRow.Difficulty);
+                if (diffRow != null)
+                {
+                    difficultyMultiplier = diffRow.DifficultyMultiplier;
+                }
+            }
+        }
+
         // 输出配置信息
         string formationName = GetFormationName(enemyData.FormationType);
         DebugEx.Success("CombatTestController",
@@ -74,7 +92,7 @@ public class CombatTestController : MonoBehaviour
             $"棋子数量：{enemyData.ChessIds?.Length ?? 0}\n" +
             $"阵型类型：{formationName}\n" +
             $"间距：{enemyData.Spacing}\n" +
-            $"难度倍率：{enemyData.DifficultyMultiplier}");
+            $"难度倍率：{difficultyMultiplier}");
     }
 
     /// <summary>
