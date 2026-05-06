@@ -32,7 +32,7 @@
       "hash": "59804e17a0d1562ca0f847db986ed93b25825b6d"
     },
     "com.coffee.unmask": {
-      "version": "file:C:/Users/86135/Downloads/UnmaskForUGUI-main/UnmaskForUGUI-main",
+      "version": "file:../外部包/UnmaskForUGUI-main",
       "depth": 0,
       "source": "local",
       "dependencies": {}
