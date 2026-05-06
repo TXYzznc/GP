@@ -15,13 +15,13 @@ using UnityGameFramework.Runtime;
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName | Obfuz.ObfuzScope.MethodName)]
 #endif
 /// <summary>
-/// EnemyTable
+/// CombatDifficultyRule
 /// </summary>
-public partial class EnemyTable : DataRowBase
+public partial class CombatDifficultyRule : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 敌人关联的战斗配置ID
+    /// 难度等级（从EnemyEntityTable中读取）
     /// </summary>
     public override int Id
     {
@@ -29,54 +29,45 @@ public partial class EnemyTable : DataRowBase
     }
 
         /// <summary>
-        /// 敌人名称
+        /// （对战时）最小人口数
         /// </summary>
-        public string EnemyName
+        public int MinPopulation
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 棋子ID列表
+        /// （对战时）最大人口数
         /// </summary>
-        public int[] ChessIds
+        public int MaxPopulation
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 阵型类型（1=横排，2=竖排，3=矩形）
+        /// 波次数量
         /// </summary>
-        public int FormationType
+        public int WaveCount
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 棋子间距（米）
+        /// 难度倍率（影响棋子属性）
         /// </summary>
-        public float Spacing
+        public float DifficultyMultiplier
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 战斗时间限制（秒，0=无限制）
+        /// 奖励倍率
         /// </summary>
-        public int TimeLimit
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// Boss模式棋子波次列表（格式：波1_敌人1,敌人2|波2_敌人3,敌人4）
-        /// </summary>
-        public string ChessIds_Boss
+        public float RewardMultiplier
         {
             get;
             private set;
@@ -94,12 +85,11 @@ public partial class EnemyTable : DataRowBase
             index++;
             m_Id = int.Parse(columnStrings[index++]);
             index++;
-            EnemyName = columnStrings[index++];
-            ChessIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            FormationType = int.Parse(columnStrings[index++]);
-            Spacing = float.Parse(columnStrings[index++]);
-            TimeLimit = int.Parse(columnStrings[index++]);
-            ChessIds_Boss = columnStrings[index++];
+            MinPopulation = int.Parse(columnStrings[index++]);
+            MaxPopulation = int.Parse(columnStrings[index++]);
+            WaveCount = int.Parse(columnStrings[index++]);
+            DifficultyMultiplier = float.Parse(columnStrings[index++]);
+            RewardMultiplier = float.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -111,12 +101,11 @@ public partial class EnemyTable : DataRowBase
                 using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
-                    EnemyName = binaryReader.ReadString();
-                    ChessIds = binaryReader.ReadArray<int>();
-                    FormationType = binaryReader.Read7BitEncodedInt32();
-                    Spacing = binaryReader.ReadSingle();
-                    TimeLimit = binaryReader.Read7BitEncodedInt32();
-                    ChessIds_Boss = binaryReader.ReadString();
+                    MinPopulation = binaryReader.Read7BitEncodedInt32();
+                    MaxPopulation = binaryReader.Read7BitEncodedInt32();
+                    WaveCount = binaryReader.Read7BitEncodedInt32();
+                    DifficultyMultiplier = binaryReader.ReadSingle();
+                    RewardMultiplier = binaryReader.ReadSingle();
                 }
             }
 

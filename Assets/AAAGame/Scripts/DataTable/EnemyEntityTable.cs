@@ -56,7 +56,7 @@ public partial class EnemyEntityTable : DataRowBase
         }
 
         /// <summary>
-        /// 敌人类型
+        /// 敌人类型(0=普通,1=精英,2=Boss)
         /// </summary>
         public int EnemyType
         {
@@ -92,9 +92,9 @@ public partial class EnemyEntityTable : DataRowBase
         }
 
         /// <summary>
-        /// 掉落奖励等级
+        /// 掉落奖励ID(对应TreasureBoxTable)
         /// </summary>
-        public int RewardTier
+        public int RewardId
         {
             get;
             private set;
@@ -299,7 +299,7 @@ public partial class EnemyEntityTable : DataRowBase
             PurificationCardId = int.Parse(columnStrings[index++]);
             CanBroadcast = bool.Parse(columnStrings[index++]);
             BroadcastDistance = float.Parse(columnStrings[index++]);
-            RewardTier = int.Parse(columnStrings[index++]);
+            RewardId = int.Parse(columnStrings[index++]);
             PrefabId = int.Parse(columnStrings[index++]);
             BattleConfigId = int.Parse(columnStrings[index++]);
             PatrolRadius = float.Parse(columnStrings[index++]);
@@ -338,7 +338,7 @@ public partial class EnemyEntityTable : DataRowBase
                     PurificationCardId = binaryReader.Read7BitEncodedInt32();
                     CanBroadcast = binaryReader.ReadBoolean();
                     BroadcastDistance = binaryReader.ReadSingle();
-                    RewardTier = binaryReader.Read7BitEncodedInt32();
+                    RewardId = binaryReader.Read7BitEncodedInt32();
                     PrefabId = binaryReader.Read7BitEncodedInt32();
                     BattleConfigId = binaryReader.Read7BitEncodedInt32();
                     PatrolRadius = binaryReader.ReadSingle();

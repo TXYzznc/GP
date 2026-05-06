@@ -1,0 +1,9 @@
+﻿#	CombatDifficultyRule						
+#	Difficulty		MinPopulation	MaxPopulation	WaveCount	DifficultyMultiplier	RewardMultiplier
+#	int		int	int	int	float	float
+#	难度等级（从EnemyEntityTable中读取）	备注	（对战时）最小人口数	（对战时）最大人口数	波次数量	难度倍率（影响棋子属性）	奖励倍率
+	1		2	2	1	1	1
+	2		2	3	1	1.2	1.2
+	3		3	4	2	1.5	1.5
+	4		4	5	2	1.8	1.8
+	5		5	6	3	2	2

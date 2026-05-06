@@ -74,9 +74,9 @@ public partial class TreasureBoxTable : DataRowBase
         }
 
         /// <summary>
-        /// 物品组ID列表
+        /// 物品组ID权重(JSON格式:ID1:权重1,ID2:权重2...)
         /// </summary>
-        public int[] ItemGroupIds
+        public string ItemGroupIds
         {
             get;
             private set;
@@ -162,7 +162,7 @@ public partial class TreasureBoxTable : DataRowBase
             Rarity = int.Parse(columnStrings[index++]);
             ItemCountMin = int.Parse(columnStrings[index++]);
             ItemCountMax = int.Parse(columnStrings[index++]);
-            ItemGroupIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            ItemGroupIds = columnStrings[index++];
             CoinsProbability = double.Parse(columnStrings[index++]);
             MinCoins = int.Parse(columnStrings[index++]);
             MaxCoins = int.Parse(columnStrings[index++]);
@@ -186,7 +186,7 @@ public partial class TreasureBoxTable : DataRowBase
                     Rarity = binaryReader.Read7BitEncodedInt32();
                     ItemCountMin = binaryReader.Read7BitEncodedInt32();
                     ItemCountMax = binaryReader.Read7BitEncodedInt32();
-                    ItemGroupIds = binaryReader.ReadArray<int>();
+                    ItemGroupIds = binaryReader.ReadString();
                     CoinsProbability = binaryReader.ReadDouble();
                     MinCoins = binaryReader.Read7BitEncodedInt32();
                     MaxCoins = binaryReader.Read7BitEncodedInt32();

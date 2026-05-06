@@ -56,6 +56,15 @@ public partial class SummonerSkillTable : DataRowBase
         }
 
         /// <summary>
+        /// 作用目标存活状态
+        /// </summary>
+        public int TargetDeadState
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 解锁阶段 1=初始 3=第三阶 4=第四阶 5=第五阶
         /// </summary>
         public int UnlockTier
@@ -268,6 +277,7 @@ public partial class SummonerSkillTable : DataRowBase
             Name = columnStrings[index++];
             SummonerClass = int.Parse(columnStrings[index++]);
             SkillType = int.Parse(columnStrings[index++]);
+            TargetDeadState = int.Parse(columnStrings[index++]);
             UnlockTier = int.Parse(columnStrings[index++]);
             BranchId = int.Parse(columnStrings[index++]);
             Cooldown = float.Parse(columnStrings[index++]);
@@ -304,6 +314,7 @@ public partial class SummonerSkillTable : DataRowBase
                     Name = binaryReader.ReadString();
                     SummonerClass = binaryReader.Read7BitEncodedInt32();
                     SkillType = binaryReader.Read7BitEncodedInt32();
+                    TargetDeadState = binaryReader.Read7BitEncodedInt32();
                     UnlockTier = binaryReader.Read7BitEncodedInt32();
                     BranchId = binaryReader.Read7BitEncodedInt32();
                     Cooldown = binaryReader.ReadSingle();

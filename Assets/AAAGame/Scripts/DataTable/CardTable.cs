@@ -83,6 +83,15 @@ public partial class CardTable : DataRowBase
         }
 
         /// <summary>
+        /// 作用目标存活状态
+        /// </summary>
+        public int TargetDeadState
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// AOE半径(0=单体)
         /// </summary>
         public float AreaRadius
@@ -217,6 +226,7 @@ public partial class CardTable : DataRowBase
             PrefabConfig = columnStrings[index++];
             SpiritCost = float.Parse(columnStrings[index++]);
             TargetType = int.Parse(columnStrings[index++]);
+            TargetDeadState = int.Parse(columnStrings[index++]);
             AreaRadius = float.Parse(columnStrings[index++]);
             DamageType = int.Parse(columnStrings[index++]);
             DamageCoeff = float.Parse(columnStrings[index++]);
@@ -247,6 +257,7 @@ public partial class CardTable : DataRowBase
                     PrefabConfig = binaryReader.ReadString();
                     SpiritCost = binaryReader.ReadSingle();
                     TargetType = binaryReader.Read7BitEncodedInt32();
+                    TargetDeadState = binaryReader.Read7BitEncodedInt32();
                     AreaRadius = binaryReader.ReadSingle();
                     DamageType = binaryReader.Read7BitEncodedInt32();
                     DamageCoeff = binaryReader.ReadSingle();

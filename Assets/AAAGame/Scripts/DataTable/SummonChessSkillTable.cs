@@ -47,6 +47,15 @@ public partial class SummonChessSkillTable : DataRowBase
         }
 
         /// <summary>
+        /// 作用目标存活状态
+        /// </summary>
+        public int TargetDeadState
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 伤害类型：0=无伤害 1=物理 2=魔法 3=真实
         /// </summary>
         public int DamageType
@@ -140,15 +149,6 @@ public partial class SummonChessSkillTable : DataRowBase
         /// AOE半径（0=单体）
         /// </summary>
         public double AreaRadius
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 持续时间（引导类技能）
-        /// </summary>
-        public double Duration
         {
             get;
             private set;
@@ -267,6 +267,7 @@ public partial class SummonChessSkillTable : DataRowBase
             index++;
             Name = columnStrings[index++];
             SkillType = int.Parse(columnStrings[index++]);
+            TargetDeadState = int.Parse(columnStrings[index++]);
             DamageType = int.Parse(columnStrings[index++]);
             DamageCoeff = double.Parse(columnStrings[index++]);
             EffectHitType = int.Parse(columnStrings[index++]);
@@ -278,7 +279,6 @@ public partial class SummonChessSkillTable : DataRowBase
             Cooldown = double.Parse(columnStrings[index++]);
             CastRange = double.Parse(columnStrings[index++]);
             AreaRadius = double.Parse(columnStrings[index++]);
-            Duration = double.Parse(columnStrings[index++]);
             HitCount = int.Parse(columnStrings[index++]);
             PenetrationCount = int.Parse(columnStrings[index++]);
             BuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
@@ -303,6 +303,7 @@ public partial class SummonChessSkillTable : DataRowBase
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
                     SkillType = binaryReader.Read7BitEncodedInt32();
+                    TargetDeadState = binaryReader.Read7BitEncodedInt32();
                     DamageType = binaryReader.Read7BitEncodedInt32();
                     DamageCoeff = binaryReader.ReadDouble();
                     EffectHitType = binaryReader.Read7BitEncodedInt32();
@@ -314,7 +315,6 @@ public partial class SummonChessSkillTable : DataRowBase
                     Cooldown = binaryReader.ReadDouble();
                     CastRange = binaryReader.ReadDouble();
                     AreaRadius = binaryReader.ReadDouble();
-                    Duration = binaryReader.ReadDouble();
                     HitCount = binaryReader.Read7BitEncodedInt32();
                     PenetrationCount = binaryReader.Read7BitEncodedInt32();
                     BuffIds = binaryReader.ReadArray<int>();
