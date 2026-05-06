@@ -35,7 +35,7 @@ public class BerserkerActiveSkill : SummonerSkillBase
         }
 
         m_Ctx.RuntimeData.ReduceHP(m_HpCost);
-        SummonerBuffHelper.ApplyBuffs(m_Ctx, m_InstantEntries);
+        SummonerBuffHelper.ApplyBuffs(m_Ctx, m_InstantEntries, m_Config.TargetDeadState);
 
         DebugEx.Log(nameof(BerserkerActiveSkill), $"战意激昂触发：扣 HP {m_HpCost}，施加 InstantBuffs 到全体友方（含召唤师）");
     }

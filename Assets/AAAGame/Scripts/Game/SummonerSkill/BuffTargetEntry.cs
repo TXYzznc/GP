@@ -12,19 +12,29 @@ public struct BuffTargetEntry
     public int TargetType;
 
     /// <summary>
-    /// 解析 "4003:2,4004:1" 格式的字符串，返回 BuffTargetEntry 数组。
-    /// 值为 "0" 或空时返回空数组。
+    /// 解析 Buff 配置字符串，支持 "{id:type}" 或 "{id1:type1,id2:type2}" 格式
+    /// 值为 "0" 或空时返回空数组
     /// </summary>
     public static BuffTargetEntry[] ParseArray(string raw)
     {
         if (string.IsNullOrEmpty(raw) || raw == "0")
             return System.Array.Empty<BuffTargetEntry>();
 
-        string[] pairs = raw.Split(',');
+        // 去掉首尾的 { 和 }
+        string content = raw.Trim();
+        if (content.StartsWith("{") && content.EndsWith("}"))
+        {
+            content = content.Substring(1, content.Length - 2);
+        }
+
+        if (string.IsNullOrEmpty(content))
+            return System.Array.Empty<BuffTargetEntry>();
+
+        string[] pairs = content.Split(',');
         var result = new BuffTargetEntry[pairs.Length];
         for (int i = 0; i < pairs.Length; i++)
         {
-            string[] parts = pairs[i].Split(':');
+            string[] parts = pairs[i].Trim().Split(':');
             result[i] = new BuffTargetEntry
             {
                 BuffId     = int.Parse(parts[0].Trim()),

@@ -51,6 +51,7 @@ public class BerserkerPassive : SummonerPassiveBase
         {
             var ally = allies[i];
             if (ally == null) continue;
+            if (!ChessTargetFinder.IsValidTargetByDeadState(ally, m_Config.TargetDeadState)) continue;
             if (!ally.TryGetComponent<BuffManager>(out var bm)) continue;
             RegisterToBM(bm, ally.Attribute);
         }

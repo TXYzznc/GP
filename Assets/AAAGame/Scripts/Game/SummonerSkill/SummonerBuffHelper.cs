@@ -9,15 +9,15 @@ public static class SummonerBuffHelper
     private const int PLAYER_CAMP = 0;
     private const int ENEMY_CAMP  = 1;
 
-    /// <summary>施加单条 Buff 条目</summary>
-    public static void ApplyBuff(SummonerSkillContext ctx, BuffTargetEntry entry)
-        => ApplyBuff(ctx, entry.BuffId, entry.TargetType);
+    /// <summary>施加单条 Buff 条目（支持 TargetDeadState）</summary>
+    public static void ApplyBuff(SummonerSkillContext ctx, BuffTargetEntry entry, int targetDeadState = 0)
+        => ApplyBuff(ctx, entry.BuffId, entry.TargetType, targetDeadState);
 
-    /// <summary>施加 Buff 数组中所有条目</summary>
-    public static void ApplyBuffs(SummonerSkillContext ctx, BuffTargetEntry[] entries)
+    /// <summary>施加 Buff 数组中所有条目（支持 TargetDeadState）</summary>
+    public static void ApplyBuffs(SummonerSkillContext ctx, BuffTargetEntry[] entries, int targetDeadState = 0)
     {
         if (entries == null) return;
-        foreach (var e in entries) ApplyBuff(ctx, e.BuffId, e.TargetType);
+        foreach (var e in entries) ApplyBuff(ctx, e.BuffId, e.TargetType, targetDeadState);
     }
 
     /// <summary>移除单条 Buff 条目</summary>
@@ -52,14 +52,14 @@ public static class SummonerBuffHelper
 
     // ── 内部实现 ──
 
-    private static void ApplyBuff(SummonerSkillContext ctx, int buffId, int targetType)
+    private static void ApplyBuff(SummonerSkillContext ctx, int buffId, int targetType, int targetDeadState = 0)
     {
         switch (targetType)
         {
             case 1: ctx.SummonerBuffManager?.AddBuff(buffId); break;
-            case 2: ApplyToAllies(ctx, buffId, false); break;
-            case 3: ApplyToAllies(ctx, buffId, true);  break;
-            case 4: ApplyToCamp(ctx, ENEMY_CAMP, buffId); break;
+            case 2: ApplyToAllies(ctx, buffId, false, targetDeadState); break;
+            case 3: ApplyToAllies(ctx, buffId, true, targetDeadState);  break;
+            case 4: ApplyToCamp(ctx, ENEMY_CAMP, buffId, targetDeadState); break;
         }
     }
 
@@ -74,9 +74,9 @@ public static class SummonerBuffHelper
         }
     }
 
-    private static void ApplyToAllies(SummonerSkillContext ctx, int buffId, bool includeSummoner)
+    private static void ApplyToAllies(SummonerSkillContext ctx, int buffId, bool includeSummoner, int targetDeadState = 0)
     {
-        ApplyToCamp(ctx, PLAYER_CAMP, buffId);
+        ApplyToCamp(ctx, PLAYER_CAMP, buffId, targetDeadState);
         if (includeSummoner) ctx.SummonerBuffManager?.AddBuff(buffId);
     }
 
@@ -86,11 +86,15 @@ public static class SummonerBuffHelper
         if (includeSummoner) ctx.SummonerBuffManager?.RemoveBuff(buffId);
     }
 
-    private static void ApplyToCamp(SummonerSkillContext ctx, int camp, int buffId)
+    private static void ApplyToCamp(SummonerSkillContext ctx, int camp, int buffId, int targetDeadState = 0)
     {
         List<ChessEntity> list = ctx.EntityTracker.GetAllies(camp);
         for (int i = 0; i < list.Count; i++)
-            list[i]?.GetComponent<BuffManager>()?.AddBuff(buffId);
+        {
+            var chess = list[i];
+            if (chess != null && ChessTargetFinder.IsValidTargetByDeadState(chess, targetDeadState))
+                chess.GetComponent<BuffManager>()?.AddBuff(buffId);
+        }
     }
 
     private static void RemoveFromCamp(SummonerSkillContext ctx, int camp, int buffId)
