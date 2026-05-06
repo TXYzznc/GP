@@ -21,6 +21,7 @@ MonoBehaviour:
   - ChessAdvanceTable
   - ChessEXPRuleTable
   - ColorTable
+  - CombatDifficultyRule
   - CombatRuleTable
   - DamageFloatingTextTable
   - EnemyEntityTable
