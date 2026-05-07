@@ -48,6 +48,19 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
 
     #endregion
 
+    #region 飘字格式枚举
+
+    /// <summary>
+    /// 伤害飘字显示格式
+    /// </summary>
+    public enum DamageTextFormat
+    {
+        Simple = 0,    // 不显示小数点，例如：10
+        Detailed = 1,  // 显示小数点后两位，例如：10.45
+    }
+
+    #endregion
+
     #region 私有字段
 
     [Header("对象池设置")]
@@ -56,6 +69,10 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
 
     [SerializeField]
     private int m_PoolMaxSize = 50; // ⭐ 对象池最大容量
+
+    [Header("Damage Text Format Setting")]
+    [SerializeField]
+    private DamageTextFormat m_DamageTextFormat = DamageTextFormat.Simple; // ⭐ Damage text display format
 
     private GameObject m_PopupPrefab;
     private Transform m_PopupParent;
@@ -178,14 +195,28 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
     #region 公共方法
 
     /// <summary>
-    /// 显示伤害飘字
+    /// Show damage floating text
     /// </summary>
-    /// <param name="damageType">伤害类型</param>
-    /// <param name="value">数值</param>
-    /// <param name="worldPosition">世界坐标位置</param>
+    /// <param name="damageType">Damage type</param>
+    /// <param name="value">Damage value</param>
+    /// <param name="worldPosition">World position</param>
     public void ShowDamageText(DamageType damageType, float value, Vector3 worldPosition)
     {
-        ShowDamageText((int)damageType, value.ToString(), worldPosition);
+        string formattedValue = FormatDamageValue(value);
+        ShowDamageText((int)damageType, formattedValue, worldPosition);
+    }
+
+    /// <summary>
+    /// Show damage floating text with custom format
+    /// </summary>
+    /// <param name="damageType">Damage type</param>
+    /// <param name="value">Damage value</param>
+    /// <param name="worldPosition">World position</param>
+    /// <param name="format">Display format</param>
+    public void ShowDamageText(DamageType damageType, float value, Vector3 worldPosition, DamageTextFormat format)
+    {
+        string formattedValue = FormatDamageValue(value, format);
+        ShowDamageText((int)damageType, formattedValue, worldPosition);
     }
 
     /// <summary>
@@ -260,6 +291,24 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
     public DamageFloatingTextTable GetConfig(int typeId)
     {
         return DataTableExtension.GetRowById<DamageFloatingTextTable>(typeId);
+    }
+
+    /// <summary>
+    /// Set damage text display format
+    /// </summary>
+    /// <param name="format">Format type</param>
+    public void SetDamageTextFormat(DamageTextFormat format)
+    {
+        m_DamageTextFormat = format;
+        DebugEx.Log("DamageFloatingTextManager", $"Damage text format set to: {format}");
+    }
+
+    /// <summary>
+    /// Get current damage text display format
+    /// </summary>
+    public DamageTextFormat GetDamageTextFormat()
+    {
+        return m_DamageTextFormat;
     }
 
     #endregion
@@ -409,6 +458,39 @@ public class DamageFloatingTextManager : SingletonBase<DamageFloatingTextManager
 
         popupItem.gameObject.SetActive(false);
         m_PopupPool.Enqueue(popupItem);
+    }
+
+    /// <summary>
+    /// Format damage value to string using global format setting
+    /// </summary>
+    /// <param name="value">Damage value</param>
+    /// <returns>Formatted string</returns>
+    private string FormatDamageValue(float value)
+    {
+        return FormatDamageValue(value, m_DamageTextFormat);
+    }
+
+    /// <summary>
+    /// 格式化伤害值为字符串（自定义格式）
+    /// </summary>
+    /// <param name="value">伤害值</param>
+    /// <param name="format">显示格式</param>
+    /// <returns>格式化后的字符串</returns>
+    private string FormatDamageValue(float value, DamageTextFormat format)
+    {
+        switch (format)
+        {
+            case DamageTextFormat.Simple:
+                // Simple mode: no decimal point, floor value
+                return ((int)value).ToString();
+
+            case DamageTextFormat.Detailed:
+                // Detailed mode: show two decimal places
+                return value.ToString("F2");
+
+            default:
+                return value.ToString();
+        }
     }
 
     #endregion
