@@ -66,99 +66,19 @@ public class CombatManager : SingletonBase<CombatManager>
             CombatEntityTracker.Instance.BuildEnemyCache();
         }
 
-        // 注册召唤师战斗代理 + 动态添加战斗组件 + 重置HP/MP
+        // ⭐ 召唤师战斗组件已在 CombatPreparationState 中初始化完成，这里仅验证状态
         var playerCharacter = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
         if (playerCharacter != null)
         {
-            var summonerProxy = playerCharacter.GetComponent<SummonerCombatProxy>();
-            if (summonerProxy != null)
+            var chessEntity = playerCharacter.GetComponent<ChessEntity>();
+            if (chessEntity != null && chessEntity.Config != null)
             {
-                // 先重置HP/MP，确保后续 MaxHP 读取为本场战斗的满值
-                SummonerRuntimeDataManager.Instance?.InitializeForBattle();
-
-                // 从 SummonerTable.SummonChessId → SummonChessTable 读取召唤师战斗配置
-                // 注意：召唤师行不走 ChessDataManager（Validate 不通过），直接从配置表行构造
-                SummonChessConfig summonChessConfig = null;
-                int summonChessId = 0;
-                var summonerTableConfig = PlayerAccountDataManager.Instance?.GetCurrentSummonerConfig();
-                if (summonerTableConfig != null)
-                {
-                    summonChessId = summonerTableConfig.SummonChessId;
-                    var chessTableRow = GF.DataTable.GetDataTable<SummonChessTable>()?.GetDataRow(summonChessId);
-                    if (chessTableRow != null)
-                    {
-                        // 直接构造，跳过 Validate（召唤师无等级，所有数组字段只取第一个元素）
-                        // HP/灵力不从这里读，由 InitializeAsSummoner 用 SummonerRuntimeDataManager 覆盖
-                        summonChessConfig = new SummonChessConfig
-                        {
-                            Id = chessTableRow.Id,
-                            Name = chessTableRow.Name,
-                            Quality = chessTableRow.Quality,
-                            PopCost = 0,
-                            Races = chessTableRow.Races ?? System.Array.Empty<int>(),
-                            Classes = chessTableRow.Classes ?? System.Array.Empty<int>(),
-                            PrefabId = chessTableRow.PrefabId,
-                            IconId = chessTableRow.IconId,
-                            // 占位符（HP由 SummonerRuntimeDataManager 提供）
-                            MaxHp = new double[] { 1 },
-                            MaxMp = new double[] { 0 },
-                            InitialMp = new double[] { 0 },
-                            // 召唤师战斗属性（取数组第一个元素）
-                            AtkDamage = chessTableRow.AtkDamage ?? new double[] { 0 },
-                            AtkSpeed = chessTableRow.AtkSpeed ?? new double[] { 0.01 },
-                            AtkRange = chessTableRow.AtkRange ?? new double[] { 1.0 },
-                            Armor = chessTableRow.Armor ?? new double[] { 0.0 },
-                            MagicResist = chessTableRow.MagicResist ?? new double[] { 0.0 },
-                            MoveSpeed = chessTableRow.MoveSpeed,
-                            CritRate = chessTableRow.CritRate ?? new double[] { 0 },
-                            CritDamage = chessTableRow.CritDamage ?? new double[] { 1.5 },
-                            SpellPower = chessTableRow.SpellPower ?? new double[] { 0 },
-                            Shield = 0,
-                            CooldownReduce = 0,
-                            PassiveIds = chessTableRow.PassiveIds ?? System.Array.Empty<int>(),
-                            NormalAtkId = chessTableRow.NormalAtkId ?? new int[] { 0 },
-                            Skill1Id = chessTableRow.Skill1Id ?? new int[] { 0 },
-                            Skill2Id = chessTableRow.Skill2Id ?? new int[] { 0 },
-                            AIType = 0,
-                        };
-                    }
-                    else
-                    {
-                        DebugEx.Warning(this.GetType().Name,
-                            $"SummonChessTable 中未找到召唤师行 ID={summonChessId}，使用空配置");
-                    }
-                }
-
-                // 动态添加战斗组件（如已存在则复用，保证幂等）
-                var buffManager = playerCharacter.GetComponent<BuffManager>();
-                if (buffManager == null)
-                    buffManager = playerCharacter.AddComponent<BuffManager>();
-
-                var attribute = playerCharacter.GetComponent<ChessAttribute>();
-                if (attribute == null)
-                    attribute = playerCharacter.AddComponent<ChessAttribute>();
-
-                var chessEntity = playerCharacter.GetComponent<ChessEntity>();
-                if (chessEntity == null)
-                    chessEntity = playerCharacter.AddComponent<ChessEntity>();
-
-                // InitializeAsSummoner：从 config 读防御属性，HP 来自 SummonerRuntimeDataManager.MaxHP
-                chessEntity.InitializeAsSummoner(summonChessId, summonChessConfig, 0);
-
-                // 绑定 HP 变化事件 → 同步到 SummonerRuntimeDataManager（CombatUI 订阅它刷新 varHPSlider）
-                summonerProxy.ResetDeadState();
-                summonerProxy.BindAttribute(attribute);
-
-                // 战斗期间将玩家 Layer 改为 Chess，使投射物/武器碰撞检测能命中召唤师
-                playerCharacter.layer = (int)LayerHelper.Layer.Chess;
-
-                CombatEntityTracker.Instance?.RegisterSummoner(summonerProxy);
                 DebugEx.Log(this.GetType().Name,
-                    $"召唤师战斗组件已就绪，ChessId={summonChessId}，HP={SummonerRuntimeDataManager.Instance?.MaxHP}");
+                    $"✅ 召唤师棋子已准备就绪，ChessId={chessEntity.ChessId}，HP={SummonerRuntimeDataManager.Instance?.MaxHP}");
             }
             else
             {
-                DebugEx.Warning(this.GetType().Name, "玩家角色上未找到 SummonerCombatProxy");
+                DebugEx.Warning(this.GetType().Name, "召唤师棋子未完成初始化");
             }
         }
 

@@ -5,10 +5,16 @@ using UnityEngine;
 /// <summary>
 /// 战斗实体追踪器
 /// 职责：
-/// 1. 统一管理场上所有棋子
+/// 1. 统一管理场上所有棋子的生命周期
 /// 2. 按阵营分组存储，支持快速查询
-/// 3. 提供高性能的敌人搜索接口
+/// 3. 提供高性能的敌人搜索接口（GetEnemyCache for AI）
 /// 4. 避免使用 FindObjectsOfType
+///
+/// 调用规范：
+/// - AI系统：使用 GetEnemyCache() 获取敌人缓存
+/// - 卡牌系统：通过 TargetSelectors 间接调用
+/// - 技能系统：通过 ChessTargetFinder 调用
+/// - 召唤师技能/被动：直接调用 GetAllies() 等方法（全体操作）
 /// </summary>
 public class CombatEntityTracker : MonoBehaviour
 {
@@ -48,6 +54,9 @@ public class CombatEntityTracker : MonoBehaviour
     /// <summary>所有棋子列表（用于快速遍历）</summary>
     private readonly List<ChessEntity> m_AllChess = new();
 
+    /// <summary>已死亡的棋子列表（用于复活效果查找）</summary>
+    private readonly List<ChessEntity> m_DeadChess = new();
+
     /// <summary>清理计时器</summary>
     private float m_CleanupTimer = 0f;
 
@@ -86,7 +95,7 @@ public class CombatEntityTracker : MonoBehaviour
 
     private void Update()
     {
-        // 定期清理已死亡或被销毁的棋子
+        // 定期清理已销毁的棋子（null），死亡棋子保留以供复活效果使用
         m_CleanupTimer -= Time.deltaTime;
         if (m_CleanupTimer <= 0f)
         {
@@ -135,12 +144,14 @@ public class CombatEntityTracker : MonoBehaviour
 
         DebugEx.Log(
             "CombatEntityTracker",
-            $"注册棋子: {chess.Config?.Name}, Camp={camp}, 当前总数={m_AllChess.Count}"
+            $"✅ 注册棋子: {chess.Config?.Name}, Camp={camp}, 当前总数={m_AllChess.Count}, 缓存已构建={m_IsCacheBuilt}"
         );
     }
 
     /// <summary>
     /// 注销棋子（棋子死亡或销毁时调用）
+    /// 死亡棋子会被保留在m_DeadChess中供复活使用
+    /// 只有被销毁的棋子才会彻底移除
     /// </summary>
     /// <param name="chess">棋子实体</param>
     public void UnregisterChess(ChessEntity chess)
@@ -151,6 +162,7 @@ public class CombatEntityTracker : MonoBehaviour
         }
 
         int camp = chess.Camp;
+        bool isDead = chess.CurrentState == ChessState.Dead;
 
         // 从阵营分组移除
         if (m_ChessByCamp.TryGetValue(camp, out var list))
@@ -161,12 +173,18 @@ public class CombatEntityTracker : MonoBehaviour
         // 从总列表移除
         m_AllChess.Remove(chess);
 
+        // 如果是死亡状态，保存到死亡列表（供复活使用）
+        if (isDead && !m_DeadChess.Contains(chess))
+        {
+            m_DeadChess.Add(chess);
+        }
+
         // ⭐ 自动维护敌人缓存
         RemoveEnemyFromCache(chess);
 
         DebugEx.Log(
             "CombatEntityTracker",
-            $"注销棋子: {chess.Config?.Name}, Camp={camp}, 剩余总数={m_AllChess.Count}"
+            $"❌ 注销棋子: {chess.Config?.Name}, Camp={camp}, 死亡状态={isDead}, 已死亡列表数量={m_DeadChess.Count}"
         );
 
         TryEndCombatIfOneSideAllDead();
@@ -205,10 +223,10 @@ public class CombatEntityTracker : MonoBehaviour
     {
         int removedCount = 0;
 
-        // 清理总列表
+        // 只清理销毁的棋子（null），死亡棋子保留以供复活效果使用
         m_AllChess.RemoveAll(chess =>
         {
-            bool shouldRemove = chess == null || chess.Attribute.IsDead;
+            bool shouldRemove = chess == null;
             if (shouldRemove)
                 removedCount++;
             return shouldRemove;
@@ -217,7 +235,7 @@ public class CombatEntityTracker : MonoBehaviour
         // 清理阵营分组
         foreach (var kvp in m_ChessByCamp)
         {
-            kvp.Value.RemoveAll(chess => chess == null || chess.Attribute.IsDead);
+            kvp.Value.RemoveAll(chess => chess == null);
         }
     }
 
@@ -288,6 +306,7 @@ public class CombatEntityTracker : MonoBehaviour
     {
         List<ChessEntity> allies = new();
 
+        // 添加活着的友军
         if (m_ChessByCamp.TryGetValue(myCamp, out var list))
         {
             foreach (var chess in list)
@@ -296,6 +315,15 @@ public class CombatEntityTracker : MonoBehaviour
                 {
                     allies.Add(chess);
                 }
+            }
+        }
+
+        // 添加已死亡但属于该阵营的棋子（用于复活）
+        foreach (var deadChess in m_DeadChess)
+        {
+            if (deadChess != null && deadChess.Camp == myCamp && !allies.Contains(deadChess))
+            {
+                allies.Add(deadChess);
             }
         }
 
@@ -403,6 +431,7 @@ public class CombatEntityTracker : MonoBehaviour
     {
         m_ChessByCamp.Clear();
         m_AllChess.Clear();
+        m_DeadChess.Clear();
 
         // 同时清空敌人信息缓存
         ClearEnemyCache();
@@ -518,6 +547,8 @@ public class CombatEntityTracker : MonoBehaviour
 
         int enemyCamp = enemy.Camp;
 
+        DebugEx.Log("CombatEntityTracker", $"⭐ 尝试为敌人 {enemy.Config?.Name} (Camp={enemyCamp}) 添加到缓存，缓存数量={m_EnemyCacheByMyCamp.Count}");
+
         // 为所有其他阵营添加这个敌人到缓存
         foreach (var kvp in m_EnemyCacheByMyCamp)
         {
@@ -526,6 +557,8 @@ public class CombatEntityTracker : MonoBehaviour
 
             // 检查是否为敌对关系
             CampRelation relation = CampRelationService.GetRelation(myCamp, enemyCamp);
+            DebugEx.Log("CombatEntityTracker", $"  检查关系: myCamp={myCamp} vs enemyCamp={enemyCamp}, relation={relation}");
+
             if (relation == CampRelation.Enemy)
             {
                 // 检查是否已存在
@@ -534,7 +567,11 @@ public class CombatEntityTracker : MonoBehaviour
                 {
                     cacheList.Add(cache);
                     DebugEx.Log("CombatEntityTracker",
-                        $"为阵营 {myCamp} 添加敌人缓存: {enemy.Config?.Name}");
+                        $"✅ 为阵营 {myCamp} 添加敌人缓存: {enemy.Config?.Name}，缓存现有数量={cacheList.Count}");
+                }
+                else
+                {
+                    DebugEx.Log("CombatEntityTracker", $"⚠️  敌人 {enemy.Config?.Name} 已在阵营 {myCamp} 的缓存中");
                 }
             }
         }

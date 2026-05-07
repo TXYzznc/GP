@@ -116,9 +116,9 @@ public class SummonChessManager : MonoBehaviour
         BattleChessManager.Instance.RegisterChessEntity(entity);
 
         // 6. 注册到管理器
-        int instanceId = m_NextInstanceId++;
+        m_NextInstanceId++;
         m_AllChess.Add(entity);
-        m_ChessDict[instanceId] = entity;
+        m_ChessDict[entity.InstanceId] = entity;
 
         // 7. 触发生成事件（ChessLifecycleHandler 订阅此事件，负责 HP 归零后的死亡处理）
         OnChessSpawned?.Invoke(entity);
@@ -166,26 +166,50 @@ public class SummonChessManager : MonoBehaviour
     #region 销毁棋子
 
     /// <summary>
-    /// 销毁棋子
+    /// 销毁棋子及其所有数据
     /// </summary>
     public void DestroyChess(ChessEntity entity)
     {
         if (entity == null)
             return;
 
-        // 1. 从列表中移除
+        // 1. 从全局管理器注销
+        if (BattleChessManager.Instance != null)
+        {
+            BattleChessManager.Instance.UnregisterChessEntity(entity.InstanceId);
+        }
+
+        // 2. 清理 Buff（防止残留状态）
+        if (entity.BuffManager != null)
+        {
+            entity.BuffManager.ClearAll();
+        }
+
+        // 3. 停用战斗控制器
+        if (entity.CombatController != null)
+        {
+            entity.CombatController.Disable();
+        }
+
+        // 4. 停用 AI
+        if (entity.AI != null && entity.AI is MonoBehaviour aiMono)
+        {
+            aiMono.enabled = false;
+        }
+
+        // 5. 从管理器列表移除
         m_AllChess.Remove(entity);
         m_ChessDict.Remove(entity.InstanceId);
 
-        // 2. 触发销毁事件
+        // 6. 触发销毁事件（通知其他系统）
         OnChessDestroyed?.Invoke(entity);
 
-        // 3. 销毁GameObject
+        // 7. 销毁 GameObject 及其所有组件
         Destroy(entity.gameObject);
 
         DebugEx.Log(
             nameof(SummonChessManager),
-            $"DestroyChess: chessId={entity.ChessId}, name={entity.Config.Name}"
+            $"DestroyChess: chessId={entity.ChessId}, name={entity.Config.Name}, instanceId={entity.InstanceId}"
         );
     }
 

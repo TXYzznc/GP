@@ -110,6 +110,7 @@ public class ChessDataManager
                 Skill1Id = row.Skill1Id,
                 Skill2Id = row.Skill2Id,
                 AIType = row.AIType,
+                CustomData = row.CustomData,
             };
 
             // 验证配置

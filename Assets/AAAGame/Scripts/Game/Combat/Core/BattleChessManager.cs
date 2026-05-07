@@ -387,6 +387,41 @@ public class BattleChessManager
 
     #endregion
 
+    #region 注销棋子
+
+    /// <summary>
+    /// 注销单个棋子实体（销毁棋子时调用）
+    /// </summary>
+    public void UnregisterChessEntity(int instanceId)
+    {
+        // 根据 instanceId 查找 chessId
+        int chessIdToRemove = -1;
+        foreach (var kvp in m_EntityDict)
+        {
+            if (kvp.Value != null && kvp.Value.InstanceId == instanceId)
+            {
+                chessIdToRemove = kvp.Key;
+                break;
+            }
+        }
+
+        if (chessIdToRemove == -1)
+            return;
+
+        // 移除实体引用
+        m_EntityDict.Remove(chessIdToRemove);
+
+        // 移除对应的战斗数据
+        if (m_BattleDataDict.TryGetValue(chessIdToRemove, out var battleData))
+        {
+            m_BattleDataDict.Remove(chessIdToRemove);
+            DebugEx.Log("BattleChessManager",
+                $"棋子 {chessIdToRemove}(Camp={battleData.Camp}) 已注销，实例ID={instanceId}");
+        }
+    }
+
+    #endregion
+
     #region 清理
 
     /// <summary>

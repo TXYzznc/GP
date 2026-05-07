@@ -512,6 +512,12 @@ public class ChessPlacementManager
         // 扣除统帅值
         CombatSessionData.Instance.ConsumePopulation(config.PopCost);
 
+        // ⭐ 确保棋子被注册到战斗追踪系统（战斗准备阶段可能没有自动注册）
+        if (CombatEntityTracker.Instance != null)
+        {
+            CombatEntityTracker.Instance.RegisterChess(entity);
+        }
+
         // 标记为已出战
         ChessDeploymentTracker.Instance.DeployChess(instanceId, entity);
 
