@@ -23,8 +23,11 @@ public abstract class ChessAIBase : IChessAI
     /// <summary>棋子上下文</summary>
     protected ChessContext m_Context;
 
-    /// <summary>当前攻击目标</summary>
+    /// <summary>当前普攻目标（在 Idle 状态确定）</summary>
     protected ChessEntity m_CurrentTarget;
+
+    /// <summary>当前技能目标（由技能释放策略确定）</summary>
+    protected ChessEntity m_SkillTarget;
 
     /// <summary>攻击冷却计时器</summary>
     protected float m_AttackCooldownTimer;
@@ -80,6 +83,20 @@ public abstract class ChessAIBase : IChessAI
 
     /// <summary>技能决策防抖间隔（秒）</summary>
     protected const float SKILL_DECISION_COOLDOWN = 0.2f;
+
+    #endregion
+
+    #region 属性
+
+    /// <summary>
+    /// 获取当前普攻目标
+    /// </summary>
+    public ChessEntity CurrentTarget => m_CurrentTarget;
+
+    /// <summary>
+    /// 获取当前技能目标
+    /// </summary>
+    public ChessEntity SkillTarget => m_SkillTarget;
 
     #endregion
 
@@ -305,7 +322,11 @@ public abstract class ChessAIBase : IChessAI
             // 优先级1：检查是否应该使用技能
             if (ShouldUseSkill())
             {
-                DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 决策: 使用技能");
+                // ⭐ 让技能释放策略选择技能目标
+                m_SkillTarget = m_SkillStrategy.SelectSkillTarget(m_PendingSkillIndex);
+
+                DebugEx.Log(GetType().Name,
+                    $"{m_Context.Entity.Config.Name} 决策: 使用技能{m_PendingSkillIndex}, 目标={m_SkillTarget?.Config?.Name ?? "null"}");
                 ChangeState(ChessAIState.UsingSkill);
                 return;
             }
@@ -431,31 +452,44 @@ public abstract class ChessAIBase : IChessAI
     /// </summary>
     protected virtual void TickUsingSkill(float dt)
     {
-        // 检查目标有效性
-        if (!IsTargetValid())
+        // ⭐ 检查技能目标有效性（如果技能有锁定目标）
+        if (m_SkillTarget != null && m_SkillTarget.Attribute.IsDead)
         {
-            DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 目标无效，返回待机");
-            m_IsUsingSkill = false;
-            ChangeState(ChessAIState.Idle);
-            return;
+            if (!m_IsUsingSkill)
+            {
+                DebugEx.Warning(GetType().Name,
+                    $"{m_Context.Entity.Config.Name} 技能目标死亡，中断技能释放");
+                ChangeState(ChessAIState.Idle);
+                return;
+            }
+            // 如果已经开始释放（播放动画），则继续
         }
 
         // 如果还没有开始释放技能，检查是否在施法范围内
         if (!m_IsUsingSkill)
         {
-            // 检查目标是否在技能施法范围内（支持自我技能除外）
-            if (!IsSkillInRange(m_PendingSkillIndex, m_CurrentTarget))
+            // 如果有技能目标，检查范围
+            if (m_SkillTarget != null)
             {
-                DebugEx.Log(
-                    GetType().Name,
-                    $"{m_Context.Entity.Config.Name} 技能{m_PendingSkillIndex}的目标不在施法范围内，切换到移动"
-                );
-                ChangeState(ChessAIState.Moving);
-                return;
-            }
+                if (!IsSkillInRange(m_PendingSkillIndex, m_SkillTarget))
+                {
+                    DebugEx.Log(
+                        GetType().Name,
+                        $"{m_Context.Entity.Config.Name} 技能{m_PendingSkillIndex}的目标不在施法范围内，切换到移动"
+                    );
+                    ChangeState(ChessAIState.Moving);
+                    return;
+                }
 
-            // 面向目标
-            FaceTarget(m_CurrentTarget);
+                // 面向技能目标
+                FaceTarget(m_SkillTarget);
+            }
+            else
+            {
+                // 无具体目标（全体/自我技能），面向普攻目标方向
+                if (m_CurrentTarget != null)
+                    FaceTarget(m_CurrentTarget);
+            }
 
             // ✅ 通过 CombatController 触发技能（统一入口）
             if (m_PendingSkillIndex == 2)
@@ -591,8 +625,11 @@ public abstract class ChessAIBase : IChessAI
                 break;
 
             case ChessAIState.UsingSkill:
-                // 退出技能状态时重置标志
+                // 退出技能状态时重置标志和待命技能
                 m_IsUsingSkill = false;
+                m_ShouldUseSkillAfterAttack = false;
+                m_PendingSkillIndex = 0;
+                m_SkillTarget = null;  // ⭐ 清除技能目标
                 break;
         }
     }

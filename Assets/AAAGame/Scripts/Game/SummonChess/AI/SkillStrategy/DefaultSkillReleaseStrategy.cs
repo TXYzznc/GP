@@ -59,6 +59,17 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
         return 0; // 无技能可用
     }
 
+    public virtual ChessEntity SelectSkillTarget(int skillIndex)
+    {
+        // 默认策略：所有技能都使用普攻目标
+        // 子类可以重写来实现不同的目标选择策略
+        if (m_Context == null || m_Context.Entity == null)
+            return null;
+
+        var aiBase = m_Context.Entity.AI as ChessAIBase;
+        return aiBase != null ? aiBase.CurrentTarget : null;
+    }
+
     #endregion
 
     #region 辅助方法（供子类使用）
