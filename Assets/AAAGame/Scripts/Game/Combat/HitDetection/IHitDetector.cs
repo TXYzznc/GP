@@ -107,30 +107,54 @@ public abstract class HitDetectorBase : IHitDetector
             $"[命中] {context.Attacker.Config?.Name} → {target.Config?.Name}"
         );
 
-        // 1. 播放受击特效
+        // ⭐ 1. 动态计算伤害（支持根据目标属性调整）
+        double finalDamage = context.BaseDamage;
+        bool isCritical = context.IsCritical;
+
+        if (context.CalculateDamageCallback != null)
+        {
+            DebugEx.Log(
+                nameof(HitDetectorBase),
+                $"[延迟伤害计算] 调用委托计算 {context.Attacker.Config?.Name} → {target.Config?.Name} 的伤害"
+            );
+            (finalDamage, isCritical) = context.CalculateDamageCallback(target);
+            DebugEx.Log(
+                nameof(HitDetectorBase),
+                $"[延迟伤害计算完成] 最终伤害: {finalDamage:F1}{(isCritical ? " (暴击)" : "")}"
+            );
+        }
+        else
+        {
+            DebugEx.Log(
+                nameof(HitDetectorBase),
+                $"[使用基础伤害] 无委托，使用 BaseDamage = {finalDamage:F1}"
+            );
+        }
+
+        // 2. 播放受击特效
         if (context.HitEffectId > 0)
         {
             CombatVFXManager.PlayEffect(context.HitEffectId, target.transform.position);
         }
 
-        // 2. 造成伤害（传入攻击方属性，用于反伤/吸血等事件链）
+        // 3. 造成伤害（传入攻击方属性，用于反伤/吸血等事件链）
         target.Attribute.TakeDamage(
-            context.BaseDamage,
+            finalDamage,
             context.IsMagicDamage,
             context.IsTrueDamage,
-            context.IsCritical,
+            isCritical,
             DamageFloatingTextManager.DamageType.普通伤害,
             context.Attacker?.Attribute
         );
 
-        // ⭐ 3. 应用"命中时"的 Buff（BuffTriggerType=1）
+        // ⭐ 4. 应用"命中时"的 Buff（BuffTriggerType=1）
         if (context.SkillConfig != null)
         {
             EffectExecutor.ApplyBuffsOnHit(context.SkillConfig, context.Attacker, target);
         }
 
-        // 4. 触发命中回调
-        context.OnHitCallback?.Invoke(target, context.BaseDamage, context.IsCritical);
+        // 5. 触发命中回调
+        context.OnHitCallback?.Invoke(target, finalDamage, isCritical);
     }
 
     /// <summary>

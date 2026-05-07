@@ -85,6 +85,13 @@ public class HitContext
     /// <summary>命中回调（每命中一个目标调用一次）</summary>
     public System.Action<ChessEntity, double, bool> OnHitCallback;
 
+    /// <summary>伤害计算委托（每命中时调用，根据目标属性动态计算伤害）</summary>
+    /// <remarks>
+    /// 如果提供此委托，将用其返回值作为实际伤害，而不是使用 BaseDamage
+    /// 返回值：(伤害值, 是否暴击)
+    /// </remarks>
+    public System.Func<ChessEntity, (double, bool)> CalculateDamageCallback;
+
     #endregion
 
     #region 效果配置

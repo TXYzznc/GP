@@ -34,10 +34,7 @@ public class HouyiNormalAttack : ChessNormalAttackBase
 
         DebugEx.Log("HouyiNormalAttack", $"执行普攻 → 目标: {target.Config?.Name}");
 
-        // 1. 计算伤害
-        double damage = CalculateDamage(caster, out bool isCritical);
-
-        // 2. 构建命中检测上下文
+        // ⭐ 1. 构建命中检测上下文（延迟伤害计算到投射物命中时刻）
         HitContext context = new HitContext
         {
             Attacker = caster,
@@ -45,9 +42,9 @@ public class HouyiNormalAttack : ChessNormalAttackBase
             AttackerForward = caster.transform.forward,
             AttackerCamp = caster.Camp,
             LockedTarget = target,
-            TargetPosition = EntityPositionHelper.GetCenterPosition(target), // ⭐ 使用模型中心点
-            BaseDamage = damage,
-            IsCritical = isCritical,
+            TargetPosition = EntityPositionHelper.GetCenterPosition(target),
+            BaseDamage = 0,  // 占位符，实际伤害由 CalculateDamageCallback 计算
+            IsCritical = false,  // 占位符
             IsMagicDamage = IsMagicDamage(),
             IsTrueDamage = IsTrueDamage(),
             Range = (float)caster.Attribute.AtkRange,
@@ -58,20 +55,29 @@ public class HouyiNormalAttack : ChessNormalAttackBase
             EffectId = m_Config.EffectId,
             HitEffectId = m_Config.HitEffectId,
             SkillConfig = m_Config,
-            OnHitCallback = OnAttackHit, // ⭐ 设置命中回调
+            OnHitCallback = OnAttackHit,
+            // ⭐ 2. 设置伤害计算委托（投射物命中时才计算伤害）
+            CalculateDamageCallback = (hitTarget) =>
+            {
+                double damage = CalculateDamage(caster, out bool isCritical);
+                DebugEx.Success("HouyiNormalAttack",
+                    $"[延迟计算] 伤害 {caster.Config?.Name} → {hitTarget.Config?.Name}: {damage:F1}{(isCritical ? " (暴击)" : "")}");
+                return (damage, isCritical);
+            }
         };
 
         // 3. 播放普攻特效
         PlayAttackEffect(caster);
 
-        // 4. 执行命中检测（使用投射物检测器）
+        // 4. 启动命中检测（投射物会飞向目标，命中时伤害才会计算）
+        DebugEx.Log("HouyiNormalAttack", "[进入检测] 启动投射物检测，伤害延迟到命中时");
         IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.Projectile);
         detector.Execute(context);
 
         // 5. 回复蓝量
         RestoreMana(caster);
 
-        DebugEx.Log("HouyiNormalAttack", "普攻执行完成，投射物已发射");
+        DebugEx.Success("HouyiNormalAttack", "普攻启动完成，投射物已发射（伤害计算延迟到命中时刻）");
     }
 
     #endregion
