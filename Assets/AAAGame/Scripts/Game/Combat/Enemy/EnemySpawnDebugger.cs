@@ -55,9 +55,53 @@ public class EnemySpawnDebugger : MonoBehaviour
     #region 私有字段
 
     /// <summary>已生成的敌人列表</summary>
-    private List<EnemyEntity> m_SpawnedEnemies = new List<EnemyEntity>();
+    private readonly List<EnemyEntity> m_SpawnedEnemies = new();
+
+    /// <summary>生成统计数据</summary>
+    private readonly SpawnStatistics m_Statistics = new();
+
+    /// <summary>缓存的NavMesh三角剖分</summary>
+    private NavMeshTriangulation m_CachedTriangulation;
+
+    /// <summary>预计算的采样点偏移（用于安全区检查）</summary>
+    private Vector3[] m_CachedSampleOffsets;
+
+    /// <summary>最小间距的平方值（用于快速距离检查）</summary>
+    private float m_MinSpacingSqr;
 
     #endregion
+
+    /// <summary>生成统计数据结构</summary>
+    private class SpawnStatistics
+    {
+        public int TotalAttempts = 0;
+        public int SuccessfulAttempts = 0;
+        public int NavMeshFailures = 0;
+        public int SpacingFailures = 0;
+        public int SafetyFailures = 0;
+        public int InstantiateFailures = 0;
+
+        public void Reset()
+        {
+            TotalAttempts = 0;
+            SuccessfulAttempts = 0;
+            NavMeshFailures = 0;
+            SpacingFailures = 0;
+            SafetyFailures = 0;
+            InstantiateFailures = 0;
+        }
+
+        public string GetReport()
+        {
+            return $"\n" +
+                $"  ├─ 总尝试次数: {TotalAttempts}\n" +
+                $"  ├─ 成功位置: {SuccessfulAttempts}\n" +
+                $"  ├─ NavMesh 采样失败: {NavMeshFailures}\n" +
+                $"  ├─ 间距冲突: {SpacingFailures}\n" +
+                $"  ├─ 安全区域检查失败: {SafetyFailures}\n" +
+                $"  └─ 实例化异常: {InstantiateFailures}";
+        }
+    }
 
     #region 编辑器方法
 
@@ -84,7 +128,7 @@ public class EnemySpawnDebugger : MonoBehaviour
         m_MinSpacing = EditorGUILayout.FloatField("敌人间距", Mathf.Max(0.1f, m_MinSpacing));
         m_SafetyRadius = EditorGUILayout.FloatField("安全检查半径", Mathf.Max(0.1f, m_SafetyRadius));
         m_GridSampleDensity = EditorGUILayout.IntSlider("采样密度（网格）", Mathf.Max(1, m_GridSampleDensity), 1, 5);
-        m_MaxRetries = EditorGUILayout.IntSlider("重试次数", m_MaxRetries, 10, 2000);
+        m_MaxRetries = EditorGUILayout.IntSlider("重试次数", m_MaxRetries, 10, 200000);
 
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField("Gizmos显示", EditorStyles.boldLabel);
@@ -136,8 +180,14 @@ public class EnemySpawnDebugger : MonoBehaviour
         }
 
         ClearEnemies();
+        m_Statistics.Reset();
 
-        DebugEx.Log("EnemySpawnDebugger", $"开始在NavMesh上生成 {m_EnemyCount} 个敌人");
+        DebugEx.Log("EnemySpawnDebugger", $"========== 敌人生成开始 ==========\n" +
+            $"  ├─ 目标数量: {m_EnemyCount}\n" +
+            $"  ├─ 最小间距: {m_MinSpacing:F2}\n" +
+            $"  ├─ 安全检查半径: {m_SafetyRadius:F2}\n" +
+            $"  ├─ 采样密度: {m_GridSampleDensity}\n" +
+            $"  └─ 最大重试次数: {m_MaxRetries}");
 
         // 生成位置列表（在整个NavMesh上随机）
         List<Vector3> positions = GenerateSpawnPositions();
@@ -147,7 +197,22 @@ public class EnemySpawnDebugger : MonoBehaviour
             SpawnSingleEnemy(positions[i], i);
         }
 
-        DebugEx.Success("EnemySpawnDebugger", $"敌人生成完成，成功生成={m_SpawnedEnemies.Count}/{m_EnemyCount}");
+        string resultMessage = $"========== 敌人生成完成 ==========\n" +
+            $"  ├─ 成功数量: {m_SpawnedEnemies.Count}/{m_EnemyCount}\n" +
+            $"{m_Statistics.GetReport()}";
+
+        if (m_SpawnedEnemies.Count == m_EnemyCount)
+        {
+            DebugEx.Success("EnemySpawnDebugger", resultMessage);
+        }
+        else if (m_SpawnedEnemies.Count > 0)
+        {
+            DebugEx.Warning("EnemySpawnDebugger", resultMessage);
+        }
+        else
+        {
+            DebugEx.Error("EnemySpawnDebugger", resultMessage);
+        }
     }
 
     /// <summary>
@@ -177,63 +242,112 @@ public class EnemySpawnDebugger : MonoBehaviour
     /// </summary>
     private List<Vector3> GenerateSpawnPositions()
     {
-        List<Vector3> positions = new List<Vector3>();
-        int attempts = 0;
+        // 初始化缓存
+        m_CachedTriangulation = NavMesh.CalculateTriangulation();
+        if (m_CachedTriangulation.indices.Length == 0)
+        {
+            DebugEx.Error("EnemySpawnDebugger", "NavMesh 为空或未烘烤");
+            return new();
+        }
+
+        m_MinSpacingSqr = m_MinSpacing * m_MinSpacing;
+        PrecomputeSampleOffsets();
+
+        List<Vector3> positions = new();
         int maxGlobalAttempts = m_EnemyCount * m_MaxRetries;
 
-        while (positions.Count < m_EnemyCount && attempts < maxGlobalAttempts)
+        while (positions.Count < m_EnemyCount && m_Statistics.TotalAttempts < maxGlobalAttempts)
         {
+            m_Statistics.TotalAttempts++;
+
             // 在整个NavMesh上随机找一个点
-            if (RandomNavMeshPoint(out Vector3 randomPos))
+            if (!RandomNavMeshPoint(out Vector3 randomPos))
             {
-                // 检查是否与已生成的位置冲突
-                if (IsValidSpawnPosition(randomPos, positions))
-                {
-                    positions.Add(randomPos);
-                    DebugEx.Log("EnemySpawnDebugger",
-                        $"找到有效位置 #{positions.Count}: ({randomPos.x:F2}, {randomPos.y:F2}, {randomPos.z:F2})");
-                }
-            }
-            else
-            {
-                DebugEx.Warning("EnemySpawnDebugger", "无法在NavMesh上找到随机点");
+                m_Statistics.NavMeshFailures++;
+                DebugEx.Error("EnemySpawnDebugger", $"尝试 #{m_Statistics.TotalAttempts}: NavMesh 采样失败");
                 break;
             }
 
-            attempts++;
+            // 检查是否与已生成的位置冲突
+            if (!IsValidSpawnPosition(randomPos, positions))
+            {
+                continue;
+            }
+
+            positions.Add(randomPos);
+            m_Statistics.SuccessfulAttempts++;
+            DebugEx.Success("EnemySpawnDebugger",
+                $"✓ 找到有效位置 #{positions.Count} (尝试次数: {m_Statistics.TotalAttempts})" +
+                $"\n  └─ 坐标: ({randomPos.x:F2}, {randomPos.y:F2}, {randomPos.z:F2})");
         }
 
         if (positions.Count < m_EnemyCount)
         {
+            string suggestion = m_Statistics.SpacingFailures > m_Statistics.SafetyFailures * 2
+                ? "✗ 间距冲突过多 → 减少敌人数量或增加 m_MinSpacing 容差"
+                : m_Statistics.SafetyFailures > 0
+                ? "✗ 安全区域检查失败 → 增加 m_SafetyRadius 或降低 m_GridSampleDensity"
+                : "✗ 无法找到足够位置 → 增加 m_MaxRetries 或检查 NavMesh 完整性";
+
             DebugEx.Warning("EnemySpawnDebugger",
-                $"只找到 {positions.Count}/{m_EnemyCount} 个有效位置 (最大重试 {maxGlobalAttempts} 次)。" +
-                $"建议：增加重试次数、减少敌人数量或增加敌人间距的容差");
+                $"========== 位置生成未完成 ==========\n" +
+                $"  ├─ 成功: {positions.Count}/{m_EnemyCount}\n" +
+                $"  ├─ 总尝试: {m_Statistics.TotalAttempts}/{maxGlobalAttempts}\n" +
+                $"  ├─ NavMesh 失败: {m_Statistics.NavMeshFailures}\n" +
+                $"  ├─ 间距冲突: {m_Statistics.SpacingFailures}\n" +
+                $"  ├─ 安全区检查失败: {m_Statistics.SafetyFailures}\n" +
+                $"  └─ 建议: {suggestion}");
+        }
+        else
+        {
+            DebugEx.Log("EnemySpawnDebugger",
+                $"========== 位置生成成功 ==========\n" +
+                $"  ├─ 成功位置: {positions.Count}\n" +
+                $"  ├─ 总尝试: {m_Statistics.TotalAttempts}\n" +
+                $"  ├─ NavMesh 失败: {m_Statistics.NavMeshFailures}\n" +
+                $"  ├─ 间距冲突: {m_Statistics.SpacingFailures}\n" +
+                $"  └─ 安全区检查失败: {m_Statistics.SafetyFailures}");
         }
 
         return positions;
     }
 
     /// <summary>
-    /// 在NavMesh上随机找一个点
+    /// 预计算采样点偏移（避免运行时分配）
+    /// </summary>
+    private void PrecomputeSampleOffsets()
+    {
+        float step = m_SafetyRadius * 2f / (m_GridSampleDensity + 1);
+        int sampleCount = (2 * m_GridSampleDensity + 1) * (2 * m_GridSampleDensity + 1);
+        m_CachedSampleOffsets = new Vector3[sampleCount];
+
+        int idx = 0;
+        for (int x = -m_GridSampleDensity; x <= m_GridSampleDensity; x++)
+        {
+            for (int z = -m_GridSampleDensity; z <= m_GridSampleDensity; z++)
+            {
+                m_CachedSampleOffsets[idx++] = new Vector3(x * step, 0, z * step);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 在NavMesh上随机找一个点（使用缓存的三角剖分）
     /// </summary>
     private bool RandomNavMeshPoint(out Vector3 result)
     {
         result = Vector3.zero;
 
-        // 获取所有NavMesh面
-        NavMeshTriangulation triangulation = NavMesh.CalculateTriangulation();
-        if (triangulation.indices.Length == 0)
-        {
+        if (m_CachedTriangulation.indices.Length == 0)
             return false;
-        }
 
         // 随机选择一个三角形
-        int triangleIndex = Random.Range(0, triangulation.indices.Length / 3);
+        int triangleIndex = Random.Range(0, m_CachedTriangulation.indices.Length / 3);
         int vertIndex = triangleIndex * 3;
 
-        Vector3 v0 = triangulation.vertices[triangulation.indices[vertIndex]];
-        Vector3 v1 = triangulation.vertices[triangulation.indices[vertIndex + 1]];
-        Vector3 v2 = triangulation.vertices[triangulation.indices[vertIndex + 2]];
+        Vector3 v0 = m_CachedTriangulation.vertices[m_CachedTriangulation.indices[vertIndex]];
+        Vector3 v1 = m_CachedTriangulation.vertices[m_CachedTriangulation.indices[vertIndex + 1]];
+        Vector3 v2 = m_CachedTriangulation.vertices[m_CachedTriangulation.indices[vertIndex + 2]];
 
         // 在三角形内随机生成点（使用重心坐标）
         float r1 = Random.value;
@@ -256,11 +370,12 @@ public class EnemySpawnDebugger : MonoBehaviour
     /// </summary>
     private bool IsValidSpawnPosition(Vector3 pos, List<Vector3> existingPositions)
     {
-        // 条件1: 检查与已有位置的距离
+        // 条件1: 检查与已有位置的距离（用平方距离避免sqrt）
         foreach (var existingPos in existingPositions)
         {
-            if (Vector3.Distance(pos, existingPos) < m_MinSpacing)
+            if ((pos - existingPos).sqrMagnitude < m_MinSpacingSqr)
             {
+                m_Statistics.SpacingFailures++;
                 return false;
             }
         }
@@ -268,6 +383,7 @@ public class EnemySpawnDebugger : MonoBehaviour
         // 条件2: 检查周围安全区域是否都在Walkable的NavMesh上
         if (!IsAreaSafe(pos))
         {
+            m_Statistics.SafetyFailures++;
             return false;
         }
 
@@ -276,27 +392,16 @@ public class EnemySpawnDebugger : MonoBehaviour
 
     /// <summary>
     /// 检查生成点周围的安全区域是否都在Walkable的NavMesh上
-    /// 使用网格采样确保整个区域都是可行走的
+    /// 使用预计算的采样点偏移避免每次重新计算
     /// </summary>
     private bool IsAreaSafe(Vector3 centerPos)
     {
-        // 网格采样：在正方形区域内按网格采样
-        float step = m_SafetyRadius * 2f / (m_GridSampleDensity + 1);
-
-        for (int x = -m_GridSampleDensity; x <= m_GridSampleDensity; x++)
+        foreach (var offset in m_CachedSampleOffsets)
         {
-            for (int z = -m_GridSampleDensity; z <= m_GridSampleDensity; z++)
-            {
-                Vector3 samplePos = centerPos + new Vector3(x * step, 0, z * step);
-
-                // 严格检查：搜索距离为0，点必须在NavMesh上
-                if (!NavMesh.SamplePosition(samplePos, out _, 0f, NavMesh.AllAreas))
-                {
-                    return false;
-                }
-            }
+            Vector3 samplePos = centerPos + offset;
+            if (!NavMesh.SamplePosition(samplePos, out _, 0f, NavMesh.AllAreas))
+                return false;
         }
-
         return true;
     }
 
@@ -319,12 +424,17 @@ public class EnemySpawnDebugger : MonoBehaviour
             m_SpawnedEnemies.Add(enemy);
 
             DebugEx.Success("EnemySpawnDebugger",
-                $"敌人 #{index} 生成成功 - 位置: ({spawnPos.x:F2}, {spawnPos.y:F2}, {spawnPos.z:F2}), 底部偏移: {bottomOffset:F2}");
+                $"✓ 敌人 #{index} 实例化成功" +
+                $"\n  ├─ 位置: ({spawnPos.x:F2}, {spawnPos.y:F2}, {spawnPos.z:F2})" +
+                $"\n  └─ 底部偏移: {bottomOffset:F2}");
         }
         catch (System.Exception ex)
         {
+            m_Statistics.InstantiateFailures++;
             DebugEx.Error("EnemySpawnDebugger",
-                $"敌人 #{index} 生成失败: {ex.Message}");
+                $"❌ 敌人 #{index} 实例化失败" +
+                $"\n  ├─ 原因: {ex.GetType().Name}" +
+                $"\n  └─ 详情: {ex.Message}");
         }
     }
 
