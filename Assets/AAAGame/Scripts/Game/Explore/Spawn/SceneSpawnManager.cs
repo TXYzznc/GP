@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameFramework.DataTable;
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// 场景生成管理器
@@ -12,6 +13,56 @@ public class SceneSpawnManager : MonoBehaviour
 {
     private int m_MapId;
     private bool m_ShowSpawnLogs = true;
+
+    /// <summary>生成统计数据</summary>
+    private SpawnStatistics m_Statistics = new();
+
+    /// <summary>缓存的NavMesh三角剖分（性能优化）</summary>
+    private NavMeshTriangulation m_CachedTriangulation;
+
+    /// <summary>是否使用增强检查模式</summary>
+    [SerializeField]
+    private bool m_UseEnhancedSpawning = true;
+
+    /// <summary>安全区域检查半径</summary>
+    [SerializeField]
+    private float m_SafetyRadius = 0.5f;
+
+    /// <summary>安全区域采样密度（每轴采样点数）</summary>
+    [SerializeField]
+    private int m_GridSampleDensity = 2;
+
+    /// <summary>生成统计数据结构</summary>
+    private class SpawnStatistics
+    {
+        public int TotalSpawnPoints = 0;
+        public int SuccessfulSpawns = 0;
+        public int NavMeshSampleFailures = 0;
+        public int SafetyCheckFailures = 0;
+        public int PrefabLoadFailures = 0;
+        public int InstantiateFailures = 0;
+
+        public void Reset()
+        {
+            TotalSpawnPoints = 0;
+            SuccessfulSpawns = 0;
+            NavMeshSampleFailures = 0;
+            SafetyCheckFailures = 0;
+            PrefabLoadFailures = 0;
+            InstantiateFailures = 0;
+        }
+
+        public string GetReport()
+        {
+            return $"\n" +
+                $"  ├─ 生成点总数: {TotalSpawnPoints}\n" +
+                $"  ├─ 成功: {SuccessfulSpawns}\n" +
+                $"  ├─ NavMesh采样失败: {NavMeshSampleFailures}\n" +
+                $"  ├─ 安全检查失败: {SafetyCheckFailures}\n" +
+                $"  ├─ 预制体加载失败: {PrefabLoadFailures}\n" +
+                $"  └─ 实例化失败: {InstantiateFailures}";
+        }
+    }
 
     /// <summary>
     /// 由 GameProcedure 调用初始化
@@ -25,43 +76,38 @@ public class SceneSpawnManager : MonoBehaviour
 
     private async UniTask SpawnAllAsync()
     {
-        DebugEx.Log("SceneSpawnManager", "[开始生成] SpawnAllAsync 开始执行");
+        m_Statistics.Reset();
 
-        // 等一帧确保 DataTable 加载完成
         await UniTask.Yield();
-        DebugEx.Log("SceneSpawnManager", "[Yield完成] 等待一帧后继续");
+
+        // 初始化 NavMesh 缓存
+        m_CachedTriangulation = NavMesh.CalculateTriangulation();
+        if (m_CachedTriangulation.indices.Length == 0)
+        {
+            DebugEx.Error("SceneSpawnManager", "NavMesh 为空或未烘烤");
+            return;
+        }
+
+        DebugEx.Log("SceneSpawnManager", $"========== 场景对象生成开始 ==========\n" +
+            $"  ├─ MapId: {m_MapId}\n" +
+            $"  ├─ NavMesh三角形数: {m_CachedTriangulation.indices.Length / 3}\n" +
+            $"  ├─ 安全检查半径: {m_SafetyRadius:F2}\n" +
+            $"  └─ 采样密度: {m_GridSampleDensity}");
 
         // 读表获取配置
         var mapSpawnTable = GF.DataTable.GetDataTable<MapSpawnTable>();
         if (mapSpawnTable == null)
         {
-            DebugEx.Log("SceneSpawnManager", "[错误] MapSpawnTable 未加载");
+            DebugEx.Error("SceneSpawnManager", "MapSpawnTable 未加载");
             return;
         }
 
-        DebugEx.Log("SceneSpawnManager", "[表加载] MapSpawnTable 已加载");
-
-        // 获取当前地图的所有生成配置
         var mapConfigs = GetMapConfigs(mapSpawnTable);
-        DebugEx.Log("SceneSpawnManager", $"[配置查询] MapId={m_MapId}, 找到 {mapConfigs.Count} 个配置");
-
         if (mapConfigs.Count == 0)
         {
-            DebugEx.Log("SceneSpawnManager", $"[警告] 地图 {m_MapId} 无生成配置，检查MapSpawnTable是否有数据");
+            DebugEx.Warning("SceneSpawnManager", $"地图 {m_MapId} 无生成配置");
             return;
         }
-
-        // 收集场景中的生成点
-        var spawnPoints = FindObjectsOfType<SpawnPoint>();
-        DebugEx.Log("SceneSpawnManager", $"[SpawnPoint查询] 找到 {spawnPoints.Length} 个生成点");
-
-        if (spawnPoints.Length == 0)
-        {
-            DebugEx.Log("SceneSpawnManager", "[警告] 场景中无 SpawnPoint，请检查场景配置或使用编辑器工具生成");
-            return;
-        }
-
-        DebugEx.Log("SceneSpawnManager", $"[开始生成敌人宝箱] 地图 {m_MapId} 有 {spawnPoints.Length} 个生成点");
 
         // 按类型分组配置
         var enemyConfigs = new List<MapSpawnTable>();
@@ -70,44 +116,44 @@ public class SceneSpawnManager : MonoBehaviour
         foreach (var config in mapConfigs)
         {
             if (config.SpawnType == 0)
-            {
                 enemyConfigs.Add(config);
-                DebugEx.Log("SceneSpawnManager", $"  [敌人配置] Id={config.Id}, TargetId={config.SpawnTargetId}, Weight={config.Weight}");
-            }
             else if (config.SpawnType == 1)
-            {
                 chestConfigs.Add(config);
-                DebugEx.Log("SceneSpawnManager", $"  [宝箱配置] Id={config.Id}, TargetId={config.SpawnTargetId}, Level={config.ChestLevel}, Weight={config.Weight}");
-            }
         }
 
-        DebugEx.Log("SceneSpawnManager", $"[配置分类] 敌人配置数={enemyConfigs.Count}, 宝箱配置数={chestConfigs.Count}");
+        DebugEx.Log("SceneSpawnManager", $"配置加载: 敌人配置={enemyConfigs.Count}, 宝箱配置={chestConfigs.Count}");
 
-        // 对每个生成点执行生成
-        int spawnCount = 0;
-        foreach (var spawnPoint in spawnPoints)
+        // 生成敌人和宝箱
+        if (enemyConfigs.Count > 0)
         {
-            DebugEx.Log("SceneSpawnManager", $"[处理生成点] {spawnPoint.name}, Type={spawnPoint.Type}, Pos={spawnPoint.transform.position}");
-
-            if (spawnPoint.Type == SpawnPointType.Enemy && enemyConfigs.Count > 0)
+            m_Statistics.TotalSpawnPoints = enemyConfigs.Count;
+            DebugEx.Log("SceneSpawnManager", $"[生成敌人] 开始生成 {enemyConfigs.Count} 个敌人");
+            foreach (var config in enemyConfigs)
             {
-                DebugEx.Log("SceneSpawnManager", $"  └─ 执行敌人生成");
-                await TrySpawnAsync(spawnPoint, enemyConfigs, isEnemy: true);
-                spawnCount++;
-            }
-            else if (spawnPoint.Type == SpawnPointType.TreasureBox && chestConfigs.Count > 0)
-            {
-                DebugEx.Log("SceneSpawnManager", $"  └─ 执行宝箱生成");
-                await TrySpawnAsync(spawnPoint, chestConfigs, isEnemy: false);
-                spawnCount++;
-            }
-            else
-            {
-                DebugEx.Log("SceneSpawnManager", $"  └─ 跳过（无匹配的配置）");
+                await TrySpawnAsync(config, isEnemy: true);
             }
         }
 
-        DebugEx.Log("SceneSpawnManager", $"[生成完成] 共处理 {spawnCount} 个生成点");
+        if (chestConfigs.Count > 0)
+        {
+            m_Statistics.TotalSpawnPoints += chestConfigs.Count;
+            DebugEx.Log("SceneSpawnManager", $"[生成宝箱] 开始生成 {chestConfigs.Count} 个宝箱");
+            foreach (var config in chestConfigs)
+            {
+                await TrySpawnAsync(config, isEnemy: false);
+            }
+        }
+
+        string resultMessage = $"========== 场景对象生成完成 ==========\n" +
+            $"  ├─ 成功: {m_Statistics.SuccessfulSpawns}/{m_Statistics.TotalSpawnPoints}\n" +
+            $"{m_Statistics.GetReport()}";
+
+        if (m_Statistics.SuccessfulSpawns == m_Statistics.TotalSpawnPoints)
+            DebugEx.Success("SceneSpawnManager", resultMessage);
+        else if (m_Statistics.SuccessfulSpawns > 0)
+            DebugEx.Warning("SceneSpawnManager", resultMessage);
+        else
+            DebugEx.Error("SceneSpawnManager", resultMessage);
     }
 
     private List<MapSpawnTable> GetMapConfigs(IDataTable<MapSpawnTable> dataTable)
@@ -124,103 +170,164 @@ public class SceneSpawnManager : MonoBehaviour
         return result;
     }
 
-    private async UniTask TrySpawnAsync(SpawnPoint spawnPoint, List<MapSpawnTable> configs, bool isEnemy)
+    private async UniTask TrySpawnAsync(MapSpawnTable config, bool isEnemy)
     {
-        // 加权随机选择一个配置
-        var selectedConfig = PickWeightedRandom(configs);
-        if (selectedConfig == null)
-            return;
-
-        // 尝试找到可用的生成位置（最多 3 次）
-        Vector3 spawnPos = Vector3.zero;
-        bool foundValidPos = false;
-
-        for (int attempt = 0; attempt < 3; attempt++)
+        // 尝试在 NavMesh 上找到有效位置
+        if (!TryFindValidPosition(out Vector3 spawnPos))
         {
-            // 随机偏移
-            Vector3 randomOffset = UnityEngine.Random.insideUnitCircle * spawnPoint.Radius;
-            Vector3 candidatePos = spawnPoint.transform.position + new Vector3(randomOffset.x, 0, randomOffset.y);
-
-            // NavMesh 采样
-            if (UnityEngine.AI.NavMesh.SamplePosition(candidatePos, out UnityEngine.AI.NavMeshHit hit, spawnPoint.NavSampleRadius, UnityEngine.AI.NavMesh.AllAreas))
-            {
-                spawnPos = hit.position;
-                foundValidPos = true;
-                break;
-            }
-        }
-
-        if (!foundValidPos)
-        {
-            if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawnManager", $"生成点 {spawnPoint.name} 无法找到有效 NavMesh 位置");
+            m_Statistics.NavMeshSampleFailures++;
+            DebugEx.Warning("SceneSpawnManager",
+                $"❌ 尝试次数过多无法找到有效位置");
             return;
         }
 
-        DebugEx.Log("SceneSpawnManager", $"[NavMesh采样] NavMesh Y位置={spawnPos.y:F3}, X={spawnPos.x:F3}, Z={spawnPos.z:F3}");
-
-        // 获取预制体配置 ID 并异步加载
-        int prefabId = 0;
-
-        if (isEnemy)
-        {
-            prefabId = GetEnemyPrefabId((int)selectedConfig.SpawnTargetId);
-        }
-        else
-        {
-            prefabId = GetTreasureBoxPrefabId((int)selectedConfig.SpawnTargetId);
-        }
+        // 获取预制体 ID
+        int prefabId = isEnemy
+            ? GetEnemyPrefabId(config.SpawnTargetId)
+            : GetTreasureBoxPrefabId(config.SpawnTargetId);
 
         if (prefabId == 0)
         {
-            if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawnManager", $"找不到生成目标 {selectedConfig.SpawnTargetId} 的预制体配置");
+            m_Statistics.PrefabLoadFailures++;
+            DebugEx.Warning("SceneSpawnManager",
+                $"❌ 找不到预制体配置: 目标ID={config.SpawnTargetId}");
             return;
         }
 
         // 异步加载预制体
         var prefab = await GameExtension.ResourceExtension.LoadPrefabAsync(prefabId);
-
         if (prefab == null)
         {
-            if (m_ShowSpawnLogs)
-                DebugEx.Log("SceneSpawnManager", $"加载预制体失败：prefabId={prefabId}");
+            m_Statistics.PrefabLoadFailures++;
+            DebugEx.Warning("SceneSpawnManager",
+                $"❌ 预制体加载失败: prefabId={prefabId}");
             return;
         }
 
-        var spawnedObject = Instantiate(prefab, spawnPos, Quaternion.identity);
-
-        DebugEx.Log("SceneSpawnManager", $"[生成后初始位置] {spawnedObject.name} Y={spawnedObject.transform.position.y:F3}");
-
-        Vector3 bottomBeforeAdjust = EntityPositionHelper.GetBottomPosition(spawnedObject);
-        DebugEx.Log("SceneSpawnManager", $"[调整前底部位置] {spawnedObject.name} 底部Y={bottomBeforeAdjust.y:F3}, 中心Y={spawnedObject.transform.position.y:F3}");
-
-        // 调整敌人/宝箱底部贴在 NavMesh 上（计算 Collider 高度偏移）
-        AdjustPositionToNavMesh(spawnedObject, spawnPos);
-
-        // 初始化
-        if (isEnemy)
+        try
         {
-            var enemyEntity = spawnedObject.GetComponent<EnemyEntity>();
-            if (enemyEntity != null)
+            var spawnedObject = Instantiate(prefab, spawnPos, Quaternion.identity);
+            AdjustPositionToNavMesh(spawnedObject, spawnPos);
+
+            // 初始化
+            if (isEnemy)
             {
-                enemyEntity.SetEntityConfigId((int)selectedConfig.SpawnTargetId);
-                if (m_ShowSpawnLogs)
-                    DebugEx.Log("SceneSpawnManager", $"生成敌人 {selectedConfig.SpawnTargetId} at {spawnPos}");
+                if (spawnedObject.TryGetComponent<EnemyEntity>(out var enemyEntity))
+                {
+                    enemyEntity.SetEntityConfigId(config.SpawnTargetId);
+                    m_Statistics.SuccessfulSpawns++;
+                    DebugEx.Success("SceneSpawnManager",
+                        $"✓ 敌人生成成功: {enemyEntity.Config.Name}\n" +
+                        $"  └─ 位置: ({spawnPos.x:F2}, {spawnPos.y:F2}, {spawnPos.z:F2})");
+                }
+            }
+            else
+            {
+                if (spawnedObject.TryGetComponent<TreasureChestInteractable>(out var chest))
+                {
+                    chest.SetTreasureBoxData(config.SpawnTargetId, config.ChestLevel);
+                    m_Statistics.SuccessfulSpawns++;
+                    DebugEx.Success("SceneSpawnManager",
+                        $"✓ 宝箱生成成功 (等级{config.ChestLevel})\n" +
+                        $"  └─ 位置: ({spawnPos.x:F2}, {spawnPos.y:F2}, {spawnPos.z:F2})");
+                }
             }
         }
-        else
+        catch (System.Exception ex)
         {
-            var chest = spawnedObject.GetComponent<TreasureChestInteractable>();
-            if (chest != null)
-            {
-                chest.SetTreasureBoxData((int)selectedConfig.SpawnTargetId, (int)selectedConfig.ChestLevel);
-                if (m_ShowSpawnLogs)
-                    DebugEx.Log("SceneSpawnManager", $"生成宝箱 {selectedConfig.SpawnTargetId}(等级{selectedConfig.ChestLevel}) at {spawnPos}");
-            }
+            m_Statistics.InstantiateFailures++;
+            DebugEx.Error("SceneSpawnManager",
+                $"❌ 生成失败: {ex.GetType().Name} - {ex.Message}");
         }
 
         await UniTask.Yield();
+    }
+
+    /// <summary>
+    /// 直接在 NavMesh 上随机找到有效位置（参照 EnemySpawnDebugger 设计）
+    /// </summary>
+    private bool TryFindValidPosition(out Vector3 result)
+    {
+        result = Vector3.zero;
+        int maxAttempts = 100;
+        int attempts = 0;
+
+        while (attempts < maxAttempts)
+        {
+            attempts++;
+
+            // 在 NavMesh 上随机找一个点
+            if (!RandomNavMeshPoint(out Vector3 randomPos))
+            {
+                m_Statistics.NavMeshSampleFailures++;
+                continue;
+            }
+
+            // 检查周围安全区域
+            if (!IsAreaSafe(randomPos))
+            {
+                m_Statistics.SafetyCheckFailures++;
+                continue;
+            }
+
+            result = randomPos;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 在 NavMesh 上随机找一个点（使用缓存的三角剖分）
+    /// 完全复用 EnemySpawnDebugger 的逻辑
+    /// </summary>
+    private bool RandomNavMeshPoint(out Vector3 result)
+    {
+        result = Vector3.zero;
+
+        if (m_CachedTriangulation.indices.Length == 0)
+            return false;
+
+        // 随机选择一个三角形
+        int triangleIndex = Random.Range(0, m_CachedTriangulation.indices.Length / 3);
+        int vertIndex = triangleIndex * 3;
+
+        Vector3 v0 = m_CachedTriangulation.vertices[m_CachedTriangulation.indices[vertIndex]];
+        Vector3 v1 = m_CachedTriangulation.vertices[m_CachedTriangulation.indices[vertIndex + 1]];
+        Vector3 v2 = m_CachedTriangulation.vertices[m_CachedTriangulation.indices[vertIndex + 2]];
+
+        // 在三角形内随机生成点（使用重心坐标）
+        float r1 = Random.value;
+        float r2 = Random.value;
+
+        if (r1 + r2 > 1)
+        {
+            r1 = 1 - r1;
+            r2 = 1 - r2;
+        }
+
+        result = v0 + r1 * (v1 - v0) + r2 * (v2 - v0);
+        return true;
+    }
+
+    /// <summary>
+    /// 检查位置周围的安全区域（所有采样点都必须在NavMesh上）
+    /// </summary>
+    private bool IsAreaSafe(Vector3 centerPos)
+    {
+        float step = m_SafetyRadius * 2f / (m_GridSampleDensity + 1);
+
+        for (int x = -m_GridSampleDensity; x <= m_GridSampleDensity; x++)
+        {
+            for (int z = -m_GridSampleDensity; z <= m_GridSampleDensity; z++)
+            {
+                Vector3 samplePos = centerPos + new Vector3(x * step, 0, z * step);
+                if (!NavMesh.SamplePosition(samplePos, out _, 0f, NavMesh.AllAreas))
+                    return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -285,35 +392,4 @@ public class SceneSpawnManager : MonoBehaviour
         DebugEx.Log("SceneSpawnManager", $"[调整完成] 调整后底部Y={bottomAfter.y:F3}");
     }
 
-    private MapSpawnTable PickWeightedRandom(List<MapSpawnTable> configs)
-    {
-        if (configs.Count == 0)
-            return null;
-
-        if (configs.Count == 1)
-            return configs[0];
-
-        // 计算总权重
-        int totalWeight = 0;
-        foreach (var config in configs)
-        {
-            totalWeight += (int)config.Weight;
-        }
-
-        if (totalWeight <= 0)
-            return configs[0];
-
-        // 随机选择
-        int randomValue = UnityEngine.Random.Range(0, totalWeight);
-        int accumulated = 0;
-
-        foreach (var config in configs)
-        {
-            accumulated += (int)config.Weight;
-            if (randomValue < accumulated)
-                return config;
-        }
-
-        return configs[configs.Count - 1];
-    }
 }
