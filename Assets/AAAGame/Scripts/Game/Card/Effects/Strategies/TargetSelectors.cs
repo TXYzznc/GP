@@ -2,6 +2,23 @@
 using UnityEngine;
 
 /// <summary>
+/// 卡牌目标选择器集合
+/// 职责：
+/// 1. 为卡牌效果提供统一的目标选择接口（ICardTargetSelector）
+/// 2. 封装复杂的目标筛选逻辑（距离、HP、死亡状态等）
+/// 3. 支持卡牌配置驱动的目标选择（TargetType、AreaRadius、TargetDeadState）
+///
+/// 使用场景：
+/// - CardEffectExecutor（通用框架）
+/// - 特殊卡牌效果（LifeDrainCardEffect、ResurrectionCardEffect等）
+/// - CardSlotItem（UI预览）
+///
+/// 注意：
+/// - 不要在AI或技能系统中使用这些Selector
+/// - 复杂的目标筛选应该新增Selector，而不是在CardEffect中写逻辑
+/// </summary>
+
+/// <summary>
 /// 选择敌方全体
 /// </summary>
 public class AllEnemiesSelector : ICardTargetSelector
@@ -419,11 +436,14 @@ public class ClosestDeadAllySelector : ICardTargetSelector
             return new List<ChessEntity>();
 
         var allies = CombatEntityTracker.Instance.GetAlliesIncludingDead((int)CampType.Player);
+        DebugEx.Log("ClosestDeadAllySelector", $"获取友方列表: 共 {allies?.Count ?? 0} 个，搜索半径={radius}");
+
         if (allies != null)
         {
             foreach (var ally in allies)
             {
-                if (ally == null || !ally.Attribute.IsDead || !ChessTargetFinder.IsValidTargetByDeadState(ally, cardData.TableRow.TargetDeadState))
+                // 只需要检查是否死亡，因为这个Selector本身就是为死亡目标设计的
+                if (ally == null || !ally.Attribute.IsDead)
                     continue;
 
                 float distance = Vector3.Distance(ally.transform.position, targetPosition);
@@ -433,6 +453,15 @@ public class ClosestDeadAllySelector : ICardTargetSelector
                     closest = ally;
                 }
             }
+        }
+
+        if (closest != null)
+        {
+            DebugEx.Log("ClosestDeadAllySelector", $"找到目标: {closest.Config?.Name}");
+        }
+        else
+        {
+            DebugEx.Log("ClosestDeadAllySelector", "未找到任何符合条件的目标");
         }
 
         return closest != null ? new List<ChessEntity> { closest } : new List<ChessEntity>();
