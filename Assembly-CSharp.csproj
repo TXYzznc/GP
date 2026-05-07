@@ -137,6 +137,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\AAAGame\DataTable\EnemyTable.txt" />
     <None Include="Assets\TA\Cartoon\BuildingCartoon.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260507_175256.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Dilate.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
@@ -150,6 +151,7 @@
     <None Include="Assets\测试输出日志\unity_log_20260507_173110.txt" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_EdgeSoft.shader" />
     <None Include="Assets\特效\爪击特效\Claw_Slash_fx\Documentation_ClawSlashfx\How to use 1_ClawSlashfx.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260507_175306.txt" />
     <None Include="Assets\TA\Combat\CirclePreview.shader" />
     <None Include="Assets\TA\溶解\Dissolve.shader" />
     <None Include="Assets\特效\子弹特效2\Shaders\Legacy\AlphaBlended_Scroll01.shader" />

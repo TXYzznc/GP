@@ -557,7 +557,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\BurnBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Audio\VolumeManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeMagicCircle.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Spawn\SpawnPoint.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessStateEvents.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\ChestEffectCycler.cs" />
