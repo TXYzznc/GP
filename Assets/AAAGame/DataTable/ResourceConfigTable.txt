@@ -47,6 +47,7 @@
 	1301		1	Chess/后羿/后羿立绘.png	棋子-后羿图标
 	1304		1	Chess/嫦娥/嫦娥立绘.png	棋子-嫦娥图标
 	1310		1	Chess/邪灵/邪灵立绘.png	棋子-邪灵图标
+	1311		1	Chess/恶魂/恶魂立绘.png	棋子-恶魂图标
 	1399		1	Chess/靶子.png	棋子-靶子图标
 	1401		1	Buff/1.png	灼烧Buff图标
 	1402		1	Buff/2.png	寒霜Buff图标
@@ -57,6 +58,8 @@
 	1407		1	Buff/7.png	腐蚀Buff图标
 	1408		1	Buff/8.png	黑暗狂暴Buff图标
 	1409		1	Buff/9.png	恐惧Buff图标
+	1410		1	Buff/10.png	虚无之躯Buff图标
+	1411		1	Buff/28.png	九天玄冰Buff图标
 	1501		1	UI/Icons/Skill_Dash.png	飞雷神-角色技能图标
 	1502		1	UI/Icons/Skill_Heal.png	治疗术-角色技能图标
 	1503		1	UI/Icons/Skill_Bomb.png	爆裂弹-角色技能图标
@@ -80,9 +83,19 @@
 	1807		1	Skill/7.png	朔月飞轮-嫦娥技能图标
 	1808		1	Skill/8.png	月华天倾-嫦娥技能图标
 	1831		1	Skill/31.png	黑暗侵染-邪灵技能图标
-	1832		1	Skill/32.png	邪灵爪击-邪灵技能图标
+	1832		1	Skill/32.png	邪灵普攻-邪灵技能图标
 	1833		1	Skill/33.png	污染斩击-邪灵技能图标
 	1834		1	Skill/34.png	腐蚀法阵-邪灵技能图标
+	1841		1	Skill/41.png	虚无之躯-恶魂技能图标
+	1842		1	Skill/42.png	恶魂普攻-恶魂技能图标
+	1843		1	Skill/43.png	心灵扭曲-恶魂技能图标
+	1844		1	Skill/44.png	邪念潮涌-恶魂技能图标
+	1845		1	Skill/51.png	黑暗神力-黑暗杨戬技能图标
+	1846		1	Skill/52.png	暗戟横扫-黑暗杨戬技能图标
+	1847		1	Skill/53.png	天威圣戟·黑暗-黑暗杨戬技能图标
+	1848		1	Skill/54.png	三眼天火-黑暗杨戬技能图标
+	1849		1	Skill/55.png	堕落劈山-黑暗杨戬技能图标
+	1850		1	Skill/56.png	撕咬-黑暗哮天犬技能图标
 	1901		1	Items/1.png	钱包图标
 	1902		1	Items/2.png	生命药水图标
 	1903		1	Items/3.png	魔法药水图标
@@ -144,6 +157,9 @@
 	2304		2	角色/友方神话角色/嫦娥	棋子-嫦娥预制体
 	2309		2	角色/友方神话角色/敌人测试	棋子-敌人测试预制体
 	2310		2	角色/敌方神话生物/邪灵	棋子-邪灵预制体
+	2311		2	角色/敌方神话生物/恶魂	棋子-恶魂预制体
+	2312		2	角色/敌方神话生物/黑暗杨戬	棋子-黑暗杨戬预制体
+	2313		2	角色/敌方神话生物/黑暗哮天犬	棋子-黑暗哮天犬预制体
 	2399		2	角色/测试/靶子	棋子-靶子预制体
 	2401		3	DamagePopup	伤害飘字预制体
 	2402		3	InteractTip	交互提示预制体
@@ -163,6 +179,9 @@
 	3007		3	SummonChessEffect/Change_Skill2_Projectile	嫦娥大招法阵生成的投射物
 	3008		3	SummonChessEffect/XieLing_Skill1_Effect	邪灵技能1特效
 	3009		3	SummonChessEffect/XieLing_Skill2	邪灵技能2法阵预制体
+	3010		3	SummonChessEffect/Projectile_EvilSpirit_Attack	恶魂普攻子弹
+	3011		3	SummonChessEffect/EvilSpirit_Skill1	恶魂技能1特效
+	3012		3	SummonChessEffect/EvilSpirit_Skill2	恶魂大招特效
 	6001		6	Skills/SkillParamRegistry	技能参数注册表
 	10001		1	Buff/2001.png	先手·速度爆发图标
 	10002		1	Buff/2002.png	先手·攻击强化图标
@@ -175,6 +194,12 @@
 	10202		1	Buff/4002.png	狂怒之心Buff图标
 	10203		1	Buff/4003.png	暗影咒体Buff图标
 	11001		1	Enemy/默认.png	敌人图标
+	13001		1	Chess/后羿/后羿头像.png	棋子后羿头像
+	13004		1	Chess/嫦娥/嫦娥头像.png	棋子嫦娥头像
+	13010		1	Chess/邪灵/邪灵头像.png	棋子邪灵头像
+	13011		1	Chess/恶魂/恶魂头像.png	棋子恶魂头像
+	13012		1	Chess/黑暗杨戬/黑暗杨戬头像.png	棋子黑暗杨戬头像
+	13013		1	Chess/黑暗哮天犬/黑暗哮天犬头像.png	棋子黑暗哮天犬头像
 	15001		1	Buff/5001.png	神圣庇护Buff图标
 	15002	(不再使用)	1	Buff/5002.png	烈焰风暴·灼烧Buff图标
 	15003		1	Buff/5003.png	战争号角Buff图标
@@ -286,6 +311,3 @@
 	60081		7	SFX/UI/金币消耗音效	金币消耗
 	60082		7	SFX/UI/宝石消耗音效	宝石消耗
 	60083		7	SFX/UI/交易音效	交易音效
-	13010		1	Chess/邪灵/邪灵头像.png	棋子邪灵头像
-	13001		1	Chess/后羿/后羿头像.png	棋子后羿头像
-	13004		1	Chess/嫦娥/嫦娥头像.png	棋子嫦娥头像

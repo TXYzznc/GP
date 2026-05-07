@@ -51,6 +51,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\MeltBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\EquipSlotContainerImpl.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Inventory\SlotChangeEventArgs.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\恶魂\EvilSoulNormalAttack.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\SettlementUIForm.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\HitDetectorFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\EffectExecutor.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\CardPresetItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Manager\SummonChessManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\AwardItemUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\恶魂\EvilSoulPassive.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\SummonerTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Camera\CameraRegistry.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\PacketType.cs" />
@@ -163,6 +165,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\WebRequestResult.cs" />
     <Compile Include="Assets\AAAGame\Scripts\HotfixEntry.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\TargetSelectors.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\恶魂\EvilSoulUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\LanguagesTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\OutOfGameLeaveEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\FSM\ChessAIState.cs" />
@@ -171,6 +174,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Procedures\ChangeSceneProcedure.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\DictionaryManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\邪灵\EvilSpiritSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\GF.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EnemyTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\OverworldUI.cs" />
@@ -234,7 +238,9 @@
     <Compile Include="Assets\AAAGame\Scripts\Entity\ParticleEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\ItemEffectExecutor.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\WarehouseUI.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanSkill2.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyRestState.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanPhaseConfig.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangePassive.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Data\GlobalChessState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillParamRegistrySO.cs" />
@@ -242,9 +248,11 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ColorTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\SummonerSkillContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillsSO\DashParamSO.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\恶魂\EvilSoulSkill1.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\PlayerSkillUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\System\EnemyGroupManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\ReviveChessEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanPassive.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\InventoryUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\AwaitParams.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Escape\CombatEscapeSystem.cs" />
@@ -340,6 +348,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Common\UIAnimationEventDispatcher.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Manager\ChessEXPManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\InventorySlotUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanSkill1.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatEntityTracker.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Core\UIParams.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\AddGoldEffect.cs" />
@@ -401,6 +410,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiPassive.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\ReflectDamageBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillCommonConfig.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkWolfdogManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\CSPacketBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\InstantHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\WarehouseSlotContainerImpl.cs" />
@@ -455,6 +465,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Entity\BillboardEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatEnterEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\TreasureBoxUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampRelation.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItemEventDispatcher.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\InventoryUI.cs" />
@@ -505,8 +516,10 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\InteractableBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Abstract\SkillParamSO.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarFloat.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\BleedBuff.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ItemTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Manager\SceneTransitionManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CombatUI.Variables.cs" />
@@ -546,6 +559,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeMagicCircle.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Spawn\SpawnPoint.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Core\ChessStateEvents.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\ChestEffectCycler.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyAlertState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EndCombatUI.cs" />
@@ -574,6 +588,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\AOEHitDetector.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SynergyTable.Ext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\UIModelViewer.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\恶魂\EvilSoulSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\Editor\GameTestWindow.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessSelectionManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\BattlePresetUI.cs" />
@@ -596,6 +611,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RestoreHPEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\StaticUIComponent.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanNormalAttack.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\PlayerLevelUpEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Audio\AudioEventListener.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PageLabelItem.Variables.cs" />

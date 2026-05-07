@@ -272,6 +272,15 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
+        /// 自定义数据（JSON格式）
+        /// </summary>
+        public string CustomData
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 棋子的背景描述（三个值：一阶/二阶/三阶）
         /// </summary>
         public string[] Description
@@ -319,6 +328,7 @@ public partial class SummonChessTable : DataRowBase
             Skill1Id = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             Skill2Id = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             AIType = int.Parse(columnStrings[index++]);
+            CustomData = columnStrings[index++];
             Description = DataTableExtension.ParseArray<string>(columnStrings[index++]);
 
             return true;
@@ -358,6 +368,7 @@ public partial class SummonChessTable : DataRowBase
                     Skill1Id = binaryReader.ReadArray<int>();
                     Skill2Id = binaryReader.ReadArray<int>();
                     AIType = binaryReader.Read7BitEncodedInt32();
+                    CustomData = binaryReader.ReadString();
                     Description = binaryReader.ReadArray<string>();
                 }
             }
