@@ -58,6 +58,11 @@ public class SummonChessConfig
     public int ProjectilePrefabId; // 投射物预制体ID（AttackHitType=2时使用）
     #endregion
 
+    #region 自定义数据
+
+    public string CustomData; // 自定义数据（JSON格式，用于特殊机制如多阶段）
+    #endregion
+
     #region 数据验证
 
     /// <summary>

@@ -95,30 +95,7 @@ public abstract class ChessSkillBase : IChessSkill
     /// </summary>
     protected ChessEntity FindNearestEnemy(ChessEntity caster)
     {
-        if (caster == null)
-            return null;
-
-        var enemies = CombatEntityTracker.Instance.GetEnemies(caster.Camp);
-        if (enemies == null || enemies.Count == 0)
-            return null;
-
-        ChessEntity nearest = null;
-        float minDist = float.MaxValue;
-
-        foreach (var enemy in enemies)
-        {
-            if (enemy.CurrentState == ChessState.Dead)
-                continue;
-
-            float dist = Vector3.Distance(caster.transform.position, enemy.transform.position);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                nearest = enemy;
-            }
-        }
-
-        return nearest;
+        return ChessTargetFinder.FindNearestEnemy(caster);
     }
 
     /// <summary>

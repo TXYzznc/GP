@@ -173,6 +173,49 @@ public class ChessAttribute : MonoBehaviour
         DebugEx.Log("ChessAttribute", $"Initialize: {config.Name} - HP:{m_CurrentHp}/{m_MaxHp} MP:{m_CurrentMp}/{m_MaxMp}");
     }
 
+    /// <summary>
+    /// 从属单位属性初始化（属性由主人继承）
+    /// 仅保留移动速度和MoveSpeed，其他属性继承自主人
+    /// </summary>
+    /// <param name="owner">所属棋子实体</param>
+    /// <param name="config">从属单位配置（PopCost=0）</param>
+    /// <param name="masterAttribute">主人的属性组件</param>
+    /// <param name="inheritRatio">属性继承比例（如0.8表示继承主人80%的属性）</param>
+    public void InitializeAsSubordinate(ChessEntity owner, SummonChessConfig config, ChessAttribute masterAttribute, double inheritRatio)
+    {
+        m_Owner = owner;
+        if (masterAttribute == null)
+        {
+            DebugEx.Error("ChessAttribute", "InitializeAsSubordinate: masterAttribute is null");
+            return;
+        }
+
+        inheritRatio = Math.Clamp(inheritRatio, 0.1, 1.0);
+
+        // 属性继承自主人
+        m_MaxHp = masterAttribute.MaxHp * inheritRatio;
+        m_CurrentHp = m_MaxHp;
+        m_MaxMp = masterAttribute.MaxMp * inheritRatio;
+        m_CurrentMp = m_MaxMp * 0.5; // 初始法力为最大值的50%
+
+        m_AtkDamage = masterAttribute.AtkDamage * inheritRatio;
+        m_AtkSpeed = masterAttribute.AtkSpeed;
+        m_AtkRange = masterAttribute.AtkRange;
+        m_Armor = masterAttribute.Armor * inheritRatio;
+        m_MagicResist = masterAttribute.MagicResist * inheritRatio;
+        m_CritRate = masterAttribute.CritRate;
+        m_CritDamage = masterAttribute.CritDamage;
+        m_SpellPower = masterAttribute.SpellPower * inheritRatio;
+        m_Shield = 0;
+        m_CooldownReduce = 0;
+        m_DamageTakenMultiplier = 1.0;
+
+        // 移动速度从配置读取（从属单位有独立的MoveSpeed）
+        m_MoveSpeed = config?.MoveSpeed ?? 4;
+
+        DebugEx.Log("ChessAttribute", $"InitializeAsSubordinate: {config?.Name} - HP:{m_CurrentHp}/{m_MaxHp} (继承比例:{inheritRatio})");
+    }
+
     #endregion
 
     #region 数值修改

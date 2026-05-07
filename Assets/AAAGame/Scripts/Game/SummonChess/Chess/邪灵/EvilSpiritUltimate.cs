@@ -53,14 +53,25 @@ public class EvilSpiritUltimate : ChessSkillBase
         if (caster == null || caster.CurrentState == ChessState.Dead)
             return;
 
-        ChessEntity targetEnemy = FindNearestEnemy(caster);
-        if (targetEnemy == null)
-        {
-            DebugEx.Warning("EvilSpiritUltimate", "腐蚀法阵：未找到可锁定目标");
-            return;
-        }
+        // ⭐ 获取技能目标（由 AI 的技能释放策略决定）
+        var aiBase = caster.AI as ChessAIBase;
 
-        Vector3 targetPosition = targetEnemy.transform.position;
+        // 如果是通过位置目标（最密集位置），则使用 FindMostDensePosition
+        // 否则使用技能目标棋子的位置
+        Vector3 targetPosition;
+        if (aiBase != null && aiBase.SkillTarget != null)
+        {
+            // 有具体的目标棋子（备用方案）
+            targetPosition = aiBase.SkillTarget.transform.position;
+        }
+        else
+        {
+            // 没有目标，使用最密集位置策略
+            targetPosition = ChessTargetFinder.FindMostDensePosition(
+                caster,
+                (float)m_Config.CastRange + 4f  // 施法范围 + 4
+            );
+        }
 
         var customData = ParseCustomData(m_Config.CustomData);
         if (customData == null || customData.MagicCircleId <= 0)
@@ -69,9 +80,9 @@ public class EvilSpiritUltimate : ChessSkillBase
             return;
         }
 
-        Vector3 targetBottom = EntityPositionHelper.GetBottomPosition(targetEnemy);
-        Vector3 targetTop = EntityPositionHelper.GetTopPosition(targetEnemy);
-        Vector3 spawnPosition = Vector3.Lerp(targetBottom, targetTop, customData.SpawnHeight);
+        // ⭐ 使用 targetPosition 作为生成位置
+        // 如果有具体目标，targetPosition 是目标的位置；如果只有位置策略，则直接使用最密集位置
+        Vector3 spawnPosition = new Vector3(targetPosition.x, caster.transform.position.y, targetPosition.z);
 
         GameObject prefab = await ResourceExtension.LoadPrefabAsync(customData.MagicCircleId);
         if (prefab == null)

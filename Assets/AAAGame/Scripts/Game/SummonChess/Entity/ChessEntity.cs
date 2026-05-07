@@ -668,10 +668,21 @@ public class ChessEntity : MonoBehaviour
     public event Action OnMpFull;
 
     /// <summary>
+    /// 生命值变化事件
+    /// 参数：(当前生命值, 最大生命值)
+    /// 用于多阶段Boss等特殊逻辑
+    /// </summary>
+    public event Action<double, double> OnHealthChanged;
+
+    /// <summary>
     /// 生命值变化处理
     /// </summary>
     private void OnHpChangedHandler(double oldValue, double newValue)
     {
+        // 触发 OnHealthChanged 事件
+        double maxHp = Attribute != null ? Attribute.MaxHp : 1;
+        OnHealthChanged?.Invoke(newValue, maxHp);
+
         // 检查是否死亡
         if (newValue <= 0 && oldValue > 0)
         {
@@ -894,6 +905,34 @@ public class ChessEntity : MonoBehaviour
 
         DebugEx.Log(nameof(ChessEntity), $"棋子 {Config?.Name} 升阶成功：{oldRank} → {Rank}");
         OnRankAdvanced?.Invoke(oldRank);
+    }
+
+    #endregion
+
+    #region 技能替换（为多阶段Boss提供支持）
+
+    /// <summary>
+    /// 替换普攻技能
+    /// </summary>
+    public void ReplaceNormalAttack(IChessNormalAttack newAttack)
+    {
+        NormalAttack = newAttack;
+    }
+
+    /// <summary>
+    /// 替换技能一
+    /// </summary>
+    public void ReplaceSkill1(IChessSkill newSkill)
+    {
+        Skill1 = newSkill;
+    }
+
+    /// <summary>
+    /// 替换技能二/大招
+    /// </summary>
+    public void ReplaceSkill2(IChessSkill newSkill)
+    {
+        Skill2 = newSkill;
     }
 
     #endregion

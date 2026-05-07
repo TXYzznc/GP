@@ -3,6 +3,11 @@
 /// <summary>
 /// 棋子普攻基类
 /// 提供通用方法，减少子类重复代码
+///
+/// 设计说明：
+/// - OnAttackExecute 只启动碰撞检测，不计算伤害
+/// - 伤害计算延迟到碰撞时刻，根据实际击中的目标属性进行动态调整
+/// - 这样可以支持多目标时每个目标有不同伤害值的场景
 /// </summary>
 public abstract class ChessNormalAttackBase : IChessNormalAttack
 {

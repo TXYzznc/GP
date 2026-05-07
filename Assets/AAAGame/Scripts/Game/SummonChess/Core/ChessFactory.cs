@@ -151,6 +151,11 @@ public static class ChessFactory
         RegisterSkill(33, () => new EvilSpiritSkill1());
         RegisterSkill(34, () => new EvilSpiritUltimate());
 
+        // 黑暗杨戬技能
+        RegisterSkill(53, () => new DarkYangyuanSkill1());
+        RegisterSkill(54, () => new DarkYangyuanSkill2());
+        RegisterSkill(55, () => new DarkYangyuanUltimate());
+
         DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_SkillCreators.Count} 个棋子技能");
     }
 
@@ -263,12 +268,19 @@ public static class ChessFactory
         s_SkillStrategyRegistry.Clear();
 
         // 注册后羿的技能策略
-        //RegisterSkillStrategy(1, typeof(HouyiSkillReleaseStrategy));
+        RegisterSkillStrategy(1, typeof(HouyiSkillReleaseStrategy));
 
         // 注册嫦娥的技能策略
-        //RegisterSkillStrategy(4, typeof(ChangESkillReleaseStrategy));
+        RegisterSkillStrategy(4, typeof(ChangeSkillReleaseStrategy));
 
-        // 其他棋子使用默认策略（不需要注册）
+        // 注册邪灵的技能策略
+        RegisterSkillStrategy(5, typeof(EvilSpiritSkillReleaseStrategy));
+
+        // 注册恶魂的技能策略
+        RegisterSkillStrategy(6, typeof(EvilSoulSkillReleaseStrategy));
+
+        // 注册黑暗杨戬的技能策略
+        RegisterSkillStrategy(12, typeof(DarkYangyuanSkillReleaseStrategy));
 
         DebugEx.Log("ChessFactory", $"已注册 {s_SkillStrategyRegistry.Count} 个技能策略");
     }
@@ -338,6 +350,9 @@ public static class ChessFactory
 
         // 邪灵被动
         RegisterPassive(31, () => new EvilSpiritPassive());
+
+        // 黑暗杨戬被动
+        RegisterPassive(51, () => new DarkYangyuanPassive());
 
         DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_PassiveCreators.Count} 个被动技能");
     }
@@ -422,6 +437,12 @@ public static class ChessFactory
 
         // 邪灵普攻
         RegisterNormalAttack(32, () => new EvilSpiritNormalAttack());
+
+        // 黑暗杨戬普攻
+        RegisterNormalAttack(52, () => new DarkYangyuanNormalAttack());
+
+        // 黑暗哮天犬普攻
+        RegisterNormalAttack(56, () => new DarkYangyuanNormalAttack());
 
         DebugEx.Log("ChessFactory", $"ChessFactory: 已注册 {s_NormalAtkCreators.Count} 个普攻效果");
     }
