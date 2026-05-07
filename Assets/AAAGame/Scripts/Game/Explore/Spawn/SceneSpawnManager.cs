@@ -20,17 +20,46 @@ public class SceneSpawnManager : MonoBehaviour
     /// <summary>缓存的NavMesh三角剖分（性能优化）</summary>
     private NavMeshTriangulation m_CachedTriangulation;
 
-    /// <summary>是否使用增强检查模式</summary>
-    [SerializeField]
-    private bool m_UseEnhancedSpawning = true;
+    #region 敌人生成参数
 
-    /// <summary>安全区域检查半径</summary>
+    [Header("敌人生成参数")]
     [SerializeField]
-    private float m_SafetyRadius = 0.5f;
+    [Tooltip("敌人最大尝试次数")]
+    private int m_EnemyMaxAttempts = 100;
 
-    /// <summary>安全区域采样密度（每轴采样点数）</summary>
     [SerializeField]
-    private int m_GridSampleDensity = 2;
+    [Tooltip("敌人安全区域检查半径")]
+    private float m_EnemySafetyRadius = 0.5f;
+
+    [SerializeField]
+    [Range(1, 5)]
+    [Tooltip("敌人安全区域采样密度")]
+    private int m_EnemyGridSampleDensity = 2;
+
+    [SerializeField]
+    [Tooltip("敌人之间的最小间隔距离")]
+    private float m_EnemyMinSpacing = 1.5f;
+
+    #endregion
+
+    #region 宝箱生成参数
+
+    [Header("宝箱生成参数")]
+    [SerializeField]
+    [Tooltip("宝箱最大尝试次数")]
+    private int m_ChestMaxAttempts = 50;
+
+    [SerializeField]
+    [Tooltip("宝箱之间的最小间隔距离")]
+    private float m_ChestMinSpacing = 2.0f;
+
+    #endregion
+
+    /// <summary>已生成的敌人位置列表</summary>
+    private List<Vector3> m_SpawnedEnemyPositions = new();
+
+    /// <summary>已生成的宝箱位置列表</summary>
+    private List<Vector3> m_SpawnedChestPositions = new();
 
     /// <summary>生成统计数据结构</summary>
     private class SpawnStatistics
@@ -91,8 +120,8 @@ public class SceneSpawnManager : MonoBehaviour
         DebugEx.Log("SceneSpawnManager", $"========== 场景对象生成开始 ==========\n" +
             $"  ├─ MapId: {m_MapId}\n" +
             $"  ├─ NavMesh三角形数: {m_CachedTriangulation.indices.Length / 3}\n" +
-            $"  ├─ 安全检查半径: {m_SafetyRadius:F2}\n" +
-            $"  └─ 采样密度: {m_GridSampleDensity}");
+            $"  ├─ 敌人参数: 最大尝试={m_EnemyMaxAttempts}, 安全半径={m_EnemySafetyRadius:F2}, 最小间隔={m_EnemyMinSpacing:F2}\n" +
+            $"  └─ 宝箱参数: 最大尝试={m_ChestMaxAttempts}, 最小间隔={m_ChestMinSpacing:F2}");
 
         // 读表获取配置
         var mapSpawnTable = GF.DataTable.GetDataTable<MapSpawnTable>();
@@ -124,6 +153,9 @@ public class SceneSpawnManager : MonoBehaviour
         DebugEx.Log("SceneSpawnManager", $"配置加载: 敌人配置={enemyConfigs.Count}, 宝箱配置={chestConfigs.Count}");
 
         // 生成敌人和宝箱
+        m_SpawnedEnemyPositions.Clear();
+        m_SpawnedChestPositions.Clear();
+
         if (enemyConfigs.Count > 0)
         {
             m_Statistics.TotalSpawnPoints = enemyConfigs.Count;
@@ -172,14 +204,22 @@ public class SceneSpawnManager : MonoBehaviour
 
     private async UniTask TrySpawnAsync(MapSpawnTable config, bool isEnemy)
     {
+        // 获取对应类型的参数
+        int maxAttempts = isEnemy ? m_EnemyMaxAttempts : m_ChestMaxAttempts;
+        float minSpacing = isEnemy ? m_EnemyMinSpacing : m_ChestMinSpacing;
+        var existingPositions = isEnemy ? m_SpawnedEnemyPositions : m_SpawnedChestPositions;
+
         // 尝试在 NavMesh 上找到有效位置
-        if (!TryFindValidPosition(out Vector3 spawnPos))
+        if (!TryFindValidPosition(maxAttempts, minSpacing, existingPositions, isEnemy, out Vector3 spawnPos))
         {
             m_Statistics.NavMeshSampleFailures++;
             DebugEx.Warning("SceneSpawnManager",
-                $"❌ 尝试次数过多无法找到有效位置");
+                $"❌ {(isEnemy ? "敌人" : "宝箱")}生成失败: 无法找到有效位置");
             return;
         }
+
+        // 记录生成位置
+        existingPositions.Add(spawnPos);
 
         // 获取预制体 ID
         int prefabId = isEnemy
@@ -246,10 +286,9 @@ public class SceneSpawnManager : MonoBehaviour
     /// <summary>
     /// 直接在 NavMesh 上随机找到有效位置（参照 EnemySpawnDebugger 设计）
     /// </summary>
-    private bool TryFindValidPosition(out Vector3 result)
+    private bool TryFindValidPosition(int maxAttempts, float minSpacing, List<Vector3> existingPositions, bool isEnemy, out Vector3 result)
     {
         result = Vector3.zero;
-        int maxAttempts = 100;
         int attempts = 0;
 
         while (attempts < maxAttempts)
@@ -263,8 +302,12 @@ public class SceneSpawnManager : MonoBehaviour
                 continue;
             }
 
-            // 检查周围安全区域
-            if (!IsAreaSafe(randomPos))
+            // 检查与现有位置的间隔
+            if (!IsValidSpacing(randomPos, existingPositions, minSpacing))
+                continue;
+
+            // 敌人需要安全区域检查，宝箱不需要
+            if (isEnemy && !IsAreaSafe(randomPos))
             {
                 m_Statistics.SafetyCheckFailures++;
                 continue;
@@ -275,6 +318,25 @@ public class SceneSpawnManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 检查新位置与已有位置的间隔是否满足要求
+    /// </summary>
+    private bool IsValidSpacing(Vector3 pos, List<Vector3> existingPositions, float minSpacing)
+    {
+        float minSpacingSqr = minSpacing * minSpacing;
+
+        foreach (var existingPos in existingPositions)
+        {
+            if ((pos - existingPos).sqrMagnitude < minSpacingSqr)
+            {
+                m_Statistics.SafetyCheckFailures++;
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -311,15 +373,16 @@ public class SceneSpawnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 检查位置周围的安全区域（所有采样点都必须在NavMesh上）
+    /// 检查敌人位置周围的安全区域（所有采样点都必须在NavMesh上）
+    /// 只用于敌人，宝箱不需要此检查
     /// </summary>
     private bool IsAreaSafe(Vector3 centerPos)
     {
-        float step = m_SafetyRadius * 2f / (m_GridSampleDensity + 1);
+        float step = m_EnemySafetyRadius * 2f / (m_EnemyGridSampleDensity + 1);
 
-        for (int x = -m_GridSampleDensity; x <= m_GridSampleDensity; x++)
+        for (int x = -m_EnemyGridSampleDensity; x <= m_EnemyGridSampleDensity; x++)
         {
-            for (int z = -m_GridSampleDensity; z <= m_GridSampleDensity; z++)
+            for (int z = -m_EnemyGridSampleDensity; z <= m_EnemyGridSampleDensity; z++)
             {
                 Vector3 samplePos = centerPos + new Vector3(x * step, 0, z * step);
                 if (!NavMesh.SamplePosition(samplePos, out _, 0f, NavMesh.AllAreas))
