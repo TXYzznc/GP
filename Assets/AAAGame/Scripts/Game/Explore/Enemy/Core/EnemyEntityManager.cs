@@ -253,7 +253,14 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
 
     protected override void OnDestroy()
     {
-        GF.Event.Unsubscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
+        try
+        {
+            GF.Event.Unsubscribe(CombatLeaveEventArgs.EventId, OnCombatLeave);
+        }
+        catch
+        {
+            // 场景切换或框架重置时，事件可能已被清理，忽略取消订阅错误
+        }
         base.OnDestroy();
     }
 

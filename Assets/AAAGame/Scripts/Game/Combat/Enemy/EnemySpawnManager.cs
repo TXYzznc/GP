@@ -251,9 +251,13 @@ public class EnemySpawnManager
             return null;
         }
 
+        DebugEx.Log("EnemySpawnManager", $"⭐ 开始生成敌人: ChessId={chessId}, Position={position}, Camp={ENEMY_CAMP}");
+
         var entity = await SummonChessManager.Instance.SpawnChessAsync(chessId, position, ENEMY_CAMP);
         if (entity != null)
         {
+            DebugEx.Log("EnemySpawnManager", $"✅ 敌人生成完成: {entity.Config.Name}, Camp={entity.Camp}, IsValid={entity != null}");
+
             // 根据敌方难度设置棋子等级
             int difficultyRank = CalculateRankFromDifficulty(m_CurrentWave.EnemyDifficulty);
             if (difficultyRank > 1)
@@ -272,7 +276,7 @@ public class EnemySpawnManager
         }
         else
         {
-            DebugEx.Error("EnemySpawnManager", $"敌人生成失败 ID={chessId}");
+            DebugEx.Error("EnemySpawnManager", $"❌ 敌人生成失败 ID={chessId}");
         }
 
         return entity;
