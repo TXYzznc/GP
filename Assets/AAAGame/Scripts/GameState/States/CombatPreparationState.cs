@@ -249,6 +249,9 @@ public class CombatPreparationState : FsmState<InGameState>
         // ChessDeploymentTracker.Instance.Initialize(); // 已移除
         DebugEx.Log(nameof(CombatPreparationState), "使用已初始化的棋子库存");
 
+        // ⭐ 初始化召唤师棋子（提前到战斗准备阶段，使其能被纳入棋子管理系统）
+        InitializeSummonerChessForCombat();
+
         // 初始化战斗管理器
         await InitializeCombatManagersAsync();
 
@@ -801,6 +804,106 @@ public class CombatPreparationState : FsmState<InGameState>
         );
     }
 
+
+    /// <summary>
+    /// 初始化召唤师棋子（战斗准备阶段提前创建，便于统一管理）
+    /// </summary>
+    private void InitializeSummonerChessForCombat()
+    {
+        var playerCharacter = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        if (playerCharacter == null)
+        {
+            DebugEx.Warning(nameof(CombatPreparationState), "玩家角色不存在，无法初始化召唤师棋子");
+            return;
+        }
+
+        var summonerProxy = playerCharacter.GetComponent<SummonerCombatProxy>();
+        if (summonerProxy == null)
+        {
+            DebugEx.Warning(nameof(CombatPreparationState), "玩家角色上未找到 SummonerCombatProxy");
+            return;
+        }
+
+        // 初始化召唤师运行时数据（HP/MP）
+        SummonerRuntimeDataManager.Instance.Initialize();
+
+        // 获取召唤师配置和棋子配置
+        var summonerConfig = PlayerAccountDataManager.Instance?.GetCurrentSummonerConfig();
+        if (summonerConfig == null)
+        {
+            DebugEx.Warning(nameof(CombatPreparationState), "未找到召唤师配置");
+            return;
+        }
+
+        int summonChessId = summonerConfig.SummonChessId;
+        var chessTableRow = GF.DataTable.GetDataTable<SummonChessTable>()?.GetDataRow(summonChessId);
+        if (chessTableRow == null)
+        {
+            DebugEx.Warning(nameof(CombatPreparationState), $"SummonChessTable 中未找到召唤师行 ID={summonChessId}");
+            return;
+        }
+
+        // 构造召唤师棋子配置（同 CombatManager.StartCombat 逻辑）
+        SummonChessConfig summonChessConfig = new SummonChessConfig
+        {
+            Id = chessTableRow.Id,
+            Name = chessTableRow.Name,
+            Quality = chessTableRow.Quality,
+            PopCost = 0,
+            Races = chessTableRow.Races ?? System.Array.Empty<int>(),
+            Classes = chessTableRow.Classes ?? System.Array.Empty<int>(),
+            PrefabId = chessTableRow.PrefabId,
+            IconId = chessTableRow.IconId,
+            MaxHp = new double[] { 1 },
+            MaxMp = new double[] { 0 },
+            InitialMp = new double[] { 0 },
+            AtkDamage = chessTableRow.AtkDamage ?? new double[] { 0 },
+            AtkSpeed = chessTableRow.AtkSpeed ?? new double[] { 0.01 },
+            AtkRange = chessTableRow.AtkRange ?? new double[] { 1.0 },
+            Armor = chessTableRow.Armor ?? new double[] { 0.0 },
+            MagicResist = chessTableRow.MagicResist ?? new double[] { 0.0 },
+            MoveSpeed = chessTableRow.MoveSpeed,
+            CritRate = chessTableRow.CritRate ?? new double[] { 0 },
+            CritDamage = chessTableRow.CritDamage ?? new double[] { 1.5 },
+            SpellPower = chessTableRow.SpellPower ?? new double[] { 0 },
+            Shield = 0,
+            CooldownReduce = 0,
+            PassiveIds = chessTableRow.PassiveIds ?? System.Array.Empty<int>(),
+            NormalAtkId = chessTableRow.NormalAtkId ?? new int[] { 0 },
+            Skill1Id = chessTableRow.Skill1Id ?? new int[] { 0 },
+            Skill2Id = chessTableRow.Skill2Id ?? new int[] { 0 },
+            AIType = 0,
+        };
+
+        // 确保玩家角色有必要的组件
+        var buffManager = playerCharacter.GetComponent<BuffManager>();
+        if (buffManager == null)
+            buffManager = playerCharacter.AddComponent<BuffManager>();
+
+        var attribute = playerCharacter.GetComponent<ChessAttribute>();
+        if (attribute == null)
+            attribute = playerCharacter.AddComponent<ChessAttribute>();
+
+        var chessEntity = playerCharacter.GetComponent<ChessEntity>();
+        if (chessEntity == null)
+            chessEntity = playerCharacter.AddComponent<ChessEntity>();
+
+        // 初始化召唤师棋子实体
+        chessEntity.InitializeAsSummoner(summonChessId, summonChessConfig, 0);
+
+        // 重置死亡状态并绑定属性事件
+        summonerProxy.ResetDeadState();
+        summonerProxy.BindAttribute(attribute);
+
+        // 设置Layer为Chess，便于碰撞检测
+        playerCharacter.layer = (int)LayerHelper.Layer.Chess;
+
+        // 注册召唤师到战斗追踪系统
+        CombatEntityTracker.Instance?.RegisterSummoner(summonerProxy);
+
+        DebugEx.Log(nameof(CombatPreparationState),
+            $"✅ 召唤师棋子已在战斗准备阶段初始化完成，ChessId={summonChessId}，HP={SummonerRuntimeDataManager.Instance?.MaxHP}");
+    }
 
     #endregion
 }

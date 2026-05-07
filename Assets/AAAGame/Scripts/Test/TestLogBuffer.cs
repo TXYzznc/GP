@@ -12,7 +12,7 @@ public class TestLogBuffer : ScriptableObject
 {
     #region 常量
 
-    private const int MAX_LOG_COUNT = 1000; // 最多保留1000条日志
+    private const int MAX_LOG_COUNT = 5000; // 最多保留5000条日志
 
     #endregion
 
@@ -37,8 +37,7 @@ public class TestLogBuffer : ScriptableObject
 
     #region 嵌套类
 
-    /// <summary>日志条目</summary>
-    public struct LogEntry
+    private struct LogEntry
     {
         public DateTime Time;
         public string Message;
@@ -55,6 +54,11 @@ public class TestLogBuffer : ScriptableObject
     #region 字段
 
     private List<LogEntry> m_Logs = new List<LogEntry>();
+    private int m_TotalLogCount = 0;
+    private int m_LogCount = 0;
+    private int m_WarningCount = 0;
+    private int m_ErrorCount = 0;
+    private int m_ExceptionCount = 0;
     private bool m_IsListening = false;
     private bool m_IsInitialized = false;
 
@@ -62,7 +66,11 @@ public class TestLogBuffer : ScriptableObject
 
     #region 属性
 
-    public IReadOnlyList<LogEntry> Logs => m_Logs.AsReadOnly();
+    public int TotalLogCount => m_TotalLogCount;
+    public int LogCount => m_LogCount;
+    public int WarningCount => m_WarningCount;
+    public int ErrorCount => m_ErrorCount;
+    public int ExceptionCount => m_ExceptionCount;
     public bool IsListening => m_IsListening;
 
     #endregion
@@ -75,6 +83,11 @@ public class TestLogBuffer : ScriptableObject
         if (!m_IsInitialized)
         {
             m_Logs = new List<LogEntry>();
+            m_TotalLogCount = 0;
+            m_LogCount = 0;
+            m_WarningCount = 0;
+            m_ErrorCount = 0;
+            m_ExceptionCount = 0;
             m_IsInitialized = true;
         }
     }
@@ -101,10 +114,15 @@ public class TestLogBuffer : ScriptableObject
         Debug.Log("[TestLogBuffer] 日志捕获已停止");
     }
 
-    /// <summary>清空日志</summary>
+    /// <summary>清空日志统计</summary>
     public void ClearLogs()
     {
         m_Logs.Clear();
+        m_TotalLogCount = 0;
+        m_LogCount = 0;
+        m_WarningCount = 0;
+        m_ErrorCount = 0;
+        m_ExceptionCount = 0;
     }
 
     /// <summary>导出日志到文件</summary>
@@ -119,6 +137,8 @@ public class TestLogBuffer : ScriptableObject
             {
                 writer.WriteLine($"游戏测试日志 - {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
                 writer.WriteLine(new string('=', 80));
+                writer.WriteLine($"统计: 总{m_TotalLogCount} | Log{m_LogCount} | Warning{m_WarningCount} | Error{m_ErrorCount} | Exception{m_ExceptionCount}");
+                writer.WriteLine(new string('=', 80));
                 writer.WriteLine();
 
                 foreach (var log in m_Logs)
@@ -128,7 +148,7 @@ public class TestLogBuffer : ScriptableObject
 
                 writer.WriteLine();
                 writer.WriteLine(new string('=', 80));
-                writer.WriteLine($"共 {m_Logs.Count} 条日志");
+                writer.WriteLine($"共 {m_Logs.Count} 条日志记录");
             }
 
             Debug.Log($"[TestLogBuffer] 日志已导出到: {filePath}");
@@ -144,13 +164,14 @@ public class TestLogBuffer : ScriptableObject
     /// <summary>获取指定类型的日志数量</summary>
     public int GetLogCountByType(LogType type)
     {
-        int count = 0;
-        foreach (var log in m_Logs)
+        return type switch
         {
-            if (log.Type == type)
-                count++;
-        }
-        return count;
+            LogType.Log => m_LogCount,
+            LogType.Warning => m_WarningCount,
+            LogType.Error => m_ErrorCount,
+            LogType.Exception => m_ExceptionCount,
+            _ => 0
+        };
     }
 
     #endregion
@@ -159,17 +180,35 @@ public class TestLogBuffer : ScriptableObject
 
     private void OnLogMessageReceived(string condition, string stackTrace, LogType type)
     {
-        // 添加日志条目
+        // 存储日志（供导出使用）
         var entry = new LogEntry
         {
             Time = DateTime.Now,
             Message = condition,
             Type = type
         };
-
         m_Logs.Add(entry);
 
-        // 如果超过最大数量，移除最旧的日志
+        // 维护计数统计（供 UI 显示）
+        m_TotalLogCount++;
+
+        switch (type)
+        {
+            case LogType.Log:
+                m_LogCount++;
+                break;
+            case LogType.Warning:
+                m_WarningCount++;
+                break;
+            case LogType.Error:
+                m_ErrorCount++;
+                break;
+            case LogType.Exception:
+                m_ExceptionCount++;
+                break;
+        }
+
+        // 限制日志条数（防止内存溢出）
         if (m_Logs.Count > MAX_LOG_COUNT)
         {
             m_Logs.RemoveAt(0);

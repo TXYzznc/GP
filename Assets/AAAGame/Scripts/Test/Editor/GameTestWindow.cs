@@ -833,7 +833,7 @@ public class GameTestWindow : EditorWindow
 
         // 日志统计（两行显示）
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField($"总日志: {logBuffer.Logs.Count}", GUILayout.Width(100));
+        EditorGUILayout.LabelField($"总日志: {logBuffer.TotalLogCount}", GUILayout.Width(100));
         EditorGUILayout.LabelField($"Info: {logBuffer.GetLogCountByType(LogType.Log)}", GUILayout.Width(100));
         EditorGUILayout.EndHorizontal();
 
@@ -842,21 +842,29 @@ public class GameTestWindow : EditorWindow
         EditorGUILayout.LabelField($"Error: {logBuffer.GetLogCountByType(LogType.Error)}", GUILayout.Width(100));
         EditorGUILayout.EndHorizontal();
 
-        // 日志显示区域
-        EditorGUILayout.LabelField("日志内容", EditorStyles.boldLabel);
+        // 日志统计显示（不再显示详细日志内容）
+        EditorGUILayout.LabelField("日志统计已记录", EditorStyles.boldLabel);
         m_LogScrollPosition = EditorGUILayout.BeginScrollView(m_LogScrollPosition, EditorStyles.helpBox, GUILayout.Height(200));
 
-        foreach (var log in logBuffer.Logs)
-        {
-            // 按类型筛选
-            if (!ShouldShowLog(log.Type))
-                continue;
+        GUI.color = Color.green;
+        EditorGUILayout.LabelField($"记录日志总数: {logBuffer.TotalLogCount}", EditorStyles.wordWrappedLabel);
+        GUI.color = Color.white;
 
-            // 根据类型设置颜色
-            GUI.color = GetLogColor(log.Type);
-            EditorGUILayout.LabelField(log.ToString(), EditorStyles.wordWrappedLabel);
-            GUI.color = Color.white;
-        }
+        GUI.color = Color.cyan;
+        EditorGUILayout.LabelField($"普通日志 (Log): {logBuffer.LogCount}", EditorStyles.wordWrappedLabel);
+        GUI.color = Color.white;
+
+        GUI.color = Color.yellow;
+        EditorGUILayout.LabelField($"警告 (Warning): {logBuffer.WarningCount}", EditorStyles.wordWrappedLabel);
+        GUI.color = Color.white;
+
+        GUI.color = Color.red;
+        EditorGUILayout.LabelField($"错误 (Error): {logBuffer.ErrorCount}", EditorStyles.wordWrappedLabel);
+        GUI.color = Color.white;
+
+        GUI.color = new Color(1f, 0.5f, 0f);
+        EditorGUILayout.LabelField($"异常 (Exception): {logBuffer.ExceptionCount}", EditorStyles.wordWrappedLabel);
+        GUI.color = Color.white;
 
         EditorGUILayout.EndScrollView();
 

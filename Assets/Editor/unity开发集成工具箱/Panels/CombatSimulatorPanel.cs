@@ -485,11 +485,14 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     private void StopCombat()
     {
-        // 停用 AI
-        m_AllyChess?.CombatController?.Disable();
-        m_EnemyChess?.CombatController?.Disable();
+        // 1. 停用 AI 和战斗控制器
+        if (m_AllyChess != null && m_AllyChess.CombatController != null)
+            m_AllyChess.CombatController.Disable();
+        if (m_EnemyChess != null && m_EnemyChess.CombatController != null)
+            m_EnemyChess.CombatController.Disable();
 
-        if (CombatManager.Instance.IsInCombat)
+        // 2. 通知战斗管理器结束战斗
+        if (CombatManager.Instance != null && CombatManager.Instance.IsInCombat)
         {
             CombatManager.Instance.EndCombat(false);
         }
@@ -500,18 +503,43 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     private void ClearAllChess()
     {
+        // 1. 先停止战斗（清理 AI、战斗控制器）
         if (m_IsCombatActive)
         {
             StopCombat();
         }
 
-        if (SummonChessManager.Instance != null)
+        // 2. 如果棋子仍然存在，直接销毁它们（防止残留状态）
+        if (m_AllyChess != null)
         {
-            SummonChessManager.Instance.DestroyAllChess();
+            if (SummonChessManager.Instance != null)
+            {
+                SummonChessManager.Instance.DestroyChess(m_AllyChess);
+            }
+            m_AllyChess = null;
         }
 
-        m_AllyChess = null;
-        m_EnemyChess = null;
+        if (m_EnemyChess != null)
+        {
+            if (SummonChessManager.Instance != null)
+            {
+                SummonChessManager.Instance.DestroyChess(m_EnemyChess);
+            }
+            m_EnemyChess = null;
+        }
+
+        // 3. 清理任何残留的棋子
+        if (SummonChessManager.Instance != null)
+        {
+            var allChess = SummonChessManager.Instance.GetAllChess();
+            if (allChess.Count > 0)
+            {
+                Debug.LogWarning($"CombatSimulator: 发现 {allChess.Count} 个残留的棋子，执行清理");
+                SummonChessManager.Instance.DestroyAllChess();
+            }
+        }
+
+        Debug.Log("CombatSimulator: 所有棋子已销毁，数据已清理");
     }
 
     private void EnsureManagersReady()
