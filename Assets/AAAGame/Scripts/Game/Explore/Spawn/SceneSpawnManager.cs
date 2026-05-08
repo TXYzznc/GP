@@ -132,12 +132,9 @@ public class SceneSpawnManager : MonoBehaviour
             return;
         }
 
-        // 解析等级系数
-        float levelCoefficient = SpawnConfigParser.RandomFromRangeFloat(mapConfig.LevelCoefficient);
-
         DebugEx.Log("SceneSpawnManager", $"========== 场景对象生成开始 ==========\n" +
             $"  ├─ MapId: {m_MapId}\n" +
-            $"  ├─ 等级系数: {levelCoefficient:F2} (范围 {mapConfig.LevelCoefficient[0]}-{mapConfig.LevelCoefficient[1]})\n" +
+            $"  ├─ 等级系数范围: {mapConfig.LevelCoefficient[0]}-{mapConfig.LevelCoefficient[1]}\n" +
             $"  ├─ NavMesh三角形数: {m_CachedTriangulation.indices.Length / 3}\n" +
             $"  ├─ 敌人参数: 最大尝试={m_EnemyMaxAttempts}, 安全半径={m_EnemySafetyRadius:F2}, 最小间隔={m_EnemyMinSpacing:F2}\n" +
             $"  └─ 宝箱参数: 最大尝试={m_ChestMaxAttempts}, 最小间隔={m_ChestMinSpacing:F2}");
@@ -155,7 +152,8 @@ public class SceneSpawnManager : MonoBehaviour
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyId = SpawnConfigParser.PickWeightedRandom(enemyWeightDict);
-                await TrySpawnEnemyAsync(enemyId, levelCoefficient);
+                float levelCoeff = SpawnConfigParser.RandomFromRangeFloat(mapConfig.LevelCoefficient);
+                await TrySpawnEnemyAsync(enemyId, levelCoeff);
             }
         }
 
@@ -172,7 +170,8 @@ public class SceneSpawnManager : MonoBehaviour
             for (int i = 0; i < chestCount; i++)
             {
                 int chestId = SpawnConfigParser.PickWeightedRandom(chestWeightDict);
-                await TrySpawnChestAsync(chestId, levelCoefficient);
+                float levelCoeff = SpawnConfigParser.RandomFromRangeFloat(mapConfig.LevelCoefficient);
+                await TrySpawnChestAsync(chestId, levelCoeff);
             }
         }
 
