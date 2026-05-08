@@ -287,6 +287,21 @@ public class ChessAnimator : MonoBehaviour
     }
 
     /// <summary>
+    /// 复活后重置动画状态，强制切回 Idle
+    /// </summary>
+    public void PlayRevive()
+    {
+        if (m_Animator == null) return;
+
+        m_IsDead = false;
+        m_IsPlayingAction = false;
+        m_CurrentActionType = ChessActionType.None;
+
+        m_Animator.CrossFade("Idle", 0.3f, 0);
+        DebugEx.Log("ChessAnimator", $"{gameObject.name} 复活，切回 Idle 动画");
+    }
+
+    /// <summary>
     /// 强制结束动作播放
     /// </summary>
     public void EndAction()

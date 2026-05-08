@@ -642,6 +642,15 @@ public abstract class ChessAIBase : IChessAI
         ChangeState(ChessAIState.Dead);
     }
 
+    /// <summary>
+    /// 复活后重置 AI 状态（解除死亡保护，切回 Idle）
+    /// </summary>
+    public void ForceRevive()
+    {
+        m_CurrentState = ChessAIState.Summoning; // 借用 Summoning 绕过死亡保护
+        ChangeState(ChessAIState.Idle);
+    }
+
     #endregion
 
     #region 目标搜索

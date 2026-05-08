@@ -16,6 +16,9 @@ public class ChessAttribute : MonoBehaviour
 
     #region 数值
 
+    /// <summary>难度系数（敌人真实基础属性倍率，所有加成的基础）</summary>
+    private float m_DifficultyCoef = 1f;
+
     private double m_CurrentHp;
     private double m_CurrentMp;
     private double m_MaxHp;
@@ -88,6 +91,9 @@ public class ChessAttribute : MonoBehaviour
     /// <summary>是否死亡</summary>
     public bool IsDead => m_CurrentHp <= 0;
 
+    /// <summary>难度系数（所有基础属性的倍率基础）</summary>
+    public float DifficultyCoef => m_DifficultyCoef;
+
     #endregion
 
     #region 初始化
@@ -139,7 +145,29 @@ public class ChessAttribute : MonoBehaviour
     /// <param name="owner">所属棋子实体</param>
     /// <param name="config">棋子配置数据</param>
     /// <param name="rank">棋子等级（1-3）</param>
-    public void Initialize(ChessEntity owner, SummonChessConfig config, int rank)
+    /// <summary>
+    /// 初始化属性（包含难度系数应用）
+    ///
+    /// 【设计说明 - 难度系数时间窗口】
+    /// 1. 敌人棋子生成时：
+    ///    a. Initialize() 被调用，使用 difficultyCoef 参数（默认 1.0）
+    ///    b. 属性初始化为配置值 × difficultyCoef
+    ///    c. 【重要】此时若 difficultyCoef=1.0，敌人属性尚未应用真实的难度系数
+    ///    d. EnemySpawnManager.SpawnEnemyAsync() 立即调用 ApplyDifficultyCoef() 应用真实系数
+    ///
+    /// 2. 为什么不在 SpawnChessAsync 就传递难度系数？
+    ///    - 避免系统耦合：SummonChessManager 不应该知道敌人难度的概念
+    ///    - 玩家棋子保护：玩家棋子永远不需要难度系数
+    ///    - 职责清晰：生成 vs. 敌人难度应用是不同的系统
+    ///    - 扩展性：将来添加其他系数时不影响生成系统
+    ///
+    /// 3. 【时间窗口风险】
+    ///    Initialize() 后、ApplyDifficultyCoef() 前：
+    ///    - 如果此时有代码获取属性，会得到系数 1.0 的值
+    ///    - 实际上没有这个风险，因为 ApplyDifficultyCoef() 在 Initialize() 后立即调用
+    ///    - 而且都在 EnemySpawnManager.SpawnEnemyAsync() 的同一个函数中
+    /// </summary>
+    public void Initialize(ChessEntity owner, SummonChessConfig config, int rank, float difficultyCoef = 1f)
     {
         m_Owner = owner;
         if (config == null)
@@ -148,38 +176,47 @@ public class ChessAttribute : MonoBehaviour
             return;
         }
 
-        // 初始化最大值（使用等级对应的数据）
-        m_MaxHp = config.GetMaxHp(rank);
+        // 保存难度系数（敌人真实基础属性，只应用到 5 大属性：HP、ATK、Armor、MagicResist、SpellPower）
+        m_DifficultyCoef = Mathf.Max(difficultyCoef, 0.1f);
+
+        // 初始化最大值（使用等级对应的数据），应用难度系数到 MaxHp
+        m_MaxHp = config.GetMaxHp(rank) * m_DifficultyCoef;
         m_MaxMp = config.GetMaxMp(rank);
 
         // 初始化当前值
-        m_CurrentHp = config.GetMaxHp(rank);
+        m_CurrentHp = m_MaxHp;
         m_CurrentMp = config.GetInitialMp(rank);
 
-        // 初始化战斗属性
-        m_AtkDamage = config.GetAtkDamage(rank);
+        // 初始化战斗属性（只应用难度系数到 5 大基础属性）
+        m_AtkDamage = config.GetAtkDamage(rank) * m_DifficultyCoef;
         m_AtkSpeed = config.GetAtkSpeed(rank);
         m_AtkRange = config.GetAtkRange(rank);
-        m_Armor = config.GetArmor(rank);
-        m_MagicResist = config.GetMagicResist(rank);
+        m_Armor = config.GetArmor(rank) * m_DifficultyCoef;
+        m_MagicResist = config.GetMagicResist(rank) * m_DifficultyCoef;
         m_MoveSpeed = config.MoveSpeed;
         m_CritRate = config.GetCritRate(rank);
         m_CritDamage = config.GetCritDamage(rank);
-        m_SpellPower = config.GetSpellPower(rank);
+        m_SpellPower = config.GetSpellPower(rank) * m_DifficultyCoef;
         m_Shield = config.Shield;
         m_CooldownReduce = config.CooldownReduce;
         m_DamageTakenMultiplier = 1.0;
 
-        DebugEx.Log("ChessAttribute", $"Initialize: {config.Name} - HP:{m_CurrentHp}/{m_MaxHp} MP:{m_CurrentMp}/{m_MaxMp}");
+        DebugEx.Log("ChessAttribute",
+            $"Initialize: {config.Name} (难度系数:{m_DifficultyCoef:F2}) - HP:{m_CurrentHp:F0}/{m_MaxHp:F0} MP:{m_CurrentMp:F0}/{m_MaxMp:F0} ATK:{m_AtkDamage:F0} ARM:{m_Armor:F0}");
     }
 
     /// <summary>
     /// 从属单位属性初始化（属性由主人继承）
     /// 仅保留移动速度和MoveSpeed，其他属性继承自主人
+    ///
+    /// 【继承的是"真实基础属性"】
+    /// masterAttribute 中的属性值已经应用了难度系数（如果是敌人从属单位）
+    /// 所以从属单位继承到的是：配置值 × 难度系数 × inheritRatio
+    /// 这确保从属单位的强度与主人匹配，包括难度系数的影响
     /// </summary>
     /// <param name="owner">所属棋子实体</param>
     /// <param name="config">从属单位配置（PopCost=0）</param>
-    /// <param name="masterAttribute">主人的属性组件</param>
+    /// <param name="masterAttribute">主人的属性组件（已应用难度系数）</param>
     /// <param name="inheritRatio">属性继承比例（如0.8表示继承主人80%的属性）</param>
     public void InitializeAsSubordinate(ChessEntity owner, SummonChessConfig config, ChessAttribute masterAttribute, double inheritRatio)
     {
@@ -214,6 +251,60 @@ public class ChessAttribute : MonoBehaviour
         m_MoveSpeed = config?.MoveSpeed ?? 4;
 
         DebugEx.Log("ChessAttribute", $"InitializeAsSubordinate: {config?.Name} - HP:{m_CurrentHp}/{m_MaxHp} (继承比例:{inheritRatio})");
+    }
+
+    /// <summary>
+    /// 应用难度系数到基础属性（用于敌人在初始化后应用动态难度）
+    /// 根据当前难度系数重新计算所有基础属性
+    ///
+    /// 【调用时机】
+    /// - 由 EnemySpawnManager.SpawnEnemyAsync() 在敌人棋子初始化后立即调用
+    /// - 时机：Initialize() 完成 → 设置棋子等级 → ApplyDifficultyCoef()
+    ///
+    /// 【应用范围 - 只应用到 5 大基础属性】
+    /// ✅ MaxHp、AtkDamage、Armor、MagicResist、SpellPower
+    /// ❌ 不应用：MaxMp、Shield、AtkSpeed、AtkRange、MoveSpeed、CritRate、CritDamage、CooldownReduce
+    ///
+    /// 【继承关系的正确性】
+    /// - 从属单位通过 InitializeAsSubordinate() 继承主人属性
+    /// - 继承的是已应用系数后的"真实基础属性"，确保从属单位的属性匹配主人
+    /// </summary>
+    public void ApplyDifficultyCoef(float newDifficultyCoef, SummonChessConfig config, int rank)
+    {
+        if (config == null)
+        {
+            DebugEx.Error("ChessAttribute", "ApplyDifficultyCoef: config is null");
+            return;
+        }
+
+        // 更新难度系数
+        float oldCoef = m_DifficultyCoef;
+        m_DifficultyCoef = Mathf.Max(newDifficultyCoef, 0.1f);
+
+        // 计算属性倍率（旧系数 → 新系数）
+        float coefRatio = m_DifficultyCoef / Mathf.Max(oldCoef, 0.1f);
+
+        // 重新计算基础属性（只应用难度系数到 5 大基础属性：MaxHp、AtkDamage、Armor、MagicResist、SpellPower）
+        double baseMaxHp = config.GetMaxHp(rank);
+        double baseAtkDamage = config.GetAtkDamage(rank);
+        double baseArmor = config.GetArmor(rank);
+        double baseMagicResist = config.GetMagicResist(rank);
+        double baseSpellPower = config.GetSpellPower(rank);
+
+        // 应用新的难度系数（只到 5 大属性）
+        m_MaxHp = baseMaxHp * m_DifficultyCoef;
+        m_AtkDamage = baseAtkDamage * m_DifficultyCoef;
+        m_Armor = baseArmor * m_DifficultyCoef;
+        m_MagicResist = baseMagicResist * m_DifficultyCoef;
+        m_SpellPower = baseSpellPower * m_DifficultyCoef;
+
+        // 调整当前血量（按倍率缩放）
+        m_CurrentHp = Math.Max(m_CurrentHp * coefRatio, 0);
+        if (m_CurrentHp > m_MaxHp)
+            m_CurrentHp = m_MaxHp;
+
+        DebugEx.Log("ChessAttribute",
+            $"ApplyDifficultyCoef: {m_Owner?.Config.Name} ({oldCoef:F2} → {m_DifficultyCoef:F2}) - HP:{m_CurrentHp:F0}/{m_MaxHp:F0} ATK:{m_AtkDamage:F0} ARM:{m_Armor:F0}");
     }
 
     #endregion
