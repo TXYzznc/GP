@@ -21,7 +21,7 @@ public partial class CombatDifficultyRule : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 难度等级（从EnemyEntityTable中读取）
+    /// 难度等级(1-10)
     /// </summary>
     public override int Id
     {
@@ -29,7 +29,16 @@ public partial class CombatDifficultyRule : DataRowBase
     }
 
         /// <summary>
-        /// （对战时）最小人口数
+        /// 敌人难度系数（用于调整敌人棋子的五大基础属性）
+        /// </summary>
+        public float EnemyDifficultyCoef
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最小敌人数量
         /// </summary>
         public int MinPopulation
         {
@@ -38,7 +47,7 @@ public partial class CombatDifficultyRule : DataRowBase
         }
 
         /// <summary>
-        /// （对战时）最大人口数
+        /// 最大敌人数量
         /// </summary>
         public int MaxPopulation
         {
@@ -47,25 +56,7 @@ public partial class CombatDifficultyRule : DataRowBase
         }
 
         /// <summary>
-        /// 波次数量
-        /// </summary>
-        public int WaveCount
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 难度倍率（影响棋子属性）
-        /// </summary>
-        public float DifficultyMultiplier
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 奖励倍率
+        /// 奖励倍率(对战时，每0.3会额外增加一个奖励，保底1个)
         /// </summary>
         public float RewardMultiplier
         {
@@ -84,11 +75,9 @@ public partial class CombatDifficultyRule : DataRowBase
             int index = 0;
             index++;
             m_Id = int.Parse(columnStrings[index++]);
-            index++;
+            EnemyDifficultyCoef = float.Parse(columnStrings[index++]);
             MinPopulation = int.Parse(columnStrings[index++]);
             MaxPopulation = int.Parse(columnStrings[index++]);
-            WaveCount = int.Parse(columnStrings[index++]);
-            DifficultyMultiplier = float.Parse(columnStrings[index++]);
             RewardMultiplier = float.Parse(columnStrings[index++]);
 
             return true;
@@ -101,10 +90,9 @@ public partial class CombatDifficultyRule : DataRowBase
                 using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
+                    EnemyDifficultyCoef = binaryReader.ReadSingle();
                     MinPopulation = binaryReader.Read7BitEncodedInt32();
                     MaxPopulation = binaryReader.Read7BitEncodedInt32();
-                    WaveCount = binaryReader.Read7BitEncodedInt32();
-                    DifficultyMultiplier = binaryReader.ReadSingle();
                     RewardMultiplier = binaryReader.ReadSingle();
                 }
             }

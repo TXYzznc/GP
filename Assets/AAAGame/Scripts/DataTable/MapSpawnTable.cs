@@ -21,7 +21,7 @@ public partial class MapSpawnTable : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 主键
+    /// 地图ID（主键）
     /// </summary>
     public override int Id
     {
@@ -29,45 +29,45 @@ public partial class MapSpawnTable : DataRowBase
     }
 
         /// <summary>
-        /// 地图ID：（对应 SceneTable.Id）
+        /// 敌人配置(格式:101:30,102:50)
         /// </summary>
-        public int MapId
+        public string SpawnEnemys
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 生成类型：0=敌人 / 1=宝箱
+        /// 敌人数量范围(min,max)
         /// </summary>
-        public int SpawnType
+        public int[] EnemyNums
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 生成目标的配置表ID
+        /// 宝箱配置(格式:201:40,202:60)
         /// </summary>
-        public int SpawnTargetId
+        public string SpawnTreasures
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 权重
+        /// 宝箱数量范围(min,max)
         /// </summary>
-        public int Weight
+        public int[] TreasureNums
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 宝箱等级
+        /// 等级系数范围(min,max)
         /// </summary>
-        public int ChestLevel
+        public int[] LevelCoefficient
         {
             get;
             private set;
@@ -84,12 +84,11 @@ public partial class MapSpawnTable : DataRowBase
             int index = 0;
             index++;
             m_Id = int.Parse(columnStrings[index++]);
-            index++;
-            MapId = int.Parse(columnStrings[index++]);
-            SpawnType = int.Parse(columnStrings[index++]);
-            SpawnTargetId = int.Parse(columnStrings[index++]);
-            Weight = int.Parse(columnStrings[index++]);
-            ChestLevel = int.Parse(columnStrings[index++]);
+            SpawnEnemys = columnStrings[index++];
+            EnemyNums = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            SpawnTreasures = columnStrings[index++];
+            TreasureNums = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            LevelCoefficient = DataTableExtension.ParseArray<int>(columnStrings[index++]);
 
             return true;
         }
@@ -101,11 +100,11 @@ public partial class MapSpawnTable : DataRowBase
                 using (BinaryReader binaryReader = new BinaryReader(memoryStream, Encoding.UTF8))
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
-                    MapId = binaryReader.Read7BitEncodedInt32();
-                    SpawnType = binaryReader.Read7BitEncodedInt32();
-                    SpawnTargetId = binaryReader.Read7BitEncodedInt32();
-                    Weight = binaryReader.Read7BitEncodedInt32();
-                    ChestLevel = binaryReader.Read7BitEncodedInt32();
+                    SpawnEnemys = binaryReader.ReadString();
+                    EnemyNums = binaryReader.ReadArray<int>();
+                    SpawnTreasures = binaryReader.ReadString();
+                    TreasureNums = binaryReader.ReadArray<int>();
+                    LevelCoefficient = binaryReader.ReadArray<int>();
                 }
             }
 
