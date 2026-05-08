@@ -27,7 +27,7 @@ public class RuntimeLogToFileBuffered : MonoBehaviour
 
     public enum LogSaveLocation
     {
-        ProjectRoot_EditorOnly,   // Editor: 项目根目录；Build: 自动回退 persistentDataPath
+        ProjectRoot_EditorOnly,   // Editor: 项目根ild: 自动回退 persistentDataPath
         PersistentDataPath,
         AppFolder_IfPossible      // Build(桌面端): exe同级；移动端通常回退 persistentDataPath
     }

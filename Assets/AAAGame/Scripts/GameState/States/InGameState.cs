@@ -166,11 +166,16 @@ public class InGameState : FsmState<GameStateManager>
         var enemyManager = EnemyEntityManager.Instance;
         if (enemyManager != null && enemyManager.CurrentCombatEnemy != null)
         {
-            var config = enemyManager.CurrentCombatEnemy.Config;
+            var enemy = enemyManager.CurrentCombatEnemy;
+            var config = enemy.Config;
             if (config != null)
             {
                 uiParams.Set<VarInt32>(EndCombatUI.P_RewardId, config.RewardId);
-                uiParams.Set<VarInt32>(EndCombatUI.P_Difficulty, config.Difficulty);
+                // 优先使用动态计算的难度等级，否则使用配置表中的基础难度
+                int difficultyLevel = (enemy.ComputedDifficultyLevel > 0)
+                    ? enemy.ComputedDifficultyLevel
+                    : config.EnemyDifficulty;
+                uiParams.Set<VarInt32>(EndCombatUI.P_Difficulty, difficultyLevel);
             }
         }
 

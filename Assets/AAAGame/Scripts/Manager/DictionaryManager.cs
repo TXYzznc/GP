@@ -391,8 +391,8 @@ public class DictionaryManager
         entry.Name = row.Name;
         entry.Description = row.Description;
         entry.IconId = row.IconId;
-        entry.Quality = row.Difficulty;
-        entry.SubText = $"难度 {new string('★', row.Difficulty)}";
+        entry.Quality = row.EnemyDifficulty;
+        entry.SubText = $"难度 {new string('★', row.EnemyDifficulty)}";
     }
 
     private void FillItemEntry(ref DictionaryEntryData entry, int id)

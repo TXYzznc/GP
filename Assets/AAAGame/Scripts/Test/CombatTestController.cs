@@ -76,10 +76,10 @@ public class CombatTestController : MonoBehaviour
             var entityRow = entityTable.GetDataRow(m_TestBattleConfigId);
             if (entityRow != null)
             {
-                var diffRow = difficultyTable.GetDataRow(entityRow.Difficulty);
+                var diffRow = difficultyTable.GetDataRow(entityRow.EnemyDifficulty);
                 if (diffRow != null)
                 {
-                    difficultyMultiplier = diffRow.DifficultyMultiplier;
+                    difficultyMultiplier = diffRow.RewardMultiplier;
                 }
             }
         }
