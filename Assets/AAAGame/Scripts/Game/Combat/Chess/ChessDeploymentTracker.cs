@@ -154,6 +154,19 @@ public class ChessDeploymentTracker
     }
 
     /// <summary>
+    /// 清除棋子的死亡标记（复活时调用）
+    /// </summary>
+    public void MarkChessAlive(string instanceId)
+    {
+        var instance = GetInstance(instanceId);
+        if (instance != null)
+        {
+            instance.IsDead = false;
+            DebugEx.Log(nameof(ChessDeploymentTracker), $"棋子复活: chessId={instance.ChessId}, instanceId={instanceId}");
+        }
+    }
+
+    /// <summary>
     /// 获取已死亡棋子数量
     /// </summary>
     public int GetDeadCount()

@@ -190,6 +190,35 @@ public class CombatEntityTracker : MonoBehaviour
         TryEndCombatIfOneSideAllDead();
     }
 
+    /// <summary>
+    /// 复活棋子：从死亡列表移回存活列表，并重新加入敌人缓存
+    /// </summary>
+    public void ReviveChess(ChessEntity chess)
+    {
+        if (chess == null) return;
+
+        // 从死亡列表移除
+        m_DeadChess.Remove(chess);
+
+        int camp = chess.Camp;
+
+        // 重新加入阵营分组
+        if (!m_ChessByCamp.ContainsKey(camp))
+            m_ChessByCamp[camp] = new List<ChessEntity>();
+
+        if (!m_ChessByCamp[camp].Contains(chess))
+            m_ChessByCamp[camp].Add(chess);
+
+        // 重新加入总列表
+        if (!m_AllChess.Contains(chess))
+            m_AllChess.Add(chess);
+
+        // 重新加入敌人缓存
+        AddEnemyToCache(chess);
+
+        DebugEx.Log("CombatEntityTracker", $"✅ 复活棋子: {chess.Config?.Name}, Camp={camp}");
+    }
+
     private void TryEndCombatIfOneSideAllDead()
     {
         if (CombatManager.Instance == null || !CombatManager.Instance.IsInCombat)

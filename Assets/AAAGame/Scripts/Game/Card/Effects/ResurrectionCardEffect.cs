@@ -20,7 +20,6 @@ public class ResurrectionCardEffect : ICardEffect
     {
         if (m_CardData == null) return;
 
-        // 使用 Selector 获取目标
         var selector = new ClosestDeadAllySelector();
         List<ChessEntity> targets = selector.SelectTargets(null, m_CardData, targetPosition);
 
@@ -33,10 +32,37 @@ public class ResurrectionCardEffect : ICardEffect
         var target = targets[0];
         float reviveHpRatio = m_CardData.GetParam("reviveHpRatio", 0.5f);
         float reviveHp = (float)(target.Attribute.MaxHp * reviveHpRatio);
-        CardEffectHelper.HealTarget(target, reviveHp);
-        target.ChangeState(ChessState.Idle);
-        DebugEx.Log("ResurrectionCardEffect", $"复活 {target.Config?.Name}，恢复 {reviveHpRatio * 100}% HP");
 
+        // 1. 恢复 HP（先恢复，再改状态，避免 HP>0 时 IsDead 仍为 true）
+        target.Attribute.ModifyHp(reviveHp);
+
+        // 2. 改变棋子状态
+        target.ChangeState(ChessState.Idle);
+
+        // 3. 重新注册到 CombatEntityTracker（从死亡列表移回存活列表）
+        CombatEntityTracker.Instance?.ReviveChess(target);
+
+        // 4. 重新启用碰撞器
+        var colliders = target.GetComponentsInChildren<Collider>();
+        foreach (var col in colliders)
+            col.enabled = true;
+
+        // 5. 恢复动画（重置 m_IsDead，强制播放 Idle）
+        target.GetComponent<ChessAnimator>()?.PlayRevive();
+
+        // 6. 恢复 AI（解除死亡保护，重新开始行动）
+        if (target.AI is ChessAIBase aiBase)
+            aiBase.ForceRevive();
+
+        // 6. 清除 ChessDeploymentTracker 的死亡标记（让该棋子下次可以重新部署）
+        if (target.Camp == 0)
+        {
+            string instanceId = ChessDeploymentTracker.Instance?.GetInstanceIdByEntity(target);
+            if (!string.IsNullOrEmpty(instanceId))
+                ChessDeploymentTracker.Instance.MarkChessAlive(instanceId);
+        }
+
+        DebugEx.Log("ResurrectionCardEffect", $"复活 {target.Config?.Name}，恢复 {reviveHpRatio * 100}% HP");
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
     }
 }

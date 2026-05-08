@@ -82,7 +82,7 @@ public class EnemySpawnManager
             return;
         }
 
-        int enemyDifficulty = entityRow.Difficulty;
+        int enemyDifficulty = entityRow.EnemyDifficulty;
         int enemyType = entityRow.EnemyType;
         List<int> randomizedChessIds = new List<int>();
 
@@ -273,6 +273,18 @@ public class EnemySpawnManager
                 DebugEx.Log("EnemySpawnManager",
                     $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}, 难度={m_CurrentWave.EnemyDifficulty}, 等级=1");
             }
+
+            // 【关键】应用难度系数到敌人基础属性（敌人真实强度的体现）
+            // 从 CombatDifficultyRule 查询该难度等级的 EnemyDifficultyCoef（0.4-5.0）
+            // 应用到敌人的 5 大基础属性：HP、ATK、Armor、MagicResist、SpellPower
+            // 这使得敌人的属性成为"真实基础属性"，所有后续加成（继承、装备、Buff）都基于这个值
+            float difficultyCoef = GetEnemyDifficultyCoef(m_CurrentWave.EnemyDifficulty);
+            if (difficultyCoef > 0 && entity.Attribute != null)
+            {
+                entity.Attribute.ApplyDifficultyCoef(difficultyCoef, entity.Config, entity.Rank);
+                DebugEx.Log("EnemySpawnManager",
+                    $"敌人难度系数已应用: {entity.Config.Name}, 难度等级={m_CurrentWave.EnemyDifficulty}, 系数={difficultyCoef:F2}");
+            }
         }
         else
         {
@@ -283,17 +295,53 @@ public class EnemySpawnManager
     }
 
     /// <summary>
-    /// 根据难度系数计算棋子等级
-    /// 难度1-2 → 等级1，难度3 → 等级2，难度4-5 → 等级3
+    /// 根据难度等级计算棋子等级
+    /// 难度 1-3 → 等级1，难度 4-6 → 等级2，难度 7-10 → 等级3
     /// </summary>
-    private int CalculateRankFromDifficulty(int difficulty)
+    private int CalculateRankFromDifficulty(int difficultyLevel)
     {
-        if (difficulty <= 2)
+        // 将 1-10 的难度等级均匀分配到 1-3 的棋子等级
+        if (difficultyLevel <= 3)
             return 1;
-        else if (difficulty == 3)
+        else if (difficultyLevel <= 6)
             return 2;
         else
             return 3;
+    }
+
+    /// <summary>
+    /// 从 CombatDifficultyRule 获取敌人难度系数（0.4-5.0）
+    ///
+    /// 【难度系数的含义】
+    /// 难度1: 0.4× (新手难度，敌人属性 40%)
+    /// 难度2: 0.6×
+    /// 难度3: 0.8×
+    /// 难度4: 1.0× (平衡难度)
+    /// 难度5: 1.4× (开始困难)
+    /// ...
+    /// 难度10: 5.0× (极难，敌人属性 500%)
+    ///
+    /// 【应用对象】
+    /// 应用到敌人的 5 大基础属性：MaxHp、AtkDamage、Armor、MagicResist、SpellPower
+    /// 这确保高难度敌人确实更强、更耐打，不仅仅是靠数量堆砌
+    /// </summary>
+    private float GetEnemyDifficultyCoef(int difficultyLevel)
+    {
+        var difficultyTable = GF.DataTable.GetDataTable<CombatDifficultyRule>();
+        if (difficultyTable == null)
+        {
+            DebugEx.Warning("EnemySpawnManager", "CombatDifficultyRule 数据表未加载");
+            return 1f;
+        }
+
+        var difficultyRow = difficultyTable.GetDataRow(difficultyLevel);
+        if (difficultyRow == null)
+        {
+            DebugEx.Warning("EnemySpawnManager", $"未找到难度等级 {difficultyLevel} 的配置");
+            return 1f;
+        }
+
+        return difficultyRow.EnemyDifficultyCoef;
     }
 
     /// <summary>
