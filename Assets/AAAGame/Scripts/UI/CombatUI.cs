@@ -33,9 +33,13 @@ public partial class CombatUI : StateAwareUIForm
         // 订阅运行时数据变化事件
         SubscribeRuntimeDataEvents();
 
-        // 订阅棋子选中事件
+        // 订阅玩家棋子选中事件
         ChessSelectionManager.OnChessSelected += OnChessSelectedForDetail;
         ChessSelectionManager.OnChessDeselected += OnChessDeselectedForDetail;
+
+        // 订阅敌方棋子详情事件
+        EnemyChessDetailManager.OnEnemyChessClicked += OnEnemyChessClickedForDetail;
+        EnemyChessDetailManager.OnEnemyChessDeselected += OnEnemyChessDeselectedForDetail;
     }
 
     protected override void UnsubscribeEvents()
@@ -48,9 +52,13 @@ public partial class CombatUI : StateAwareUIForm
         // 取消订阅运行时数据变化事件
         UnsubscribeRuntimeDataEvents();
 
-        // 取消订阅棋子选中事件
+        // 取消订阅玩家棋子选中事件
         ChessSelectionManager.OnChessSelected -= OnChessSelectedForDetail;
         ChessSelectionManager.OnChessDeselected -= OnChessDeselectedForDetail;
+
+        // 取消订阅敌方棋子详情事件
+        EnemyChessDetailManager.OnEnemyChessClicked -= OnEnemyChessClickedForDetail;
+        EnemyChessDetailManager.OnEnemyChessDeselected -= OnEnemyChessDeselectedForDetail;
     }
 
     /// <summary>
@@ -318,6 +326,61 @@ public partial class CombatUI : StateAwareUIForm
     private void OnSummonerMPChanged(float oldValue, float newValue)
     {
         RefreshPlayerMP();
+    }
+
+    /// <summary>
+    /// ⭐ 新增：敌方棋子被点击时显示详情
+    /// </summary>
+    private void OnEnemyChessClickedForDetail(ChessEntity enemyChess)
+    {
+        var detailUI = GetDetailInfoUI();
+        if (detailUI == null) return;
+
+        m_CurrentDetailChess = enemyChess;
+
+        // 订阅敌方棋子属性变化事件
+        if (enemyChess.Attribute != null)
+        {
+            enemyChess.Attribute.OnHpChanged += OnDetailChessHpChanged;
+            enemyChess.Attribute.OnMpChanged += OnDetailChessMpChanged;
+            DebugEx.Log(nameof(CombatUI), $"已订阅敌方棋子 {enemyChess.Config?.Name} 的属性变化事件");
+        }
+
+        // 订阅Buff变化事件
+        ChessStateEvents.OnBuffAdded += OnDetailChessBuffChanged;
+        ChessStateEvents.OnBuffRemoved += OnDetailChessBuffChanged;
+
+        detailUI.SetChessUnitData(enemyChess);
+        detailUI.RefreshUI();
+        detailUI.ShowWithAnimation();
+        DebugEx.Log(nameof(CombatUI), $"显示敌方棋子详情: {enemyChess.Config?.Name}");
+    }
+
+    /// <summary>
+    /// ⭐ 新增：敌方棋子被取消点击时隐藏详情
+    /// </summary>
+    private void OnEnemyChessDeselectedForDetail()
+    {
+        // 取消订阅属性变化事件
+        if (m_CurrentDetailChess != null && m_CurrentDetailChess.Attribute != null)
+        {
+            m_CurrentDetailChess.Attribute.OnHpChanged -= OnDetailChessHpChanged;
+            m_CurrentDetailChess.Attribute.OnMpChanged -= OnDetailChessMpChanged;
+            DebugEx.Log(nameof(CombatUI), $"已取消订阅敌方棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件");
+        }
+
+        ChessStateEvents.OnBuffAdded -= OnDetailChessBuffChanged;
+        ChessStateEvents.OnBuffRemoved -= OnDetailChessBuffChanged;
+
+        m_CurrentDetailChess = null;
+
+        if (varDetailInfoUI != null)
+        {
+            if (varDetailInfoUI.TryGetComponent<DetailInfoUI>(out var detailUI))
+                detailUI.HideWithAnimation();
+            else
+                varDetailInfoUI.SetActive(false);
+        }
     }
 
     #endregion
@@ -825,6 +888,12 @@ public partial class CombatUI : StateAwareUIForm
         if (SummonerRuntimeDataManager.Instance != null && SummonerRuntimeDataManager.Instance.IsInitialized)
         {
             SummonerRuntimeDataManager.Instance.UpdateMPRegen(elapseSeconds);
+        }
+
+        // ⭐ 新增：更新敌方棋子详情管理器（处理点击检测）
+        if (EnemyChessDetailManager.Instance != null)
+        {
+            EnemyChessDetailManager.Instance.Tick();
         }
     }
 

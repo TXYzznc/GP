@@ -510,8 +510,9 @@ public class CombatState : FsmState<InGameState>
         ChessPlacementManager.Instance.Cleanup();
         ChessSelectionManager.Instance.Cleanup();
         BattleArenaManager.Instance.Cleanup();
-        // 清理敌人管理器
         EnemySpawnManager.Instance.Cleanup();
+        // 清理敌方棋子详情管理器
+        EnemyChessDetailManager.Instance.Cleanup();
 
         DebugEx.Log("CombatState", "战斗管理器已清理");
     }
@@ -537,6 +538,14 @@ public class CombatState : FsmState<InGameState>
         {
             ChessSelectionManager.Instance.EnableSelectionOnly(); // 使用仅选择模式
         }
+
+        // ⭐ 新增：初始化并启用敌方棋子详情管理器
+        if (EnemyChessDetailManager.Instance != null)
+        {
+            EnemyChessDetailManager.Instance.Initialize();
+            EnemyChessDetailManager.Instance.Enable();
+            DebugEx.Log("CombatState", "敌方棋子详情管理器已启用");
+        }
     }
 
     /// <summary>
@@ -547,6 +556,13 @@ public class CombatState : FsmState<InGameState>
         if (ChessSelectionManager.Instance != null)
         {
             ChessSelectionManager.Instance.Disable();
+        }
+
+        // ⭐ 新增：禁用敌方棋子详情管理器
+        if (EnemyChessDetailManager.Instance != null)
+        {
+            EnemyChessDetailManager.Instance.Disable();
+            DebugEx.Log("CombatState", "敌方棋子详情管理器已禁用");
         }
     }
 
