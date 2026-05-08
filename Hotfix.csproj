@@ -119,6 +119,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\邪灵\EvilSpiritUltimate.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\TeleportGateInteractable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\SceneStateManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Test\ExploreAITestBootstrapper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyCombatState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerEvents.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Preparation\BattleLoadoutProvider.cs" />

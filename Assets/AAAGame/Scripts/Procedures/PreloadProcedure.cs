@@ -69,7 +69,8 @@ public class PreloadProcedure : ProcedureBase
             preloadAllCompleted = true;
             InitGameFrameworkSettings();
 
-            // ======= 战斗测试模式：跳转到测试场景而非正常游戏 =======
+            // ======= 测试模式：跳转到测试场景而非正常游戏 =======
+            // 支持战斗测试和敌人AI测试两种模式
             if (CombatTestBootstrapper.IsCombatTestMode)
             {
                 GF.Log("预加载完成, 进入战斗测试模式.");
@@ -87,6 +88,29 @@ public class PreloadProcedure : ProcedureBase
                 DebugEx.Log(nameof(PreloadProcedure), $"设置场景名: {testScene}");
 
                 CombatTestBootstrapper.NotifyReady();
+                ChangeState<ChangeSceneProcedure>(procedureOwner);
+                return;
+            }
+
+            if (ExploreAITestBootstrapper.IsExploreAITestMode)
+            {
+                GF.Log("预加载完成, 进入敌人AI测试模式.");
+                string testScene = ExploreAITestBootstrapper.TestSceneName;
+                DebugEx.Log(nameof(PreloadProcedure), $"敌人AI测试场景: {testScene}");
+
+                // ⭐ 如果 testScene 为空，使用 "ExploreAITestScene" 作为默认值
+                if (string.IsNullOrEmpty(testScene))
+                {
+                    testScene = "ExploreAITestScene";
+                    DebugEx.Warning(nameof(PreloadProcedure), "敌人AI测试场景名为空，使用默认值");
+                }
+
+                procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, testScene);
+                // 设置标记：告诉GameProcedure不要生成玩家
+                procedureOwner.SetData<VarString>("IsExploreAITestMode", "true");
+                DebugEx.Log(nameof(PreloadProcedure), $"设置敌人AI测试场景: {testScene}");
+
+                ExploreAITestBootstrapper.NotifyReady();
                 ChangeState<ChangeSceneProcedure>(procedureOwner);
                 return;
             }

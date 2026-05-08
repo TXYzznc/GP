@@ -76,8 +76,18 @@ public class GameProcedure : ProcedureBase
         // 6. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
         OpenGameUIs();
 
-        // 7. 最后生成角色
-        PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
+        // 7. 最后生成角色（敌人AI测试模式由panel生成）
+        var testModeData = m_ProcedureFsm.GetData<VarString>("IsExploreAITestMode");
+        bool isTestMode = testModeData != null && testModeData.Value == "true";
+
+        if (!isTestMode)
+        {
+            PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
+        }
+        else
+        {
+            DebugEx.Log("GameProcedure", "✓ 敌人AI测试模式已识别，跳过自动玩家生成");
+        }
 
         Log.Info("GameProcedure 初始化完成");
     }
