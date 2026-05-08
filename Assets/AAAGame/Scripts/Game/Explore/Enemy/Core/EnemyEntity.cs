@@ -14,7 +14,7 @@ public class EnemyEntity : MonoBehaviour
     [Header("配置")]
     [SerializeField]
     [Tooltip("敌人实体配置ID（对应 EnemyEntityTable）")]
-    private int m_EntityConfigId = 0;
+    private int m_EntityConfigId = 0;//可以手动把敌人实体放在场景中？此时需要手动配置这个数据
 
     [Header("调试")]
     [SerializeField]
@@ -55,6 +55,9 @@ public class EnemyEntity : MonoBehaviour
     /// <summary>实体唯一标识符（Awake 中生成）</summary>
     private string m_EntityGuid;
 
+    /// <summary>动态计算的难度等级（1-10，由 SceneSpawnManager 设置）</summary>
+    private int m_ComputedDifficultyLevel = 0;
+
     #endregion
 
     #region 属性
@@ -89,6 +92,9 @@ public class EnemyEntity : MonoBehaviour
     /// <summary>实体唯一标识符</summary>
     public string EntityGuid => m_EntityGuid;
 
+    /// <summary>动态计算的难度等级（1-10）</summary>
+    public int ComputedDifficultyLevel => m_ComputedDifficultyLevel;
+
     #endregion
 
     #region 公开方法
@@ -100,6 +106,14 @@ public class EnemyEntity : MonoBehaviour
     public void SetEntityConfigId(int id)
     {
         m_EntityConfigId = id;
+    }
+
+    /// <summary>
+    /// 设置动态计算的难度等级（由 SceneSpawnManager 调用）
+    /// </summary>
+    public void SetComputedDifficultyLevel(int level)
+    {
+        m_ComputedDifficultyLevel = Mathf.Clamp(level, 0, 10);
     }
 
     #endregion

@@ -40,8 +40,13 @@ public class EnemyCombatData
         }
 
         // 从 CombatDifficultyRule 读取难度相关数据
+        // 优先使用动态计算的难度，其次使用配置表中的基础难度
+        int difficultyToUse = (entity.ComputedDifficultyLevel > 0)
+            ? entity.ComputedDifficultyLevel
+            : entity.Config.EnemyDifficulty;
+
         var difficultyTable = GF.DataTable.GetDataTable<CombatDifficultyRule>();
-        var difficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(entity.Config.Difficulty) : null;
+        var difficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(difficultyToUse) : null;
 
         int minPop = difficultyRow?.MinPopulation ?? 2;
         int maxPop = difficultyRow?.MaxPopulation ?? 2;
@@ -103,7 +108,10 @@ public class EnemyCombatData
             return null;
         }
 
-        var firstDifficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(firstEnemy.Config.Difficulty) : null;
+        int firstDifficultyToUse = (firstEnemy.ComputedDifficultyLevel > 0)
+            ? firstEnemy.ComputedDifficultyLevel
+            : firstEnemy.Config.EnemyDifficulty;
+        var firstDifficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(firstDifficultyToUse) : null;
         int firstMinPop = firstDifficultyRow?.MinPopulation ?? 2;
         int firstMaxPop = firstDifficultyRow?.MaxPopulation ?? 2;
 
@@ -150,7 +158,10 @@ public class EnemyCombatData
                 continue;
             }
 
-            var difficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(enemy.Config.Difficulty) : null;
+            int enemyDifficultyToUse = (enemy.ComputedDifficultyLevel > 0)
+                ? enemy.ComputedDifficultyLevel
+                : enemy.Config.EnemyDifficulty;
+            var difficultyRow = (difficultyTable != null) ? difficultyTable.GetDataRow(enemyDifficultyToUse) : null;
             int minPop = difficultyRow?.MinPopulation ?? 2;
             int maxPop = difficultyRow?.MaxPopulation ?? 2;
 
@@ -673,7 +684,7 @@ public class EnemyEntityManager : SingletonBase<EnemyEntityManager>
         {
             if (enemy != null && enemy.Config != null)
             {
-                totalDifficulty += enemy.Config.Difficulty;
+                totalDifficulty += enemy.Config.EnemyDifficulty;
             }
         }
 

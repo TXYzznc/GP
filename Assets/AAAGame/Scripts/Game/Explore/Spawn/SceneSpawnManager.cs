@@ -117,13 +117,7 @@ public class SceneSpawnManager : MonoBehaviour
             return;
         }
 
-        DebugEx.Log("SceneSpawnManager", $"========== 场景对象生成开始 ==========\n" +
-            $"  ├─ MapId: {m_MapId}\n" +
-            $"  ├─ NavMesh三角形数: {m_CachedTriangulation.indices.Length / 3}\n" +
-            $"  ├─ 敌人参数: 最大尝试={m_EnemyMaxAttempts}, 安全半径={m_EnemySafetyRadius:F2}, 最小间隔={m_EnemyMinSpacing:F2}\n" +
-            $"  └─ 宝箱参数: 最大尝试={m_ChestMaxAttempts}, 最小间隔={m_ChestMinSpacing:F2}");
-
-        // 读表获取配置
+        // 读表获取地图生成配置
         var mapSpawnTable = GF.DataTable.GetDataTable<MapSpawnTable>();
         if (mapSpawnTable == null)
         {
@@ -131,48 +125,54 @@ public class SceneSpawnManager : MonoBehaviour
             return;
         }
 
-        var mapConfigs = GetMapConfigs(mapSpawnTable);
-        if (mapConfigs.Count == 0)
+        var mapConfig = mapSpawnTable.GetDataRow(m_MapId);
+        if (mapConfig == null)
         {
-            DebugEx.Warning("SceneSpawnManager", $"地图 {m_MapId} 无生成配置");
+            DebugEx.Warning("SceneSpawnManager", $"地图 {m_MapId} 在 MapSpawnTable 中无配置");
             return;
         }
 
-        // 按类型分组配置
-        var enemyConfigs = new List<MapSpawnTable>();
-        var chestConfigs = new List<MapSpawnTable>();
+        // 解析等级系数
+        float levelCoefficient = SpawnConfigParser.RandomFromRangeFloat(mapConfig.LevelCoefficient);
 
-        foreach (var config in mapConfigs)
+        DebugEx.Log("SceneSpawnManager", $"========== 场景对象生成开始 ==========\n" +
+            $"  ├─ MapId: {m_MapId}\n" +
+            $"  ├─ 等级系数: {levelCoefficient:F2} (范围 {mapConfig.LevelCoefficient[0]}-{mapConfig.LevelCoefficient[1]})\n" +
+            $"  ├─ NavMesh三角形数: {m_CachedTriangulation.indices.Length / 3}\n" +
+            $"  ├─ 敌人参数: 最大尝试={m_EnemyMaxAttempts}, 安全半径={m_EnemySafetyRadius:F2}, 最小间隔={m_EnemyMinSpacing:F2}\n" +
+            $"  └─ 宝箱参数: 最大尝试={m_ChestMaxAttempts}, 最小间隔={m_ChestMinSpacing:F2}");
+
+        // 解析敌人配置
+        var enemyWeightDict = SpawnConfigParser.ParseWeightedConfig(mapConfig.SpawnEnemys);
+        int enemyCount = SpawnConfigParser.RandomFromRange(mapConfig.EnemyNums);
+
+        if (enemyWeightDict.Count > 0 && enemyCount > 0)
         {
-            if (config.SpawnType == 0)
-                enemyConfigs.Add(config);
-            else if (config.SpawnType == 1)
-                chestConfigs.Add(config);
-        }
+            m_Statistics.TotalSpawnPoints = enemyCount;
+            DebugEx.Log("SceneSpawnManager",
+                $"[生成敌人] 敌人类型数={enemyWeightDict.Count}, 目标数量={enemyCount}");
 
-        DebugEx.Log("SceneSpawnManager", $"配置加载: 敌人配置={enemyConfigs.Count}, 宝箱配置={chestConfigs.Count}");
-
-        // 生成敌人和宝箱
-        m_SpawnedEnemyPositions.Clear();
-        m_SpawnedChestPositions.Clear();
-
-        if (enemyConfigs.Count > 0)
-        {
-            m_Statistics.TotalSpawnPoints = enemyConfigs.Count;
-            DebugEx.Log("SceneSpawnManager", $"[生成敌人] 开始生成 {enemyConfigs.Count} 个敌人");
-            foreach (var config in enemyConfigs)
+            for (int i = 0; i < enemyCount; i++)
             {
-                await TrySpawnAsync(config, isEnemy: true);
+                int enemyId = SpawnConfigParser.PickWeightedRandom(enemyWeightDict);
+                await TrySpawnEnemyAsync(enemyId, levelCoefficient);
             }
         }
 
-        if (chestConfigs.Count > 0)
+        // 解析宝箱配置
+        var chestWeightDict = SpawnConfigParser.ParseWeightedConfig(mapConfig.SpawnTreasures);
+        int chestCount = SpawnConfigParser.RandomFromRange(mapConfig.TreasureNums);
+
+        if (chestWeightDict.Count > 0 && chestCount > 0)
         {
-            m_Statistics.TotalSpawnPoints += chestConfigs.Count;
-            DebugEx.Log("SceneSpawnManager", $"[生成宝箱] 开始生成 {chestConfigs.Count} 个宝箱");
-            foreach (var config in chestConfigs)
+            m_Statistics.TotalSpawnPoints += chestCount;
+            DebugEx.Log("SceneSpawnManager",
+                $"[生成宝箱] 宝箱类型数={chestWeightDict.Count}, 目标数量={chestCount}");
+
+            for (int i = 0; i < chestCount; i++)
             {
-                await TrySpawnAsync(config, isEnemy: false);
+                int chestId = SpawnConfigParser.PickWeightedRandom(chestWeightDict);
+                await TrySpawnChestAsync(chestId, levelCoefficient);
             }
         }
 
@@ -188,21 +188,63 @@ public class SceneSpawnManager : MonoBehaviour
             DebugEx.Error("SceneSpawnManager", resultMessage);
     }
 
-    private List<MapSpawnTable> GetMapConfigs(IDataTable<MapSpawnTable> dataTable)
+    /// <summary>
+    /// 生成单个敌人
+    /// </summary>
+    private async UniTask TrySpawnEnemyAsync(int enemyId, float levelCoefficient)
     {
-        var result = new List<MapSpawnTable>();
-        var allRows = dataTable.GetAllDataRows();
-
-        foreach (var row in allRows)
+        // 获取敌人基础难度
+        var enemyEntityTable = GF.DataTable.GetDataTable<EnemyEntityTable>();
+        if (enemyEntityTable == null)
         {
-            if (row.MapId == m_MapId)
-                result.Add(row);
+            m_Statistics.InstantiateFailures++;
+            DebugEx.Warning("SceneSpawnManager", "EnemyEntityTable 未加载");
+            return;
         }
 
-        return result;
+        var enemyEntityRow = enemyEntityTable.GetDataRow(enemyId);
+        if (enemyEntityRow == null)
+        {
+            m_Statistics.InstantiateFailures++;
+            DebugEx.Warning("SceneSpawnManager", $"敌人ID {enemyId} 在 EnemyEntityTable 中不存在");
+            return;
+        }
+
+        // 获取玩家等级
+        var saveData = PlayerAccountDataManager.Instance?.CurrentSaveData;
+        if (saveData == null)
+        {
+            m_Statistics.InstantiateFailures++;
+            DebugEx.Warning("SceneSpawnManager", "无法获取玩家存档数据");
+            return;
+        }
+
+        // 计算难度（新算法：非线性，6:4权重）
+        float difficulty = DifficultyCalculator.CalculateEnemyDifficulty(
+            levelCoefficient,
+            saveData.GlobalLevel,
+            enemyEntityRow.EnemyDifficulty
+        );
+
+        // 映射到 1-10 级别
+        int difficultyLevel = DifficultyCalculator.MapDifficultyToLevel(difficulty);
+
+        // 创建配置对象用于生成，包含难度等级
+        var config = new { SpawnTargetId = (long)enemyId, ComputedDifficultyLevel = difficultyLevel };
+        await TrySpawnAsync(config, isEnemy: true);
     }
 
-    private async UniTask TrySpawnAsync(MapSpawnTable config, bool isEnemy)
+    /// <summary>
+    /// 生成单个宝箱
+    /// </summary>
+    private async UniTask TrySpawnChestAsync(int chestId, float levelCoefficient)
+    {
+        // 创建配置对象用于生成（需要传递等级系数给 SetTreasureBoxData）
+        var config = new { SpawnTargetId = (long)chestId, LevelCoefficient = levelCoefficient };
+        await TrySpawnAsync(config, isEnemy: false);
+    }
+
+    private async UniTask TrySpawnAsync(dynamic config, bool isEnemy, float difficulty = 0f, float levelCoefficient = 0f)
     {
         // 获取对应类型的参数
         int maxAttempts = isEnemy ? m_EnemyMaxAttempts : m_ChestMaxAttempts;
@@ -222,9 +264,10 @@ public class SceneSpawnManager : MonoBehaviour
         existingPositions.Add(spawnPos);
 
         // 获取预制体 ID
+        int targetId = (int)config.SpawnTargetId;
         int prefabId = isEnemy
-            ? GetEnemyPrefabId(config.SpawnTargetId)
-            : GetTreasureBoxPrefabId(config.SpawnTargetId);
+            ? GetEnemyPrefabId(targetId)
+            : GetTreasureBoxPrefabId(targetId);
 
         if (prefabId == 0)
         {
@@ -247,29 +290,86 @@ public class SceneSpawnManager : MonoBehaviour
         try
         {
             var spawnedObject = Instantiate(prefab, spawnPos, Quaternion.identity);
+
+            if (spawnedObject == null)
+            {
+                m_Statistics.InstantiateFailures++;
+                DebugEx.Error("SceneSpawnManager", "❌ 生成失败: Instantiate 返回 null");
+                return;
+            }
+
             AdjustPositionToNavMesh(spawnedObject, spawnPos);
 
             // 初始化
             if (isEnemy)
             {
-                if (spawnedObject.TryGetComponent<EnemyEntity>(out var enemyEntity))
+                if (!spawnedObject.TryGetComponent<EnemyEntity>(out var enemyEntity))
                 {
-                    enemyEntity.SetEntityConfigId(config.SpawnTargetId);
+                    m_Statistics.InstantiateFailures++;
+                    DebugEx.Warning("SceneSpawnManager",
+                        $"⚠️ 敌人预制体缺少 EnemyEntity 组件");
+                    DestroyImmediate(spawnedObject);
+                    return;
+                }
+
+                try
+                {
+                    enemyEntity.SetEntityConfigId(targetId);
+
+                    // 设置动态难度等级（来自dynamic对象或默认值）
+                    int difficultyLevel = 0;
+                    if (config.ComputedDifficultyLevel != null)
+                        difficultyLevel = (int)config.ComputedDifficultyLevel;
+                    if (difficultyLevel > 0)
+                        enemyEntity.SetComputedDifficultyLevel(difficultyLevel);
+
                     m_Statistics.SuccessfulSpawns++;
                     DebugEx.Success("SceneSpawnManager",
-                        $"✓ 敌人生成成功: {enemyEntity.Config.Name}\n" +
+                        $"✓ 敌人生成成功: ID={targetId}, 难度等级={difficultyLevel}\n" +
                         $"  └─ 位置: ({spawnPos.x:F2}, {spawnPos.y:F2}, {spawnPos.z:F2})");
+                }
+                catch (System.Exception initEx)
+                {
+                    m_Statistics.InstantiateFailures++;
+                    DebugEx.Error("SceneSpawnManager",
+                        $"❌ 敌人初始化失败: {initEx.GetType().Name}\n" +
+                        $"  ├─ ID: {targetId}\n" +
+                        $"  └─ {initEx.Message}");
+                    DestroyImmediate(spawnedObject);
                 }
             }
             else
             {
-                if (spawnedObject.TryGetComponent<TreasureChestInteractable>(out var chest))
+                if (!spawnedObject.TryGetComponent<TreasureChestInteractable>(out var chest))
                 {
-                    chest.SetTreasureBoxData(config.SpawnTargetId, config.ChestLevel);
+                    m_Statistics.InstantiateFailures++;
+                    DebugEx.Warning("SceneSpawnManager",
+                        $"⚠️ 宝箱预制体缺少 TreasureChestInteractable 组件");
+                    DestroyImmediate(spawnedObject);
+                    return;
+                }
+
+                try
+                {
+                    // 获取等级系数（来自dynamic对象或默认值）
+                    float levelCoeff = 100f; // 默认值
+                    if (config.LevelCoefficient != null)
+                        levelCoeff = (float)config.LevelCoefficient;
+
+                    chest.SetTreasureBoxData(targetId, levelCoeff);
                     m_Statistics.SuccessfulSpawns++;
                     DebugEx.Success("SceneSpawnManager",
-                        $"✓ 宝箱生成成功 (等级{config.ChestLevel})\n" +
+                        $"✓ 宝箱生成成功: ID={targetId} (等级系数{levelCoeff:F2})\n" +
                         $"  └─ 位置: ({spawnPos.x:F2}, {spawnPos.y:F2}, {spawnPos.z:F2})");
+                }
+                catch (System.Exception initEx)
+                {
+                    m_Statistics.InstantiateFailures++;
+                    DebugEx.Error("SceneSpawnManager",
+                        $"❌ 宝箱初始化失败: {initEx.GetType().Name}\n" +
+                        $"  ├─ ID: {targetId}\n" +
+                        $"  └─ {initEx.Message}");
+                    DestroyImmediate(spawnedObject);
                 }
             }
         }
@@ -277,7 +377,8 @@ public class SceneSpawnManager : MonoBehaviour
         {
             m_Statistics.InstantiateFailures++;
             DebugEx.Error("SceneSpawnManager",
-                $"❌ 生成失败: {ex.GetType().Name} - {ex.Message}");
+                $"❌ 对象生成失败: {ex.GetType().Name}\n" +
+                $"  └─ {ex.Message}\n\n堆栈:\n{ex.StackTrace}");
         }
 
         await UniTask.Yield();

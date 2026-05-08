@@ -48,7 +48,7 @@ public class EnemyRewardSystem : SingletonBase<EnemyRewardSystem>
                 continue;
 
             // 计算经验
-            var expRule = GetExpRule(enemy.Config.Difficulty);
+            var expRule = GetExpRule(enemy.Config.EnemyDifficulty);
             if (expRule != null)
             {
                 int currentLevel = PlayerAccountDataManager.Instance?.CurrentSaveData?.GlobalLevel ?? 1;
