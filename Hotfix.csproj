@@ -292,6 +292,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\AI\EnemyInfoCache.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardEffectExecutor.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DataModel\TypeIdPair.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Utils\SpawnConfigParser.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\SlotContainer\SlotContainer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Test\CombatTestBootstrapper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\PosTable.cs" />
@@ -300,6 +301,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\SummonChessStateUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\Skills\BerserkerActiveSkill.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonerSkill\BuffTargetEntry.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Utils\DifficultyCalculator.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\OutOfGameState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Audio\SFXManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemyFormationManager.cs" />
@@ -440,6 +442,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\CurrencyUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\PacketHeaderBase.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTablePartial\SpecialEffectTable.Ext.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemyChessDetailManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\AddExpEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\AI\DummyAI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\OutsiderFunctionUI.cs" />
@@ -574,7 +577,6 @@
     <Compile Include="Assets\AAAGame\Scripts\Extension\TransformExtension.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\CurrencyItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarVector3Array.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemySpawnDebugger.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\AffixEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Test\CombatTestController.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Effects\DissolveTransitionManager.cs" />
