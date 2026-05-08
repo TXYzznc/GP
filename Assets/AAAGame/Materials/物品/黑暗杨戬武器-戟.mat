@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: "\u9ED1\u6697\u6768\u622C"
+  m_Name: "\u9ED1\u6697\u6768\u622C\u6B66\u5668-\u621F"
   m_Shader: {fileID: 4800000, guid: de4de622106204a4380db6ae998ceeb3, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -29,11 +29,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 70a881616a8d1f849867193b521604d2, type: 3}
+        m_Texture: {fileID: 2800000, guid: 75fb2982f447fc14796394ab9824d040, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 3699de47157949b4d9e6c8948e2c7937, type: 3}
+        m_Texture: {fileID: 2800000, guid: 29b84a5aa1e7f004280d24053463b8bc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -49,7 +49,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DissolveTex:
-        m_Texture: {fileID: 2800000, guid: 6b1c959d63b7c2540a3ee23f2557ff71, type: 3}
+        m_Texture: {fileID: 2800000, guid: cdea0829c69aff746ae8082d20383b18, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -57,7 +57,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 70a881616a8d1f849867193b521604d2, type: 3}
+        m_Texture: {fileID: 2800000, guid: 965b2fc37c2d1a447b8c6e33a4e666dc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -103,22 +103,21 @@ Material:
     - _DISSOLVE_MODE: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DissolveEdgeWidth: 0.1
+    - _DissolveEdgeWidth: 0.08
     - _DissolveEnabled: 1
-    - _DissolveThreshold: 0
+    - _DissolveThreshold: 0.005
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _GlossMapScale: 1
-    - _Glossiness: 1
-    - _GlossyReflections: 1
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
     - _LocalOutlineCurve: 1
     - _LocalOutlineDepthFar: 5
     - _LocalOutlineDepthNear: 0.5
     - _LocalOutlineWidthFarRate: 0.2
     - _LocalOutlineWidthNearRate: 1.2
     - _Metallic: 0
-    - _Mode: 0
     - _OcclusionStrength: 1
     - _OilPaintingBrushScale: 2
     - _OilPaintingHardness: 8
@@ -128,25 +127,24 @@ Material:
     - _OutlineDistanceMax: 2
     - _OutlineDistanceMin: 20
     - _OutlineLocalEnableDistance: 5
-    - _OutlineWidth: 0.003
+    - _OutlineWidth: 0.01
     - _OutlineWidthMax: 0.008
     - _OutlineWidthMin: 0.001
     - _OutlineZOffset: -0.001
-    - _Parallax: 0.02
+    - _Parallax: 0.005
     - _QueueOffset: 0
     - _RainbowIntensity: 2
     - _RampSmooth: 0
-    - _RampThreshold: 0.052
+    - _RampThreshold: 0.3
     - _ReceiveShadows: 1
-    - _Smoothness: 1
+    - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _StealthAlpha: 1
     - _Surface: 0
-    - _ToonSteps: 5.16
-    - _UVSec: 0
+    - _ToonSteps: 5
     - _UseDistanceOutline: 1
     - _UseLocalDepthOutline: 1
     - _UseOilPainting: 0
@@ -156,7 +154,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DissolveEdgeColor: {r: 3, g: 1, b: 0, a: 2}
+    - _DissolveEdgeColor: {r: 3, g: 0, b: 2.9105089, a: 2}
     - _DissolveInnerColor: {r: 1, g: 0, b: 0, a: 1}
     - _DissolveMidColor: {r: 3, g: 1, b: 0, a: 2}
     - _DissolveOuterColor: {r: 5, g: 5, b: 2, a: 2}
@@ -166,7 +164,7 @@ Material:
     - _SColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &1082142863858691804
+--- !u!114 &8118862586216675354
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

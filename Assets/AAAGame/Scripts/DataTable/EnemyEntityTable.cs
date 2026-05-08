@@ -274,7 +274,7 @@ public partial class EnemyEntityTable : DataRowBase
         /// <summary>
         /// 难度系数（1-5）
         /// </summary>
-        public int Difficulty
+        public int EnemyDifficulty
         {
             get;
             private set;
@@ -319,7 +319,7 @@ public partial class EnemyEntityTable : DataRowBase
             ChaseSpeed = float.Parse(columnStrings[index++]);
             ChaseDistance = float.Parse(columnStrings[index++]);
             CombatDistance = float.Parse(columnStrings[index++]);
-            Difficulty = int.Parse(columnStrings[index++]);
+            EnemyDifficulty = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -358,7 +358,7 @@ public partial class EnemyEntityTable : DataRowBase
                     ChaseSpeed = binaryReader.ReadSingle();
                     ChaseDistance = binaryReader.ReadSingle();
                     CombatDistance = binaryReader.ReadSingle();
-                    Difficulty = binaryReader.Read7BitEncodedInt32();
+                    EnemyDifficulty = binaryReader.Read7BitEncodedInt32();
                 }
             }
 

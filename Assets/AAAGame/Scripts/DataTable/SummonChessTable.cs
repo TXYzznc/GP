@@ -101,7 +101,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 最大生命值（三个阶级）
+        /// 最大生命值（三个阶级）**基础属性**
         /// </summary>
         public double[] MaxHp
         {
@@ -128,7 +128,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 攻击力（三个阶级）
+        /// 攻击力（三个阶级）**基础属性**
         /// </summary>
         public double[] AtkDamage
         {
@@ -155,7 +155,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 护甲（三个阶级）
+        /// 护甲（三个阶级）**基础属性**
         /// </summary>
         public double[] Armor
         {
@@ -164,7 +164,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 魔抗（三个阶级）
+        /// 魔抗（三个阶级）**基础属性**
         /// </summary>
         public double[] MagicResist
         {
@@ -200,7 +200,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 法术强度（三个阶级）
+        /// 法术强度（三个阶级）**基础属性**
         /// </summary>
         public double[] SpellPower
         {
