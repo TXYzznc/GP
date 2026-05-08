@@ -85,10 +85,34 @@ public class TreasureChestInteractable : InteractableBase
     /// 设置宝箱配置（运行时动态生成用）
     /// 必须在 Awake 和 Start 之间调用
     /// </summary>
-    public void SetTreasureBoxData(int treasureBoxId, int chestLevel)
+    public void SetTreasureBoxData(int treasureBoxId, float levelCoefficient)
     {
         m_TreasureBoxId = treasureBoxId;
-        m_ChestLevel = Mathf.Clamp(chestLevel, 1, 100);
+
+        // 从玩家存档获取全局等级，计算宝箱等级
+        var saveData = PlayerAccountDataManager.Instance?.CurrentSaveData;
+        if (saveData != null)
+        {
+            // 从 PlayerDataTable 读取最高等级
+            int maxLevel = 60; // 默认值
+            var playerDataTable = GF.DataTable.GetDataTable<PlayerDataTable>();
+            if (playerDataTable != null)
+            {
+                var allRows = playerDataTable.GetAllDataRows();
+                if (allRows != null && allRows.Length > 0)
+                    maxLevel = allRows[^1].Level;
+            }
+
+            m_ChestLevel = DifficultyCalculator.CalculateChestLevel(saveData.GlobalLevel, levelCoefficient, maxLevel: maxLevel);
+
+            DebugEx.Log(nameof(TreasureChestInteractable),
+                $"设置宝箱等级: 全局等级={saveData.GlobalLevel}/{maxLevel}, 等级系数={levelCoefficient:F2} → 宝箱等级={m_ChestLevel}");
+        }
+        else
+        {
+            m_ChestLevel = 1;
+            DebugEx.Warning(nameof(TreasureChestInteractable), "无法获取玩家存档，宝箱等级设为1");
+        }
     }
 
     protected override void Awake()

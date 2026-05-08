@@ -1293,13 +1293,19 @@ public partial class CardSlotItem
 
     private ICardTargetSelector GetTargetSelectorForPreview(CardTargetType targetType)
     {
+        // 需要检查卡牌数据的 TargetDeadState 来选择正确的 Selector
+        if (m_CardData == null)
+            return null;
+
         return targetType switch
         {
             CardTargetType.Self => new SelfSelector(),
             CardTargetType.AllAllyExcludeSummoner => new AllAllyExcludeSummonerSelector(),
             CardTargetType.AllAlly => new AllAlliesSelector(),
             CardTargetType.AllEnemy => new AllEnemiesSelector(),
-            CardTargetType.SingleAlly => new ClosestAllySelector(),
+            CardTargetType.SingleAlly => m_CardData.TableRow.TargetDeadState == 1
+                ? new ClosestDeadAllySelector()  // 只对死亡目标（复活类卡牌）
+                : new ClosestAllySelector(),      // 对活着的目标
             CardTargetType.AreaAlly => new AlliesInRadiusSelector(),
             CardTargetType.AreaEnemy => new EnemiesInRadiusSelector(),
             CardTargetType.SingleEnemy => new ClosestEnemySelector(),

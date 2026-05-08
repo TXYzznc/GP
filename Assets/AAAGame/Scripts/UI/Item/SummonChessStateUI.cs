@@ -308,6 +308,9 @@ public partial class SummonChessStateUI : UIItemBase
         // 订阅升阶事件
         owner.OnRankAdvanced += OnRankAdvanced;
 
+        // 订阅状态变化事件（复活时刷新升级按钮）
+        owner.OnStateChanged += OnOwnerStateChanged;
+
         UpdateHpGridParams();
         RefreshAll();
         UpdateEXPDisplay();
@@ -361,10 +364,11 @@ public partial class SummonChessStateUI : UIItemBase
             m_EXPComp = null;
         }
 
-        // 取消订阅升阶事件
+        // 取消订阅升阶和状态变化事件
         if (m_Owner != null)
         {
             m_Owner.OnRankAdvanced -= OnRankAdvanced;
+            m_Owner.OnStateChanged -= OnOwnerStateChanged;
         }
 
         m_Owner = null;
@@ -445,12 +449,20 @@ public partial class SummonChessStateUI : UIItemBase
     }
 
     /// <summary>
-    /// 检查升阶按钮状态：经验足够且不是最高阶时显示并闪烁
+    /// 检查升阶按钮状态：经验足够且不是最高阶且未死亡时显示并闪烁
     /// </summary>
     private void UpdateLevelUpBtnState(int currentExp, int requiredExp)
     {
         if (varLevelUpBtn == null || m_Owner == null)
             return;
+
+        // ⭐ 检查是否死亡
+        if (m_Owner.CurrentState == ChessState.Dead)
+        {
+            varLevelUpBtn.gameObject.SetActive(false);
+            m_LevelUpBtnPulseTween?.Kill();
+            return;
+        }
 
         bool canAdvance = m_Owner.Rank < 3 && requiredExp > 0 && currentExp >= requiredExp;
 
@@ -497,6 +509,13 @@ public partial class SummonChessStateUI : UIItemBase
         if (m_Owner == null)
             return;
 
+        // ⭐ 防护：死亡棋子不能升级
+        if (m_Owner.CurrentState == ChessState.Dead)
+        {
+            DebugEx.Warning("SummonChessStateUI", $"不能升级已死亡的棋子: {m_Owner.Config?.Name}");
+            return;
+        }
+
         m_Owner.AdvanceRank();
         DebugEx.Log("SummonChessStateUI", $"✅ 棋子 {m_Owner.Config.Name} 完成升阶");
     }
@@ -508,6 +527,18 @@ public partial class SummonChessStateUI : UIItemBase
     {
         // 刷新经验显示（会自动更新按钮状态）
         UpdateEXPDisplay();
+    }
+
+    /// <summary>
+    /// 棋子状态变化回调（死亡/复活时刷新按钮）
+    /// </summary>
+    private void OnOwnerStateChanged(ChessState oldState, ChessState newState)
+    {
+        // 复活时刷新升级按钮
+        if (oldState == ChessState.Dead && newState == ChessState.Idle)
+        {
+            UpdateEXPDisplay();
+        }
     }
 
     #endregion

@@ -93,6 +93,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
 
     /// <summary>
     /// 刷新出战/死亡状态显示（不重新加载图片资源）
+    /// 同时刷新升级按钮状态（复活后如果满足条件则显示）
     /// </summary>
     private void RefreshDeployStatus()
     {
@@ -121,6 +122,9 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         {
             varMask.SetActive(instance.IsDeployed || instance.IsDead);
         }
+
+        // ⭐ 刷新升级按钮状态（复活后自动更新）
+        UpdateLevelUpBtnState();
     }
 
     #endregion
@@ -405,13 +409,22 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     }
 
     /// <summary>
-    /// 检查升阶按钮状态：经验足够且不是最高阶时显示并闪烁
+    /// 检查升阶按钮状态：经验足够且不是最高阶且未死亡时显示并闪烁
     /// 从 GlobalChessManager 读取棋子全局数据
     /// </summary>
     private void UpdateLevelUpBtnState()
     {
         if (varLevelUpBtn == null)
             return;
+
+        // ⭐ 检查棋子是否死亡
+        var instance = ChessDeploymentTracker.Instance?.GetInstance(m_InstanceId);
+        if (instance != null && instance.IsDead)
+        {
+            varLevelUpBtn.gameObject.SetActive(false);
+            m_LevelUpBtnPulseTween?.Kill();
+            return;
+        }
 
         // 从全局状态读取棋子数据
         var globalState = GlobalChessManager.Instance?.GetChessState(m_ChessId);
@@ -475,6 +488,17 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     /// </summary>
     private void OnLevelUpBtnClicked()
     {
+        // ⭐ 双重检查：死亡棋子不能升级
+        var instance = ChessDeploymentTracker.Instance?.GetInstance(m_InstanceId);
+        if (instance != null && instance.IsDead)
+        {
+            DebugEx.Warning(
+                nameof(ChessItemUI),
+                $"OnLevelUpBtnClicked: 不能升级已死亡的棋子 instanceId={m_InstanceId}"
+            );
+            return;
+        }
+
         var globalState = GlobalChessManager.Instance?.GetChessState(m_ChessId);
         if (globalState == null)
         {
