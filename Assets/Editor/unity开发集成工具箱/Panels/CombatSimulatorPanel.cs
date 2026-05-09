@@ -484,15 +484,15 @@ public class CombatSimulatorPanel : IToolHubPanel
 
         // 状态快捷按钮
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("HP满", GUILayout.Width(50))) attr.SetHp(attr.MaxHp);
-        if (GUILayout.Button("MP满", GUILayout.Width(50))) attr.SetMp(attr.MaxMp);
-        if (GUILayout.Button("半血", GUILayout.Width(50))) attr.SetHp(attr.MaxHp * 0.5);
-        if (GUILayout.Button("濒死", GUILayout.Width(50))) attr.SetHp(attr.MaxHp * 0.05);
+        if (GUILayout.Button("HP满", GUILayout.ExpandWidth(true))) attr.SetHp(attr.MaxHp);
+        if (GUILayout.Button("MP满", GUILayout.ExpandWidth(true))) attr.SetMp(attr.MaxMp);
+        if (GUILayout.Button("半血", GUILayout.ExpandWidth(true))) attr.SetHp(attr.MaxHp * 0.5);
+        if (GUILayout.Button("濒死", GUILayout.ExpandWidth(true))) attr.SetHp(attr.MaxHp * 0.05);
 
         // 锁血按钮
         GUIStyle lockStyle = new GUIStyle(GUI.skin.button);
         lockStyle.normal.textColor = isLocked ? new Color(1f, 0.2f, 0.2f) : Color.white;
-        if (GUILayout.Button(isLocked ? "🔒锁" : "🔓解", lockStyle, GUILayout.Width(50)))
+        if (GUILayout.Button(isLocked ? "🔒锁血中" : "🔓解锁血量", lockStyle, GUILayout.ExpandWidth(true)))
         {
             m_LockedChess[entity] = !isLocked;
             m_LockRecoverTimes[entity] = EditorApplication.timeSinceStartup;
