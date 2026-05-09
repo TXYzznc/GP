@@ -135,6 +135,7 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260509_182727.txt" />
     <None Include="Assets\link.xml" />
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
@@ -145,6 +146,7 @@
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Dilate.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260509_183017.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\HDRP URP Gamma Readme.txt" />
     <None Include="Assets\AAAGame\DataTable\ItemGroupTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessSkillTable.txt" />
