@@ -23,9 +23,11 @@ MonoBehaviour:
   - ColorTable
   - CombatDifficultyRule
   - CombatRuleTable
+  - ConsumableTable
   - DamageFloatingTextTable
   - EnemyEntityTable
   - EnemyTable
+  - EquipmentTable
   - EscapeRuleTable
   - ExpRuleTable
   - ItemGroupTable
@@ -37,6 +39,8 @@ MonoBehaviour:
   - PlayerInitTable
   - PlayerSkillTable
   - PosTable
+  - ProfessionAttributeModel
+  - QuestItemTable
   - ResourceConfigTable
   - ResourceRuleTable
   - SceneTable
@@ -47,6 +51,7 @@ MonoBehaviour:
   - SummonerTable
   - SynergyTable
   - TreasureBoxTable
+  - TreasureTable
   - Core/LanguagesTable
   - Core/SoundGroupTable
   - Core/UIGroupTable
