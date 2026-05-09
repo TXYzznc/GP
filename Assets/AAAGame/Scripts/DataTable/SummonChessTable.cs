@@ -38,7 +38,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 品质/等级（1-4，对应蓝、紫、金、炫彩）
+        /// 品质（1-4，对应蓝、紫、金、炫彩）
         /// </summary>
         public int Quality
         {
@@ -110,7 +110,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 最大法力值（三个阶级）
+        /// 最大法力值（三个阶级）**基础属性**
         /// </summary>
         public double[] MaxMp
         {

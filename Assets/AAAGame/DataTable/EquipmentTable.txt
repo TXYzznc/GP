@@ -1,5 +1,13 @@
 ﻿#	EquipmentTable				
-#	ID		Name	SpritePath	Desc
-#	int		string	int	string
-#		备注			
-	1		落日弓	1601	充满了后羿神力的长弓
+#	Id	Name	ItemTableId	SpecialEffectId	BaseAttributes
+#	int	string	int	int	string
+#	装备表ID	物品名称	对应ItemTable中的ID	特殊效果ID	基础属性(JSON格式)
+	1	石中剑	10	4001	{"Attack":"60","CritRate":"10%"}
+	2	龙鳞铠甲	11	4002	{"MaxHP":"200","Defense":"50"}
+	3	精灵之戒	12	4003	{"MoveSpeed":"15%","Evasion":"10%"}
+	4	古剑·樱花落	19	6001	{"Attack":"150","CritRate":"20%","Evasion":"8%"}
+	5	暗影斗篷	20	6002	{"Defense":"80","Evasion":"15%","MagicResist":"15%"}
+	6	圣光铠甲	21	6003	{"Defense":"200","MagicResist":"30%","HealthRegen":"3%"}
+	7	古墓盗贼手套	22	6004	{"Attack":"80","AttackSpeed":"15%","CritRate":"10%"}
+	8	冰晶靴	23	6005	{"MoveSpeed":"20%","Defense":"60","CooldownReduction":"10%"}
+	9	风暴法杖	24	6006	{"MagicPower":"200","CooldownReduction":"15%","AttackSpeed":"10%"}

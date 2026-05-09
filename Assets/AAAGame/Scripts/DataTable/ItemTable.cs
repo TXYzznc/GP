@@ -49,7 +49,7 @@ public partial class ItemTable : DataRowBase
         /// <summary>
         /// 品质等级
         /// </summary>
-        public int Quality
+        public int Rarity
         {
             get;
             private set;
@@ -74,7 +74,7 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
-        /// 缩略图资源ID
+        /// 图标资源ID
         /// </summary>
         public int IconId
         {
@@ -83,18 +83,9 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
-        /// 详细图资源ID
-        /// </summary>
-        public int DetailIconId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 是否可堆叠
         /// </summary>
-        public int CanStack
+        public bool CanStack
         {
             get;
             private set;
@@ -110,87 +101,6 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
-        /// 是否可使用
-        /// </summary>
-        public int CanUse
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 使用效果ID
-        /// </summary>
-        public int UseEffectId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 是否可装备
-        /// </summary>
-        public int CanEquip
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 特殊效果ID
-        /// </summary>
-        public int SpecialEffectId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 词条池ID列表
-        /// </summary>
-        public int[] AffixPoolIds
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 词条最小数量
-        /// </summary>
-        public int AffixMinCount
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 词条最大数量
-        /// </summary>
-        public int AffixMaxCount
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 羁绊ID列表
-        /// </summary>
-        public int[] SynergyIds
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 基础属性(JSON格式)
-        /// </summary>
-        public string BaseAttributes
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 售价
         /// </summary>
         public int SellPrice
@@ -200,7 +110,7 @@ public partial class ItemTable : DataRowBase
         }
 
         /// <summary>
-        /// 
+        /// 价值
         /// </summary>
         public int Value
         {
@@ -212,15 +122,6 @@ public partial class ItemTable : DataRowBase
         /// 重量(克)
         /// </summary>
         public int Weight
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 最大耐久度
-        /// </summary>
-        public int MaxDurability
         {
             get;
             private set;
@@ -240,26 +141,15 @@ public partial class ItemTable : DataRowBase
             index++;
             Name = columnStrings[index++];
             Type = int.Parse(columnStrings[index++]);
-            Quality = int.Parse(columnStrings[index++]);
+            Rarity = int.Parse(columnStrings[index++]);
             IsOnlyInGame = bool.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
             IconId = int.Parse(columnStrings[index++]);
-            DetailIconId = int.Parse(columnStrings[index++]);
-            CanStack = int.Parse(columnStrings[index++]);
+            CanStack = bool.Parse(columnStrings[index++]);
             MaxStackCount = int.Parse(columnStrings[index++]);
-            CanUse = int.Parse(columnStrings[index++]);
-            UseEffectId = int.Parse(columnStrings[index++]);
-            CanEquip = int.Parse(columnStrings[index++]);
-            SpecialEffectId = int.Parse(columnStrings[index++]);
-            AffixPoolIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            AffixMinCount = int.Parse(columnStrings[index++]);
-            AffixMaxCount = int.Parse(columnStrings[index++]);
-            SynergyIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            BaseAttributes = columnStrings[index++];
             SellPrice = int.Parse(columnStrings[index++]);
             Value = int.Parse(columnStrings[index++]);
             Weight = int.Parse(columnStrings[index++]);
-            MaxDurability = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -273,26 +163,15 @@ public partial class ItemTable : DataRowBase
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
                     Type = binaryReader.Read7BitEncodedInt32();
-                    Quality = binaryReader.Read7BitEncodedInt32();
+                    Rarity = binaryReader.Read7BitEncodedInt32();
                     IsOnlyInGame = binaryReader.ReadBoolean();
                     Description = binaryReader.ReadString();
                     IconId = binaryReader.Read7BitEncodedInt32();
-                    DetailIconId = binaryReader.Read7BitEncodedInt32();
-                    CanStack = binaryReader.Read7BitEncodedInt32();
+                    CanStack = binaryReader.ReadBoolean();
                     MaxStackCount = binaryReader.Read7BitEncodedInt32();
-                    CanUse = binaryReader.Read7BitEncodedInt32();
-                    UseEffectId = binaryReader.Read7BitEncodedInt32();
-                    CanEquip = binaryReader.Read7BitEncodedInt32();
-                    SpecialEffectId = binaryReader.Read7BitEncodedInt32();
-                    AffixPoolIds = binaryReader.ReadArray<int>();
-                    AffixMinCount = binaryReader.Read7BitEncodedInt32();
-                    AffixMaxCount = binaryReader.Read7BitEncodedInt32();
-                    SynergyIds = binaryReader.ReadArray<int>();
-                    BaseAttributes = binaryReader.ReadString();
                     SellPrice = binaryReader.Read7BitEncodedInt32();
                     Value = binaryReader.Read7BitEncodedInt32();
                     Weight = binaryReader.Read7BitEncodedInt32();
-                    MaxDurability = binaryReader.Read7BitEncodedInt32();
                 }
             }
 

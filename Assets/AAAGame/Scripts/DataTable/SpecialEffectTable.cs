@@ -38,15 +38,6 @@ public partial class SpecialEffectTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果分类：0=消耗品,1=玩家先手,2=敌人先手,3=玩家偷袭
-        /// </summary>
-        public int EffectCategory
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 效果类型：1=增益,2=减益,3=控制
         /// </summary>
         public int EffectType
@@ -101,15 +92,6 @@ public partial class SpecialEffectTable : DataRowBase
         }
 
         /// <summary>
-        /// 稀有度：1=普通,2=罕见,3=稀有,4=传奇
-        /// </summary>
-        public int Rarity
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 随机权重
         /// </summary>
         public int Weight
@@ -140,14 +122,12 @@ public partial class SpecialEffectTable : DataRowBase
             m_Id = int.Parse(columnStrings[index++]);
             index++;
             Name = columnStrings[index++];
-            EffectCategory = int.Parse(columnStrings[index++]);
             EffectType = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
             BuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             SelfBuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             Cooldown = double.Parse(columnStrings[index++]);
             IconId = int.Parse(columnStrings[index++]);
-            Rarity = int.Parse(columnStrings[index++]);
             Weight = int.Parse(columnStrings[index++]);
             EffectParams = columnStrings[index++];
 
@@ -162,14 +142,12 @@ public partial class SpecialEffectTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
-                    EffectCategory = binaryReader.Read7BitEncodedInt32();
                     EffectType = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
                     BuffIds = binaryReader.ReadArray<int>();
                     SelfBuffIds = binaryReader.ReadArray<int>();
                     Cooldown = binaryReader.ReadDouble();
                     IconId = binaryReader.Read7BitEncodedInt32();
-                    Rarity = binaryReader.Read7BitEncodedInt32();
                     Weight = binaryReader.Read7BitEncodedInt32();
                     EffectParams = binaryReader.ReadString();
                 }

@@ -21,7 +21,7 @@ public partial class EquipmentTable : DataRowBase
 {
 	private int m_Id = 0;
 	/// <summary>
-    /// 
+    /// 装备表ID
     /// </summary>
     public override int Id
     {
@@ -29,7 +29,7 @@ public partial class EquipmentTable : DataRowBase
     }
 
         /// <summary>
-        /// 
+        /// 物品名称
         /// </summary>
         public string Name
         {
@@ -38,18 +38,27 @@ public partial class EquipmentTable : DataRowBase
         }
 
         /// <summary>
-        /// 
+        /// 对应ItemTable中的ID
         /// </summary>
-        public int SpritePath
+        public int ItemTableId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 
+        /// 特殊效果ID
         /// </summary>
-        public string Desc
+        public int SpecialEffectId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 基础属性(JSON格式)
+        /// </summary>
+        public string BaseAttributes
         {
             get;
             private set;
@@ -66,10 +75,10 @@ public partial class EquipmentTable : DataRowBase
             int index = 0;
             index++;
             m_Id = int.Parse(columnStrings[index++]);
-            index++;
             Name = columnStrings[index++];
-            SpritePath = int.Parse(columnStrings[index++]);
-            Desc = columnStrings[index++];
+            ItemTableId = int.Parse(columnStrings[index++]);
+            SpecialEffectId = int.Parse(columnStrings[index++]);
+            BaseAttributes = columnStrings[index++];
 
             return true;
         }
@@ -82,8 +91,9 @@ public partial class EquipmentTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
-                    SpritePath = binaryReader.Read7BitEncodedInt32();
-                    Desc = binaryReader.ReadString();
+                    ItemTableId = binaryReader.Read7BitEncodedInt32();
+                    SpecialEffectId = binaryReader.Read7BitEncodedInt32();
+                    BaseAttributes = binaryReader.ReadString();
                 }
             }
 

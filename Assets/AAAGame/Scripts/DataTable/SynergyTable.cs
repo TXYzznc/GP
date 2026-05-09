@@ -56,6 +56,15 @@ public partial class SynergyTable : DataRowBase
         }
 
         /// <summary>
+        /// 是否为宝物羁绊
+        /// </summary>
+        public int IsTreasureSynergy
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 激活所需数量
         /// </summary>
         public int RequireCount
@@ -97,6 +106,7 @@ public partial class SynergyTable : DataRowBase
             Name = columnStrings[index++];
             Type = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
+            IsTreasureSynergy = int.Parse(columnStrings[index++]);
             RequireCount = int.Parse(columnStrings[index++]);
             RequireIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             EffectId = int.Parse(columnStrings[index++]);
@@ -114,6 +124,7 @@ public partial class SynergyTable : DataRowBase
                     Name = binaryReader.ReadString();
                     Type = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
+                    IsTreasureSynergy = binaryReader.Read7BitEncodedInt32();
                     RequireCount = binaryReader.Read7BitEncodedInt32();
                     RequireIds = binaryReader.ReadArray<int>();
                     EffectId = binaryReader.Read7BitEncodedInt32();

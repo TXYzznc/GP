@@ -119,24 +119,6 @@ public partial class PlayerInitTable : DataRowBase
         }
 
         /// <summary>
-        /// 经验倍率
-        /// </summary>
-        public float ExpMultiplier
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 精英怪概率
-        /// </summary>
-        public float EliteSpawnRate
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 描述
         /// </summary>
         public string Desc
@@ -167,8 +149,6 @@ public partial class PlayerInitTable : DataRowBase
             InitTechs = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             InitInventorySize = int.Parse(columnStrings[index++]);
             InitWarehouseCapacity = int.Parse(columnStrings[index++]);
-            ExpMultiplier = float.Parse(columnStrings[index++]);
-            EliteSpawnRate = float.Parse(columnStrings[index++]);
             Desc = columnStrings[index++];
 
             return true;
@@ -191,8 +171,6 @@ public partial class PlayerInitTable : DataRowBase
                     InitTechs = binaryReader.ReadArray<int>();
                     InitInventorySize = binaryReader.Read7BitEncodedInt32();
                     InitWarehouseCapacity = binaryReader.Read7BitEncodedInt32();
-                    ExpMultiplier = binaryReader.ReadSingle();
-                    EliteSpawnRate = binaryReader.ReadSingle();
                     Desc = binaryReader.ReadString();
                 }
             }

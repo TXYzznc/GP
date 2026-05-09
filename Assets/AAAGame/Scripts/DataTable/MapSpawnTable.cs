@@ -84,6 +84,7 @@ public partial class MapSpawnTable : DataRowBase
             int index = 0;
             index++;
             m_Id = int.Parse(columnStrings[index++]);
+            index++;
             SpawnEnemys = columnStrings[index++];
             EnemyNums = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             SpawnTreasures = columnStrings[index++];

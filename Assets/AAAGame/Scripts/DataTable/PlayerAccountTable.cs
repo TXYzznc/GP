@@ -235,15 +235,6 @@ public partial class PlayerAccountTable : DataRowBase
             private set;
         }
 
-        /// <summary>
-        /// 玩家坐标
-        /// </summary>
-        public Vector3 PlayerPos
-        {
-            get;
-            private set;
-        }
-
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -279,7 +270,6 @@ public partial class PlayerAccountTable : DataRowBase
             CurrentSceneId = int.Parse(columnStrings[index++]);
             Settings = columnStrings[index++];
             Statistics = columnStrings[index++];
-            PlayerPos = DataTableExtension.ParseVector3(columnStrings[index++]);
 
             return true;
         }
@@ -314,7 +304,6 @@ public partial class PlayerAccountTable : DataRowBase
                     CurrentSceneId = binaryReader.Read7BitEncodedInt32();
                     Settings = binaryReader.ReadString();
                     Statistics = binaryReader.ReadString();
-                    PlayerPos = binaryReader.ReadVector3();
                 }
             }
 
