@@ -15,15 +15,15 @@ public enum ItemType
 }
 
 /// <summary>
-/// 物品品质
+/// 物品稀有度
 /// </summary>
-public enum ItemQuality
+public enum ItemRarity
 {
-    Common = 1, // 普通（白色）
-    Uncommon = 2, // 优秀（绿色）
-    Rare = 3, // 稀有（蓝色）
-    Epic = 4, // 史诗（紫色）
-    Legendary = 5, // 传说（橙色）
+    Common    = 1, // 普通（绿色）
+    Uncommon  = 2, // 优良（蓝色）
+    Rare      = 3, // 稀有（紫色）
+    Epic      = 4, // 史诗（金色）
+    Legendary = 5, // 传说（炫彩，UI 层需特殊处理渐变效果）
 }
 
 #endregion

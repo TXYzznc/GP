@@ -54,7 +54,7 @@ public class WorldItemPickup : MonoBehaviour
             // 获取物品稀有度并给予对应经验
             var itemData = ItemManager.Instance?.GetItemData(m_ItemId);
             if (itemData != null)
-                PlayerExpManager.Instance.GainExpFromItem((int)itemData.Quality);
+                PlayerExpManager.Instance.GainExpFromItem((int)itemData.Rarity);
 
             Destroy(gameObject);
         }
@@ -68,7 +68,10 @@ public class WorldItemPickup : MonoBehaviour
     private void TryUseDirectly()
     {
         var itemData = ItemManager.Instance?.GetItemData(m_ItemId);
-        if (itemData == null || !itemData.CanUse)
+        if (itemData == null)
+            return;
+        var consumableData = ItemManager.Instance?.GetConsumableData(m_ItemId);
+        if (consumableData == null || !consumableData.CanUse)
             return;
 
         // 创建临时物品实例并使用

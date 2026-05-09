@@ -541,16 +541,16 @@ public class InventoryManager : SingletonBase<InventoryManager>
             }
         }
 
-        // 3. 按 ItemType 升序，Quality 降序，ItemId 升序 排序
+        // 3. 按 ItemType 升序，Rarity 降序，ItemId 升序 排序
         merged.Sort(
             (a, b) =>
             {
                 int typeCompare = a.Item.ItemData.Type.CompareTo(b.Item.ItemData.Type);
                 if (typeCompare != 0)
                     return typeCompare;
-                int qualityCompare = b.Item.ItemData.Quality.CompareTo(a.Item.ItemData.Quality);
-                if (qualityCompare != 0)
-                    return qualityCompare;
+                int rarityCompare = b.Item.ItemData.Rarity.CompareTo(a.Item.ItemData.Rarity);
+                if (rarityCompare != 0)
+                    return rarityCompare;
                 return a.ItemId.CompareTo(b.ItemId);
             }
         );
@@ -587,7 +587,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
         foreach (var slot in m_Slots)
         {
             if (!slot.IsEmpty)
-                total += slot.Count; // TODO: 改为 slot.ItemStack.Item.ItemData.Weight * slot.Count
+                total += slot.ItemStack.Item.ItemData.Weight * slot.Count;
         }
         return total;
     }
@@ -905,14 +905,14 @@ public class InventoryManager : SingletonBase<InventoryManager>
             }
         }
 
-        // 按品质降序排序
+        // 按稀有度降序排序
         result.Sort((a, b) =>
         {
             var rowA = itemTable.GetDataRow(a.itemId);
             var rowB = itemTable.GetDataRow(b.itemId);
-            int qualityCompare = rowB.Quality.CompareTo(rowA.Quality);
-            if (qualityCompare != 0)
-                return qualityCompare;
+            int rarityCompare = rowB.Rarity.CompareTo(rowA.Rarity);
+            if (rarityCompare != 0)
+                return rarityCompare;
             return a.itemId.CompareTo(b.itemId);
         });
 

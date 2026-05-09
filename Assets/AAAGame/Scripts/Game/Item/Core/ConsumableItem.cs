@@ -6,11 +6,24 @@ using System;
 [Serializable]
 public class ConsumableItem : ItemBase
 {
+    #region 字段
+
+    private ConsumableData m_ConsumableData;
+
+    #endregion
+
+    #region 属性
+
+    public override bool CanUse => m_ConsumableData?.CanUse ?? false;
+
+    #endregion
+
     #region 构造函数
 
-    public ConsumableItem(int itemId, ItemData itemData)
+    public ConsumableItem(int itemId, ItemData itemData, ConsumableData consumableData)
         : base(itemId, itemData)
     {
+        m_ConsumableData = consumableData;
         DebugEx.Log(nameof(ConsumableItem), $"创建消耗品: {Name}");
     }
 
@@ -20,32 +33,24 @@ public class ConsumableItem : ItemBase
 
     protected override bool OnUse()
     {
-        if (ItemData.UseEffectId <= 0)
+        int useEffectId = m_ConsumableData?.UseEffectId ?? 0;
+        if (useEffectId <= 0)
         {
             DebugEx.Warning(nameof(ConsumableItem), $"消耗品没有配置使用效果: {Name}");
             return false;
         }
 
-        DebugEx.Log(nameof(ConsumableItem), $"执行消耗品效果: {Name}, EffectId:{ItemData.UseEffectId}");
+        DebugEx.Log(nameof(ConsumableItem), $"执行消耗品效果: {Name}, EffectId:{useEffectId}");
 
-        // 通过效果执行器执行效果
-        var effectExecutor = ItemEffectExecutor.Instance;
-        if (effectExecutor != null)
-        {
-            bool success = effectExecutor.ExecuteEffect(ItemData.UseEffectId);
-            if (success)
-            {
-                DebugEx.Success(nameof(ConsumableItem), $"消耗品使用成功: {Name}");
-            }
-            else
-            {
-                DebugEx.Error(nameof(ConsumableItem), $"消耗品使用失败: {Name}");
-            }
-            return success;
-        }
+        // 通过 GameEffectService 执行效果
+        var context = GameEffectContext.CreateSingleTarget(EffectSource.Item, null, null);
+        bool success = GameEffectService.Instance.Execute(useEffectId, context);
 
-        DebugEx.Error(nameof(ConsumableItem), "ItemEffectExecutor 未初始化");
-        return false;
+        if (success)
+            DebugEx.Success(nameof(ConsumableItem), $"消耗品使用成功: {Name}");
+        else
+            DebugEx.Error(nameof(ConsumableItem), $"消耗品使用失败: {Name}");
+        return success;
     }
 
     public override string GetDetailInfo()
