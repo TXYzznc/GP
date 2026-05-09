@@ -190,12 +190,12 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             return effectIds;
         }
 
-        // 遍历所有特殊效果配置，筛选出玩家偷袭效果
+        // 遍历所有特殊效果配置，筛选出玩家偷袭效果（EffectId 301-399）
         var allEffects = specialEffectTable.GetAllDataRows();
         foreach (var effect in allEffects)
         {
-            // 筛选条件：EffectCategory=3（玩家偷袭）
-            if (effect.EffectCategory == 3)
+            // 筛选条件：EffectId 在 301-399 范围内（玩家偷袭）
+            if (effect.Id >= 301 && effect.Id < 400)
             {
                 effectIds.Add(effect.Id);
             }
@@ -232,27 +232,10 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             return;
         }
 
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
-            return;
-        }
+        var context = GameEffectContext.CreateMultiTarget(EffectSource.CombatPrep, new System.Collections.Generic.List<UnityEngine.GameObject>());
+        GameEffectService.Instance.Execute(effectId, context);
 
-        var effect = specialEffectTable.GetDataRow(effectId);
-        if (effect == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), $"未找到先手效果: {effectId}");
-            return;
-        }
-
-        // 解析Buff ID列表并应用到玩家方（全体）
-        ApplyBuffsFromEffect(effect, null, true); // isPlayerSide=true
-
-        DebugEx.Log(
-            nameof(CombatTriggerManager),
-            $"应用先手效果到玩家方: EffectId={effectId}, 名称={effect.Name}, BuffIds={string.Join(",", effect.BuffIds ?? new int[0])}, SelfBuffIds={string.Join(",", effect.SelfBuffIds ?? new int[0])}"
-        );
+        DebugEx.Log(nameof(CombatTriggerManager), $"应用先手效果到玩家方: EffectId={effectId}");
     }
 
     /// <summary>
@@ -266,110 +249,17 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
             return;
         }
 
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
-            return;
-        }
-
-        var effect = specialEffectTable.GetDataRow(effectId);
-        if (effect == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), $"未找到先手效果: {effectId}");
-            return;
-        }
-
-        // 应用Buff到敌人方（全体）
-        ApplyBuffsFromEffect(effect, enemy, false); // isPlayerSide=false
+        var context = GameEffectContext.CreateMultiTarget(EffectSource.CombatPrep, new System.Collections.Generic.List<UnityEngine.GameObject>(), null);
+        GameEffectService.Instance.Execute(effectId, context);
 
         // 注：敌方先手效果提示UI由 CombatPreparationState.ShowEnemyInitiativeBuffIfNeeded() 处理
-        // 无需在此重复显示
 
-        DebugEx.Log(
-            nameof(CombatTriggerManager),
-            $"应用先手效果到敌人方: EffectId={effectId}, 名称={effect.Name}, BuffIds={string.Join(",", effect.BuffIds ?? new int[0])}, SelfBuffIds={string.Join(",", effect.SelfBuffIds ?? new int[0])}, 敌人={enemy.Config.Name}"
-        );
-    }
-
-    /// <summary>
-    /// 从特殊效果中应用所有包含的Buff
-    /// BuffIds: 应用到目标方（全体）
-    /// SelfBuffIds: 应用到自身方（全体）
-    /// </summary>
-    private void ApplyBuffsFromEffect(
-        SpecialEffectTable effect,
-        EnemyEntity targetEnemy,
-        bool isPlayerSide
-    )
-    {
-        if (effect == null)
-        {
-            return;
-        }
-
-        // 应用给自身的Buff（SelfBuffIds）
-        if (effect.SelfBuffIds != null && effect.SelfBuffIds.Length > 0)
-        {
-            foreach (int buffId in effect.SelfBuffIds)
-            {
-                if (buffId > 0)
-                {
-                    if (isPlayerSide)
-                    {
-                        // TODO: 获取玩家实体，应用Buff到玩家方（全体）
-                        // GameObject playerEntity = GetPlayerEntity();
-                        // BuffApplyHelper.ApplyBuff(buffId, playerEntity, true, null);
-                        DebugEx.Log(
-                            nameof(CombatTriggerManager),
-                            $"  应用Buff到玩家方(全体-SelfBuff): BuffId={buffId}"
-                        );
-                    }
-                    else if (targetEnemy != null)
-                    {
-                        // 应用Buff到敌人方（全体）
-                        BuffApplyHelper.ApplyBuff(buffId, targetEnemy.gameObject, true, null);
-                        DebugEx.Log(
-                            nameof(CombatTriggerManager),
-                            $"  应用Buff到敌人方(全体-SelfBuff): BuffId={buffId}, 敌人={targetEnemy.Config.Name}"
-                        );
-                    }
-                }
-            }
-        }
-
-        // 应用给目标的Buff（BuffIds）
-        if (effect.BuffIds != null && effect.BuffIds.Length > 0)
-        {
-            foreach (int buffId in effect.BuffIds)
-            {
-                if (buffId > 0)
-                {
-                    if (isPlayerSide)
-                    {
-                        // 玩家先手的BuffIds通常应用到自己，但这里留作扩展
-                        DebugEx.Log(
-                            nameof(CombatTriggerManager),
-                            $"  应用Buff到玩家方(全体-TargetBuff): BuffId={buffId}"
-                        );
-                    }
-                    else if (targetEnemy != null)
-                    {
-                        // 应用Buff到目标敌人方（全体）
-                        BuffApplyHelper.ApplyBuff(buffId, targetEnemy.gameObject, true, null);
-                        DebugEx.Log(
-                            nameof(CombatTriggerManager),
-                            $"  应用Buff到敌人方(全体-TargetBuff): BuffId={buffId}, 敌人={targetEnemy.Config.Name}"
-                        );
-                    }
-                }
-            }
-        }
+        DebugEx.Log(nameof(CombatTriggerManager), $"应用先手效果到敌人方: EffectId={effectId}, 敌人={enemy.Config.Name}");
     }
 
     /// <summary>
     /// 获取玩家先手效果池（遭遇战三选一）
-    /// 从SpecialEffectTable中筛选EffectCategory=1（玩家先手）的效果
+    /// 从SpecialEffectTable中筛选玩家先手效果（EffectId 101-199）
     /// </summary>
     private List<int> GetPlayerInitiativeBuffPool()
     {
@@ -385,7 +275,8 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         var allEffects = specialEffectTable.GetAllDataRows();
         foreach (var effect in allEffects)
         {
-            if (effect.EffectCategory == 1)
+            // 筛选条件：EffectId 在 101-199 范围内（玩家先手）
+            if (effect.Id >= 101 && effect.Id < 200)
             {
                 effectIds.Add(effect.Id);
             }
@@ -427,20 +318,22 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         }
 
         // 根据当前上下文判断效果类型
-        // 如果是EnemyInitiated，获取敌人先手效果（EffectCategory=2）
-        // 否则获取玩家先手效果（EffectCategory=1）
+        // 如果是EnemyInitiated，获取敌人先手效果（EffectId 201-299）
+        // 否则获取玩家先手效果（EffectId 101-199）
         bool isEnemyInitiative = (
             m_CurrentContext != null
             && m_CurrentContext.TriggerType == CombatTriggerType.EnemyInitiated
         );
 
-        int targetCategory = isEnemyInitiative ? 2 : 1; // 1=玩家先手, 2=敌人先手
-
         // 遍历所有特殊效果配置，筛选出对应的先手效果
         var allEffects = specialEffectTable.GetAllDataRows();
         foreach (var effect in allEffects)
         {
-            if (effect.EffectCategory == targetCategory)
+            bool isMatch = isEnemyInitiative
+                ? (effect.Id >= 201 && effect.Id < 300)  // 敌人先手：201-299
+                : (effect.Id >= 101 && effect.Id < 200); // 玩家先手：101-199
+
+            if (isMatch)
             {
                 initiativeEffects.Add(effect.Id);
             }
@@ -448,9 +341,10 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
 
         if (initiativeEffects.Count == 0)
         {
+            string effecType = isEnemyInitiative ? "敌人先手" : "玩家先手";
             DebugEx.Warning(
                 nameof(CombatTriggerManager),
-                $"未找到合适的先手效果（Category={targetCategory}）"
+                $"未找到合适的{effecType}效果"
             );
             return 0;
         }
@@ -458,9 +352,10 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
         // 随机选择一个效果（可以根据Weight权重来选择，目前先用简单随机）
         int randomEffectId = initiativeEffects[Random.Range(0, initiativeEffects.Count)];
 
+        string effectType = isEnemyInitiative ? "敌人先手" : "玩家先手";
         DebugEx.Log(
             nameof(CombatTriggerManager),
-            $"随机选择先手效果: {randomEffectId} (候选池:{initiativeEffects.Count}个，Category={targetCategory})"
+            $"随机选择{effectType}效果: {randomEffectId} (候选池:{initiativeEffects.Count}个)"
         );
 
         return randomEffectId;

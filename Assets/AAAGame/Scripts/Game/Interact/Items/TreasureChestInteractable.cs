@@ -463,7 +463,7 @@ public class TreasureChestInteractable : InteractableBase
 
         DebugEx.Success(
             nameof(TreasureChestInteractable),
-            $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] {treasureBoxRow.Name} (稀有度={treasureBoxRow.Rarity}) UI已打开"
+            $"[OpenChestUI] 宝箱 [{m_TreasureBoxId}] {treasureBoxRow.Name} UI已打开"
         );
     }
 

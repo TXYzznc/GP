@@ -276,7 +276,7 @@ public class EnemySpawnManager
 
             // 【关键】应用难度系数到敌人基础属性（敌人真实强度的体现）
             // 从 CombatDifficultyRule 查询该难度等级的 EnemyDifficultyCoef（0.4-5.0）
-            // 应用到敌人的 5 大基础属性：HP、ATK、Armor、MagicResist、SpellPower
+            // 应用到敌人的 6 大基础属性：HP、MP、ATK、Armor、MagicResist、SpellPower
             // 这使得敌人的属性成为"真实基础属性"，所有后续加成（继承、装备、Buff）都基于这个值
             float difficultyCoef = GetEnemyDifficultyCoef(m_CurrentWave.EnemyDifficulty);
             if (difficultyCoef > 0 && entity.Attribute != null)
@@ -322,7 +322,7 @@ public class EnemySpawnManager
     /// 难度10: 5.0× (极难，敌人属性 500%)
     ///
     /// 【应用对象】
-    /// 应用到敌人的 5 大基础属性：MaxHp、AtkDamage、Armor、MagicResist、SpellPower
+    /// 应用到敌人的 6 大基础属性：MaxHp、MaxMp、AtkDamage、Armor、MagicResist、SpellPower
     /// 这确保高难度敌人确实更强、更耐打，不仅仅是靠数量堆砌
     /// </summary>
     private float GetEnemyDifficultyCoef(int difficultyLevel)

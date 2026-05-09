@@ -176,18 +176,18 @@ public class ChessAttribute : MonoBehaviour
             return;
         }
 
-        // 保存难度系数（敌人真实基础属性，只应用到 5 大属性：HP、ATK、Armor、MagicResist、SpellPower）
+        // 保存难度系数（敌人真实基础属性，会应用到 6 大属性：HP、MP、ATK、Armor、MagicResist、SpellPower）
         m_DifficultyCoef = Mathf.Max(difficultyCoef, 0.1f);
 
-        // 初始化最大值（使用等级对应的数据），应用难度系数到 MaxHp
+        // 初始化最大值（使用等级对应的数据），应用难度系数到 MaxHp 和 MaxMp
         m_MaxHp = config.GetMaxHp(rank) * m_DifficultyCoef;
-        m_MaxMp = config.GetMaxMp(rank);
+        m_MaxMp = config.GetMaxMp(rank) * m_DifficultyCoef;
 
         // 初始化当前值
         m_CurrentHp = m_MaxHp;
-        m_CurrentMp = config.GetInitialMp(rank);
+        m_CurrentMp = config.GetInitialMp(rank) * m_DifficultyCoef;
 
-        // 初始化战斗属性（只应用难度系数到 5 大基础属性）
+        // 初始化战斗属性（应用难度系数到 6 大基础属性）
         m_AtkDamage = config.GetAtkDamage(rank) * m_DifficultyCoef;
         m_AtkSpeed = config.GetAtkSpeed(rank);
         m_AtkRange = config.GetAtkRange(rank);
@@ -261,9 +261,9 @@ public class ChessAttribute : MonoBehaviour
     /// - 由 EnemySpawnManager.SpawnEnemyAsync() 在敌人棋子初始化后立即调用
     /// - 时机：Initialize() 完成 → 设置棋子等级 → ApplyDifficultyCoef()
     ///
-    /// 【应用范围 - 只应用到 5 大基础属性】
-    /// ✅ MaxHp、AtkDamage、Armor、MagicResist、SpellPower
-    /// ❌ 不应用：MaxMp、Shield、AtkSpeed、AtkRange、MoveSpeed、CritRate、CritDamage、CooldownReduce
+    /// 【应用范围 - 应用到 6 大基础属性】
+    /// ✅ MaxHp、MaxMp、AtkDamage、Armor、MagicResist、SpellPower
+    /// ❌ 不应用：Shield、AtkSpeed、AtkRange、MoveSpeed、CritRate、CritDamage、CooldownReduce
     ///
     /// 【继承关系的正确性】
     /// - 从属单位通过 InitializeAsSubordinate() 继承主人属性
@@ -284,15 +284,17 @@ public class ChessAttribute : MonoBehaviour
         // 计算属性倍率（旧系数 → 新系数）
         float coefRatio = m_DifficultyCoef / Mathf.Max(oldCoef, 0.1f);
 
-        // 重新计算基础属性（只应用难度系数到 5 大基础属性：MaxHp、AtkDamage、Armor、MagicResist、SpellPower）
+        // 重新计算基础属性（应用难度系数到 6 大基础属性：MaxHp、MaxMp、AtkDamage、Armor、MagicResist、SpellPower）
         double baseMaxHp = config.GetMaxHp(rank);
+        double baseMaxMp = config.GetMaxMp(rank);
         double baseAtkDamage = config.GetAtkDamage(rank);
         double baseArmor = config.GetArmor(rank);
         double baseMagicResist = config.GetMagicResist(rank);
         double baseSpellPower = config.GetSpellPower(rank);
 
-        // 应用新的难度系数（只到 5 大属性）
+        // 应用新的难度系数（到 6 大属性）
         m_MaxHp = baseMaxHp * m_DifficultyCoef;
+        m_MaxMp = baseMaxMp * m_DifficultyCoef;
         m_AtkDamage = baseAtkDamage * m_DifficultyCoef;
         m_Armor = baseArmor * m_DifficultyCoef;
         m_MagicResist = baseMagicResist * m_DifficultyCoef;
@@ -303,8 +305,13 @@ public class ChessAttribute : MonoBehaviour
         if (m_CurrentHp > m_MaxHp)
             m_CurrentHp = m_MaxHp;
 
+        // 调整当前法力（按倍率缩放）
+        m_CurrentMp = Math.Max(m_CurrentMp * coefRatio, 0);
+        if (m_CurrentMp > m_MaxMp)
+            m_CurrentMp = m_MaxMp;
+
         DebugEx.Log("ChessAttribute",
-            $"ApplyDifficultyCoef: {m_Owner?.Config.Name} ({oldCoef:F2} → {m_DifficultyCoef:F2}) - HP:{m_CurrentHp:F0}/{m_MaxHp:F0} ATK:{m_AtkDamage:F0} ARM:{m_Armor:F0}");
+            $"ApplyDifficultyCoef: {m_Owner?.Config.Name} ({oldCoef:F2} → {m_DifficultyCoef:F2}) - HP:{m_CurrentHp:F0}/{m_MaxHp:F0} MP:{m_CurrentMp:F0}/{m_MaxMp:F0} ATK:{m_AtkDamage:F0} ARM:{m_Armor:F0}");
     }
 
     #endregion
