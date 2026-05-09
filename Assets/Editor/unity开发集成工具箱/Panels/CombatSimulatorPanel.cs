@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,32 +10,88 @@ using UnityEngine;
 [ToolHubItem("战斗工具/战斗模拟器", "一键生成棋子对并模拟战斗，支持AI自动战斗和手动技能触发", 50)]
 public class CombatSimulatorPanel : IToolHubPanel
 {
+    #region DPS统计器
+
+    private class DpsTracker
+    {
+        private readonly Queue<(float time, double damage)> m_History = new();
+        public double CurrentDps { get; private set; }
+
+        public void Record(double damage) => m_History.Enqueue((Time.time, damage));
+
+        public void Tick()
+        {
+            float cutoff = Time.time - 1f;
+            while (m_History.Count > 0 && m_History.Peek().time < cutoff)
+                m_History.Dequeue();
+            double total = 0;
+            foreach (var (_, d) in m_History) total += d;
+            CurrentDps = total;
+        }
+    }
+
+    #endregion
+
     #region 配置字段
 
-    private int m_AllyChessId = 1001;
-    private int m_EnemyChessId = 2001;
-    private Vector3 m_AllyPos = new Vector3(-3f, 0f, 0f);
-    private Vector3 m_EnemyPos = new Vector3(3f, 0f, 0f);
+    private List<int> m_AllyChessIds = new() { 1001 };
+    private List<int> m_EnemyChessIds = new() { 2001 };
+    private Vector3 m_AllyBasePos = new Vector3(-3f, 0f, 0f);
+    private Vector3 m_EnemyBasePos = new Vector3(3f, 0f, 0f);
+    private float m_ChessSpacing = 2f; // 棋子间距
 
     #endregion
 
     #region 运行时状态
 
-    private ChessEntity m_AllyChess;
-    private ChessEntity m_EnemyChess;
+    private List<ChessEntity> m_AllyChessList = new();
+    private List<ChessEntity> m_EnemyChessList = new();
     private bool m_IsCombatActive;
     private bool m_IsSpawning;
-    private int m_SelectedManualTarget; // 0=友方操作, 1=敌方操作
     private Vector2 m_ScrollPos;
-    private bool m_ShowAllyBuffs;
-    private bool m_ShowEnemyBuffs;
+    private int m_SelectedManualTargetSide; // 0=友方操作, 1=敌方操作
+    private int m_SelectedManualTargetIndex; // 操作的棋子索引
+
+    /// <summary>秒伤统计 - key为ChessEntity</summary>
+    private Dictionary<ChessEntity, DpsTracker> m_DpsTrackers = new();
+
+    /// <summary>Buff 控制</summary>
+    private int m_BuffIdInput = 1;
+    private int m_BuffOpTargetSide; // 0=友方, 1=敌方
+    private int m_BuffOpTargetIndex; // 操作的棋子索引
+
+    /// <summary>装备模拟</summary>
+    private int m_EquipTableId = 1;
+    private int m_EquipSlot = 0;
+
+    /// <summary>数据刷新</summary>
+    private string m_LastRefreshInfo = "未刷新";
+
+    /// <summary>锁血系统 - key为ChessEntity</summary>
+    private Dictionary<ChessEntity, bool> m_LockedChess = new();
+    private Dictionary<ChessEntity, double> m_LockRecoverTimes = new();
+    private const double k_LockRecoverInterval = 0.1; // 每0.1秒恢复一次
+    private const double k_LockRecoverRatio = 0.05; // 每次恢复最大HP的5%
+
+    /// <summary>UI展开状态</summary>
+    private bool m_ShowAllyList;
+    private bool m_ShowEnemyList;
+    private Dictionary<ChessEntity, bool> m_ShowBuffs = new();
+    private Dictionary<ChessEntity, float> m_HpSliders = new();
+    private Dictionary<ChessEntity, bool> m_HpEditing = new();
+
+    /// <summary>选中的棋子详细显示</summary>
+    private ChessEntity m_SelectedDetailChess;
+    private Vector2 m_ChessButtonScrollPos;
 
     /// <summary>持有工具箱 EditorWindow 引用，用于主动 Repaint</summary>
     private EditorWindow m_OwnerWindow;
     /// <summary>上次刷新时间</summary>
     private double m_LastRepaintTime;
-    /// <summary>刷新间隔（秒），约 20 FPS</summary>
-    private const double k_RepaintInterval = 0.05;
+    /// <summary>战斗中刷新间隔（30 FPS）</summary>
+    private const double k_ActiveRepaintInterval = 0.033;
+    /// <summary>非战斗中刷新间隔（5 FPS）</summary>
+    private const double k_IdleRepaintInterval = 0.2;
 
     #endregion
 
@@ -53,8 +110,8 @@ public class CombatSimulatorPanel : IToolHubPanel
     public void OnDestroy()
     {
         // 清理引用，但不销毁对象（用户可能还在观察）
-        m_AllyChess = null;
-        m_EnemyChess = null;
+        m_AllyChessList.Clear();
+        m_EnemyChessList.Clear();
     }
 
     public string GetHelpText()
@@ -80,6 +137,8 @@ public class CombatSimulatorPanel : IToolHubPanel
 
         EditorGUI.BeginDisabledGroup(!ready);
         {
+            DrawDataRefreshControl();
+            EditorGUILayout.Space(4);
             DrawChessConfig();
             EditorGUILayout.Space(4);
             DrawSpawnControls();
@@ -87,6 +146,14 @@ public class CombatSimulatorPanel : IToolHubPanel
             DrawCombatControls();
             EditorGUILayout.Space(4);
             DrawManualSkillControls();
+            EditorGUILayout.Space(8);
+            DrawDpsPanel();
+            EditorGUILayout.Space(4);
+            DrawChessSelector();
+            EditorGUILayout.Space(4);
+            DrawSelectedChessDetail();
+            EditorGUILayout.Space(4);
+            DrawBuffAndEquipControl();
             EditorGUILayout.Space(8);
             DrawBattleStatus();
         }
@@ -158,18 +225,46 @@ public class CombatSimulatorPanel : IToolHubPanel
         // 友方
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField("友方棋子", EditorStyles.miniBoldLabel);
-        m_AllyChessId = EditorGUILayout.IntField("棋子ID", m_AllyChessId);
-        m_AllyPos = EditorGUILayout.Vector3Field("生成位置", m_AllyPos);
-        DrawChessPreview(m_AllyChessId);
+        DrawChessIdList(m_AllyChessIds, "友方棋子ID");
+        m_AllyBasePos = EditorGUILayout.Vector3Field("生成基点", m_AllyBasePos);
         EditorGUILayout.EndVertical();
 
         // 敌方
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField("敌方棋子", EditorStyles.miniBoldLabel);
-        m_EnemyChessId = EditorGUILayout.IntField("棋子ID", m_EnemyChessId);
-        m_EnemyPos = EditorGUILayout.Vector3Field("生成位置", m_EnemyPos);
-        DrawChessPreview(m_EnemyChessId);
+        DrawChessIdList(m_EnemyChessIds, "敌方棋子ID");
+        m_EnemyBasePos = EditorGUILayout.Vector3Field("生成基点", m_EnemyBasePos);
         EditorGUILayout.EndVertical();
+
+        // 通用参数
+        EditorGUILayout.BeginVertical("box");
+        m_ChessSpacing = EditorGUILayout.FloatField("棋子间距", m_ChessSpacing);
+        EditorGUILayout.EndVertical();
+    }
+
+    private void DrawChessIdList(List<int> idList, string label)
+    {
+        EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+        for (int i = 0; i < idList.Count; i++)
+        {
+            EditorGUILayout.BeginHorizontal("box");
+            EditorGUILayout.LabelField($"[{i}]", GUILayout.Width(30));
+            idList[i] = EditorGUILayout.IntField(idList[i]);
+            if (GUILayout.Button("删除", GUILayout.Width(50)))
+            {
+                idList.RemoveAt(i);
+                i--;
+                EditorGUILayout.EndHorizontal();
+                continue;
+            }
+            EditorGUILayout.EndHorizontal();
+            DrawChessPreview(idList[i]);
+        }
+
+        if (GUILayout.Button("+ 添加棋子", GUILayout.Height(22)))
+        {
+            idList.Add(1001);
+        }
     }
 
     private void DrawChessPreview(int chessId)
@@ -191,12 +286,12 @@ public class CombatSimulatorPanel : IToolHubPanel
     {
         EditorGUILayout.LabelField("生成控制", EditorStyles.boldLabel);
 
-        bool hasChess = m_AllyChess != null || m_EnemyChess != null;
+        bool hasChess = m_AllyChessList.Count > 0 || m_EnemyChessList.Count > 0;
 
         EditorGUILayout.BeginHorizontal();
 
         EditorGUI.BeginDisabledGroup(m_IsSpawning);
-        if (GUILayout.Button("生成棋子对", GUILayout.Height(30)))
+        if (GUILayout.Button("生成棋子", GUILayout.Height(30)))
         {
             SpawnChessPairAsync().Forget();
         }
@@ -212,17 +307,15 @@ public class CombatSimulatorPanel : IToolHubPanel
         EditorGUILayout.EndHorizontal();
 
         // 显示当前棋子状态
-        if (m_AllyChess != null)
-            EditorGUILayout.LabelField($"  友方: {m_AllyChess.Config?.Name ?? "N/A"} (已生成)");
-        if (m_EnemyChess != null)
-            EditorGUILayout.LabelField($"  敌方: {m_EnemyChess.Config?.Name ?? "N/A"} (已生成)");
+        EditorGUILayout.LabelField($"  友方: {m_AllyChessList.Count} 个棋子已生成");
+        EditorGUILayout.LabelField($"  敌方: {m_EnemyChessList.Count} 个棋子已生成");
     }
 
     private void DrawCombatControls()
     {
         EditorGUILayout.LabelField("战斗控制", EditorStyles.boldLabel);
 
-        bool hasChess = m_AllyChess != null && m_EnemyChess != null;
+        bool hasChess = m_AllyChessList.Count > 0 && m_EnemyChessList.Count > 0;
 
         EditorGUILayout.BeginHorizontal();
 
@@ -258,16 +351,30 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     private void DrawManualSkillControls()
     {
-        bool hasChess = m_AllyChess != null && m_EnemyChess != null;
+        bool hasChess = m_AllyChessList.Count > 0 && m_EnemyChessList.Count > 0;
         if (!hasChess) return;
 
         EditorGUILayout.LabelField("手动技能触发", EditorStyles.boldLabel);
 
         string[] targets = { "操作友方棋子", "操作敌方棋子" };
-        m_SelectedManualTarget = GUILayout.Toolbar(m_SelectedManualTarget, targets);
+        m_SelectedManualTargetSide = GUILayout.Toolbar(m_SelectedManualTargetSide, targets);
 
-        ChessEntity attacker = m_SelectedManualTarget == 0 ? m_AllyChess : m_EnemyChess;
-        ChessEntity defender = m_SelectedManualTarget == 0 ? m_EnemyChess : m_AllyChess;
+        var sideList = m_SelectedManualTargetSide == 0 ? m_AllyChessList : m_EnemyChessList;
+        if (sideList.Count == 0) return;
+
+        m_SelectedManualTargetIndex = Mathf.Clamp(m_SelectedManualTargetIndex, 0, sideList.Count - 1);
+        EditorGUILayout.LabelField($"选择棋子: [{m_SelectedManualTargetIndex}] / {sideList.Count - 1}");
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("◀", GUILayout.Width(30)))
+            m_SelectedManualTargetIndex = Mathf.Max(0, m_SelectedManualTargetIndex - 1);
+        if (GUILayout.Button("▶", GUILayout.Width(30)))
+            m_SelectedManualTargetIndex = Mathf.Min(sideList.Count - 1, m_SelectedManualTargetIndex + 1);
+        EditorGUILayout.EndHorizontal();
+
+        var attacker = sideList[m_SelectedManualTargetIndex];
+        var defenderList = m_SelectedManualTargetSide == 0 ? m_EnemyChessList : m_AllyChessList;
+        var defender = defenderList.Count > 0 ? defenderList[0] : null;
 
         if (attacker == null || attacker.CombatController == null)
         {
@@ -279,7 +386,8 @@ public class CombatSimulatorPanel : IToolHubPanel
 
         if (GUILayout.Button("普攻", GUILayout.Height(28)))
         {
-            attacker.CombatController.TriggerAttackFromAI(defender);
+            if (defender != null)
+                attacker.CombatController.TriggerAttackFromAI(defender);
         }
 
         EditorGUI.BeginDisabledGroup(attacker.Skill1 == null);
@@ -312,26 +420,40 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     private void DrawBattleStatus()
     {
-        if (m_AllyChess == null && m_EnemyChess == null) return;
+        if (m_AllyChessList.Count == 0 && m_EnemyChessList.Count == 0) return;
 
         EditorGUILayout.LabelField("战斗信息", EditorStyles.boldLabel);
 
-        if (m_AllyChess != null)
+        // 友方棋子列表
+        m_ShowAllyList = EditorGUILayout.Foldout(m_ShowAllyList, $"友方 ({m_AllyChessList.Count})");
+        if (m_ShowAllyList)
         {
-            DrawEntityStatus("友方", m_AllyChess, ref m_ShowAllyBuffs);
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < m_AllyChessList.Count; i++)
+            {
+                var chess = m_AllyChessList[i];
+                DrawEntityStatusCompact($"友方[{i}]", chess);
+            }
+            EditorGUI.indentLevel--;
         }
 
         EditorGUILayout.Space(2);
 
-        if (m_EnemyChess != null)
+        // 敌方棋子列表
+        m_ShowEnemyList = EditorGUILayout.Foldout(m_ShowEnemyList, $"敌方 ({m_EnemyChessList.Count})");
+        if (m_ShowEnemyList)
         {
-            DrawEntityStatus("敌方", m_EnemyChess, ref m_ShowEnemyBuffs);
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < m_EnemyChessList.Count; i++)
+            {
+                var chess = m_EnemyChessList[i];
+                DrawEntityStatusCompact($"敌方[{i}]", chess);
+            }
+            EditorGUI.indentLevel--;
         }
-
-        // 刷新由 OnEditorUpdate 驱动，此处无需操作
     }
 
-    private void DrawEntityStatus(string label, ChessEntity entity, ref bool showBuffs)
+    private void DrawEntityStatusCompact(string label, ChessEntity entity)
     {
         if (entity == null) return;
 
@@ -340,8 +462,13 @@ public class CombatSimulatorPanel : IToolHubPanel
 
         EditorGUILayout.BeginVertical("box");
 
-        // 名称和阵营
-        EditorGUILayout.LabelField($"{label}: {entity.Config?.Name ?? "N/A"}", EditorStyles.miniBoldLabel);
+        // 名称和DPS
+        double dps = 0;
+        if (m_DpsTrackers.TryGetValue(entity, out var tracker))
+            dps = tracker.CurrentDps;
+        bool isLocked = m_LockedChess.ContainsKey(entity) && m_LockedChess[entity];
+        string lockStr = isLocked ? " 🔒" : "";
+        EditorGUILayout.LabelField($"{label}: {entity.Config?.Name ?? "N/A"} | DPS:{dps:F1}{lockStr}", EditorStyles.miniBoldLabel);
 
         // HP/MP 进度条
         DrawProgressBar("HP", attr.CurrentHp, attr.MaxHp, new Color(0.2f, 0.8f, 0.2f));
@@ -349,25 +476,51 @@ public class CombatSimulatorPanel : IToolHubPanel
 
         // 核心属性
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField($"攻击:{attr.AtkDamage:F0}", GUILayout.Width(80));
-        EditorGUILayout.LabelField($"护甲:{attr.Armor:F0}", GUILayout.Width(80));
-        EditorGUILayout.LabelField($"魔抗:{attr.MagicResist:F0}", GUILayout.Width(80));
-        EditorGUILayout.LabelField($"攻速:{attr.AtkSpeed:F2}", GUILayout.Width(80));
+        EditorGUILayout.LabelField($"攻击:{attr.AtkDamage:F0}", GUILayout.Width(70));
+        EditorGUILayout.LabelField($"护甲:{attr.Armor:F0}", GUILayout.Width(70));
+        EditorGUILayout.LabelField($"魔抗:{attr.MagicResist:F0}", GUILayout.Width(70));
+        EditorGUILayout.LabelField($"法强:{attr.SpellPower:F0}", GUILayout.Width(70));
         EditorGUILayout.EndHorizontal();
 
+        // 状态快捷按钮
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField($"法强:{attr.SpellPower:F0}", GUILayout.Width(80));
-        EditorGUILayout.LabelField($"暴击:{attr.CritRate:P0}", GUILayout.Width(80));
-        EditorGUILayout.LabelField($"暴伤:{attr.CritDamage:F2}x", GUILayout.Width(80));
-        EditorGUILayout.LabelField($"移速:{attr.MoveSpeed:F1}", GUILayout.Width(80));
+        if (GUILayout.Button("HP满", GUILayout.Width(50))) attr.SetHp(attr.MaxHp);
+        if (GUILayout.Button("MP满", GUILayout.Width(50))) attr.SetMp(attr.MaxMp);
+        if (GUILayout.Button("半血", GUILayout.Width(50))) attr.SetHp(attr.MaxHp * 0.5);
+        if (GUILayout.Button("濒死", GUILayout.Width(50))) attr.SetHp(attr.MaxHp * 0.05);
+
+        // 锁血按钮
+        GUIStyle lockStyle = new GUIStyle(GUI.skin.button);
+        lockStyle.normal.textColor = isLocked ? new Color(1f, 0.2f, 0.2f) : Color.white;
+        if (GUILayout.Button(isLocked ? "🔒锁" : "🔓解", lockStyle, GUILayout.Width(50)))
+        {
+            m_LockedChess[entity] = !isLocked;
+            m_LockRecoverTimes[entity] = EditorApplication.timeSinceStartup;
+        }
         EditorGUILayout.EndHorizontal();
+
+        // HP 滑条
+        if (!m_HpSliders.ContainsKey(entity)) m_HpSliders[entity] = 1f;
+        if (!m_HpEditing.ContainsKey(entity)) m_HpEditing[entity] = false;
+
+        EditorGUI.BeginChangeCheck();
+        if (!m_HpEditing[entity]) m_HpSliders[entity] = (float)(attr.CurrentHp / attr.MaxHp);
+        float newHpRatio = EditorGUILayout.Slider("HP调节", m_HpSliders[entity], 0f, 1f);
+        if (EditorGUI.EndChangeCheck())
+        {
+            m_HpEditing[entity] = true;
+            m_HpSliders[entity] = newHpRatio;
+            attr.SetHp(attr.MaxHp * newHpRatio);
+        }
+        else { m_HpEditing[entity] = false; }
 
         // Buff 列表
         if (entity.BuffManager != null)
         {
             var buffs = entity.BuffManager.GetAllBuffs();
-            showBuffs = EditorGUILayout.Foldout(showBuffs, $"Buff ({buffs.Count}个)");
-            if (showBuffs && buffs.Count > 0)
+            if (!m_ShowBuffs.ContainsKey(entity)) m_ShowBuffs[entity] = false;
+            m_ShowBuffs[entity] = EditorGUILayout.Foldout(m_ShowBuffs[entity], $"Buff ({buffs.Count}个)");
+            if (m_ShowBuffs[entity] && buffs.Count > 0)
             {
                 EditorGUI.indentLevel++;
                 foreach (var buff in buffs)
@@ -397,6 +550,175 @@ public class CombatSimulatorPanel : IToolHubPanel
         EditorGUI.LabelField(rect, $"  {label}: {current:F0} / {max:F0}");
     }
 
+    private void DrawDpsPanel()
+    {
+        if (m_AllyChessList.Count == 0 && m_EnemyChessList.Count == 0) return;
+
+        EditorGUILayout.LabelField("秒伤统计（实时）", EditorStyles.boldLabel);
+
+        double allyTotalDps = 0;
+        foreach (var chess in m_AllyChessList)
+        {
+            if (m_DpsTrackers.TryGetValue(chess, out var tracker))
+                allyTotalDps += tracker.CurrentDps;
+        }
+
+        double enemyTotalDps = 0;
+        foreach (var chess in m_EnemyChessList)
+        {
+            if (m_DpsTrackers.TryGetValue(chess, out var tracker))
+                enemyTotalDps += tracker.CurrentDps;
+        }
+
+        EditorGUILayout.BeginHorizontal("box");
+        EditorGUILayout.LabelField($"友方总DPS: {allyTotalDps:F1}", GUILayout.Width(150));
+        EditorGUILayout.LabelField($"敌方总DPS: {enemyTotalDps:F1}", GUILayout.Width(150));
+        EditorGUILayout.EndHorizontal();
+    }
+
+    private void DrawChessSelector()
+    {
+        if (m_AllyChessList.Count == 0 && m_EnemyChessList.Count == 0) return;
+
+        EditorGUILayout.LabelField("对战对象", EditorStyles.boldLabel);
+
+        m_ChessButtonScrollPos = EditorGUILayout.BeginScrollView(m_ChessButtonScrollPos, GUILayout.Height(60));
+
+        EditorGUILayout.BeginHorizontal("box");
+
+        // 友方按钮
+        for (int i = 0; i < m_AllyChessList.Count; i++)
+        {
+            var chess = m_AllyChessList[i];
+            GUIStyle btnStyle = new GUIStyle(GUI.skin.button);
+            if (m_SelectedDetailChess == chess)
+            {
+                btnStyle.normal.textColor = Color.green;
+                btnStyle.normal.background = Texture2D.whiteTexture;
+            }
+
+            if (GUILayout.Button($"友[{i}]\n{chess.Config?.Name}", btnStyle, GUILayout.Width(80), GUILayout.Height(40)))
+            {
+                m_SelectedDetailChess = chess;
+            }
+        }
+
+        // 敌方按钮
+        for (int i = 0; i < m_EnemyChessList.Count; i++)
+        {
+            var chess = m_EnemyChessList[i];
+            GUIStyle btnStyle = new GUIStyle(GUI.skin.button);
+            if (m_SelectedDetailChess == chess)
+            {
+                btnStyle.normal.textColor = Color.red;
+                btnStyle.normal.background = Texture2D.whiteTexture;
+            }
+
+            if (GUILayout.Button($"敌[{i}]\n{chess.Config?.Name}", btnStyle, GUILayout.Width(80), GUILayout.Height(40)))
+            {
+                m_SelectedDetailChess = chess;
+            }
+        }
+
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndScrollView();
+    }
+
+    private void DrawSelectedChessDetail()
+    {
+        if (m_SelectedDetailChess == null) return;
+
+        EditorGUILayout.LabelField("详细信息", EditorStyles.boldLabel);
+        DrawEntityStatusCompact("详情", m_SelectedDetailChess);
+    }
+
+    private void DrawBuffAndEquipControl()
+    {
+        bool hasChess = m_AllyChessList.Count > 0 || m_EnemyChessList.Count > 0;
+        if (!hasChess) return;
+
+        EditorGUILayout.LabelField("Buff / 装备控制", EditorStyles.boldLabel);
+
+        string[] sides = { "友方", "敌方" };
+        m_BuffOpTargetSide = GUILayout.Toolbar(m_BuffOpTargetSide, sides);
+        var sideList = m_BuffOpTargetSide == 0 ? m_AllyChessList : m_EnemyChessList;
+
+        if (sideList.Count == 0)
+        {
+            EditorGUILayout.HelpBox("该阵营无棋子", MessageType.Warning);
+            return;
+        }
+
+        m_BuffOpTargetIndex = Mathf.Clamp(m_BuffOpTargetIndex, 0, sideList.Count - 1);
+        EditorGUILayout.LabelField($"选择棋子: [{m_BuffOpTargetIndex}] {sideList[m_BuffOpTargetIndex].Config?.Name ?? "N/A"}");
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("◀", GUILayout.Width(30)))
+            m_BuffOpTargetIndex = Mathf.Max(0, m_BuffOpTargetIndex - 1);
+        if (GUILayout.Button("▶", GUILayout.Width(30)))
+            m_BuffOpTargetIndex = Mathf.Min(sideList.Count - 1, m_BuffOpTargetIndex + 1);
+        EditorGUILayout.EndHorizontal();
+
+        var target = sideList[m_BuffOpTargetIndex];
+        if (target == null || target.BuffManager == null)
+        {
+            EditorGUILayout.HelpBox("棋子或 Buff 管理器为空", MessageType.Warning);
+            return;
+        }
+
+        // Buff 操作
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("Buff 操作", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        m_BuffIdInput = EditorGUILayout.IntField("Buff ID", m_BuffIdInput, GUILayout.Width(160));
+        if (GUILayout.Button("添加", GUILayout.Width(50)))
+        {
+            target.BuffManager.AddBuff(m_BuffIdInput);
+        }
+        if (GUILayout.Button("移除", GUILayout.Width(50)))
+        {
+            target.BuffManager.RemoveBuff(m_BuffIdInput);
+        }
+        if (GUILayout.Button("清空", GUILayout.Width(50)))
+        {
+            target.BuffManager.ClearAll();
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+
+        // 装备操作
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("装备操作", EditorStyles.miniBoldLabel);
+        EditorGUILayout.BeginHorizontal();
+        m_EquipTableId = EditorGUILayout.IntField("装备表ID", m_EquipTableId, GUILayout.Width(160));
+        m_EquipSlot = EditorGUILayout.IntField("槽位(0-2)", m_EquipSlot, GUILayout.Width(120));
+        if (GUILayout.Button("穿戴", GUILayout.Width(50)))
+        {
+            SimulateEquip(target, m_EquipTableId, m_EquipSlot);
+        }
+        if (GUILayout.Button("卸下", GUILayout.Width(50)))
+        {
+            if (ChessEquipmentManager.Instance != null)
+            {
+                ChessEquipmentManager.Instance.UnequipItem(target.ChessId, m_EquipSlot);
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+    }
+
+    private void DrawDataRefreshControl()
+    {
+        EditorGUILayout.BeginHorizontal("box");
+        EditorGUILayout.LabelField($"配置热更新  {m_LastRefreshInfo}", GUILayout.ExpandWidth(true));
+        if (GUILayout.Button("更新数据", GUILayout.Width(80)))
+        {
+            ChessDataManager.Instance.ReloadConfigs();
+            m_LastRefreshInfo = $"已刷新 {System.DateTime.Now:HH:mm:ss}（注：仅刷新内存缓存，不重读文件）";
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+
     #endregion
 
     #region 核心逻辑
@@ -414,30 +736,67 @@ public class CombatSimulatorPanel : IToolHubPanel
             EnsureManagersReady();
 
             // 生成友方
-            m_AllyChess = await SummonChessManager.Instance.SpawnChessAsync(
-                m_AllyChessId, m_AllyPos, 0);
-
-            if (m_AllyChess == null)
+            for (int i = 0; i < m_AllyChessIds.Count; i++)
             {
-                Debug.LogError($"CombatSimulator: 友方棋子生成失败 ID={m_AllyChessId}");
-                return;
+                Vector3 pos = m_AllyBasePos + Vector3.right * i * m_ChessSpacing;
+                var chess = await SummonChessManager.Instance.SpawnChessAsync(
+                    m_AllyChessIds[i], pos, 0);
+
+                if (chess != null)
+                {
+                    m_AllyChessList.Add(chess);
+                    var tracker = new DpsTracker();
+                    m_DpsTrackers[chess] = tracker;
+                    SubscribeDpsEvents(chess, tracker);
+                    m_LockedChess[chess] = false;
+                    m_LockRecoverTimes[chess] = EditorApplication.timeSinceStartup;
+                    m_ShowBuffs[chess] = false;
+                    m_HpSliders[chess] = 1f;
+                    m_HpEditing[chess] = false;
+                }
+                else
+                {
+                    Debug.LogError($"CombatSimulator: 友方棋子生成失败 ID={m_AllyChessIds[i]}");
+                }
             }
 
             // 生成敌方
-            m_EnemyChess = await SummonChessManager.Instance.SpawnChessAsync(
-                m_EnemyChessId, m_EnemyPos, 1);
-
-            if (m_EnemyChess == null)
+            for (int i = 0; i < m_EnemyChessIds.Count; i++)
             {
-                Debug.LogError($"CombatSimulator: 敌方棋子生成失败 ID={m_EnemyChessId}");
-                return;
+                Vector3 pos = m_EnemyBasePos + Vector3.left * i * m_ChessSpacing;
+                var chess = await SummonChessManager.Instance.SpawnChessAsync(
+                    m_EnemyChessIds[i], pos, 1);
+
+                if (chess != null)
+                {
+                    m_EnemyChessList.Add(chess);
+                    var tracker = new DpsTracker();
+                    m_DpsTrackers[chess] = tracker;
+                    SubscribeDpsEvents(chess, tracker);
+                    m_LockedChess[chess] = false;
+                    m_LockRecoverTimes[chess] = EditorApplication.timeSinceStartup;
+                    m_ShowBuffs[chess] = false;
+                    m_HpSliders[chess] = 1f;
+                    m_HpEditing[chess] = false;
+                }
+                else
+                {
+                    Debug.LogError($"CombatSimulator: 敌方棋子生成失败 ID={m_EnemyChessIds[i]}");
+                }
             }
 
             // 让敌方面向友方
-            m_EnemyChess.transform.LookAt(m_AllyChess.transform);
-            m_AllyChess.transform.LookAt(m_EnemyChess.transform);
+            if (m_AllyChessList.Count > 0 && m_EnemyChessList.Count > 0)
+            {
+                var allyChess = m_AllyChessList[0];
+                foreach (var enemyChess in m_EnemyChessList)
+                {
+                    enemyChess.transform.LookAt(allyChess.transform);
+                    allyChess.transform.LookAt(enemyChess.transform);
+                }
+            }
 
-            Debug.Log($"CombatSimulator: 棋子对生成完毕 - {m_AllyChess.Config.Name} vs {m_EnemyChess.Config.Name}");
+            Debug.Log($"CombatSimulator: 棋子生成完毕 - 友方{m_AllyChessList.Count}个, 敌方{m_EnemyChessList.Count}个");
         }
         catch (System.Exception ex)
         {
@@ -451,16 +810,18 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     private void StartAICombat()
     {
-        if (m_AllyChess == null || m_EnemyChess == null) return;
+        if (m_AllyChessList.Count == 0 || m_EnemyChessList.Count == 0) return;
 
         _ = DamageFloatingTextManager.Instance;
 
         // 构建敌人缓存
         CombatEntityTracker.Instance?.BuildEnemyCache();
 
-        // 启用双方的战斗控制器
-        m_AllyChess.CombatController?.Enable();
-        m_EnemyChess.CombatController?.Enable();
+        // 启用所有棋子的战斗控制器
+        foreach (var chess in m_AllyChessList)
+            chess.CombatController?.Enable();
+        foreach (var chess in m_EnemyChessList)
+            chess.CombatController?.Enable();
 
         // 标记战斗状态
         CombatManager.Instance.StartCombat();
@@ -471,27 +832,31 @@ public class CombatSimulatorPanel : IToolHubPanel
 
     private void PauseCombat()
     {
-        m_AllyChess?.CombatController?.Disable();
-        m_EnemyChess?.CombatController?.Disable();
+        foreach (var chess in m_AllyChessList)
+            chess.CombatController?.Disable();
+        foreach (var chess in m_EnemyChessList)
+            chess.CombatController?.Disable();
         Debug.Log("CombatSimulator: AI 已暂停");
     }
 
     private void ResumeCombat()
     {
-        m_AllyChess?.CombatController?.Enable();
-        m_EnemyChess?.CombatController?.Enable();
+        foreach (var chess in m_AllyChessList)
+            chess.CombatController?.Enable();
+        foreach (var chess in m_EnemyChessList)
+            chess.CombatController?.Enable();
         Debug.Log("CombatSimulator: AI 已恢复");
     }
 
     private void StopCombat()
     {
-        // 1. 停用 AI 和战斗控制器
-        if (m_AllyChess != null && m_AllyChess.CombatController != null)
-            m_AllyChess.CombatController.Disable();
-        if (m_EnemyChess != null && m_EnemyChess.CombatController != null)
-            m_EnemyChess.CombatController.Disable();
+        // 停用所有棋子的战斗控制器
+        foreach (var chess in m_AllyChessList)
+            chess.CombatController?.Disable();
+        foreach (var chess in m_EnemyChessList)
+            chess.CombatController?.Disable();
 
-        // 2. 通知战斗管理器结束战斗
+        // 通知战斗管理器结束战斗
         if (CombatManager.Instance != null && CombatManager.Instance.IsInCombat)
         {
             CombatManager.Instance.EndCombat(false);
@@ -509,26 +874,27 @@ public class CombatSimulatorPanel : IToolHubPanel
             StopCombat();
         }
 
-        // 2. 如果棋子仍然存在，直接销毁它们（防止残留状态）
-        if (m_AllyChess != null)
+        // 2. 销毁所有棋子
+        if (SummonChessManager.Instance != null)
         {
-            if (SummonChessManager.Instance != null)
-            {
-                SummonChessManager.Instance.DestroyChess(m_AllyChess);
-            }
-            m_AllyChess = null;
+            foreach (var chess in m_AllyChessList)
+                SummonChessManager.Instance.DestroyChess(chess);
+            foreach (var chess in m_EnemyChessList)
+                SummonChessManager.Instance.DestroyChess(chess);
         }
 
-        if (m_EnemyChess != null)
-        {
-            if (SummonChessManager.Instance != null)
-            {
-                SummonChessManager.Instance.DestroyChess(m_EnemyChess);
-            }
-            m_EnemyChess = null;
-        }
+        // 3. 清理数据字典
+        m_AllyChessList.Clear();
+        m_EnemyChessList.Clear();
+        m_DpsTrackers.Clear();
+        m_LockedChess.Clear();
+        m_LockRecoverTimes.Clear();
+        m_ShowBuffs.Clear();
+        m_HpSliders.Clear();
+        m_HpEditing.Clear();
+        m_SelectedDetailChess = null;
 
-        // 3. 清理任何残留的棋子
+        // 4. 清理任何残留的棋子
         if (SummonChessManager.Instance != null)
         {
             var allChess = SummonChessManager.Instance.GetAllChess();
@@ -557,9 +923,45 @@ public class CombatSimulatorPanel : IToolHubPanel
             ChessDataManager.Instance.LoadConfigs();
         }
 
+        // ItemManager 加载物品配置表
+        if (ItemManager.Instance != null)
+        {
+            ItemManager.Instance.LoadAllTables();
+        }
+
         // CombatEntityTracker 和 BattleChessManager 都是懒加载单例，访问即创建
         _ = CombatEntityTracker.Instance;
         _ = BattleChessManager.Instance;
+    }
+
+    private void SubscribeDpsEvents(ChessEntity entity, DpsTracker tracker)
+    {
+        if (entity?.Attribute == null) return;
+        entity.Attribute.OnDamageDealt += (dmg, _) => tracker.Record(dmg);
+    }
+
+    private void SimulateEquip(ChessEntity entity, int equipTableId, int slot)
+    {
+        if (ChessEquipmentManager.Instance == null)
+        {
+            Debug.LogWarning("ChessEquipmentManager 未初始化");
+            return;
+        }
+
+        if (ItemManager.Instance == null)
+        {
+            Debug.LogWarning("ItemManager 未初始化");
+            return;
+        }
+
+        var item = ItemManager.Instance.CreateItem(equipTableId) as EquipmentItem;
+        if (item == null)
+        {
+            Debug.LogWarning($"创建装备失败 ID:{equipTableId}");
+            return;
+        }
+
+        ChessEquipmentManager.Instance.EquipItem(entity.ChessId, item, slot);
     }
 
     #endregion
@@ -567,11 +969,44 @@ public class CombatSimulatorPanel : IToolHubPanel
     private void OnEditorUpdate()
     {
         if (!Application.isPlaying) return;
-        if (m_AllyChess == null && m_EnemyChess == null) return;
+        if (m_AllyChessList.Count == 0 && m_EnemyChessList.Count == 0) return;
         if (m_OwnerWindow == null) return;
 
         double now = EditorApplication.timeSinceStartup;
-        if (now - m_LastRepaintTime >= k_RepaintInterval)
+
+        // 锁血恢复
+        foreach (var chess in m_AllyChessList)
+        {
+            if (chess?.Attribute != null && m_LockedChess.ContainsKey(chess) && m_LockedChess[chess])
+            {
+                if (now - m_LockRecoverTimes[chess] >= k_LockRecoverInterval)
+                {
+                    m_LockRecoverTimes[chess] = now;
+                    double recoverAmount = chess.Attribute.MaxHp * k_LockRecoverRatio;
+                    chess.Attribute.SetHp(chess.Attribute.CurrentHp + recoverAmount);
+                }
+            }
+        }
+
+        foreach (var chess in m_EnemyChessList)
+        {
+            if (chess?.Attribute != null && m_LockedChess.ContainsKey(chess) && m_LockedChess[chess])
+            {
+                if (now - m_LockRecoverTimes[chess] >= k_LockRecoverInterval)
+                {
+                    m_LockRecoverTimes[chess] = now;
+                    double recoverAmount = chess.Attribute.MaxHp * k_LockRecoverRatio;
+                    chess.Attribute.SetHp(chess.Attribute.CurrentHp + recoverAmount);
+                }
+            }
+        }
+
+        // 秒伤计算
+        foreach (var tracker in m_DpsTrackers.Values)
+            tracker.Tick();
+
+        double interval = m_IsCombatActive ? k_ActiveRepaintInterval : k_IdleRepaintInterval;
+        if (now - m_LastRepaintTime >= interval)
         {
             m_LastRepaintTime = now;
             m_OwnerWindow.Repaint();
