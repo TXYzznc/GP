@@ -670,16 +670,16 @@ public class CombatSimulatorPanel : IToolHubPanel
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField("Buff 操作", EditorStyles.miniBoldLabel);
         EditorGUILayout.BeginHorizontal();
-        m_BuffIdInput = EditorGUILayout.IntField("Buff ID", m_BuffIdInput, GUILayout.Width(160));
-        if (GUILayout.Button("添加", GUILayout.Width(50)))
+        m_BuffIdInput = EditorGUILayout.IntField("Buff ID", m_BuffIdInput);
+        if (GUILayout.Button("添加", GUILayout.ExpandWidth(true)))
         {
             target.BuffManager.AddBuff(m_BuffIdInput);
         }
-        if (GUILayout.Button("移除", GUILayout.Width(50)))
+        if (GUILayout.Button("移除", GUILayout.ExpandWidth(true)))
         {
             target.BuffManager.RemoveBuff(m_BuffIdInput);
         }
-        if (GUILayout.Button("清空", GUILayout.Width(50)))
+        if (GUILayout.Button("清空", GUILayout.ExpandWidth(true)))
         {
             target.BuffManager.ClearAll();
         }
@@ -690,13 +690,17 @@ public class CombatSimulatorPanel : IToolHubPanel
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField("装备操作", EditorStyles.miniBoldLabel);
         EditorGUILayout.BeginHorizontal();
-        m_EquipTableId = EditorGUILayout.IntField("装备表ID", m_EquipTableId, GUILayout.Width(160));
-        m_EquipSlot = EditorGUILayout.IntField("槽位(0-2)", m_EquipSlot, GUILayout.Width(120));
-        if (GUILayout.Button("穿戴", GUILayout.Width(50)))
+        m_EquipTableId = EditorGUILayout.IntField("装备表ID", m_EquipTableId);
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        m_EquipSlot = EditorGUILayout.IntField("槽位(0-2)", m_EquipSlot);
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("穿戴", GUILayout.ExpandWidth(true)))
         {
             SimulateEquip(target, m_EquipTableId, m_EquipSlot);
         }
-        if (GUILayout.Button("卸下", GUILayout.Width(50)))
+        if (GUILayout.Button("卸下", GUILayout.ExpandWidth(true)))
         {
             if (ChessEquipmentManager.Instance != null)
             {
