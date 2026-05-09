@@ -92,10 +92,10 @@ public partial class DictionaryItem : UIItemBase
         // 品质色条
         if (varQualityBar != null)
         {
-            if (unlocked && m_EntryData.Quality > 0)
+            if (unlocked && m_EntryData.Rarity > 0)
             {
                 varQualityBar.gameObject.SetActive(true);
-                varQualityBar.color = RarityColorHelper.GetColor(m_EntryData.Quality);
+                varQualityBar.color = RarityColorHelper.GetColor(m_EntryData.Rarity);
             }
             else
             {

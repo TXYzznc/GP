@@ -831,7 +831,7 @@ public partial class InventoryUI : UIFormBase
         // 显示物品图标
         if (varItemDetailImg != null)
         {
-            _ = LoadItemDetailIconAsync(itemData.GetIconId());
+            _ = LoadItemDetailIconAsync(itemData.IconId);
         }
 
         // 显示稀有度
@@ -841,10 +841,10 @@ public partial class InventoryUI : UIFormBase
             var row = itemTable?.GetDataRow(item.ItemId);
             if (row != null)
             {
-                varRarityText.text = $"品质: {row.Quality}";
+                varRarityText.text = $"品质: {row.Rarity}";
 
                 // 获取品质对应的颜色
-                var rarityColor = RarityColorHelper.GetColor(row.Quality);
+                var rarityColor = RarityColorHelper.GetColor(row.Rarity);
                 varRarityText.color = rarityColor;
             }
         }

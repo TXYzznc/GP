@@ -116,7 +116,7 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
         int quality = 0;
         if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
-            quality = (int)itemStack.Item.Quality;
+            quality = (int)itemStack.Item.Rarity;
         SetRarity(quality);
     }
 

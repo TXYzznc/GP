@@ -107,7 +107,7 @@ public partial class InventoryItemUI : UIItemBase
         }
 
         // 加载物品图标
-        LoadItemIconAsync(itemData.GetIconId()).Forget();
+        LoadItemIconAsync(itemData.IconId).Forget();
 
         // 显示物品数量（可堆叠且数量>1时显示，格式为 xN）
         if (varCountText != null)

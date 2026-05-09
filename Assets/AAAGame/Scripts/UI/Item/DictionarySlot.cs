@@ -48,9 +48,9 @@ public partial class DictionarySlot : UIItemBase
         // 设置背景颜色（根据品质）
         if (varBg != null)
         {
-            if (entryData.IsUnlocked && entryData.Quality > 0)
+            if (entryData.IsUnlocked && entryData.Rarity > 0)
             {
-                var color = RarityColorHelper.GetColor(entryData.Quality);
+                var color = RarityColorHelper.GetColor(entryData.Rarity);
                 color.a = 0.2f; // 格子底色用低透明度
                 varBg.color = color;
             }

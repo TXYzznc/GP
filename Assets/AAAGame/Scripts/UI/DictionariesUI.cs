@@ -293,8 +293,8 @@ public partial class DictionariesUI : UIFormBase
         if (varDetailName != null)
         {
             varDetailName.text = entryData.Name;
-            if (entryData.Quality > 0)
-                varDetailName.color = RarityColorHelper.GetColor(entryData.Quality);
+            if (entryData.Rarity > 0)
+                varDetailName.color = RarityColorHelper.GetColor(entryData.Rarity);
             else
                 varDetailName.color = Color.white;
         }
@@ -306,9 +306,9 @@ public partial class DictionariesUI : UIFormBase
         if (varDetailQuality != null)
         {
             varDetailQuality.gameObject.SetActive(true);
-            varDetailQuality.text = GetQualityLabel(entryData.Category, entryData.Quality);
-            if (entryData.Quality > 0)
-                varDetailQuality.color = RarityColorHelper.GetColor(entryData.Quality);
+            varDetailQuality.text = GetQualityLabel(entryData.Category, entryData.Rarity);
+            if (entryData.Rarity > 0)
+                varDetailQuality.color = RarityColorHelper.GetColor(entryData.Rarity);
         }
 
         // 图标
@@ -379,9 +379,9 @@ public partial class DictionariesUI : UIFormBase
             if (row == null)
                 return;
 
-            SetAttrText(varAttr1, "品质", GetQualityLabel(entryData.Category, row.Quality));
+            SetAttrText(varAttr1, "品质", GetQualityLabel(entryData.Category, row.Rarity));
             SetAttrText(varAttr2, "重量", row.Weight.ToString());
-            SetAttrText(varAttr3, "耐久", row.MaxDurability.ToString());
+            SetAttrText(varAttr3, "耐久", "-"); // 装备无耐久度
             SetAttrText(varAttr4, "售价", row.SellPrice.ToString());
         }
     }

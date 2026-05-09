@@ -60,7 +60,7 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
             return;
         }
 
-        Color qualityColor = GetColorByQuality(m_Row.Quality);
+        Color qualityColor = GetColorByQuality(m_Row.Rarity);
         varBg.color = qualityColor;
     }
 
@@ -185,9 +185,9 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
         sb.AppendLine($"<b>{m_Row.Name}</b>");
         sb.AppendLine();
 
-        if (m_Row.Quality > 0)
+        if (m_Row.Rarity > 0)
         {
-            sb.AppendLine($"品质: {m_Row.Quality}");
+            sb.AppendLine($"品质: {m_Row.Rarity}");
         }
 
         if (m_Row.Weight > 0)
@@ -195,26 +195,42 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
             sb.AppendLine($"重量: {m_Row.Weight}g");
         }
 
-        if (m_Row.AffixPoolIds != null && m_Row.AffixPoolIds.Length > 0)
+        // 从专门数据获取物品详情
+        int itemType = m_Row.Type;
+        if (itemType == (int)ItemType.Treasure)
         {
-            string affixes = string.Join(", ", m_Row.AffixPoolIds);
-            sb.AppendLine($"词条: {affixes}");
-        }
+            var treasureData = ItemManager.Instance?.GetTreasureData(m_Row.Id);
+            if (treasureData != null)
+            {
+                if (treasureData.SynergyIds != null && treasureData.SynergyIds.Count > 0)
+                    sb.AppendLine($"羁绊: {string.Join(", ", treasureData.SynergyIds)}");
 
-        if (m_Row.SynergyIds != null && m_Row.SynergyIds.Length > 0)
-        {
-            string synergies = string.Join(", ", m_Row.SynergyIds);
-            sb.AppendLine($"羁绊: {synergies}");
-        }
+                if (treasureData.BaseAttributes != null && treasureData.BaseAttributes.Count > 0)
+                {
+                    sb.AppendLine("[基础属性]");
+                    foreach (var attr in treasureData.BaseAttributes)
+                        sb.AppendLine($"  {attr.Key}: +{attr.Value}");
+                }
 
-        if (!string.IsNullOrEmpty(m_Row.BaseAttributes))
-        {
-            sb.AppendLine($"基础属性: {m_Row.BaseAttributes}");
+                if (treasureData.SpecialEffectId > 0)
+                    sb.AppendLine($"特殊效果: ID={treasureData.SpecialEffectId}");
+            }
         }
-
-        if (m_Row.SpecialEffectId > 0)
+        else if (itemType == (int)ItemType.Equipment)
         {
-            sb.AppendLine($"特殊效果: ID={m_Row.SpecialEffectId}");
+            var equipData = ItemManager.Instance?.GetEquipmentData(m_Row.Id);
+            if (equipData != null)
+            {
+                if (equipData.BaseAttributes != null && equipData.BaseAttributes.Count > 0)
+                {
+                    sb.AppendLine("[基础属性]");
+                    foreach (var attr in equipData.BaseAttributes)
+                        sb.AppendLine($"  {attr.Key}: +{attr.Value}");
+                }
+
+                if (equipData.SpecialEffectId > 0)
+                    sb.AppendLine($"特殊效果: ID={equipData.SpecialEffectId}");
+            }
         }
 
         if (!string.IsNullOrEmpty(m_Row.Description))
