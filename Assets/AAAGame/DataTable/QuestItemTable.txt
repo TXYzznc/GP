@@ -1,0 +1,6 @@
+﻿#	QuestItemTable		
+#	Id	Name	ItemTableId
+#	int	string	int
+#	任务道具表ID	物品名称	对应ItemTable中的ID
+	1	神秘钥匙	5
+	2	古老卷轴	6
