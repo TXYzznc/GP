@@ -313,10 +313,6 @@ public class PlayerAccountDataManager
 
             // 任务
             CompletedQuestIds = new List<int>(),
-
-            // 运行时配置
-            ExpMultiplier = initConfig.ExpMultiplier,
-            EliteSpawnRate = initConfig.EliteSpawnRate,
         };
 
         // 5. 初始化已解锁召唤师
@@ -506,12 +502,6 @@ public class PlayerAccountDataManager
         var initTable = GF.DataTable.GetDataTable<PlayerInitTable>();
         if (initTable != null)
         {
-            var initConfig = initTable.GetDataRow(1);
-            if (initConfig != null)
-            {
-                saveData.ExpMultiplier = initConfig.ExpMultiplier;
-                saveData.EliteSpawnRate = initConfig.EliteSpawnRate;
-            }
         }
 
         // 初始化棋子解锁管理器
@@ -663,7 +653,6 @@ public class PlayerAccountDataManager
         if (m_CurrentSaveData == null)
             return;
 
-        exp = Mathf.RoundToInt(exp * m_CurrentSaveData.ExpMultiplier);
         m_CurrentSaveData.CurrentExp += exp;
 
         var levelTable = GF.DataTable.GetDataTable<PlayerDataTable>();

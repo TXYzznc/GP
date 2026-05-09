@@ -25,7 +25,7 @@ public struct DictionaryEntryData
     public string Name;
     public string Description;
     public int IconId;
-    public int Quality; // 品质/稀有度
+    public int Rarity; // 稀有度
     public bool IsUnlocked;
     public string SubText; // 副标题信息
     public DictionaryCategory Category;
@@ -363,7 +363,7 @@ public class DictionaryManager
         entry.Name = row.Name;
         entry.Description = row.GetDescription(1);
         entry.IconId = row.GetIconId(1);
-        entry.Quality = row.Quality;
+        entry.Rarity = row.Quality;
         entry.SubText = "★1";
     }
 
@@ -377,7 +377,7 @@ public class DictionaryManager
         entry.Name = row.Name;
         entry.Description = row.Desc;
         entry.IconId = row.IconId;
-        entry.Quality = row.Rarity;
+        entry.Rarity = row.Rarity;
         entry.SubText = $"灵力 {row.SpiritCost}";
     }
 
@@ -391,7 +391,7 @@ public class DictionaryManager
         entry.Name = row.Name;
         entry.Description = row.Description;
         entry.IconId = row.IconId;
-        entry.Quality = row.EnemyDifficulty;
+        entry.Rarity = row.EnemyDifficulty;
         entry.SubText = $"难度 {new string('★', row.EnemyDifficulty)}";
     }
 
@@ -404,8 +404,8 @@ public class DictionaryManager
 
         entry.Name = row.Name;
         entry.Description = row.Description;
-        entry.IconId = row.IconId > 0 ? row.IconId : row.DetailIconId;
-        entry.Quality = row.Quality;
+        entry.IconId = row.IconId;
+        entry.Rarity = row.Rarity;
         entry.SubText = "";
     }
 

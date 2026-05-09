@@ -164,17 +164,6 @@ public class PlayerSaveData
     public string InGameSnapshot;
 
     // ========== 运行时缓存数据，不存储到配置表中 ==========
-    /// <summary>
-    /// 经验倍率（从PlayerInitTable获取）
-    /// </summary>
-    [NonSerialized]
-    public float ExpMultiplier = 1.0f;
-
-    /// <summary>
-    /// 精英怪刷新率（从PlayerInitTable获取）
-    /// </summary>
-    [NonSerialized]
-    public float EliteSpawnRate = 0.1f;
 
     /// <summary>
     /// 默认构造函数

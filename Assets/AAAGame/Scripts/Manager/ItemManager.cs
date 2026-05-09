@@ -9,10 +9,14 @@ public class ItemManager : SingletonBase<ItemManager>
 {
     #region 字段
 
-    private Dictionary<int, ItemData> m_ItemDataDict; // 物品配置字典
-    private Dictionary<int, SpecialEffectData> m_EffectDataDict; // 特殊效果配置字典
-    private Dictionary<int, AffixData> m_AffixDataDict; // 词条配置字典
-    private Dictionary<int, SynergyData> m_SynergyDataDict; // 羁绊配置字典
+    private Dictionary<int, ItemData> m_ItemDataDict;
+    private Dictionary<int, SpecialEffectData> m_EffectDataDict;
+    private Dictionary<int, AffixData> m_AffixDataDict;
+    private Dictionary<int, SynergyData> m_SynergyDataDict;
+    // key = ItemTableId
+    private Dictionary<int, ConsumableData> m_ConsumableDataDict;
+    private Dictionary<int, TreasureData> m_TreasureDataDict;
+    private Dictionary<int, EquipmentData> m_EquipmentDataDict;
     #endregion
 
     #region Unity 生命周期
@@ -39,6 +43,9 @@ public class ItemManager : SingletonBase<ItemManager>
         m_EffectDataDict = new Dictionary<int, SpecialEffectData>();
         m_AffixDataDict = new Dictionary<int, AffixData>();
         m_SynergyDataDict = new Dictionary<int, SynergyData>();
+        m_ConsumableDataDict = new Dictionary<int, ConsumableData>();
+        m_TreasureDataDict = new Dictionary<int, TreasureData>();
+        m_EquipmentDataDict = new Dictionary<int, EquipmentData>();
 
         // 注意：配置表需要先通过 GameFramework 加载
         // 这里只是初始化字典，实际加载需要在配置表准备好后手动调用
@@ -53,6 +60,9 @@ public class ItemManager : SingletonBase<ItemManager>
         DebugEx.Log("ItemManager", "开始加载所有配置表");
 
         LoadItemTable();
+        LoadConsumableTable();
+        LoadTreasureTable();
+        LoadEquipmentTable();
         LoadSpecialEffectTable();
         LoadAffixTable();
         LoadSynergyTable();
@@ -92,6 +102,119 @@ public class ItemManager : SingletonBase<ItemManager>
         }
 
         DebugEx.Success("ItemManager", $"物品配置表加载完成，共 {m_ItemDataDict.Count} 条数据");
+    }
+
+    /// <summary>
+    /// 加载消耗品配置表
+    /// </summary>
+    public void LoadConsumableTable()
+    {
+        DebugEx.Log("ItemManager", "开始加载消耗品配置表");
+
+        var table = GF.DataTable.GetDataTable<ConsumableTable>();
+        if (table == null)
+        {
+            DebugEx.Error("ItemManager", "消耗品配置表未加载");
+            return;
+        }
+
+        var allRows = table.GetAllDataRows();
+        if (allRows == null || allRows.Length == 0)
+        {
+            DebugEx.Warning("ItemManager", "消耗品配置表为空");
+            return;
+        }
+
+        m_ConsumableDataDict.Clear();
+        foreach (var row in allRows)
+        {
+            var data = new ConsumableData
+            {
+                Id = row.Id,
+                ItemTableId = row.ItemTableId,
+                CanUse = row.CanUse,
+                UseEffectId = row.UseEffectId,
+            };
+            m_ConsumableDataDict[row.ItemTableId] = data;
+        }
+
+        DebugEx.Success("ItemManager", $"消耗品配置表加载完成，共 {m_ConsumableDataDict.Count} 条数据");
+    }
+
+    /// <summary>
+    /// 加载宝物配置表
+    /// </summary>
+    public void LoadTreasureTable()
+    {
+        DebugEx.Log("ItemManager", "开始加载宝物配置表");
+
+        var table = GF.DataTable.GetDataTable<TreasureTable>();
+        if (table == null)
+        {
+            DebugEx.Error("ItemManager", "宝物配置表未加载");
+            return;
+        }
+
+        var allRows = table.GetAllDataRows();
+        if (allRows == null || allRows.Length == 0)
+        {
+            DebugEx.Warning("ItemManager", "宝物配置表为空");
+            return;
+        }
+
+        m_TreasureDataDict.Clear();
+        foreach (var row in allRows)
+        {
+            var data = new TreasureData
+            {
+                Id = row.Id,
+                ItemTableId = row.ItemTableId,
+                SpecialEffectId = row.SpecialEffectId,
+                SynergyIds = new List<int>(row.SynergyIds ?? new int[0]),
+                BaseAttributes = ParseAttributes(row.BaseAttributes),
+                MaxDurability = row.MaxDurability,
+            };
+            m_TreasureDataDict[row.ItemTableId] = data;
+        }
+
+        DebugEx.Success("ItemManager", $"宝物配置表加载完成，共 {m_TreasureDataDict.Count} 条数据");
+    }
+
+    /// <summary>
+    /// 加载装备配置表
+    /// </summary>
+    public void LoadEquipmentTable()
+    {
+        DebugEx.Log("ItemManager", "开始加载装备配置表");
+
+        var table = GF.DataTable.GetDataTable<EquipmentTable>();
+        if (table == null)
+        {
+            DebugEx.Error("ItemManager", "装备配置表未加载");
+            return;
+        }
+
+        var allRows = table.GetAllDataRows();
+        if (allRows == null || allRows.Length == 0)
+        {
+            DebugEx.Warning("ItemManager", "装备配置表为空");
+            return;
+        }
+
+        m_EquipmentDataDict.Clear();
+        foreach (var row in allRows)
+        {
+            var data = new EquipmentData
+            {
+                Id = row.Id,
+                ItemTableId = row.ItemTableId,
+                SpecialEffectId = row.SpecialEffectId,
+                BaseAttributes = ParseAttributes(row.BaseAttributes),
+            };
+            m_EquipmentDataDict[row.ItemTableId] = data;
+        }
+
+        DebugEx.Success("ItemManager", $"装备配置表加载完成，共 {m_EquipmentDataDict.Count} 条数据");
     }
 
     /// <summary>
@@ -259,6 +382,33 @@ public class ItemManager : SingletonBase<ItemManager>
         return null;
     }
 
+    /// <summary>
+    /// 获取消耗品专有数据（key = ItemTableId）
+    /// </summary>
+    public ConsumableData GetConsumableData(int itemTableId)
+    {
+        m_ConsumableDataDict.TryGetValue(itemTableId, out var data);
+        return data;
+    }
+
+    /// <summary>
+    /// 获取宝物专有数据（key = ItemTableId）
+    /// </summary>
+    public TreasureData GetTreasureData(int itemTableId)
+    {
+        m_TreasureDataDict.TryGetValue(itemTableId, out var data);
+        return data;
+    }
+
+    /// <summary>
+    /// 获取装备专有数据（key = ItemTableId）
+    /// </summary>
+    public EquipmentData GetEquipmentData(int itemTableId)
+    {
+        m_EquipmentDataDict.TryGetValue(itemTableId, out var data);
+        return data;
+    }
+
     #endregion
 
     #region 公共方法 - 物品创建
@@ -282,7 +432,7 @@ public class ItemManager : SingletonBase<ItemManager>
         switch (itemData.Type)
         {
             case ItemType.Consumable:
-                item = new ConsumableItem(itemId, itemData);
+                item = new ConsumableItem(itemId, itemData, GetConsumableData(itemId));
                 break;
 
             case ItemType.Quest:
@@ -290,11 +440,11 @@ public class ItemManager : SingletonBase<ItemManager>
                 break;
 
             case ItemType.Treasure:
-                item = new TreasureItem(itemId, itemData);
+                item = new TreasureItem(itemId, itemData, GetTreasureData(itemId));
                 break;
 
             case ItemType.Equipment:
-                item = new EquipmentItem(itemId, itemData);
+                item = new EquipmentItem(itemId, itemData, GetEquipmentData(itemId));
                 break;
 
             case ItemType.Virtual:
@@ -363,22 +513,15 @@ public class ItemManager : SingletonBase<ItemManager>
             Id = row.Id,
             Name = row.Name,
             Type = (ItemType)row.Type,
-            Quality = (ItemQuality)row.Quality,
+            Rarity = (ItemRarity)row.Rarity,
+            IsOnlyInGame = row.IsOnlyInGame,
             Description = row.Description,
             IconId = row.IconId,
-            DetailIconId = row.DetailIconId,
-            CanStack = row.CanStack == 1,
+            CanStack = row.CanStack,
             MaxStackCount = row.MaxStackCount,
-            CanUse = row.CanUse == 1,
-            UseEffectId = row.UseEffectId,
-            CanEquip = row.CanEquip == 1,
-            SpecialEffectId = row.SpecialEffectId,
-            AffixPoolIds = row.GetAffixPoolIdList(),
-            AffixMinCount = row.AffixMinCount,
-            AffixMaxCount = row.AffixMaxCount,
-            SynergyIds = row.GetSynergyIdList(),
-            BaseAttributes = row.ParseBaseAttributes(),
             SellPrice = row.SellPrice,
+            Value = row.Value,
+            Weight = row.Weight,
         };
 
         return itemData;
