@@ -51,6 +51,94 @@ public class TreasureItem : ItemBase
 
     #endregion
 
+    #region 词条方法
+
+    /// <summary>
+    /// 设置词条列表（创建时由AffixGenerator调用）
+    /// </summary>
+    public void SetAffixes(List<AffixEffect> affixes)
+    {
+        m_Affixes = affixes ?? new List<AffixEffect>();
+    }
+
+    /// <summary>
+    /// 将词条属性应用到棋子
+    /// </summary>
+    public void ApplyAffixesToChess(ChessAttribute chessAttr)
+    {
+        if (chessAttr == null || m_Affixes == null) return;
+
+        foreach (var affix in m_Affixes)
+        {
+            ApplySingleAffix(chessAttr, affix, 1f);
+        }
+
+        DebugEx.Log(nameof(TreasureItem), $"宝物 {Name} 应用 {m_Affixes.Count} 条词条属性");
+    }
+
+    /// <summary>
+    /// 从棋子移除词条属性
+    /// </summary>
+    public void RemoveAffixesFromChess(ChessAttribute chessAttr)
+    {
+        if (chessAttr == null || m_Affixes == null) return;
+
+        foreach (var affix in m_Affixes)
+        {
+            ApplySingleAffix(chessAttr, affix, -1f);
+        }
+
+        DebugEx.Log(nameof(TreasureItem), $"宝物 {Name} 移除 {m_Affixes.Count} 条词条属性");
+    }
+
+    private void ApplySingleAffix(ChessAttribute chessAttr, AffixEffect affix, float sign)
+    {
+        double delta = affix.Value * sign;
+
+        // 百分比类型转换为小数（如 20% → 0.2）
+        if (affix.ValueType == ValueType.Percent)
+            delta /= 100.0;
+
+        switch (affix.AttributeType)
+        {
+            case AttributeType.MaxHP:
+                chessAttr.ModifyHp(delta);
+                break;
+            case AttributeType.Attack:
+                chessAttr.ModifyAtkDamage(delta);
+                break;
+            case AttributeType.MaxMP:
+                chessAttr.ModifyMp(delta);
+                break;
+            case AttributeType.AttackSpeed:
+                chessAttr.ModifyAtkSpeed(delta);
+                break;
+            case AttributeType.CritRate:
+                chessAttr.ModifyCritRate(delta);
+                break;
+            case AttributeType.CritDamage:
+                chessAttr.ModifyCritDamage(delta);
+                break;
+            case AttributeType.Defense:
+                chessAttr.ModifyArmor(delta);
+                break;
+            case AttributeType.MagicResist:
+                chessAttr.ModifyMagicResist(delta);
+                break;
+            case AttributeType.SpellPower:
+                chessAttr.ModifySpellPower(delta);
+                break;
+            case AttributeType.MoveSpeed:
+                chessAttr.ModifyMoveSpeed(delta);
+                break;
+            case AttributeType.CooldownReduce:
+                chessAttr.ModifyCooldownReduce(delta);
+                break;
+        }
+    }
+
+    #endregion
+
     #region 重写方法
 
     protected override bool OnUse()

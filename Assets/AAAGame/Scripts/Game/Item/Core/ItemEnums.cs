@@ -31,14 +31,26 @@ public enum ItemRarity
 #region 效果类型枚举
 
 /// <summary>
-/// 特殊效果类型
+/// 特殊效果执行类型
 /// </summary>
 public enum SpecialEffectType
 {
-    ConsumableEffect = 1, // 消耗品效果
-    EquipmentEffect = 2, // 装备特效
-    TreasureEffect = 3, // 宝物特效
-    SynergyEffect = 4, // 羁绊效果
+    Instant = 1,  // 即时效果（消耗品：加金币、回血等，执行后无状态）
+    Buff = 2,     // Buff 效果（通过 BuffManager 添加，有持续时间/图标/可驱散）
+    Passive = 3,  // 被动效果（穿戴期间永久生效，直接改属性，无图标/不可驱散）
+    Trigger = 4,  // 触发效果（预留：满足条件时触发）
+}
+
+/// <summary>
+/// 效果来源类型（标识效果由谁提供）
+/// </summary>
+public enum EffectSourceType
+{
+    Equipment = 1,  // 装备
+    Treasure = 2,   // 宝物
+    Synergy = 3,    // 羁绊
+    Combat = 4,     // 战斗（先手/偷袭）
+    Consumable = 5, // 消耗品
 }
 
 /// <summary>
@@ -51,18 +63,21 @@ public enum AffixType
 }
 
 /// <summary>
-/// 属性类型（对应棋子属性）
+/// 属性类型（对应棋子属性，与AffixTable.AttributeType列一一对应）
 /// </summary>
 public enum AttributeType
 {
-    All = 0, // 全属性
+    MaxHP = 0, // 生命值
     Attack = 1, // 攻击力
-    MaxHP = 2, // 生命值
-    CritRate = 3, // 暴击率
-    AttackSpeed = 4, // 攻击速度
-    MoveSpeed = 5, // 移动速度
-    Defense = 6, // 防御力
-    MagicPower = 7, // 魔法强度
+    MaxMP = 2, // 法力值
+    AttackSpeed = 3, // 攻击速度
+    CritRate = 4, // 暴击率
+    CritDamage = 5, // 暴击伤害
+    Defense = 6, // 防御力（护甲）
+    MagicResist = 7, // 魔法抗性
+    SpellPower = 8, // 法术强度
+    MoveSpeed = 9, // 移动速度
+    CooldownReduce = 10, // 冷却缩减
 }
 
 /// <summary>
