@@ -45,7 +45,7 @@ public class MeltBuff : BuffBase
         // 造成真实伤害
         if (meltDamage > 0)
         {
-            Ctx.OwnerAttribute.TakeDamage(meltDamage, false, true);
+            Ctx.OwnerAttribute.TakeDamage(meltDamage, false, true, false, DamageFloatingTextManager.DamageType.普通伤害, Ctx.CasterAttribute);
         }
 
         // 消耗灼烧层数

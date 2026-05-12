@@ -48,9 +48,8 @@ public class ReflectDamageBuff : BuffBase
         if (damage <= 0 || attacker == null) return;
 
         double reflectDamage = damage * m_ReflectRatio;
-        // 反伤为真实伤害，来源为 null（避免递归触发）
-        attacker.TakeDamage(reflectDamage, false, true,
-            damageType: DamageFloatingTextManager.DamageType.反弹伤害);
+        attacker.TakeDamage(reflectDamage, false, true, false,
+            DamageFloatingTextManager.DamageType.反弹伤害);
 
         DebugEx.Log("ReflectDamageBuff", $"反伤 {reflectDamage:F1} → 攻击者");
     }

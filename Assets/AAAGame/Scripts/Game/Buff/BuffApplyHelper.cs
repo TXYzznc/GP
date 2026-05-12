@@ -44,7 +44,6 @@ public static class BuffApplyHelper
         }
 
         buffManager.AddBuff(buffId, caster);
-        DebugEx.Log(nameof(BuffApplyHelper), $"应用 Buff {buffId} 到单体: {target.name}");
     }
 
     /// <summary>
@@ -69,6 +68,5 @@ public static class BuffApplyHelper
         }
 
         buffManager.AddBuff(buffId, caster);
-        DebugEx.Log(nameof(BuffApplyHelper), $"应用 Buff {buffId} 到全体（当前仅代表目标）: {targetRepresentative.name}");
     }
 }

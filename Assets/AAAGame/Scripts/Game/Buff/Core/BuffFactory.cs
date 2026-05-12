@@ -25,6 +25,15 @@ public static class BuffFactory
         Register(5, () => new StatModBuff()); // 日落长弓（配置驱动）
         Register(6, () => new StatModBuff()); // 九天玄冰（配置驱动）
 
+        // 其他角色技能 Buff
+        Register(10, () => new PhysicalDamageReductionBuff()); // 虚无之躯（物理减免）
+        Register(21, () => new DarkPowerBuff()); // 黑暗神力（攻击附带腐蚀）
+        Register(22, () => new StatModBuff()); // 黑暗杨戬·阶段二（攻击+30%，速度+20%）
+        Register(23, () => new BleedBuff()); // 流血（周期伤害）
+        Register(24, () => new StatModBuff()); // 死战·黑暗（攻击+60%，护甲-50%，暴击+40%）
+        Register(25, () => new LifestealBuff()); // 吸血（30%吸血效果）
+        Register(28, () => new StatModBuff()); // 九天玄冰·夜晚（法强+20%）
+
         Register(2001, () => new StatModBuff());
         Register(2002, () => new StatModBuff());
         Register(2003, () => new StatModBuff());
@@ -35,13 +44,12 @@ public static class BuffFactory
         Register(3003, () => new BleedBuff());
 
         // 狂战士技能 Buff
-        Register(4001, () => new StatModBuff()); // 战意激昂（攻速+20% 伤害+15%，配置驱动）
+        Register(4001, () => new StatModBuff()); // 战意激昂（攻速+20% 伤害+15%）
         Register(4002, () => new BerserkerRageBuff()); // 狂怒之心（普通单位+15%，召唤师+30%）
-        // Register(4003, ...); // 暗影咒体，设计未完成暂不注册
+        // ID 4003: 暗影咒体，设计未完成，暂不注册
 
-        // ⭐ 新增：注册缺失的 Buff（来自其他英雄技能）
+        // ⭐ 其他英雄技能 Buff
         Register(5001, () => new StatModBuff()); // 神圣庇护·护盾（护盾增加）
-        Register(5002, () => new BurnBuff()); // 烈焰风暴·灼烧（周期伤害）
         Register(5003, () => new StatModBuff()); // 战争号角（攻击+30%，移速+20%，配置驱动）
         Register(5005, () => new StunBuff()); // 暗影突袭·眩晕
         Register(5007, () => new StunBuff()); // 冰霜新星·冰冻（完全无法行动，SpecialState="Freeze"）
@@ -64,6 +72,13 @@ public static class BuffFactory
         Register(7, () => new CorrosionBuff()); // 腐蚀（降低护甲+魔抗，最多2层）
         Register(8, () => new DarkFuryBuff()); // 黑暗狂暴（攻速+30%，持续5s）
         Register(9, () => new FearBuff()); // 恐惧（攻击力-20%，持续2s）
+
+        // 羁绊 Buff（隐藏的增益效果）
+        Register(7001, () => new StatModBuff()); // 日月之力（攻击+10%，护甲+10%）
+        Register(7002, () => new StatModBuff()); // 法师之力（法强+15%，冷却缩减+10%）
+        Register(7003, () => new StatModBuff()); // 三神器之力（暴击伤害+50%）
+        Register(7004, () => new StatModBuff()); // 月神之力（受伤减少15%，魔抗+20%）
+        Register(7005, () => new StatModBuff()); // 炎魔之怒（攻击+20%，暴击率+15%）
 
         DebugEx.Log(nameof(BuffFactory), $"注册了 {s_Creators.Count} 个 Buff");
     }

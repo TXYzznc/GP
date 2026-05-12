@@ -37,6 +37,6 @@ public class PoisonBuff : BuffBase
         double damage = Ctx.OwnerAttribute.MaxHp * m_DamageRatio;
         if (damage <= 0) return;
 
-        Ctx.OwnerAttribute.TakeDamage(damage, false, true, false, DamageFloatingTextManager.DamageType.毒伤害);
+        Ctx.OwnerAttribute.TakeDamage(damage, false, true, false, DamageFloatingTextManager.DamageType.毒伤害, Ctx.CasterAttribute);
     }
 }
