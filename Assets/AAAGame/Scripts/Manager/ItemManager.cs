@@ -369,6 +369,14 @@ public class ItemManager : SingletonBase<ItemManager>
     }
 
     /// <summary>
+    /// 获取所有词条配置数据
+    /// </summary>
+    public List<AffixData> GetAllAffixData()
+    {
+        return new List<AffixData>(m_AffixDataDict.Values);
+    }
+
+    /// <summary>
     /// 获取羁绊配置数据
     /// </summary>
     public SynergyData GetSynergyData(int synergyId)
@@ -440,7 +448,9 @@ public class ItemManager : SingletonBase<ItemManager>
                 break;
 
             case ItemType.Treasure:
-                item = new TreasureItem(itemId, itemData, GetTreasureData(itemId));
+                var treasure = new TreasureItem(itemId, itemData, GetTreasureData(itemId));
+                treasure.SetAffixes(AffixGenerator.Generate(itemData.Rarity));
+                item = treasure;
                 break;
 
             case ItemType.Equipment:
@@ -532,24 +542,13 @@ public class ItemManager : SingletonBase<ItemManager>
     /// </summary>
     private SpecialEffectData ConvertToEffectData(SpecialEffectTable row)
     {
-        string effectParams = row.EffectParams;
-
-        // 如果表中没有配置 EffectParams，则生成默认的 BuffIds 格式（向后兼容）
-        if (string.IsNullOrEmpty(effectParams))
-        {
-            var buffIds = row.BuffIds ?? new int[0];
-            var selfBuffIds = row.SelfBuffIds ?? new int[0];
-            effectParams =
-                $"{{\"BuffIds\":[{string.Join(",", buffIds)}],\"SelfBuffIds\":[{string.Join(",", selfBuffIds)}]}}";
-        }
-
         var effectData = new SpecialEffectData
         {
             Id = row.Id,
             Name = row.Name,
             Description = row.Description,
             EffectType = (SpecialEffectType)row.EffectType,
-            EffectParams = effectParams,
+            EffectParams = row.EffectParams ?? "",
         };
 
         return effectData;
@@ -638,8 +637,11 @@ public class ItemManager : SingletonBase<ItemManager>
 
             foreach (var property in jObject.Properties())
             {
-                // 尝试将属性名转换为 AttributeType 枚举
-                if (System.Enum.TryParse<AttributeType>(property.Name, out var attrType))
+                string name = property.Name;
+                // 兼容旧配置表中的属性名
+                if (name == "MagicPower") name = "SpellPower";
+
+                if (System.Enum.TryParse<AttributeType>(name, out var attrType))
                 {
                     float value = property.Value.ToObject<float>();
                     dict[attrType] = value;

@@ -33,10 +33,10 @@ public class SynergyManager : SingletonBase<SynergyManager>
     private HashSet<int> m_ActiveChessSynergies = new();
 
     /// <summary>
-    /// 羁绊效果对应的 Buff ID 映射（synergyId → buffIds）
-    /// 用于失活时移除对应的 Buff
+    /// 羁绊激活时的目标缓存（synergyId → targets）
+    /// 用于失活时精确移除对应效果
     /// </summary>
-    private Dictionary<int, List<int>> m_SynergyBuffMapping = new();
+    private Dictionary<int, List<GameObject>> m_SynergyTargetCache = new();
 
     #endregion
 
@@ -186,8 +186,9 @@ public class SynergyManager : SingletonBase<SynergyManager>
         var previousActiveSynergies = new HashSet<int>(m_ActiveChessSynergies);
         m_ActiveChessSynergies.Clear();
 
-        // 获取所有出战棋子的种族和职业
         var deployedChesses = GetDeployedChesses();
+
+        // 统计每个种族/职业的出战棋子数量
         var raceCount = new Dictionary<int, int>();
         var classCount = new Dictionary<int, int>();
 
@@ -196,7 +197,6 @@ public class SynergyManager : SingletonBase<SynergyManager>
             if (chess == null || chess.Config == null)
                 continue;
 
-            // 统计种族
             if (chess.Config.Races != null)
             {
                 foreach (int race in chess.Config.Races)
@@ -207,7 +207,6 @@ public class SynergyManager : SingletonBase<SynergyManager>
                 }
             }
 
-            // 统计职业
             if (chess.Config.Classes != null)
             {
                 foreach (int cls in chess.Config.Classes)
@@ -219,7 +218,6 @@ public class SynergyManager : SingletonBase<SynergyManager>
             }
         }
 
-        // 检查所有棋子羁绊
         var synergyTable = GF.DataTable.GetDataTable<SynergyTable>();
         if (synergyTable == null)
         {
@@ -227,35 +225,34 @@ public class SynergyManager : SingletonBase<SynergyManager>
             return;
         }
 
-        var deployedGameObjects = new List<GameObject>();
-        foreach (var chess in deployedChesses)
-        {
-            if (chess != null)
-                deployedGameObjects.Add(chess.gameObject);
-        }
-
         foreach (var synergyRow in synergyTable.GetAllDataRows())
         {
-            // 只处理棋子羁绊（IsTreasureSynergy=0）
             if (synergyRow.IsTreasureSynergy != 0)
                 continue;
 
-            // 检查该羁绊的条件是否满足
             bool isSatisfied = CheckChessSynergyCondition(synergyRow, raceCount, classCount);
+            bool wasPreviouslyActive = previousActiveSynergies.Contains(synergyRow.Id);
+            var synergyTargets = GetSynergyTargets(synergyRow, deployedChesses);
 
-            if (isSatisfied && !previousActiveSynergies.Contains(synergyRow.Id))
+            if (isSatisfied)
             {
-                // 新激活
-                ActivateSynergy(synergyRow, deployedGameObjects);
+                if (wasPreviouslyActive)
+                {
+                    // 阵容可能变化，先移除旧效果再重新应用
+                    DeactivateSynergyInternal(synergyRow);
+                    ActivateSynergy(synergyRow, synergyTargets);
+                }
+                else
+                {
+                    ActivateSynergy(synergyRow, synergyTargets);
+                    OnSynergyStateChanged?.Invoke(synergyRow.Id, true);
+                    DebugEx.Success(nameof(SynergyManager), $"激活棋子羁绊: [{synergyRow.Id}] {synergyRow.Name}，目标数={synergyTargets.Count}");
+                }
                 m_ActiveChessSynergies.Add(synergyRow.Id);
-                OnSynergyStateChanged?.Invoke(synergyRow.Id, true);
-                DebugEx.Success(nameof(SynergyManager), $"激活棋子羁绊: [{synergyRow.Id}] {synergyRow.Name}");
             }
-            else if (!isSatisfied && previousActiveSynergies.Contains(synergyRow.Id))
+            else if (wasPreviouslyActive)
             {
-                // 失活
-                DeactivateSynergy(synergyRow, deployedGameObjects);
-                m_ActiveChessSynergies.Remove(synergyRow.Id);
+                DeactivateSynergyInternal(synergyRow);
                 OnSynergyStateChanged?.Invoke(synergyRow.Id, false);
                 DebugEx.Log(nameof(SynergyManager), $"失活棋子羁绊: [{synergyRow.Id}] {synergyRow.Name}");
             }
@@ -264,26 +261,62 @@ public class SynergyManager : SingletonBase<SynergyManager>
 
     /// <summary>
     /// 检查棋子羁绊条件是否满足
-    /// RequireIds 中的值需要达到 RequireCount 个
+    /// Type=1（种族）: RequireIds 中的种族ID在场上棋子数量 >= RequireCount
+    /// Type=3（职业）: RequireIds 中的职业ID在场上棋子数量 >= RequireCount
     /// </summary>
     private bool CheckChessSynergyCondition(SynergyTable synergyRow, Dictionary<int, int> raceCount, Dictionary<int, int> classCount)
     {
         if (synergyRow.RequireIds == null || synergyRow.RequireIds.Length == 0)
             return false;
 
-        // 统计条件中的种族/职业数量
-        // RequireIds 中的值既可能是种族ID，也可能是职业ID
-        // 这里假设需要的种族/职业达到 RequireCount 个即可激活
-        int count = 0;
         foreach (int requireId in synergyRow.RequireIds)
         {
-            if (raceCount.ContainsKey(requireId) && raceCount[requireId] > 0)
-                count++;
-            else if (classCount.ContainsKey(requireId) && classCount[requireId] > 0)
-                count++;
+            var countDict = synergyRow.Type == 1 ? raceCount : classCount;
+            if (countDict.TryGetValue(requireId, out int count) && count >= synergyRow.RequireCount)
+                return true;
         }
 
-        return count >= synergyRow.RequireCount;
+        return false;
+    }
+
+    /// <summary>
+    /// 获取该羁绊应该作用的目标棋子
+    /// 只返回拥有对应种族/职业的棋子
+    /// </summary>
+    private List<GameObject> GetSynergyTargets(SynergyTable synergyRow, List<ChessEntity> deployedChesses)
+    {
+        var targets = new List<GameObject>();
+        if (synergyRow.RequireIds == null || synergyRow.RequireIds.Length == 0)
+            return targets;
+
+        var requireIdSet = new HashSet<int>(synergyRow.RequireIds);
+
+        foreach (var chess in deployedChesses)
+        {
+            if (chess == null || chess.Config == null)
+                continue;
+
+            bool matches = false;
+            if (synergyRow.Type == 1 && chess.Config.Races != null)
+            {
+                foreach (int race in chess.Config.Races)
+                {
+                    if (requireIdSet.Contains(race)) { matches = true; break; }
+                }
+            }
+            else if (synergyRow.Type == 3 && chess.Config.Classes != null)
+            {
+                foreach (int cls in chess.Config.Classes)
+                {
+                    if (requireIdSet.Contains(cls)) { matches = true; break; }
+                }
+            }
+
+            if (matches)
+                targets.Add(chess.gameObject);
+        }
+
+        return targets;
     }
 
     /// <summary>
@@ -323,63 +356,35 @@ public class SynergyManager : SingletonBase<SynergyManager>
     /// </summary>
     private void ActivateSynergy(SynergyTable synergyRow, List<GameObject> targets)
     {
-        if (synergyRow.EffectId <= 0)
+        if (synergyRow.EffectId <= 0 || targets == null || targets.Count == 0)
             return;
 
-        // 通过 GameEffectService 执行羁绊效果
-        var context = GameEffectContext.CreateMultiTarget(EffectSource.Synergy, targets, null);
-        GameEffectService.Instance.Execute(synergyRow.EffectId, context);
+        SpecialEffectManager.Instance.ApplyEffect(
+            synergyRow.EffectId, targets, EffectSourceType.Synergy, synergyRow.Id, null);
 
-        // 记录这个羁绊应用的 Buff ID，便于后续移除
-        var effectData = ItemManager.Instance?.GetSpecialEffectData(synergyRow.EffectId);
-        if (effectData != null)
-        {
-            var buffIds = new List<int>();
-            var rowBuffIds = effectData.GetParamValue<int[]>("BuffIds", null);
-            if (rowBuffIds != null)
-                buffIds.AddRange(rowBuffIds);
-
-            var selfBuffIds = effectData.GetParamValue<int[]>("SelfBuffIds", null);
-            if (selfBuffIds != null)
-                buffIds.AddRange(selfBuffIds);
-
-            if (buffIds.Count > 0)
-            {
-                m_SynergyBuffMapping[synergyRow.Id] = buffIds;
-            }
-        }
-
-        DebugEx.Success(nameof(SynergyManager), $"激活羁绊效果: [{synergyRow.Id}] {synergyRow.Name}");
+        // 记录当前目标，用于失活时移除
+        m_SynergyTargetCache[synergyRow.Id] = new List<GameObject>(targets);
     }
 
     /// <summary>
-    /// 失活羁绊效果
+    /// 内部失活（用于重新应用或真正失活）
+    /// 通过缓存的目标列表精确移除效果
+    /// </summary>
+    private void DeactivateSynergyInternal(SynergyTable synergyRow)
+    {
+        if (m_SynergyTargetCache.TryGetValue(synergyRow.Id, out var cachedTargets))
+        {
+            SpecialEffectManager.Instance.RemoveEffectBySource(cachedTargets, EffectSourceType.Synergy, synergyRow.Id);
+            m_SynergyTargetCache.Remove(synergyRow.Id);
+        }
+    }
+
+    /// <summary>
+    /// 失活羁绊效果（宝物羁绊使用）
     /// </summary>
     private void DeactivateSynergy(SynergyTable synergyRow, List<GameObject> targets)
     {
-        // 移除羁绊相关的 Buff
-        if (m_SynergyBuffMapping.TryGetValue(synergyRow.Id, out var buffIds))
-        {
-            foreach (var buffId in buffIds)
-            {
-                foreach (var target in targets)
-                {
-                    if (target == null)
-                        continue;
-
-                    var buffManager = target.GetComponent<BuffManager>();
-                    if (buffManager != null)
-                    {
-                        buffManager.RemoveBuff(buffId);
-                        DebugEx.Log(nameof(SynergyManager), $"移除羁绊 Buff: [{buffId}]");
-                    }
-                }
-            }
-
-            m_SynergyBuffMapping.Remove(synergyRow.Id);
-        }
-
-        DebugEx.Log(nameof(SynergyManager), $"失活羁绊效果: [{synergyRow.Id}] {synergyRow.Name}");
+        SpecialEffectManager.Instance.RemoveEffectBySource(targets, EffectSourceType.Synergy, synergyRow.Id);
     }
 
     #endregion
@@ -432,7 +437,7 @@ public class SynergyManager : SingletonBase<SynergyManager>
 
         m_ActiveTreasureSynergies.Clear();
         m_ActiveChessSynergies.Clear();
-        m_SynergyBuffMapping.Clear();
+        m_SynergyTargetCache.Clear();
 
         base.OnDestroy();
     }
