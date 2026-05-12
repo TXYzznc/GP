@@ -91,6 +91,15 @@ public partial class SynergyTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 羁绊图标资源ID（-1表示无图标）
+        /// </summary>
+        public int IconId
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -110,6 +119,7 @@ public partial class SynergyTable : DataRowBase
             RequireCount = int.Parse(columnStrings[index++]);
             RequireIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             EffectId = int.Parse(columnStrings[index++]);
+            IconId = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -128,6 +138,7 @@ public partial class SynergyTable : DataRowBase
                     RequireCount = binaryReader.Read7BitEncodedInt32();
                     RequireIds = binaryReader.ReadArray<int>();
                     EffectId = binaryReader.Read7BitEncodedInt32();
+                    IconId = binaryReader.Read7BitEncodedInt32();
                 }
             }
 

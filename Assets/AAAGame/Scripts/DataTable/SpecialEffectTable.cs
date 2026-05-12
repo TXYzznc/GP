@@ -38,7 +38,7 @@ public partial class SpecialEffectTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果类型：1=增益,2=减益,3=控制
+        /// 效果类型：1=即时,2=Buff,3=被动,4=触发
         /// </summary>
         public int EffectType
         {
@@ -47,54 +47,9 @@ public partial class SpecialEffectTable : DataRowBase
         }
 
         /// <summary>
-        /// 效果描述（实时战斗用持续时间描述）
+        /// 效果描述
         /// </summary>
         public string Description
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 给目标附加的BuffID数组
-        /// </summary>
-        public int[] BuffIds
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 给自身附加的BuffID数组
-        /// </summary>
-        public int[] SelfBuffIds
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 冷却时间（秒，-1=无冷却）
-        /// </summary>
-        public double Cooldown
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 图标资源ID
-        /// </summary>
-        public int IconId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// 随机权重
-        /// </summary>
-        public int Weight
         {
             get;
             private set;
@@ -124,11 +79,6 @@ public partial class SpecialEffectTable : DataRowBase
             Name = columnStrings[index++];
             EffectType = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
-            BuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            SelfBuffIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
-            Cooldown = double.Parse(columnStrings[index++]);
-            IconId = int.Parse(columnStrings[index++]);
-            Weight = int.Parse(columnStrings[index++]);
             EffectParams = columnStrings[index++];
 
             return true;
@@ -144,11 +94,6 @@ public partial class SpecialEffectTable : DataRowBase
                     Name = binaryReader.ReadString();
                     EffectType = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
-                    BuffIds = binaryReader.ReadArray<int>();
-                    SelfBuffIds = binaryReader.ReadArray<int>();
-                    Cooldown = binaryReader.ReadDouble();
-                    IconId = binaryReader.Read7BitEncodedInt32();
-                    Weight = binaryReader.Read7BitEncodedInt32();
                     EffectParams = binaryReader.ReadString();
                 }
             }

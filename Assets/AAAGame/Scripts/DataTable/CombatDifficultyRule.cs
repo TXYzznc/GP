@@ -75,6 +75,7 @@ public partial class CombatDifficultyRule : DataRowBase
             int index = 0;
             index++;
             m_Id = int.Parse(columnStrings[index++]);
+            index++;
             EnemyDifficultyCoef = float.Parse(columnStrings[index++]);
             MinPopulation = int.Parse(columnStrings[index++]);
             MaxPopulation = int.Parse(columnStrings[index++]);

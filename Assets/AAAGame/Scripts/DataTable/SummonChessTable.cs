@@ -65,7 +65,7 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 职业ID数组（用于触发羁绊，如：3）
+        /// 职业ID数组（用于触发羁绊，如：101）
         /// </summary>
         public int[] Classes
         {
