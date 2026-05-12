@@ -868,15 +868,36 @@ public class GameTestWindow : EditorWindow
 
         EditorGUILayout.EndScrollView();
 
+        EditorGUILayout.Space();
+
+        // 输出路径设置
+        EditorGUILayout.LabelField("📁 日志输出路径", EditorStyles.boldLabel);
+        string currentPath = logBuffer.GetOutputPath();
+        EditorGUILayout.TextArea(currentPath, EditorStyles.textArea, GUILayout.Height(40));
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("🔍 浏览", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            string selectedPath = EditorUtility.OpenFolderPanel("选择日志输出路径", currentPath, "");
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                logBuffer.SetOutputPath(selectedPath);
+            }
+        }
+
+        if (GUILayout.Button("⟲ 重置为默认", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            logBuffer.SetOutputPath("");
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
         // 操作按钮
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("导出日志", GUILayout.Height(BUTTON_HEIGHT)))
         {
-            string filePath = logBuffer.ExportLogsToFile();
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                EditorUtility.RevealInFinder(filePath);
-            }
+            logBuffer.ExportLogsToFile();
         }
 
         GUI.backgroundColor = Color.red;

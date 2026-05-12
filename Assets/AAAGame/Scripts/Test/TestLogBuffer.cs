@@ -13,6 +13,7 @@ public class TestLogBuffer : ScriptableObject
     #region 常量
 
     private const int MAX_LOG_COUNT = 5000; // 最多保留5000条日志
+    private const string LOG_OUTPUT_PATH_KEY = "TestLogBuffer_OutputPath";
 
     #endregion
 
@@ -125,11 +126,49 @@ public class TestLogBuffer : ScriptableObject
         m_ExceptionCount = 0;
     }
 
+    /// <summary>设置日志输出路径</summary>
+    public void SetOutputPath(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            PlayerPrefs.DeleteKey(LOG_OUTPUT_PATH_KEY);
+            Debug.Log("[TestLogBuffer] 日志输出路径已清除，恢复默认位置");
+        }
+        else
+        {
+            PlayerPrefs.SetString(LOG_OUTPUT_PATH_KEY, path);
+            PlayerPrefs.Save();
+            Debug.Log($"[TestLogBuffer] 日志输出路径已设置: {path}");
+        }
+    }
+
+    /// <summary>获取日志输出路径</summary>
+    public string GetOutputPath()
+    {
+        return PlayerPrefs.GetString(LOG_OUTPUT_PATH_KEY, Application.persistentDataPath);
+    }
+
     /// <summary>导出日志到文件</summary>
     public string ExportLogsToFile()
     {
+        string outputPath = GetOutputPath();
+
+        // 确保目录存在
+        if (!Directory.Exists(outputPath))
+        {
+            try
+            {
+                Directory.CreateDirectory(outputPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[TestLogBuffer] 创建目录失败: {ex.Message}，使用默认路径");
+                outputPath = Application.persistentDataPath;
+            }
+        }
+
         string fileName = $"GameTest_Log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.log";
-        string filePath = Path.Combine(Application.persistentDataPath, fileName);
+        string filePath = Path.Combine(outputPath, fileName);
 
         try
         {
