@@ -9,7 +9,10 @@
       "Bash(ls -lh 输出图片/矢量图/*.svg)",
       "Bash(python)",
       "Bash(python -c ':*)",
-      "Bash(openspec new:*)"
+      "Bash(openspec new:*)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'docs: 同步更新知识库索引至2026-05-12 *)",
+      "Bash(git commit -m 'chore: 清理过时文档与临时文件 *)"
     ]
   }
 }

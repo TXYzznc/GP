@@ -11,7 +11,7 @@ model: sonnet
 
 1. **查找已有表结构**：扫描 `Assets/AAAGame/Scripts/DataTable/` 下的 `.cs` 文件，读取字段定义，用清晰的表格呈现字段名、类型、含义。
 
-2. **分析表关系**：识别不同表之间通过 ID 引用的关系（如 SpecialEffectTable.BuffIds 引用 BuffTable.Id）。
+2. **分析表关系**：识别不同表之间通过 ID 引用的关系（如 SpecialEffectTable.EffectParams 中的 BuffIds 引用 BuffTable.Id）。
 
 3. **生成新表模板**：根据用户描述的需求，生成 Excel 表格的列定义（字段名、类型、说明），包含正确的表头行格式。
 

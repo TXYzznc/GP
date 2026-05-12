@@ -27,17 +27,26 @@ CombatEscapeSystem / GameOverProcedure
 | `EnemyInitiative` | 敌方先手 | 敌方随机获得先手 Buff |
 | `PlayerInitiative` | 玩家先手 | 玩家随机获得先手 Buff |
 
-## SpecialEffectTable 使用规范
+## 效果配置表规范
 
-先手/偷袭效果**必须**通过 `SpecialEffectTable` 配置，不要在代码里硬编码效果：
+### SpecialEffectTable（效果定义）
 
-- `EffectCategory = 1`：玩家先手效果
-- `EffectCategory = 2`：敌方先手效果
-- `EffectCategory = 3`：偷袭效果（供 SneakDebuffSelectionUI 选择）
+定义效果"做什么"，列：ID、Name、EffectType、Description、EffectParams
 
-效果包含两种 Buff 列表：
-- `BuffIds`：施加给**对方**的 Buff
-- `SelfBuffIds`：施加给**自身方**的 Buff
+- `EffectType`：1=即时，2=Buff，3=被动，4=触发
+- Buff 引用统一放在 `EffectParams` JSON 中：
+  - `"BuffIds":[id]`：施加给**对方**的 Buff
+  - `"SelfBuffIds":[id]`：施加给**自身方**的 Buff
+- 代码中通过 `SpecialEffectData.GetParamValue<int[]>("BuffIds", null)` 获取
+
+### CombatEffectTable（战斗效果池）
+
+定义"何时/如何选效果"，列：ID、SpecialEffectId、Category、IconId、Weight
+
+- `Category`：1=玩家先手，2=敌方先手，3=偷袭
+- `IconId`：战斗选择 UI 展示用图标
+- `Weight`：随机权重
+- 通过 `CombatTriggerManager.GetCombatEffectRow(specialEffectId)` 获取
 
 ## Buff 应用规范
 
