@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1682pt" height="414pt" viewBox="0.00 0.00 1682.23 414.00">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 410)">
+<title>BuffSystemClassDiagram</title>
+<polygon fill="#ffffff" stroke="transparent" points="-4,4 -4,-410 1678.2318,-410 1678.2318,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_core</title>
+<polygon fill="#f0f0f0" stroke="#000000" points="689.451,-132 689.451,-281 963.301,-281 963.301,-132 689.451,-132"/>
+<text text-anchor="middle" x="826.376" y="-264.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">核心管理</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_base</title>
+<polygon fill="#f0f0f0" stroke="#000000" points="1025.956,-90 1025.956,-323 1281.1496,-323 1281.1496,-90 1025.956,-90"/>
+<text text-anchor="middle" x="1153.5528" y="-306.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Buff基类</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_impl</title>
+<polygon fill="#f0f0f0" stroke="#000000" points="1322.4322,-71 1322.4322,-398 1666.2318,-398 1666.2318,-71 1322.4322,-71"/>
+<text text-anchor="middle" x="1494.332" y="-381.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Buff实现</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_config</title>
+<polygon fill="#f0f0f0" stroke="#000000" points="8,-17 8,-306 633.796,-306 633.796,-17 8,-17"/>
+<text text-anchor="middle" x="320.898" y="-289.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">配置与执行</text>
+</g>
+<g id="clust5" class="cluster">
+<title>cluster_context</title>
+<polygon fill="#f0f0f0" stroke="#000000" points="712.8835,-8 712.8835,-124 939.8685,-124 939.8685,-8 712.8835,-8"/>
+<text text-anchor="middle" x="826.376" y="-107.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">执行上下文</text>
+</g>
+<!-- BuffManager -->
+<g id="node1" class="node">
+<title>BuffManager</title>
+<path fill="#e3f2fd" stroke="#1976d2" d="M943.226,-248.3002C943.226,-248.3002 709.526,-248.3002 709.526,-248.3002 703.526,-248.3002 697.526,-242.3002 697.526,-236.3002 697.526,-236.3002 697.526,-151.6998 697.526,-151.6998 697.526,-145.6998 703.526,-139.6998 709.526,-139.6998 709.526,-139.6998 943.226,-139.6998 943.226,-139.6998 949.226,-139.6998 955.226,-145.6998 955.226,-151.6998 955.226,-151.6998 955.226,-236.3002 955.226,-236.3002 955.226,-242.3002 949.226,-248.3002 943.226,-248.3002"/>
+<text text-anchor="middle" x="826.376" y="-231.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{BuffManager|m_ActiveBuffs: List&lt;Buff&gt;</text>
+<text text-anchor="middle" x="826.376" y="-215" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">m_Owner: ChessEntity|AddBuff()</text>
+<text text-anchor="middle" x="826.376" y="-198.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">RemoveBuff()</text>
+<text text-anchor="middle" x="826.376" y="-181.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Tick()</text>
+<text text-anchor="middle" x="826.376" y="-164.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">GetBuffByType()</text>
+<text text-anchor="middle" x="826.376" y="-147.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">HasBuff()}</text>
+</g>
+<!-- Buff -->
+<g id="node2" class="node">
+<title>Buff</title>
+<path fill="#fff3e0" stroke="#e65100" d="M1261.2465,-290.3001C1261.2465,-290.3001 1045.8591,-290.3001 1045.8591,-290.3001 1039.8591,-290.3001 1033.8591,-284.3001 1033.8591,-278.3001 1033.8591,-278.3001 1033.8591,-109.6999 1033.8591,-109.6999 1033.8591,-103.6999 1039.8591,-97.6999 1045.8591,-97.6999 1045.8591,-97.6999 1261.2465,-97.6999 1261.2465,-97.6999 1267.2465,-97.6999 1273.2465,-103.6999 1273.2465,-109.6999 1273.2465,-109.6999 1273.2465,-278.3001 1273.2465,-278.3001 1273.2465,-284.3001 1267.2465,-290.3001 1261.2465,-290.3001"/>
+<text text-anchor="middle" x="1153.5528" y="-273.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{«abstract»</text>
+<text text-anchor="middle" x="1153.5528" y="-257" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Buff|Id: int</text>
+<text text-anchor="middle" x="1153.5528" y="-240.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Name: string</text>
+<text text-anchor="middle" x="1153.5528" y="-223.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Type: BuffType</text>
+<text text-anchor="middle" x="1153.5528" y="-206.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">StackCount: int</text>
+<text text-anchor="middle" x="1153.5528" y="-189.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Duration: float</text>
+<text text-anchor="middle" x="1153.5528" y="-173" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">RemainingTime: float</text>
+<text text-anchor="middle" x="1153.5528" y="-156.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">EffectType: BuffEffectType|OnApply()</text>
+<text text-anchor="middle" x="1153.5528" y="-139.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">OnTick()</text>
+<text text-anchor="middle" x="1153.5528" y="-122.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">OnRemove()</text>
+<text text-anchor="middle" x="1153.5528" y="-105.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">CanStack()}</text>
+</g>
+<!-- BuffManager&#45;&gt;Buff -->
+<g id="edge5" class="edge">
+<title>BuffManager-&gt;Buff</title>
+<path fill="none" stroke="#000000" d="M955.6849,-194C977.9896,-194 1001.1845,-194 1023.5086,-194"/>
+<polygon fill="#000000" stroke="#000000" points="1023.698,-197.5001 1033.698,-194 1023.6979,-190.5001 1023.698,-197.5001"/>
+<text text-anchor="middle" x="994.6285" y="-198.2" font-family="Times,serif" font-size="14.00" fill="#000000">contains</text>
+</g>
+<!-- StatModBuff -->
+<g id="node3" class="node">
+<title>StatModBuff</title>
+<path fill="#bbdefb" stroke="#1565c0" d="M1591.8561,-365C1591.8561,-365 1396.8079,-365 1396.8079,-365 1390.8079,-365 1384.8079,-359 1384.8079,-353 1384.8079,-353 1384.8079,-285 1384.8079,-285 1384.8079,-279 1390.8079,-273 1396.8079,-273 1396.8079,-273 1591.8561,-273 1591.8561,-273 1597.8561,-273 1603.8561,-279 1603.8561,-285 1603.8561,-285 1603.8561,-353 1603.8561,-353 1603.8561,-359 1597.8561,-365 1591.8561,-365"/>
+<text text-anchor="middle" x="1494.332" y="-348.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{StatModBuff|AttackModifier: float</text>
+<text text-anchor="middle" x="1494.332" y="-331.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">DefenseModifier: float</text>
+<text text-anchor="middle" x="1494.332" y="-314.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">HPModifier: float|OnApply()</text>
+<text text-anchor="middle" x="1494.332" y="-298" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">OnRemove()</text>
+<text text-anchor="middle" x="1494.332" y="-281.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">CalculateModifier()}</text>
+</g>
+<!-- Buff&#45;&gt;StatModBuff -->
+<g id="edge1" class="edge">
+<title>Buff-&gt;StatModBuff</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1273.3314,-246.8738C1289.7249,-253.5789 1306.4202,-260.1363 1322.4322,-266 1339.2577,-272.1616 1357.1759,-278.2235 1374.8518,-283.9209"/>
+<polygon fill="#000000" stroke="#000000" points="1374.0475,-287.3382 1384.6383,-287.047 1376.1775,-280.6701 1374.0475,-287.3382"/>
+<text text-anchor="middle" x="1301.7909" y="-266.2" font-family="Times,serif" font-size="14.00" fill="#000000">实现</text>
+</g>
+<!-- FrostBuff -->
+<g id="node4" class="node">
+<title>FrostBuff</title>
+<path fill="#bbdefb" stroke="#1565c0" d="M1584.0191,-259.4014C1584.0191,-259.4014 1404.6449,-259.4014 1404.6449,-259.4014 1398.6449,-259.4014 1392.6449,-253.4014 1392.6449,-247.4014 1392.6449,-247.4014 1392.6449,-212.5986 1392.6449,-212.5986 1392.6449,-206.5986 1398.6449,-200.5986 1404.6449,-200.5986 1404.6449,-200.5986 1584.0191,-200.5986 1584.0191,-200.5986 1590.0191,-200.5986 1596.0191,-206.5986 1596.0191,-212.5986 1596.0191,-212.5986 1596.0191,-247.4014 1596.0191,-247.4014 1596.0191,-253.4014 1590.0191,-259.4014 1584.0191,-259.4014"/>
+<text text-anchor="middle" x="1494.332" y="-242.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{FrostBuff|SlowPercentage: float</text>
+<text text-anchor="middle" x="1494.332" y="-225.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">CanAttack: bool|OnApply()</text>
+<text text-anchor="middle" x="1494.332" y="-209" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">OnTick()}</text>
+</g>
+<!-- Buff&#45;&gt;FrostBuff -->
+<g id="edge2" class="edge">
+<title>Buff-&gt;FrostBuff</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1273.2196,-206.6416C1308.6535,-210.3849 1347.3075,-214.4683 1382.2434,-218.1589"/>
+<polygon fill="#000000" stroke="#000000" points="1382.1614,-221.6697 1392.4738,-219.2397 1382.8969,-214.7084 1382.1614,-221.6697"/>
+<text text-anchor="middle" x="1301.7909" y="-214.2" font-family="Times,serif" font-size="14.00" fill="#000000">实现</text>
+</g>
+<!-- BurnBuff -->
+<g id="node5" class="node">
+<title>BurnBuff</title>
+<path fill="#bbdefb" stroke="#1565c0" d="M1584.0079,-187.4014C1584.0079,-187.4014 1404.6561,-187.4014 1404.6561,-187.4014 1398.6561,-187.4014 1392.6561,-181.4014 1392.6561,-175.4014 1392.6561,-175.4014 1392.6561,-140.5986 1392.6561,-140.5986 1392.6561,-134.5986 1398.6561,-128.5986 1404.6561,-128.5986 1404.6561,-128.5986 1584.0079,-128.5986 1584.0079,-128.5986 1590.0079,-128.5986 1596.0079,-134.5986 1596.0079,-140.5986 1596.0079,-140.5986 1596.0079,-175.4014 1596.0079,-175.4014 1596.0079,-181.4014 1590.0079,-187.4014 1584.0079,-187.4014"/>
+<text text-anchor="middle" x="1494.332" y="-170.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{BurnBuff|DamagePerTick: float</text>
+<text text-anchor="middle" x="1494.332" y="-153.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">TickInterval: float|OnApply()</text>
+<text text-anchor="middle" x="1494.332" y="-137" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">OnTick()}</text>
+</g>
+<!-- Buff&#45;&gt;BurnBuff -->
+<g id="edge3" class="edge">
+<title>Buff-&gt;BurnBuff</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1273.2196,-181.3584C1308.6535,-177.6151 1347.3075,-173.5317 1382.2434,-169.8411"/>
+<polygon fill="#000000" stroke="#000000" points="1382.8969,-173.2916 1392.4738,-168.7603 1382.1614,-166.3303 1382.8969,-173.2916"/>
+<text text-anchor="middle" x="1301.7909" y="-183.2" font-family="Times,serif" font-size="14.00" fill="#000000">实现</text>
+</g>
+<!-- ShieldBuff -->
+<g id="node6" class="node">
+<title>ShieldBuff</title>
+<path fill="#bbdefb" stroke="#1565c0" d="M1646.1317,-115C1646.1317,-115 1342.5323,-115 1342.5323,-115 1336.5323,-115 1330.5323,-109 1330.5323,-103 1330.5323,-103 1330.5323,-91 1330.5323,-91 1330.5323,-85 1336.5323,-79 1342.5323,-79 1342.5323,-79 1646.1317,-79 1646.1317,-79 1652.1317,-79 1658.1317,-85 1658.1317,-91 1658.1317,-91 1658.1317,-103 1658.1317,-103 1658.1317,-109 1652.1317,-115 1646.1317,-115"/>
+<text text-anchor="middle" x="1494.332" y="-92.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{ShieldBuff|ShieldAmount: float|BlockNextDamage()}</text>
+</g>
+<!-- Buff&#45;&gt;ShieldBuff -->
+<g id="edge4" class="edge">
+<title>Buff-&gt;ShieldBuff</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1273.4973,-138.4168C1289.7168,-132.2192 1306.3219,-126.5231 1322.4322,-122 1328.4343,-120.3149 1334.5879,-118.7389 1340.8295,-117.2653"/>
+<polygon fill="#000000" stroke="#000000" points="1341.719,-120.6526 1350.7008,-115.0333 1340.1751,-113.825 1341.719,-120.6526"/>
+<text text-anchor="middle" x="1301.7909" y="-135.2" font-family="Times,serif" font-size="14.00" fill="#000000">实现</text>
+</g>
+<!-- BuffTable -->
+<g id="node7" class="node">
+<title>BuffTable</title>
+<path fill="#fff9c4" stroke="#f57f17" d="M215.7498,-273.7001C215.7498,-273.7001 64.8098,-273.7001 64.8098,-273.7001 58.8098,-273.7001 52.8098,-267.7001 52.8098,-261.7001 52.8098,-261.7001 52.8098,-126.2999 52.8098,-126.2999 52.8098,-120.2999 58.8098,-114.2999 64.8098,-114.2999 64.8098,-114.2999 215.7498,-114.2999 215.7498,-114.2999 221.7498,-114.2999 227.7498,-120.2999 227.7498,-126.2999 227.7498,-126.2999 227.7498,-261.7001 227.7498,-261.7001 227.7498,-267.7001 221.7498,-273.7001 215.7498,-273.7001"/>
+<text text-anchor="middle" x="140.2798" y="-257" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{«DataTable»</text>
+<text text-anchor="middle" x="140.2798" y="-240.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">BuffTable|Id: int</text>
+<text text-anchor="middle" x="140.2798" y="-223.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Name: string</text>
+<text text-anchor="middle" x="140.2798" y="-206.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Type: BuffType</text>
+<text text-anchor="middle" x="140.2798" y="-189.8" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">EffectType: BuffEffectType</text>
+<text text-anchor="middle" x="140.2798" y="-173" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Duration: float</text>
+<text text-anchor="middle" x="140.2798" y="-156.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">Parameter1/2: float</text>
+<text text-anchor="middle" x="140.2798" y="-139.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">StackLimit: int</text>
+<text text-anchor="middle" x="140.2798" y="-122.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">IsStackable: bool}</text>
+</g>
+<!-- BuffTable&#45;&gt;BuffManager -->
+<g id="edge6" class="edge">
+<title>BuffTable-&gt;BuffManager</title>
+<path fill="none" stroke="#000000" d="M227.8712,-194C343.9108,-194 549.9165,-194 687.3329,-194"/>
+<polygon fill="#000000" stroke="#000000" points="687.5181,-197.5001 697.5181,-194 687.5181,-190.5001 687.5181,-197.5001"/>
+<text text-anchor="middle" x="367.3128" y="-198.2" font-family="Times,serif" font-size="14.00" fill="#000000">configures</text>
+</g>
+<!-- SkillConfig -->
+<g id="node8" class="node">
+<title>SkillConfig</title>
+<path fill="#f3e5f5" stroke="#4a148c" d="M252.3398,-100.7003C252.3398,-100.7003 28.2198,-100.7003 28.2198,-100.7003 22.2198,-100.7003 16.2198,-94.7003 16.2198,-88.7003 16.2198,-88.7003 16.2198,-37.2997 16.2198,-37.2997 16.2198,-31.2997 22.2198,-25.2997 28.2198,-25.2997 28.2198,-25.2997 252.3398,-25.2997 252.3398,-25.2997 258.3398,-25.2997 264.3398,-31.2997 264.3398,-37.2997 264.3398,-37.2997 264.3398,-88.7003 264.3398,-88.7003 264.3398,-94.7003 258.3398,-100.7003 252.3398,-100.7003"/>
+<text text-anchor="middle" x="140.2798" y="-84" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{SkillConfig|BuffIds: int[]</text>
+<text text-anchor="middle" x="140.2798" y="-67.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">SelfBuffIds: int[]</text>
+<text text-anchor="middle" x="140.2798" y="-50.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">BuffTriggerType: int|GetBuffsToApply()</text>
+<text text-anchor="middle" x="140.2798" y="-33.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">GetSelfBuffsToApply()}</text>
+</g>
+<!-- EffectExecutor -->
+<g id="node9" class="node">
+<title>EffectExecutor</title>
+<path fill="#f1f8e9" stroke="#558b2f" d="M613.7662,-151.7003C613.7662,-151.7003 416.8854,-151.7003 416.8854,-151.7003 410.8854,-151.7003 404.8854,-145.7003 404.8854,-139.7003 404.8854,-139.7003 404.8854,-88.2997 404.8854,-88.2997 404.8854,-82.2997 410.8854,-76.2997 416.8854,-76.2997 416.8854,-76.2997 613.7662,-76.2997 613.7662,-76.2997 619.7662,-76.2997 625.7662,-82.2997 625.7662,-88.2997 625.7662,-88.2997 625.7662,-139.7003 625.7662,-139.7003 625.7662,-145.7003 619.7662,-151.7003 613.7662,-151.7003"/>
+<text text-anchor="middle" x="515.3258" y="-135" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{«static»</text>
+<text text-anchor="middle" x="515.3258" y="-118.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">EffectExecutor|ApplyBuffsOnHit()$</text>
+<text text-anchor="middle" x="515.3258" y="-101.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">ApplyDamageBuffs()$</text>
+<text text-anchor="middle" x="515.3258" y="-84.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">CalculateBuffModifier()$}</text>
+</g>
+<!-- SkillConfig&#45;&gt;EffectExecutor -->
+<g id="edge7" class="edge">
+<title>SkillConfig-&gt;EffectExecutor</title>
+<path fill="none" stroke="#000000" d="M264.3835,-79.876C306.3449,-85.5821 353.1085,-91.9412 394.789,-97.609"/>
+<polygon fill="#000000" stroke="#000000" points="394.3298,-101.0787 404.7103,-98.9581 395.2731,-94.1425 394.3298,-101.0787"/>
+<text text-anchor="middle" x="305.6648" y="-92.2" font-family="Times,serif" font-size="14.00" fill="#000000">provides</text>
+</g>
+<!-- EffectExecutor&#45;&gt;BuffManager -->
+<g id="edge8" class="edge">
+<title>EffectExecutor-&gt;BuffManager</title>
+<path fill="none" stroke="#000000" d="M625.8663,-142.4303C645.84,-147.5674 666.8968,-152.983 687.5558,-158.2964"/>
+<polygon fill="#000000" stroke="#000000" points="686.7787,-161.7104 697.3354,-160.8116 688.5224,-154.931 686.7787,-161.7104"/>
+<text text-anchor="middle" x="661.6235" y="-160.2" font-family="Times,serif" font-size="14.00" fill="#000000">applies</text>
+</g>
+<!-- HitContext -->
+<g id="node10" class="node">
+<title>HitContext</title>
+<path fill="#fce4ec" stroke="#c2185b" d="M919.861,-91.7003C919.861,-91.7003 732.891,-91.7003 732.891,-91.7003 726.891,-91.7003 720.891,-85.7003 720.891,-79.7003 720.891,-79.7003 720.891,-28.2997 720.891,-28.2997 720.891,-22.2997 726.891,-16.2997 732.891,-16.2997 732.891,-16.2997 919.861,-16.2997 919.861,-16.2997 925.861,-16.2997 931.861,-22.2997 931.861,-28.2997 931.861,-28.2997 931.861,-79.7003 931.861,-79.7003 931.861,-85.7003 925.861,-91.7003 919.861,-91.7003"/>
+<text text-anchor="middle" x="826.376" y="-75" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">{HitContext|Attacker: ChessEntity</text>
+<text text-anchor="middle" x="826.376" y="-58.2" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">LockedTarget: ChessEntity</text>
+<text text-anchor="middle" x="826.376" y="-41.4" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">SkillConfig: SkillConfig</text>
+<text text-anchor="middle" x="826.376" y="-24.6" font-family="SimHei,sans-serif" font-size="14.00" fill="#000000">OnHitCallback: Action}</text>
+</g>
+<!-- EffectExecutor&#45;&gt;HitContext -->
+<g id="edge10" class="edge">
+<title>EffectExecutor-&gt;HitContext</title>
+<path fill="none" stroke="#000000" d="M625.8663,-92.6773C653.3933,-87.3675 682.9774,-81.6609 710.7424,-76.3051"/>
+<polygon fill="#000000" stroke="#000000" points="711.7261,-79.68 720.8821,-74.3492 710.4002,-72.8067 711.7261,-79.68"/>
+<text text-anchor="middle" x="661.6235" y="-93.2" font-family="Times,serif" font-size="14.00" fill="#000000">uses</text>
+</g>
+<!-- HitContext&#45;&gt;SkillConfig -->
+<g id="edge9" class="edge">
+<title>HitContext-&gt;SkillConfig</title>
+<path fill="none" stroke="#000000" d="M720.7613,-55.3854C600.9202,-56.9575 405.2016,-59.5248 274.599,-61.238"/>
+<polygon fill="#000000" stroke="#000000" points="274.4798,-57.7392 264.5266,-61.3702 274.5717,-64.7386 274.4798,-57.7392"/>
+<text text-anchor="middle" x="367.3128" y="-65.2" font-family="Times,serif" font-size="14.00" fill="#000000">contains</text>
+</g>
+</g>
+</svg>
