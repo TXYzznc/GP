@@ -56,6 +56,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\HitDetectorFactory.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\EffectExecutor.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\ChessItemUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\PhysicalDamageReductionBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\QuestItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\PlayerSkillManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\World\ChessStateUIWorldManager.cs" />
@@ -120,8 +121,10 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Interact\Items\TeleportGateInteractable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\EquipmentData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Manager\SceneStateManager.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\AffixGenerator.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Test\ExploreAITestBootstrapper.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\State\EnemyCombatState.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\CharacterBagUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerEvents.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Preparation\BattleLoadoutProvider.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\EquipmentItem.cs" />
@@ -154,6 +157,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\AttackHitType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\ItemsInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\ToastTips.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Effect\BuffSpecialEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Enemy\EnemySpawnManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Camera\ThirdPersonCamera.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RestoreMPEffect.cs" />
@@ -161,7 +165,9 @@
     <Compile Include="Assets\AAAGame\Scripts\GameState\EventArgs\CombatLeaveEventArgs.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamageFloatingTextManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\DOTweenExtension.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Effect\SpecialEffectManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataModel\PlayerAccountData.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Effect\SpecialEffectInstance.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotContainer.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Player\PlayerSkill\SkillsSO\FireBallParamSO.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\WebRequestResult.cs" />
@@ -238,6 +244,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\Effects\Strategies\EffectAppliers.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Data\ItemData.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\CardTable.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Buff\DarkPowerBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\PresetItems\ChessPresetItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Core\EnemyEntity.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Entity\ParticleEntity.cs" />
@@ -273,6 +280,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Common\DOTweenSequence.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Card\CardTargetType.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiUltimate.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\TargetSearchStrategyTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\ConfusedBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\SilenceBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeUltimate.cs" />
@@ -319,6 +327,7 @@
     <Compile Include="Assets\AAAGame\Scripts\DataTable\EscapeRuleTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\InventoryItemUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\MenuState.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Effect\PassiveEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Network\CSPacketHeader.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\TreasureTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\EnterCombatTip.cs" />
@@ -458,6 +467,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\SpecialEffectTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RandomEquipmentEffect.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Combat\AI\TargetSearchStrategyDataManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\Core\BuffContext.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Core\VirtualItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\IHitDetector.cs" />
@@ -478,6 +488,7 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\TreasureBoxUI.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\嫦娥\ChangeSkillReleaseStrategy.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Camp\CampRelation.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Effect\InstantEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\Item\CombatItems\CardSlotItemEventDispatcher.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\InventoryUI.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Core\CombatTickDriver.cs" />
@@ -528,9 +539,11 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Trigger\CombatTriggerManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Abstract\SkillParamSO.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\后羿\HouyiSkillReleaseStrategy.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\AffixRuleTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\Variable\VarFloat.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\BleedBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\SummonChess\Chess\黑暗杨戬\DarkYangyuanSkillReleaseStrategy.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\DataTable\CombatEffectTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\ItemTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Manager\SceneTransitionManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\CombatUI.Variables.cs" />
@@ -539,6 +552,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Game\Effect\GameEffectService.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ChessWeaponCollider.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\HitDetection\ChessProjectile.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\Game\Effect\TriggerEffect.cs" />
     <Compile Include="Assets\AAAGame\Scripts\GameState\States\ExplorationState.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\FearBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\Core\SoundGroupTable.cs" />
