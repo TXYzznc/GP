@@ -33,19 +33,6 @@ public class TargetSearchConfig
 
     #endregion
 
-    #region 优先级策略
-
-    [Header("优先级策略")]
-    [Tooltip("是否优先攻击残血目标")]
-    public bool PrioritizeLowHp = true;
-
-    [Tooltip("是否优先攻击近距离目标")]
-    public bool PrioritizeNearby = true;
-
-    [Tooltip("是否优先攻击高威胁目标")]
-    public bool PrioritizeHighThreat = false;
-
-    #endregion
 
     #region 默认配置
 
@@ -60,9 +47,6 @@ public class TargetSearchConfig
             DistanceWeight = 0.3f,
             HpWeight = 0.5f,
             ThreatWeight = 0.2f,
-            PrioritizeLowHp = true,
-            PrioritizeNearby = true,
-            PrioritizeHighThreat = false,
         };
     }
 
@@ -77,9 +61,6 @@ public class TargetSearchConfig
             DistanceWeight = 0.5f,
             HpWeight = 0.3f,
             ThreatWeight = 0.2f,
-            PrioritizeLowHp = true,
-            PrioritizeNearby = true,
-            PrioritizeHighThreat = false,
         };
     }
 
@@ -94,9 +75,6 @@ public class TargetSearchConfig
             DistanceWeight = 0.2f,
             HpWeight = 0.6f,
             ThreatWeight = 0.2f,
-            PrioritizeLowHp = true,
-            PrioritizeNearby = false,
-            PrioritizeHighThreat = false,
         };
     }
 

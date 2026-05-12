@@ -77,10 +77,28 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
             // 计算综合评分
             float score = EvaluateTarget(self, enemyCache, distance);
 
-            DebugEx.Log(
-                nameof(DefaultTargetSearchStrategy),
-                $"  - {enemyCache.Entity?.Config?.Name ?? "召唤师"}: 距离={distance:F2}, 血量={enemyCache.HpPercent:P0}, 评分={score:F2}"
-            );
+            // 计算详细的评分分解（用于调试）
+            string targetName = enemyCache.Entity?.Config?.Name ?? "召唤师";
+            string detailLog = $"  - {targetName}: 距离={distance:F2}, 血量={enemyCache.HpPercent:P0}";
+
+            if (m_Config.DistanceWeight > 0)
+            {
+                float distScore = CalculateDistanceScore(distance);
+                detailLog += $", 距离评分={distScore:F2}*{m_Config.DistanceWeight:F2}={distScore * m_Config.DistanceWeight:F2}";
+            }
+            if (m_Config.HpWeight > 0)
+            {
+                float hpScore = CalculateHpScore(enemyCache.HpPercent);
+                detailLog += $", 血量评分={hpScore:F2}*{m_Config.HpWeight:F2}={hpScore * m_Config.HpWeight:F2}";
+            }
+            if (m_Config.ThreatWeight > 0)
+            {
+                float threatScore = CalculateThreatScore(enemyCache.AttackPower);
+                detailLog += $", 威胁评分={threatScore:F2}*{m_Config.ThreatWeight:F2}={threatScore * m_Config.ThreatWeight:F2}";
+            }
+
+            detailLog += $", 总评分={score:F2}";
+            DebugEx.Log(nameof(DefaultTargetSearchStrategy), detailLog);
 
             if (score > bestScore)
             {
@@ -127,22 +145,22 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
     {
         float score = 0f;
 
-        // 1. 距离因素
-        if (m_Config.PrioritizeNearby && m_Config.DistanceWeight > 0)
+        // 1. 距离因素（权重 > 0 才参与）
+        if (m_Config.DistanceWeight > 0)
         {
             float distanceScore = CalculateDistanceScore(distance);
             score += distanceScore * m_Config.DistanceWeight;
         }
 
-        // 2. 血量因素
-        if (m_Config.PrioritizeLowHp && m_Config.HpWeight > 0)
+        // 2. 血量因素（权重 > 0 才参与）
+        if (m_Config.HpWeight > 0)
         {
             float hpScore = CalculateHpScore(enemy.HpPercent);
             score += hpScore * m_Config.HpWeight;
         }
 
-        // 3. 威胁度因素
-        if (m_Config.PrioritizeHighThreat && m_Config.ThreatWeight > 0)
+        // 3. 威胁度因素（权重 > 0 才参与）
+        if (m_Config.ThreatWeight > 0)
         {
             float threatScore = CalculateThreatScore(enemy.AttackPower);
             score += threatScore * m_Config.ThreatWeight;
@@ -154,7 +172,7 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
     /// <summary>
     /// 计算距离评分（距离越近分数越高）
     /// </summary>
-    private float CalculateDistanceScore(float distance)
+    public float CalculateDistanceScore(float distance)
     {
         // 使用索敌距离作为最大距离，如果未设置则使用50作为默认值
         float maxDistance = m_Config.SearchRange > 0 ? m_Config.SearchRange : 50f;
@@ -167,7 +185,7 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
     /// <summary>
     /// 计算血量评分（血量越低分数越高）
     /// </summary>
-    private float CalculateHpScore(float hpPercent)
+    public float CalculateHpScore(float hpPercent)
     {
         // 血量百分比越低，分数越高
         return (1f - hpPercent) * 100f;
@@ -176,7 +194,7 @@ public class DefaultTargetSearchStrategy : ITargetSearchStrategy
     /// <summary>
     /// 计算威胁度评分（攻击力越高分数越高）
     /// </summary>
-    private float CalculateThreatScore(double attackPower)
+    public float CalculateThreatScore(double attackPower)
     {
         // 简单地使用攻击力作为威胁度
         // 可以根据实际情况调整计算方式

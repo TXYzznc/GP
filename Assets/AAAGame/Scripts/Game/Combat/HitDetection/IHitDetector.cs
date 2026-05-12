@@ -97,14 +97,14 @@ public abstract class HitDetectorBase : IHitDetector
         {
             DebugEx.Log(
                 nameof(HitDetectorBase),
-                $"[命中被过滤] {context.Attacker.Config?.Name} → {target.Config?.Name} (目标状态不符)"
+                $"[命中被过滤] [{context.Attacker.gameObject.name}] {context.Attacker.Config?.Name} → [{target.gameObject.name}] {target.Config?.Name} (目标状态不符)"
             );
             return;
         }
 
         DebugEx.Log(
             nameof(HitDetectorBase),
-            $"[命中] {context.Attacker.Config?.Name} → {target.Config?.Name}"
+            $"[命中] [{context.Attacker.gameObject.name}] {context.Attacker.Config?.Name} → [{target.gameObject.name}] {target.Config?.Name}"
         );
 
         // ⭐ 1. 动态计算伤害（支持根据目标属性调整）
@@ -115,7 +115,7 @@ public abstract class HitDetectorBase : IHitDetector
         {
             DebugEx.Log(
                 nameof(HitDetectorBase),
-                $"[延迟伤害计算] 调用委托计算 {context.Attacker.Config?.Name} → {target.Config?.Name} 的伤害"
+                $"[延迟伤害计算] 调用委托计算 [{context.Attacker.gameObject.name}] {context.Attacker.Config?.Name} → [{target.gameObject.name}] {target.Config?.Name} 的伤害"
             );
             (finalDamage, isCritical) = context.CalculateDamageCallback(target);
             DebugEx.Log(

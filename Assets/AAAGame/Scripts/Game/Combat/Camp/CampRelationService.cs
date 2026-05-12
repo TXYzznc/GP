@@ -21,16 +21,13 @@ public static class CampRelationService
         // PVE模式：玩家 vs 敌人
         { (int)CampType.Player, new HashSet<int> { (int)CampType.Enemy } },
         { (int)CampType.Enemy, new HashSet<int> { (int)CampType.Player } },
-        
+
         // 中立不与任何阵营敌对
         { (int)CampType.Neutral, new HashSet<int>() },
-        
-        // PVP模式预留：队伍之间互为敌人
-        { (int)CampType.Team1, new HashSet<int> { (int)CampType.Team2, (int)CampType.Team3, (int)CampType.Team4 } },
-        { (int)CampType.Team2, new HashSet<int> { (int)CampType.Team1, (int)CampType.Team3, (int)CampType.Team4 } },
-        { (int)CampType.Team3, new HashSet<int> { (int)CampType.Team1, (int)CampType.Team2, (int)CampType.Team4 } },
-        { (int)CampType.Team4, new HashSet<int> { (int)CampType.Team1, (int)CampType.Team2, (int)CampType.Team3 } },
     };
+
+    /// <summary>下一个可用的动态战场编号</summary>
+    private static int s_NextDynamicBattleIndex = 0;
 
     /// <summary>
     /// 阵营对应的Layer映射
@@ -185,39 +182,67 @@ public static class CampRelationService
 
     #endregion
 
-    #region 扩展API（预留PVP）
+    #region 动态战场API
 
     /// <summary>
-    /// 注册自定义敌对关系
-    /// 用于PVP模式动态配置
+    /// 注册自定义敌对关系（双向）
     /// </summary>
     public static void RegisterEnemyRelation(int campA, int campB)
     {
         if (!s_EnemyRelations.ContainsKey(campA))
-        {
             s_EnemyRelations[campA] = new HashSet<int>();
-        }
         s_EnemyRelations[campA].Add(campB);
 
-        // 双向注册
         if (!s_EnemyRelations.ContainsKey(campB))
-        {
             s_EnemyRelations[campB] = new HashSet<int>();
-        }
         s_EnemyRelations[campB].Add(campA);
     }
 
     /// <summary>
-    /// 清除所有自定义敌对关系
-    /// 用于战斗结束后重置
+    /// 分配一个新的动态战场，返回两个互为敌对的 Camp ID
+    /// 每个战场独立隔离，不会与其他战场发生索敌冲突
+    /// </summary>
+    /// <returns>(campA, campB) 互为敌对的两个阵营ID</returns>
+    public static (int campA, int campB) AllocateBattlefield()
+    {
+        int baseId = (int)CampType.DynamicBattleStart + s_NextDynamicBattleIndex * 2;
+        s_NextDynamicBattleIndex++;
+
+        int campA = baseId;
+        int campB = baseId + 1;
+
+        RegisterEnemyRelation(campA, campB);
+        return (campA, campB);
+    }
+
+    /// <summary>
+    /// 释放所有动态战场的阵营关系
+    /// </summary>
+    public static void ReleaseAllBattlefields()
+    {
+        int start = (int)CampType.DynamicBattleStart;
+        var keysToRemove = new List<int>();
+        foreach (var key in s_EnemyRelations.Keys)
+        {
+            if (key >= start)
+                keysToRemove.Add(key);
+        }
+        foreach (var key in keysToRemove)
+            s_EnemyRelations.Remove(key);
+
+        s_NextDynamicBattleIndex = 0;
+    }
+
+    /// <summary>
+    /// 清除所有自定义敌对关系，恢复默认PVE
     /// </summary>
     public static void ClearCustomRelations()
     {
-        // 重置为默认PVE关系
         s_EnemyRelations.Clear();
         s_EnemyRelations[(int)CampType.Player] = new HashSet<int> { (int)CampType.Enemy };
         s_EnemyRelations[(int)CampType.Enemy] = new HashSet<int> { (int)CampType.Player };
         s_EnemyRelations[(int)CampType.Neutral] = new HashSet<int>();
+        s_NextDynamicBattleIndex = 0;
     }
 
     #endregion

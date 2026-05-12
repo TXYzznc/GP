@@ -199,12 +199,9 @@ public class EnemySpawnManager
     {
         if (m_CurrentWave == null || m_CurrentWave.EnemyChessIds.Count == 0)
         {
-            DebugEx.Warning("EnemySpawnManager", "没有敌人数据，跳过生成");
+            DebugEx.Warning("EnemySpawnManager", "没有敌人配置，跳过生成");
             return;
         }
-
-        DebugEx.Log("EnemySpawnManager",
-            $"开始生成敌人波次，数量={m_CurrentWave.EnemyChessIds.Count}");
 
         // 获取敌方区域中心点
         Vector3 enemyZoneCenter = BattleArenaManager.Instance.GetEnemyZoneCenter();
@@ -233,8 +230,7 @@ public class EnemySpawnManager
             }
         }
 
-        DebugEx.Log("EnemySpawnManager",
-            $"敌人波次生成完成，成功数量={m_SpawnedEnemies.Count}");
+        DebugEx.Success("EnemySpawnManager", $"敌人波次生成完成，共 {m_SpawnedEnemies.Count} 个敌人");
     }
 
     /// <summary>
@@ -247,48 +243,34 @@ public class EnemySpawnManager
     {
         if (SummonChessManager.Instance == null)
         {
-            DebugEx.Error("EnemySpawnManager", "SummonChessManager.Instance is null");
+            DebugEx.Error("EnemySpawnManager", "SummonChessManager 未初始化");
             return null;
         }
 
-        DebugEx.Log("EnemySpawnManager", $"⭐ 开始生成敌人: ChessId={chessId}, Position={position}, Camp={ENEMY_CAMP}");
-
         var entity = await SummonChessManager.Instance.SpawnChessAsync(chessId, position, ENEMY_CAMP);
-        if (entity != null)
+        if (entity == null)
         {
-            DebugEx.Log("EnemySpawnManager", $"✅ 敌人生成完成: {entity.Config.Name}, Camp={entity.Camp}, IsValid={entity != null}");
-
-            // 根据敌方难度设置棋子等级
-            int difficultyRank = CalculateRankFromDifficulty(m_CurrentWave.EnemyDifficulty);
-            if (difficultyRank > 1)
-            {
-                entity.SetRank(difficultyRank);
-                // 更新全局状态
-                GlobalChessManager.Instance.UpdateChessLevelAndExp(chessId, difficultyRank, 0);
-                DebugEx.Log("EnemySpawnManager",
-                    $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}, 难度={m_CurrentWave.EnemyDifficulty}, 等级={difficultyRank}");
-            }
-            else
-            {
-                DebugEx.Log("EnemySpawnManager",
-                    $"敌人生成成功 ID={chessId}, Name={entity.Config.Name}, 难度={m_CurrentWave.EnemyDifficulty}, 等级=1");
-            }
-
-            // 【关键】应用难度系数到敌人基础属性（敌人真实强度的体现）
-            // 从 CombatDifficultyRule 查询该难度等级的 EnemyDifficultyCoef（0.4-5.0）
-            // 应用到敌人的 6 大基础属性：HP、MP、ATK、Armor、MagicResist、SpellPower
-            // 这使得敌人的属性成为"真实基础属性"，所有后续加成（继承、装备、Buff）都基于这个值
-            float difficultyCoef = GetEnemyDifficultyCoef(m_CurrentWave.EnemyDifficulty);
-            if (difficultyCoef > 0 && entity.Attribute != null)
-            {
-                entity.Attribute.ApplyDifficultyCoef(difficultyCoef, entity.Config, entity.Rank);
-                DebugEx.Log("EnemySpawnManager",
-                    $"敌人难度系数已应用: {entity.Config.Name}, 难度等级={m_CurrentWave.EnemyDifficulty}, 系数={difficultyCoef:F2}");
-            }
+            DebugEx.Error("EnemySpawnManager", $"敌人棋子生成失败: ChessId={chessId}");
+            return null;
         }
-        else
+
+        // 根据敌方难度设置棋子等级
+        int difficultyRank = CalculateRankFromDifficulty(m_CurrentWave.EnemyDifficulty);
+        if (difficultyRank > 1)
         {
-            DebugEx.Error("EnemySpawnManager", $"❌ 敌人生成失败 ID={chessId}");
+            entity.SetRank(difficultyRank);
+            // 更新全局状态
+            GlobalChessManager.Instance.UpdateChessLevelAndExp(chessId, difficultyRank, 0);
+        }
+
+        // 【关键】应用难度系数到敌人基础属性（敌人真实强度的体现）
+        // 从 CombatDifficultyRule 查询该难度等级的 EnemyDifficultyCoef（0.4-5.0）
+        // 应用到敌人的 6 大基础属性：HP、MP、ATK、Armor、MagicResist、SpellPower
+        // 这使得敌人的属性成为"真实基础属性"，所有后续加成（继承、装备、Buff）都基于这个值
+        float difficultyCoef = GetEnemyDifficultyCoef(m_CurrentWave.EnemyDifficulty);
+        if (difficultyCoef > 0 && entity.Attribute != null)
+        {
+            entity.Attribute.ApplyDifficultyCoef(difficultyCoef, entity.Config, entity.Rank);
         }
 
         return entity;
@@ -394,7 +376,6 @@ public class EnemySpawnManager
             }
         }
         m_SpawnedEnemies.Clear();
-        DebugEx.Log("EnemySpawnManager", "已销毁所有敌人");
     }
 
     /// <summary>
@@ -406,7 +387,6 @@ public class EnemySpawnManager
         m_CurrentWave = null;
         m_CurrentEnemyGuid = null;
         m_SpawnedEnemies.Clear();
-        DebugEx.Log("EnemySpawnManager", "已清理");
     }
 
     #endregion
@@ -423,7 +403,10 @@ public class EnemySpawnManager
 
         string enemyKey = EnemyChessDataManager.BuildKey(m_CurrentEnemyGuid, slotIndex);
 
-        // 向 BattleChessManager 注册 enemy key（注册发生在 SummonChessManager.SpawnChessAsync 内部）
+        // 确保此 slot 在 EnemyChessDataManager 中已注册（相同ChessId多实例时每个slot独立注册）
+        EnemyChessDataManager.Instance.Register(m_CurrentEnemyGuid, slotIndex, chessId, entity.Attribute.MaxHp);
+
+        // 向 BattleChessManager 注册 enemy key
         BattleChessManager.Instance.SetEnemyKeyForChess(chessId, enemyKey);
 
         // 从 EnemyChessDataManager 读取历史 HP 并覆盖
@@ -431,8 +414,6 @@ public class EnemySpawnManager
         if (state != null)
         {
             entity.Attribute.SetHp(state.CurrentHp);
-            DebugEx.Log("EnemySpawnManager",
-                $"敌方棋子 {chessId} 继承历史 HP={state.CurrentHp:F0}/{state.MaxHp:F0} (key={enemyKey})");
         }
     }
 

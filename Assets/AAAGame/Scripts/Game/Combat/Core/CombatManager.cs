@@ -32,16 +32,6 @@ public class CombatManager : SingletonBase<CombatManager>
 
     #region Unity 生命周期
 
-    private void OnEnable()
-    {
-        DebugEx.Log(this.GetType().Name, "已启用");
-    }
-
-    private void OnDisable()
-    {
-        DebugEx.Log(this.GetType().Name, "已禁用");
-    }
-
     #endregion
 
     #region 公共方法
@@ -58,7 +48,6 @@ public class CombatManager : SingletonBase<CombatManager>
         }
 
         m_IsInCombat = true;
-        DebugEx.Log(this.GetType().Name, "战斗开始");
 
         // ⭐ 构建敌人信息缓存（AI重构新增）
         if (CombatEntityTracker.Instance != null)
@@ -130,8 +119,6 @@ public class CombatManager : SingletonBase<CombatManager>
 
         skillManager.UpdateSkillsFromData(allSkillIds);
         skillManager.SetActive(true);
-
-        DebugEx.Log(this.GetType().Name, $"召唤师技能系统已启动，共 {allSkillIds.Count} 个技能");
     }
 
     /// <summary>
@@ -147,7 +134,7 @@ public class CombatManager : SingletonBase<CombatManager>
         }
 
         m_IsInCombat = false;
-        DebugEx.Log(this.GetType().Name, $"战斗结束 - {(isVictory ? "胜利" : "失败")}");
+        DebugEx.Success(this.GetType().Name, $"战斗结束 - {(isVictory ? "胜利 ✅" : "失败 ❌")}");
 
         // 0. 停用召唤师技能系统（Dispose 所有被动 Buff）
         var playerCharacterForSkill = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
@@ -159,6 +146,9 @@ public class CombatManager : SingletonBase<CombatManager>
 
         // 0.1 战斗结束前先回写棋子血量、清除所有 Buff（在销毁实体之前）
         BattleChessManager.Instance.OnBattleEnd();
+
+        // 0.2 销毁所有飞行中的投射物（防止战斗结束后投射物仍命中目标）
+        DestroyAllActiveProjectiles();
 
         // 1. 销毁场上所有棋子 GameObject
         if (SummonChessManager.Instance != null)
@@ -193,8 +183,6 @@ public class CombatManager : SingletonBase<CombatManager>
             if (attribute != null) Destroy(attribute);
             var buffManager = playerCharacterEnd.GetComponent<BuffManager>();
             if (buffManager != null) Destroy(buffManager);
-
-            DebugEx.Log(this.GetType().Name, "召唤师战斗组件已移除");
         }
 
         // 4. 清理战斗管理器状态
@@ -206,6 +194,22 @@ public class CombatManager : SingletonBase<CombatManager>
         GF.Event.Fire(this, eventArgs);
 
         // TODO: 计算奖励
+    }
+
+    /// <summary>
+    /// 销毁场景中所有飞行中的投射物
+    /// </summary>
+    private void DestroyAllActiveProjectiles()
+    {
+        var projectiles = FindObjectsOfType<ChessProjectile>();
+        if (projectiles.Length > 0)
+        {
+            foreach (var p in projectiles)
+            {
+                if (p != null)
+                    Destroy(p.gameObject);
+            }
+        }
     }
 
     #endregion

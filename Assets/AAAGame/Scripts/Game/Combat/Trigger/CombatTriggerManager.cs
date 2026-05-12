@@ -46,7 +46,6 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     private void Awake()
     {
         base.Awake();
-        DebugEx.Log(nameof(CombatTriggerManager), "初始化完成");
     }
 
     private void OnDestroy()
@@ -120,28 +119,9 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
                 break;
         }
 
-        // 输出战斗方式总结
+        // 输出战斗触发信息
         string triggerModeName = GetTriggerModeName(triggerType);
-        DebugEx.LogColor(
-            nameof(CombatTriggerManager),
-            $"========== 进入战斗 ==========",
-            "#FFD700"
-        );
-        DebugEx.LogColor(
-            nameof(CombatTriggerManager),
-            $"敌人: {enemy.Config.Name}",
-            "#FFD700"
-        );
-        DebugEx.LogColor(
-            nameof(CombatTriggerManager),
-            $"战斗方式: {triggerModeName}",
-            "#FFD700"
-        );
-        DebugEx.LogColor(
-            nameof(CombatTriggerManager),
-            $"============================",
-            "#FFD700"
-        );
+        DebugEx.Success(nameof(CombatTriggerManager), $"进入战斗 - 敌人: {enemy.Config.Name} ({triggerModeName})");
 
         // 注意：不在此处调用 EnemyEntityManager，由调用方负责进入战斗状态
         // 避免 CombatTriggerManager ↔ EnemyEntityManager 循环调用
@@ -176,41 +156,19 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     }
 
     /// <summary>
-    /// 获取偷袭效果池
-    /// 从SpecialEffectTable中筛选EffectCategory=3（玩家偷袭）的效果
+    /// 获取偷袭效果池（Category=3）
     /// </summary>
     private List<int> GetSneakDebuffPool()
     {
-        List<int> effectIds = new List<int>();
-
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
-            return effectIds;
-        }
-
-        // 遍历所有特殊效果配置，筛选出玩家偷袭效果（EffectId 301-399）
-        var allEffects = specialEffectTable.GetAllDataRows();
-        foreach (var effect in allEffects)
-        {
-            // 筛选条件：EffectId 在 301-399 范围内（玩家偷袭）
-            if (effect.Id >= 301 && effect.Id < 400)
-            {
-                effectIds.Add(effect.Id);
-            }
-        }
+        var effectIds = GetCombatEffectPoolByCategory(3);
 
         // 随机打乱顺序（Fisher-Yates洗牌）
-        if (effectIds.Count > 0)
+        for (int i = effectIds.Count - 1; i > 0; i--)
         {
-            for (int i = effectIds.Count - 1; i > 0; i--)
-            {
-                int randomIndex = Random.Range(0, i + 1);
-                int temp = effectIds[i];
-                effectIds[i] = effectIds[randomIndex];
-                effectIds[randomIndex] = temp;
-            }
+            int randomIndex = Random.Range(0, i + 1);
+            int temp = effectIds[i];
+            effectIds[i] = effectIds[randomIndex];
+            effectIds[randomIndex] = temp;
         }
 
         DebugEx.Log(
@@ -258,40 +216,19 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     }
 
     /// <summary>
-    /// 获取玩家先手效果池（遭遇战三选一）
-    /// 从SpecialEffectTable中筛选玩家先手效果（EffectId 101-199）
+    /// 获取玩家先手效果池（Category=1，遭遇战三选一）
     /// </summary>
     private List<int> GetPlayerInitiativeBuffPool()
     {
-        List<int> effectIds = new List<int>();
-
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
-            return effectIds;
-        }
-
-        var allEffects = specialEffectTable.GetAllDataRows();
-        foreach (var effect in allEffects)
-        {
-            // 筛选条件：EffectId 在 101-199 范围内（玩家先手）
-            if (effect.Id >= 101 && effect.Id < 200)
-            {
-                effectIds.Add(effect.Id);
-            }
-        }
+        var effectIds = GetCombatEffectPoolByCategory(1);
 
         // 随机打乱顺序（Fisher-Yates洗牌）
-        if (effectIds.Count > 0)
+        for (int i = effectIds.Count - 1; i > 0; i--)
         {
-            for (int i = effectIds.Count - 1; i > 0; i--)
-            {
-                int randomIndex = Random.Range(0, i + 1);
-                int temp = effectIds[i];
-                effectIds[i] = effectIds[randomIndex];
-                effectIds[randomIndex] = temp;
-            }
+            int randomIndex = Random.Range(0, i + 1);
+            int temp = effectIds[i];
+            effectIds[i] = effectIds[randomIndex];
+            effectIds[randomIndex] = temp;
         }
 
         DebugEx.Log(
@@ -303,62 +240,111 @@ public class CombatTriggerManager : SingletonBase<CombatTriggerManager>
     }
 
     /// <summary>
-    /// 获取随机先手效果
-    /// 从SpecialEffectTable中根据战斗触发类型筛选先手效果进行随机选择
+    /// 获取随机先手效果（按权重）
     /// </summary>
     private int GetRandomInitiativeBuff()
     {
-        List<int> initiativeEffects = new List<int>();
-
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-        {
-            DebugEx.Warning(nameof(CombatTriggerManager), "SpecialEffectTable未加载");
-            return 0;
-        }
-
-        // 根据当前上下文判断效果类型
-        // 如果是EnemyInitiated，获取敌人先手效果（EffectId 201-299）
-        // 否则获取玩家先手效果（EffectId 101-199）
         bool isEnemyInitiative = (
             m_CurrentContext != null
             && m_CurrentContext.TriggerType == CombatTriggerType.EnemyInitiated
         );
 
-        // 遍历所有特殊效果配置，筛选出对应的先手效果
-        var allEffects = specialEffectTable.GetAllDataRows();
-        foreach (var effect in allEffects)
-        {
-            bool isMatch = isEnemyInitiative
-                ? (effect.Id >= 201 && effect.Id < 300)  // 敌人先手：201-299
-                : (effect.Id >= 101 && effect.Id < 200); // 玩家先手：101-199
+        int category = isEnemyInitiative ? 2 : 1;
+        int effectId = GetWeightedRandomEffect(category);
 
-            if (isMatch)
-            {
-                initiativeEffects.Add(effect.Id);
-            }
-        }
-
-        if (initiativeEffects.Count == 0)
+        if (effectId <= 0)
         {
-            string effecType = isEnemyInitiative ? "敌人先手" : "玩家先手";
-            DebugEx.Warning(
-                nameof(CombatTriggerManager),
-                $"未找到合适的{effecType}效果"
-            );
+            string effectType = isEnemyInitiative ? "敌人先手" : "玩家先手";
+            DebugEx.Warning(nameof(CombatTriggerManager), $"未找到合适的{effectType}效果");
             return 0;
         }
 
-        // 随机选择一个效果（可以根据Weight权重来选择，目前先用简单随机）
-        int randomEffectId = initiativeEffects[Random.Range(0, initiativeEffects.Count)];
+        string type = isEnemyInitiative ? "敌人先手" : "玩家先手";
+        DebugEx.Log(nameof(CombatTriggerManager), $"随机选择{type}效果: {effectId}");
+        return effectId;
+    }
 
-        string effectType = isEnemyInitiative ? "敌人先手" : "玩家先手";
-        DebugEx.Log(
-            nameof(CombatTriggerManager),
-            $"随机选择{effectType}效果: {randomEffectId} (候选池:{initiativeEffects.Count}个)"
-        );
+    /// <summary>
+    /// 从 CombatEffectTable 中按类别获取效果池（返回 SpecialEffectId 列表）
+    /// </summary>
+    private List<int> GetCombatEffectPoolByCategory(int category)
+    {
+        var result = new List<int>();
 
-        return randomEffectId;
+        var table = GF.DataTable.GetDataTable<CombatEffectTable>();
+        if (table == null)
+        {
+            DebugEx.Warning(nameof(CombatTriggerManager), "CombatEffectTable未加载");
+            return result;
+        }
+
+        var allRows = table.GetAllDataRows();
+        foreach (var row in allRows)
+        {
+            if (row.Category == category)
+            {
+                result.Add(row.SpecialEffectId);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 按权重随机选择一个效果（返回 SpecialEffectId）
+    /// </summary>
+    private int GetWeightedRandomEffect(int category)
+    {
+        var table = GF.DataTable.GetDataTable<CombatEffectTable>();
+        if (table == null)
+        {
+            DebugEx.Warning(nameof(CombatTriggerManager), "CombatEffectTable未加载");
+            return 0;
+        }
+
+        var candidates = new List<(int effectId, int weight)>();
+        int totalWeight = 0;
+
+        var allRows = table.GetAllDataRows();
+        foreach (var row in allRows)
+        {
+            if (row.Category == category && row.Weight > 0)
+            {
+                candidates.Add((row.SpecialEffectId, row.Weight));
+                totalWeight += row.Weight;
+            }
+        }
+
+        if (candidates.Count == 0 || totalWeight <= 0)
+            return 0;
+
+        int roll = Random.Range(0, totalWeight);
+        int accumulated = 0;
+        foreach (var (effectId, weight) in candidates)
+        {
+            accumulated += weight;
+            if (roll < accumulated)
+                return effectId;
+        }
+
+        return candidates[candidates.Count - 1].effectId;
+    }
+
+    /// <summary>
+    /// 根据 SpecialEffectId 获取对应的 CombatEffectTable 行（用于获取 IconId 等）
+    /// </summary>
+    public CombatEffectTable GetCombatEffectRow(int specialEffectId)
+    {
+        var table = GF.DataTable.GetDataTable<CombatEffectTable>();
+        if (table == null) return null;
+
+        var allRows = table.GetAllDataRows();
+        foreach (var row in allRows)
+        {
+            if (row.SpecialEffectId == specialEffectId)
+                return row;
+        }
+        return null;
     }
 
     #endregion
