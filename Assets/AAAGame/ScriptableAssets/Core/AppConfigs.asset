@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_LoadFromBytes: 0
   mDataTables:
+  - AffixRuleTable
   - AffixTable
   - AudioClipTable
   - BuffTable
@@ -22,6 +23,7 @@ MonoBehaviour:
   - ChessEXPRuleTable
   - ColorTable
   - CombatDifficultyRule
+  - CombatEffectTable
   - CombatRuleTable
   - ConsumableTable
   - DamageFloatingTextTable
@@ -50,6 +52,7 @@ MonoBehaviour:
   - SummonerSkillTable
   - SummonerTable
   - SynergyTable
+  - TargetSearchStrategyTable
   - TreasureBoxTable
   - TreasureTable
   - Core/LanguagesTable

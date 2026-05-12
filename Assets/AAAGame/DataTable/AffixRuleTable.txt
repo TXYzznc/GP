@@ -1,0 +1,9 @@
+﻿#	AffixRuleTable						
+#	Id		Name	AffixCountMin	AffixCountMax	ValueScaleMin	ValueScaleMax
+#	int		string	int	int	float	float
+#	品质ID(对应ItemRarity)	备注	品质名称	词条数量下限	词条数量上限	数值缩放下限(0~1)	数值缩放上限(0~1)
+	1		普通	0	1	0	0.25
+	2		优良	1	2	0.15	0.45
+	3		稀有	2	3	0.35	0.65
+	4		史诗	2	4	0.55	0.85
+	5		传说	3	5	0.75	1

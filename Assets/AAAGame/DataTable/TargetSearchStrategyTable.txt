@@ -1,0 +1,8 @@
+﻿#	TargetSearchStrategyTable								
+#	ID		Name	AIType	SearchRange	DistanceWeight	HpWeight	ThreatWeight	Description
+#	int		string	int	float	float	float	float	string
+#	策略ID	备注	策略名称	AI类型(0=默认,1=近战,2=远程,99=Boss)	索敌距离(0=全场)	距离权重(0=不考虑)	血量权重(0=不考虑)	威胁度权重(0=不考虑)	描述
+	1001		默认策略	0	0	0.3	0.5	0.2	均衡型，优先残血目标
+	1002		近战策略	1	0	0.5	0.3	0.2	近战AI优先攻击距离最近的目标
+	1003		远程策略	2	0	0.2	0.6	0.2	远程AI优先射杀残血目标
+	1004		Boss策略	99	0	0.4	0.4	0.2	Boss独特策略，均衡进攻

@@ -1,0 +1,13 @@
+﻿#	CombatEffectTable					
+#	ID		SpecialEffectId	Category	IconId	Weight
+#	int		int	int	int	int
+#	唯一标识	战斗效果池配置	关联SpecialEffectTable的ID	类别：1=玩家先手,2=敌方先手,3=偷袭	图标资源ID	随机权重
+	1		101	1	10001	100
+	2		102	1	10002	100
+	3		103	1	10003	80
+	4		201	2	10001	100
+	5		202	2	10002	100
+	6		203	2	10004	90
+	7		301	3	10101	100
+	8		302	3	10102	100
+	9		303	3	10103	80

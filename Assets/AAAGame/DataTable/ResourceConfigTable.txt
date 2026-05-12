@@ -1,4 +1,4 @@
-﻿﻿#	ResourceConfigTable
+﻿#	ResourceConfigTable				
 #	ID		Type	Path	Name
 #	int		int	string	string
 #	资源ID	1：Assets/AAAGame/Sprites/2：Assets/AAAGame/Prefabs/3：Assets/AAAGame/Prefabs/Entity/4：Assets/AAAGame/Materials/5：Assets/AAAGame/Textures/6：Assets/AAAGame/Config/7：Assets/AAAGame/Audio/	资源类型：1 = Sprite（图片）2 = Prefab（预制体）3 = Effect（特效）4 = Material（材质）5 = Texture（纹理）6 = ScriptableObject（配置文件）7 = Audio（音频）	资源路径	资源名称
@@ -54,12 +54,12 @@
 	1403		1	Buff/3.png	融化Buff图标
 	1404		1	Buff/4.png	神力增益Buff图标
 	1405		1	Buff/5.png	日落长弓Buff图标
-	1406		1	Buff/6.png	九天玄冰Buff图标
+	1406		1	Buff/6.png	九天玄冰（对敌）Buff图标
 	1407	BuffTable使用|资源暂不存在	1	Buff/7.png	腐蚀Buff图标
 	1408	BuffTable使用|资源暂不存在	1	Buff/8.png	黑暗狂暴Buff图标
 	1409	BuffTable使用|资源暂不存在	1	Buff/9.png	恐惧Buff图标
 	1410	BuffTable使用|资源暂不存在	1	Buff/10.png	虚无之躯Buff图标
-	1411	BuffTable使用|资源暂不存在	1	Buff/28.png	九天玄冰Buff图标
+	1411	BuffTable使用|资源暂不存在	1	Buff/28.png	九天玄冰（自身）Buff图标
 	1501		1	UI/Icons/Skill_Dash.png	飞雷神-角色技能图标
 	1502		1	UI/Icons/Skill_Heal.png	治疗术-角色技能图标
 	1503		1	UI/Icons/Skill_Bomb.png	爆裂弹-角色技能图标
@@ -182,6 +182,13 @@
 	3010	SummonChessSkillTable使用|资源暂不存在	3	SummonChessEffect/Projectile_EvilSpirit_Attack	恶魂普攻子弹
 	3011	DamageFloatingTextTable使用|资源暂不存在	3	SummonChessEffect/EvilSpirit_Skill1	恶魂技能1特效
 	3012	DamageFloatingTextTable使用|资源暂不存在	3	SummonChessEffect/EvilSpirit_Skill2	恶魂大招特效
+	3013	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/技能伤害	技能伤害-飘字音效
+	3014	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/连击伤害	连击伤害-飘字音效
+	3015	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/反弹伤害	反弹伤害-飘字音效
+	3016	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/吸血效果	吸血效果-飘字音效
+	3017	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/法力消耗	法力消耗-飘字音效
+	3018	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/法力恢复	法力恢复-飘字音效
+	3019	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/免疫提示	免疫提示-飘字音效
 	6001	EquipmentTable使用|资源暂不存在	6	Skills/SkillParamRegistry	技能参数注册表
 	10001		1	Buff/2001.png	先手·速度爆发图标
 	10002		1	Buff/2002.png	先手·攻击强化图标
@@ -200,6 +207,7 @@
 	13011	SummonChessTable使用|资源暂不存在	1	Chess/恶魂/恶魂头像.png	棋子恶魂头像
 	13012	SummonChessTable使用|资源暂不存在	1	Chess/黑暗杨戬/黑暗杨戬头像.png	棋子黑暗杨戬头像
 	13013	SummonChessTable使用|资源暂不存在	1	Chess/黑暗哮天犬/黑暗哮天犬头像.png	棋子黑暗哮天犬头像
+	13999	SummonChessTable使用|资源暂不存在	1	Chess/稻草人/稻草人头像.png	稻草人头像
 	15001		1	Buff/5001.png	神圣庇护Buff图标
 	15002	(不再使用)	1	Buff/5002.png	烈焰风暴·灼烧Buff图标
 	15003		1	Buff/5003.png	战争号角Buff图标
@@ -219,6 +227,8 @@
 	15021		1	Buff/5021.png	剧毒之雾Buff图标
 	15022	ResourceConfigTable使用|资源暂不存在	1	Buff/5022.png	伤害转移Buff图标
 	15023	ResourceConfigTable使用|资源暂不存在	1	Buff/5023.png	绝对零度Buff图标
+	16001	SynergyTable使用|资源暂不存在	1	Synergy/日月.png	日月-种族羁绊图标
+	16002	SynergyTable使用|资源暂不存在	1	Synergy/法师.png	法师-职业羁绊图标
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4
@@ -228,6 +238,74 @@
 	19022		1	Card/Component/Mask/Mask2.png	名字背景-稀有度2
 	19023		1	Card/Component/Mask/Mask3.png	名字背景-稀有度3
 	19024		1	Card/Component/Mask/Mask4.png	名字背景-稀有度4
+	20101	CardTable使用|资源暂不存在	2	Entity/Card/神圣庇护_Effect	神圣庇护-施法预制体
+	20102	CardTable使用|资源暂不存在	2	Entity/Card/烈焰风暴_Effect	烈焰风暴-施法预制体
+	20103	CardTable使用|资源暂不存在	2	Entity/Card/时间回溯_Effect	时间回溯-施法预制体
+	20104	CardTable使用|资源暂不存在	2	Entity/Card/战争号角_Effect	战争号角-施法预制体
+	20105	CardTable使用|资源暂不存在	2	Entity/Card/暗影突袭_Effect	暗影突袭-施法预制体
+	20106	CardTable使用|资源暂不存在	2	Entity/Card/暗影突袭_Projectile	暗影突袭-投射物预制体
+	20107	CardTable使用|资源暂不存在	2	Entity/Card/生命汲取_Effect	生命汲取-施法预制体
+	20108	CardTable使用|资源暂不存在	2	Entity/Card/冰霜新星_Effect	冰霜新星-施法预制体
+	20109	CardTable使用|资源暂不存在	2	Entity/Card/狂暴_Effect	狂暴-施法预制体
+	20110	CardTable使用|资源暂不存在	2	Entity/Card/群体治疗_Effect	群体治疗-施法预制体
+	20111	CardTable使用|资源暂不存在	2	Entity/Card/雷霆一击_Effect	雷霆一击-施法预制体
+	20112	CardTable使用|资源暂不存在	2	Entity/Card/混乱诅咒_Effect	混乱诅咒-施法预制体
+	20113	CardTable使用|资源暂不存在	2	Entity/Card/不屈意志_Effect	不屈意志-施法预制体
+	20114	CardTable使用|资源暂不存在	2	Entity/Card/反伤之盾_Effect	反伤之盾-施法预制体
+	20115	CardTable使用|资源暂不存在	2	Entity/Card/圣域防线_Effect	圣域防线-施法预制体
+	20116	CardTable使用|资源暂不存在	2	Entity/Card/护盾再生_Effect	护盾再生-施法预制体
+	20117	CardTable使用|资源暂不存在	2	Entity/Card/救赎之光_Effect	救赎之光-施法预制体
+	20118	CardTable使用|资源暂不存在	2	Entity/Card/血源强化_Effect	血源强化-施法预制体
+	20119	CardTable使用|资源暂不存在	2	Entity/Card/吸血之刃_Effect	吸血之刃-施法预制体
+	20120	CardTable使用|资源暂不存在	2	Entity/Card/吸血之刃_Projectile	吸血之刃-投射物预制体
+	20121	CardTable使用|资源暂不存在	2	Entity/Card/灾厄之雷_Effect	灾厄之雷-施法预制体
+	20122	CardTable使用|资源暂不存在	2	Entity/Card/护甲破碎_Effect	护甲破碎-施法预制体
+	20123	CardTable使用|资源暂不存在	2	Entity/Card/虚弱诅咒_Effect	虚弱诅咒-施法预制体
+	20124	CardTable使用|资源暂不存在	2	Entity/Card/沉默之符_Effect	沉默之符-施法预制体
+	20125	CardTable使用|资源暂不存在	2	Entity/Card/嘲讽之声_Effect	嘲讽之声-施法预制体
+	20126	CardTable使用|资源暂不存在	2	Entity/Card/剧毒之雾_Effect	剧毒之雾-施法预制体
+	20127	CardTable使用|资源暂不存在	2	Entity/Card/伤害转移_Effect	伤害转移-施法预制体
+	20128	CardTable使用|资源暂不存在	2	Entity/Card/绝对零度_Effect	绝对零度-施法预制体
+	30101	CardTable使用|资源暂不存在	3	Effect/Card/神圣庇护	神圣庇护-施法特效
+	30102	CardTable使用|资源暂不存在	3	Effect/Card/烈焰风暴	烈焰风暴-施法特效
+	30103	CardTable使用|资源暂不存在	3	Effect/Card/时间回溯	时间回溯-施法特效
+	30104	CardTable使用|资源暂不存在	3	Effect/Card/战争号角	战争号角-施法特效
+	30105	CardTable使用|资源暂不存在	3	Effect/Card/暗影突袭	暗影突袭-施法特效
+	30106	CardTable使用|资源暂不存在	3	Effect/Card/生命汲取	生命汲取-施法特效
+	30107	CardTable使用|资源暂不存在	3	Effect/Card/冰霜新星	冰霜新星-施法特效
+	30108	CardTable使用|资源暂不存在	3	Effect/Card/狂暴	狂暴-施法特效
+	30109	CardTable使用|资源暂不存在	3	Effect/Card/群体治疗	群体治疗-施法特效
+	30110	CardTable使用|资源暂不存在	3	Effect/Card/雷霆一击	雷霆一击-施法特效
+	30111	CardTable使用|资源暂不存在	3	Effect/Card/混乱诅咒	混乱诅咒-施法特效
+	30112	CardTable使用|资源暂不存在	3	Effect/Card/不屈意志	不屈意志-施法特效
+	30113	CardTable使用|资源暂不存在	3	Effect/Card/反伤之盾	反伤之盾-施法特效
+	30114	CardTable使用|资源暂不存在	3	Effect/Card/圣域防线	圣域防线-施法特效
+	30115	CardTable使用|资源暂不存在	3	Effect/Card/护盾再生	护盾再生-施法特效
+	30116	CardTable使用|资源暂不存在	3	Effect/Card/救赎之光	救赎之光-施法特效
+	30117	CardTable使用|资源暂不存在	3	Effect/Card/血源强化	血源强化-施法特效
+	30118	CardTable使用|资源暂不存在	3	Effect/Card/吸血之刃	吸血之刃-施法特效
+	30119	CardTable使用|资源暂不存在	3	Effect/Card/灾厄之雷	灾厄之雷-施法特效
+	30120	CardTable使用|资源暂不存在	3	Effect/Card/护甲破碎	护甲破碎-施法特效
+	30121	CardTable使用|资源暂不存在	3	Effect/Card/虚弱诅咒	虚弱诅咒-施法特效
+	30122	CardTable使用|资源暂不存在	3	Effect/Card/沉默之符	沉默之符-施法特效
+	30123	CardTable使用|资源暂不存在	3	Effect/Card/嘲讽之声	嘲讽之声-施法特效
+	30124	CardTable使用|资源暂不存在	3	Effect/Card/剧毒之雾	剧毒之雾-施法特效
+	30125	CardTable使用|资源暂不存在	3	Effect/Card/伤害转移	伤害转移-施法特效
+	30126	CardTable使用|资源暂不存在	3	Effect/Card/绝对零度	绝对零度-施法特效
+	30201	CardTable使用|资源暂不存在	3	Effect/Card/烈焰风暴_Hit	烈焰风暴-受击特效
+	30202	CardTable使用|资源暂不存在	3	Effect/Card/暗影突袭_Hit	暗影突袭-受击特效
+	30203	CardTable使用|资源暂不存在	3	Effect/Card/生命汲取_Hit	生命汲取-受击特效
+	30204	CardTable使用|资源暂不存在	3	Effect/Card/冰霜新星_Hit	冰霜新星-受击特效
+	30205	CardTable使用|资源暂不存在	3	Effect/Card/雷霆一击_Hit	雷霆一击-受击特效
+	30206	CardTable使用|资源暂不存在	3	Effect/Card/混乱诅咒_Hit	混乱诅咒-受击特效
+	30301	CardTable使用|资源暂不存在	3	Effect/Card/吸血之刃_Hit	吸血之刃-受击特效
+	30302	CardTable使用|资源暂不存在	3	Effect/Card/灾厄之雷_Hit	灾厄之雷-受击特效
+	30303	CardTable使用|资源暂不存在	3	Effect/Card/护甲破碎_Hit	护甲破碎-受击特效
+	30304	CardTable使用|资源暂不存在	3	Effect/Card/虚弱诅咒_Hit	虚弱诅咒-受击特效
+	30305	CardTable使用|资源暂不存在	3	Effect/Card/沉默之符_Hit	沉默之符-受击特效
+	30306	CardTable使用|资源暂不存在	3	Effect/Card/嘲讽之声_Hit	嘲讽之声-受击特效
+	30307	CardTable使用|资源暂不存在	3	Effect/Card/剧毒之雾_Hit	剧毒之雾-受击特效
+	30308	CardTable使用|资源暂不存在	3	Effect/Card/绝对零度_Hit	绝对零度-受击特效
 	60001	AudioClipTable使用|资源暂不存在	7	BGM/游戏启动主菜单BGM	游戏启动/主菜单
 	60002	AudioClipTable使用|资源暂不存在	7	BGM/基地场景BGM	基地场景
 	60003	AudioClipTable使用|资源暂不存在	7	BGM/大世界探索BGM	大世界探索
@@ -311,79 +389,3 @@
 	60081	AudioClipTable使用|资源暂不存在	7	SFX/UI/金币消耗音效	金币消耗
 	60082	AudioClipTable使用|资源暂不存在	7	SFX/UI/宝石消耗音效	宝石消耗
 	60083	AudioClipTable使用|资源暂不存在	7	SFX/UI/交易音效	交易音效
-	3013	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/技能伤害	技能伤害-飘字音效
-	3014	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/连击伤害	连击伤害-飘字音效
-	3015	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/反弹伤害	反弹伤害-飘字音效
-	3016	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/吸血效果	吸血效果-飘字音效
-	3017	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/法力消耗	法力消耗-飘字音效
-	3018	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/法力恢复	法力恢复-飘字音效
-	3019	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/免疫提示	免疫提示-飘字音效
-	13999	SummonChessTable使用|资源暂不存在	1	Chess/稻草人/稻草人头像.png	稻草人头像
-	20101	CardTable使用|资源暂不存在	2	Entity/Card/神圣庇护_Effect	神圣庇护-施法预制体
-	20102	CardTable使用|资源暂不存在	2	Entity/Card/烈焰风暴_Effect	烈焰风暴-施法预制体
-	20103	CardTable使用|资源暂不存在	2	Entity/Card/时间回溯_Effect	时间回溯-施法预制体
-	20104	CardTable使用|资源暂不存在	2	Entity/Card/战争号角_Effect	战争号角-施法预制体
-	20105	CardTable使用|资源暂不存在	2	Entity/Card/暗影突袭_Effect	暗影突袭-施法预制体
-	20106	CardTable使用|资源暂不存在	2	Entity/Card/暗影突袭_Projectile	暗影突袭-投射物预制体
-	20107	CardTable使用|资源暂不存在	2	Entity/Card/生命汲取_Effect	生命汲取-施法预制体
-	20108	CardTable使用|资源暂不存在	2	Entity/Card/冰霜新星_Effect	冰霜新星-施法预制体
-	20109	CardTable使用|资源暂不存在	2	Entity/Card/狂暴_Effect	狂暴-施法预制体
-	20110	CardTable使用|资源暂不存在	2	Entity/Card/群体治疗_Effect	群体治疗-施法预制体
-	20111	CardTable使用|资源暂不存在	2	Entity/Card/雷霆一击_Effect	雷霆一击-施法预制体
-	20112	CardTable使用|资源暂不存在	2	Entity/Card/混乱诅咒_Effect	混乱诅咒-施法预制体
-	20113	CardTable使用|资源暂不存在	2	Entity/Card/不屈意志_Effect	不屈意志-施法预制体
-	20114	CardTable使用|资源暂不存在	2	Entity/Card/反伤之盾_Effect	反伤之盾-施法预制体
-	20115	CardTable使用|资源暂不存在	2	Entity/Card/圣域防线_Effect	圣域防线-施法预制体
-	20116	CardTable使用|资源暂不存在	2	Entity/Card/护盾再生_Effect	护盾再生-施法预制体
-	20117	CardTable使用|资源暂不存在	2	Entity/Card/救赎之光_Effect	救赎之光-施法预制体
-	20118	CardTable使用|资源暂不存在	2	Entity/Card/血源强化_Effect	血源强化-施法预制体
-	20119	CardTable使用|资源暂不存在	2	Entity/Card/吸血之刃_Effect	吸血之刃-施法预制体
-	20120	CardTable使用|资源暂不存在	2	Entity/Card/吸血之刃_Projectile	吸血之刃-投射物预制体
-	20121	CardTable使用|资源暂不存在	2	Entity/Card/灾厄之雷_Effect	灾厄之雷-施法预制体
-	20122	CardTable使用|资源暂不存在	2	Entity/Card/护甲破碎_Effect	护甲破碎-施法预制体
-	20123	CardTable使用|资源暂不存在	2	Entity/Card/虚弱诅咒_Effect	虚弱诅咒-施法预制体
-	20124	CardTable使用|资源暂不存在	2	Entity/Card/沉默之符_Effect	沉默之符-施法预制体
-	20125	CardTable使用|资源暂不存在	2	Entity/Card/嘲讽之声_Effect	嘲讽之声-施法预制体
-	20126	CardTable使用|资源暂不存在	2	Entity/Card/剧毒之雾_Effect	剧毒之雾-施法预制体
-	20127	CardTable使用|资源暂不存在	2	Entity/Card/伤害转移_Effect	伤害转移-施法预制体
-	20128	CardTable使用|资源暂不存在	2	Entity/Card/绝对零度_Effect	绝对零度-施法预制体
-	30101	CardTable使用|资源暂不存在	3	Effect/Card/神圣庇护	神圣庇护-施法特效
-	30102	CardTable使用|资源暂不存在	3	Effect/Card/烈焰风暴	烈焰风暴-施法特效
-	30103	CardTable使用|资源暂不存在	3	Effect/Card/时间回溯	时间回溯-施法特效
-	30104	CardTable使用|资源暂不存在	3	Effect/Card/战争号角	战争号角-施法特效
-	30105	CardTable使用|资源暂不存在	3	Effect/Card/暗影突袭	暗影突袭-施法特效
-	30106	CardTable使用|资源暂不存在	3	Effect/Card/生命汲取	生命汲取-施法特效
-	30107	CardTable使用|资源暂不存在	3	Effect/Card/冰霜新星	冰霜新星-施法特效
-	30108	CardTable使用|资源暂不存在	3	Effect/Card/狂暴	狂暴-施法特效
-	30109	CardTable使用|资源暂不存在	3	Effect/Card/群体治疗	群体治疗-施法特效
-	30110	CardTable使用|资源暂不存在	3	Effect/Card/雷霆一击	雷霆一击-施法特效
-	30111	CardTable使用|资源暂不存在	3	Effect/Card/混乱诅咒	混乱诅咒-施法特效
-	30112	CardTable使用|资源暂不存在	3	Effect/Card/不屈意志	不屈意志-施法特效
-	30113	CardTable使用|资源暂不存在	3	Effect/Card/反伤之盾	反伤之盾-施法特效
-	30114	CardTable使用|资源暂不存在	3	Effect/Card/圣域防线	圣域防线-施法特效
-	30115	CardTable使用|资源暂不存在	3	Effect/Card/护盾再生	护盾再生-施法特效
-	30116	CardTable使用|资源暂不存在	3	Effect/Card/救赎之光	救赎之光-施法特效
-	30117	CardTable使用|资源暂不存在	3	Effect/Card/血源强化	血源强化-施法特效
-	30118	CardTable使用|资源暂不存在	3	Effect/Card/吸血之刃	吸血之刃-施法特效
-	30119	CardTable使用|资源暂不存在	3	Effect/Card/灾厄之雷	灾厄之雷-施法特效
-	30120	CardTable使用|资源暂不存在	3	Effect/Card/护甲破碎	护甲破碎-施法特效
-	30121	CardTable使用|资源暂不存在	3	Effect/Card/虚弱诅咒	虚弱诅咒-施法特效
-	30122	CardTable使用|资源暂不存在	3	Effect/Card/沉默之符	沉默之符-施法特效
-	30123	CardTable使用|资源暂不存在	3	Effect/Card/嘲讽之声	嘲讽之声-施法特效
-	30124	CardTable使用|资源暂不存在	3	Effect/Card/剧毒之雾	剧毒之雾-施法特效
-	30125	CardTable使用|资源暂不存在	3	Effect/Card/伤害转移	伤害转移-施法特效
-	30126	CardTable使用|资源暂不存在	3	Effect/Card/绝对零度	绝对零度-施法特效
-	30201	CardTable使用|资源暂不存在	3	Effect/Card/烈焰风暴_Hit	烈焰风暴-受击特效
-	30202	CardTable使用|资源暂不存在	3	Effect/Card/暗影突袭_Hit	暗影突袭-受击特效
-	30203	CardTable使用|资源暂不存在	3	Effect/Card/生命汲取_Hit	生命汲取-受击特效
-	30204	CardTable使用|资源暂不存在	3	Effect/Card/冰霜新星_Hit	冰霜新星-受击特效
-	30205	CardTable使用|资源暂不存在	3	Effect/Card/雷霆一击_Hit	雷霆一击-受击特效
-	30206	CardTable使用|资源暂不存在	3	Effect/Card/混乱诅咒_Hit	混乱诅咒-受击特效
-	30301	CardTable使用|资源暂不存在	3	Effect/Card/吸血之刃_Hit	吸血之刃-受击特效
-	30302	CardTable使用|资源暂不存在	3	Effect/Card/灾厄之雷_Hit	灾厄之雷-受击特效
-	30303	CardTable使用|资源暂不存在	3	Effect/Card/护甲破碎_Hit	护甲破碎-受击特效
-	30304	CardTable使用|资源暂不存在	3	Effect/Card/虚弱诅咒_Hit	虚弱诅咒-受击特效
-	30305	CardTable使用|资源暂不存在	3	Effect/Card/沉默之符_Hit	沉默之符-受击特效
-	30306	CardTable使用|资源暂不存在	3	Effect/Card/嘲讽之声_Hit	嘲讽之声-受击特效
-	30307	CardTable使用|资源暂不存在	3	Effect/Card/剧毒之雾_Hit	剧毒之雾-受击特效
-	30308	CardTable使用|资源暂不存在	3	Effect/Card/绝对零度_Hit	绝对零度-受击特效
