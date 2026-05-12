@@ -31,7 +31,7 @@ public class EvilSpiritNormalAttack : ChessNormalAttackBase
             return;
         }
 
-        DebugEx.Log("EvilSpiritNormalAttack", $"执行普攻 → 目标: {target.Config?.Name}");
+        DebugEx.Log("EvilSpiritNormalAttack", $"[{caster.gameObject.name}] 执行普攻 → 目标: [{target.gameObject.name}] {target.Config?.Name}");
 
         // ⭐ 1. 构建命中检测上下文（延迟伤害计算到碰撞时刻）
         HitContext context = new HitContext
@@ -58,7 +58,7 @@ public class EvilSpiritNormalAttack : ChessNormalAttackBase
             {
                 double damage = CalculateDamage(caster, out bool isCritical);
                 DebugEx.Success("EvilSpiritNormalAttack",
-                    $"[延迟计算] 伤害 {caster.Config?.Name} → {hitTarget.Config?.Name}: {damage:F1}{(isCritical ? " (暴击)" : "")}");
+                    $"[延迟计算] 伤害 [{caster.gameObject.name}] {caster.Config?.Name} → [{hitTarget.gameObject.name}] {hitTarget.Config?.Name}: {damage:F1}{(isCritical ? " (暴击)" : "")}");
                 return (damage, isCritical);
             }
         };

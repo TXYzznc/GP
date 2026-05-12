@@ -37,6 +37,18 @@ public class FSMMeleeAI : ChessAIBase
 
     #endregion
 
+    #region 配置初始化
+
+    /// <summary>
+    /// 返回近战AI类型编号（1）
+    /// </summary>
+    protected override int GetAIType()
+    {
+        return 1; // 近战AI
+    }
+
+    #endregion
+
     #region 移动状态逻辑
 
     /// <summary>

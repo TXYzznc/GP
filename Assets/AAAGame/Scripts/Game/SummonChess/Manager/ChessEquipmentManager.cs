@@ -205,12 +205,24 @@ public class ChessEquipmentManager
     private void ApplyEquipmentStats(int chessId, EquipmentItem item)
     {
         var entity = FindChessEntity(chessId);
-        if (entity == null || entity.Attribute == null || item.BaseAttributes == null)
+        if (entity == null || entity.Attribute == null)
             return;
 
-        foreach (var attr in item.BaseAttributes)
+        // BaseAttributes 直接应用
+        if (item.BaseAttributes != null)
         {
-            ApplyAttributeModifier(entity.Attribute, attr.Key, attr.Value);
+            foreach (var attr in item.BaseAttributes)
+            {
+                ApplyAttributeModifier(entity.Attribute, attr.Key, attr.Value);
+            }
+        }
+
+        // SpecialEffect 通过 SpecialEffectManager 应用
+        var equipData = ItemManager.Instance?.GetEquipmentData(item.ItemId);
+        if (equipData != null && equipData.SpecialEffectId > 0)
+        {
+            SpecialEffectManager.Instance.ApplyEffect(
+                equipData.SpecialEffectId, entity.gameObject, EffectSourceType.Equipment, item.ItemId);
         }
 
         DebugEx.Log(nameof(ChessEquipmentManager), $"已应用装备属性: {item.Name} → 棋子 {chessId}");
@@ -222,13 +234,21 @@ public class ChessEquipmentManager
     private void RemoveEquipmentStats(int chessId, EquipmentItem item)
     {
         var entity = FindChessEntity(chessId);
-        if (entity == null || entity.Attribute == null || item.BaseAttributes == null)
+        if (entity == null || entity.Attribute == null)
             return;
 
-        foreach (var attr in item.BaseAttributes)
+        // 移除 BaseAttributes
+        if (item.BaseAttributes != null)
         {
-            ApplyAttributeModifier(entity.Attribute, attr.Key, -attr.Value);
+            foreach (var attr in item.BaseAttributes)
+            {
+                ApplyAttributeModifier(entity.Attribute, attr.Key, -attr.Value);
+            }
         }
+
+        // 移除 SpecialEffect
+        SpecialEffectManager.Instance.RemoveEffectBySource(
+            entity.gameObject, EffectSourceType.Equipment, item.ItemId);
 
         DebugEx.Log(nameof(ChessEquipmentManager), $"已移除装备属性: {item.Name} ← 棋子 {chessId}");
     }
@@ -275,7 +295,7 @@ public class ChessEquipmentManager
             case AttributeType.Defense:
                 attribute.ModifyArmor(value);
                 break;
-            case AttributeType.MagicPower:
+            case AttributeType.SpellPower:
                 attribute.ModifySpellPower(value);
                 break;
             default:

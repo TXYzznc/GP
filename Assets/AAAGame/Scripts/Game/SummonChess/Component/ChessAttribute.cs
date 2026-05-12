@@ -35,6 +35,7 @@ public class ChessAttribute : MonoBehaviour
     private double m_Shield;
     private double m_CooldownReduce;
     private double m_DamageTakenMultiplier = 1.0;
+    private double m_HpFloor = 0;
 
 
     #endregion
@@ -90,6 +91,9 @@ public class ChessAttribute : MonoBehaviour
 
     /// <summary>是否死亡</summary>
     public bool IsDead => m_CurrentHp <= 0;
+
+    /// <summary>HP下限（锁血用，设为>0则不会死亡）</summary>
+    public double HpFloor { get => m_HpFloor; set => m_HpFloor = Math.Max(0, value); }
 
     /// <summary>难度系数（所有基础属性的倍率基础）</summary>
     public float DifficultyCoef => m_DifficultyCoef;
@@ -326,8 +330,7 @@ public class ChessAttribute : MonoBehaviour
     {
         double oldValue = m_CurrentHp;
 
-        // 限制生命值在有效范围[0, MaxHp]内
-        m_CurrentHp = Math.Clamp(m_CurrentHp + delta, 0, m_MaxHp);
+        m_CurrentHp = Math.Clamp(m_CurrentHp + delta, m_HpFloor, m_MaxHp);
 
         // 如果值真的发生变化，触发事件
         if (Math.Abs(m_CurrentHp - oldValue) > 0.001)
@@ -367,7 +370,7 @@ public class ChessAttribute : MonoBehaviour
             // 如果法力值达到最大值，可以释放技能
             if (m_CurrentMp >= m_MaxMp && oldValue < m_MaxMp)
             {
-                DebugEx.Log("ChessAttribute", $"法力值满了 (MP: {m_CurrentMp}/{m_MaxMp})");
+                // 法力充能完毕事件由 OnMpChanged 事件处理，此处不需打印日志
             }
         }
     }
@@ -562,9 +565,6 @@ public class ChessAttribute : MonoBehaviour
         double damageReduction = 100.0 / (100.0 + m_Armor);
         double actualDamage = baseDamage * damageReduction;
 
-        // ⭐ 调试：打印护甲和减伤倍数
-        DebugEx.Log("ChessAttribute", $"[伤害计算] 基础伤害={baseDamage:F1}, 护甲={m_Armor:F1}, 减伤倍数={damageReduction:F3}, 实际伤害={actualDamage:F1}");
-
         return Math.Max(0, actualDamage);
     }
 
@@ -678,9 +678,6 @@ public class ChessAttribute : MonoBehaviour
         // 通知攻击方已造成伤害
         if (attacker != null)
             attacker.OnDamageDealt?.Invoke(actualDamage, this);
-
-        DebugEx.Log("ChessAttribute", $"TakeDamage: 受到{(isTrueDamage ? "真实" : isMagic ? "魔法" : "物理")}伤害 {actualDamage:F1} " +
-                 $"(原始:{damage:F1}) HP: {m_CurrentHp:F1}/{m_MaxHp:F1} Shield: {m_Shield:F1}");
 
         return actualDamage;
     }

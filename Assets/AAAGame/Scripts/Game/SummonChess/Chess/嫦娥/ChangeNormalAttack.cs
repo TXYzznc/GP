@@ -32,7 +32,7 @@ public class ChangeNormalAttack : ChessNormalAttackBase
             return;
         }
 
-        DebugEx.Log(nameof(ChangeNormalAttack), $"执行普攻 → 目标: {target.Config?.Name}");
+        DebugEx.Log(nameof(ChangeNormalAttack), $"[{caster.gameObject.name}] 执行普攻 → 目标: [{target.gameObject.name}] {target.Config?.Name}");
 
         // ⭐ 1. 构建命中检测上下文（延迟伤害计算到投射物命中时刻）
         HitContext context = new HitContext
@@ -60,7 +60,7 @@ public class ChangeNormalAttack : ChessNormalAttackBase
             {
                 double damage = CalculateDamage(caster, out bool isCritical);
                 DebugEx.Success(nameof(ChangeNormalAttack),
-                    $"[延迟计算] 伤害 {caster.Config?.Name} → {hitTarget.Config?.Name}: {damage:F1}{(isCritical ? " (暴击)" : "")}");
+                    $"[延迟计算] 伤害 [{caster.gameObject.name}] {caster.Config?.Name} → [{hitTarget.gameObject.name}] {hitTarget.Config?.Name}: {damage:F1}{(isCritical ? " (暴击)" : "")}");
                 return (damage, isCritical);
             }
         };

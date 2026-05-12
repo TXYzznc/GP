@@ -233,8 +233,6 @@ public class ChessAnimator : MonoBehaviour
         m_Animator.SetTrigger(PARAM_ATTACK);
 
         float duration = CurrentAttackDuration;
-        DebugEx.Log("ChessAnimator", $"{gameObject.name} 播放普攻动画，时长: {duration:F2}s，攻速倍率: {m_CurrentAttackSpeedMultiplier:F2}");
-
         return duration;
     }
 
@@ -250,7 +248,6 @@ public class ChessAnimator : MonoBehaviour
         m_IsPlayingAction = true;
         m_CurrentActionType = ChessActionType.Skill1;  // ⭐ 记录动作类型
         m_Animator.SetTrigger(PARAM_SKILL1);
-        DebugEx.Log("ChessAnimator", $"{gameObject.name} 播放技能1动画");
 
         return duration;
     }
@@ -267,7 +264,6 @@ public class ChessAnimator : MonoBehaviour
         m_IsPlayingAction = true;
         m_CurrentActionType = ChessActionType.Skill2;  // ⭐ 记录动作类型
         m_Animator.SetTrigger(PARAM_SKILL2);
-        DebugEx.Log("ChessAnimator", $"{gameObject.name} 播放技能2/大招动画");
 
         return duration;
     }
@@ -324,8 +320,6 @@ public class ChessAnimator : MonoBehaviour
         // 只能打断普攻，不能打断技能
         if (m_CurrentActionType != ChessActionType.Attack)
         {
-            DebugEx.Log("ChessAnimator",
-                $"{gameObject.name} 无法打断技能动作: {m_CurrentActionType}");
             return false;
         }
 
@@ -341,9 +335,6 @@ public class ChessAnimator : MonoBehaviour
 
             // 立即设置移动参数，让动画系统自动过渡到 Move
             m_Animator.SetBool(PARAM_IS_MOVING, true);
-
-            DebugEx.Log("ChessAnimator",
-                $"{gameObject.name} 强制打断普攻，切换到移动状态");
         }
 
         return true;
@@ -382,7 +373,6 @@ public class ChessAnimator : MonoBehaviour
     {
         m_IsPlayingAction = false;
         m_CurrentActionType = ChessActionType.None;  // ⭐ 清除动作类型
-        DebugEx.Log("ChessAnimator", $"{gameObject.name} 动画 {animName} 播放完成");
     }
 
     #endregion

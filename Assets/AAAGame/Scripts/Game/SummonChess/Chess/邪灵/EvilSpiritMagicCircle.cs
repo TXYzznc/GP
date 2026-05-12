@@ -188,7 +188,7 @@ public partial class EvilSpiritMagicCircle : MonoBehaviour
             if (enemy == null || enemy.CurrentState == ChessState.Dead)
                 continue;
 
-            enemy.Attribute?.TakeDamage(m_DotDamagePerTick, true, false, false);
+            enemy.Attribute?.TakeDamage(m_DotDamagePerTick, true, false, false, DamageFloatingTextManager.DamageType.普通伤害, m_Caster?.Attribute);
         }
     }
 
@@ -206,7 +206,7 @@ public partial class EvilSpiritMagicCircle : MonoBehaviour
                 CombatVFXManager.PlayEffect(m_Config.HitEffectId, enemy.transform.position);
             }
 
-            enemy.Attribute?.TakeDamage(m_ExplosionDamage, true, false, false);
+            enemy.Attribute?.TakeDamage(m_ExplosionDamage, true, false, false, DamageFloatingTextManager.DamageType.普通伤害, m_Caster?.Attribute);
             ApplyCorrosion(enemy, 1);
         }
     }
@@ -238,6 +238,9 @@ public partial class EvilSpiritMagicCircle : MonoBehaviour
 
             var entity = collider.GetComponentInParent<ChessEntity>();
             if (entity == null || entity.CurrentState == ChessState.Dead)
+                continue;
+
+            if (!CampRelationService.IsEnemy(m_Caster.Camp, entity.Camp))
                 continue;
 
             bool exists = false;

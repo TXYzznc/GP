@@ -348,7 +348,7 @@ public class ChangeMagicCircle : MonoBehaviour
         // 2. 造成伤害
         bool isMagic = m_Config.DamageType == 2;
         bool isTrue = m_Config.DamageType == 3;
-        attr.TakeDamage(damage, isMagic, isTrue, isCritical);
+        attr.TakeDamage(damage, isMagic, isTrue, isCritical, DamageFloatingTextManager.DamageType.普通伤害, m_Caster?.Attribute);
 
         // 3. 应用命中 Buff
         EffectExecutor.ApplyBuffsOnHit(m_Config, m_Caster, target);

@@ -10,6 +10,14 @@ public class FSMRangedAI : ChessAIBase
 {
     #region 基类重载
 
+    /// <summary>
+    /// 返回远程AI类型编号（2）
+    /// </summary>
+    protected override int GetAIType()
+    {
+        return 2; // 远程AI
+    }
+
     #endregion
 
     #region 移动状态逻辑
