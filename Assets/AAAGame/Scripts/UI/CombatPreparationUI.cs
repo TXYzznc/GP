@@ -1067,36 +1067,38 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>
     /// 从特殊效果中应用所有包含的Buff到目标
     /// BuffIds: 应用到目标方（全体）
-    /// SelfBuffIds: 玩家偷袭时应用到敌人的自身Buff
+    /// SelfBuffIds: 玩家偷袭时应用到自身方
     /// </summary>
-    private void ApplyBuffsFromSpecialEffect(SpecialEffectTable effect, EnemyEntity targetEnemy)
+    private void ApplyBuffsFromSpecialEffect(int effectId, EnemyEntity targetEnemy)
     {
-        if (effect == null || targetEnemy == null)
+        if (effectId <= 0 || targetEnemy == null)
             return;
 
-        // 应用给目标的Buff（BuffIds）- 偷袭效果的主要debuff
-        if (effect.BuffIds != null && effect.BuffIds.Length > 0)
+        var effectData = ItemManager.Instance?.GetSpecialEffectData(effectId);
+        if (effectData == null) return;
+
+        var buffIds = effectData.GetParamValue<int[]>("BuffIds", null);
+        if (buffIds != null)
         {
-            foreach (int buffId in effect.BuffIds)
+            foreach (int buffId in buffIds)
             {
                 if (buffId > 0)
                 {
                     BuffApplyHelper.ApplyBuff(buffId, targetEnemy.gameObject, true, null);
-                    Log.Info($"CombatPreparationUI:   应用Buff {buffId} 到敌人(全体-TargetBuff)");
+                    DebugEx.Log("CombatPreparationUI", $"应用Buff {buffId} 到敌人(全体-TargetBuff)");
                 }
             }
         }
 
-        // 应用给自身的Buff（SelfBuffIds）- 玩家获得的增益buff
-        if (effect.SelfBuffIds != null && effect.SelfBuffIds.Length > 0)
+        var selfBuffIds = effectData.GetParamValue<int[]>("SelfBuffIds", null);
+        if (selfBuffIds != null)
         {
-            foreach (int buffId in effect.SelfBuffIds)
+            foreach (int buffId in selfBuffIds)
             {
                 if (buffId > 0)
                 {
                     // TODO: 获取玩家实体，应用Buff到玩家方（全体）
-                    // BuffApplyHelper.ApplyBuff(buffId, playerEntity, true, null);
-                    Log.Info($"CombatPreparationUI:   应用Buff {buffId} 到玩家(全体-SelfBuff)");
+                    DebugEx.Log("CombatPreparationUI", $"应用Buff {buffId} 到玩家(全体-SelfBuff)");
                 }
             }
         }
@@ -1135,11 +1137,12 @@ public partial class CombatPreparationUI : UIFormBase
                 if (varBuffDescription != null)
                     varBuffDescription.text = effect.Description;
 
-                // 加载和设置Icon到Image对象（使用UniTask版本）
-                if (varBuffIcon != null && effect.IconId > 0)
+                // 从 CombatEffectTable 获取图标
+                var combatRow = CombatTriggerManager.Instance?.GetCombatEffectRow(effectId);
+                if (varBuffIcon != null && combatRow != null && combatRow.IconId > 0)
                 {
                     await GameExtension.ResourceExtension.LoadSpriteAsync(
-                        effect.IconId,
+                        combatRow.IconId,
                         varBuffIcon,
                         1f,
                         null

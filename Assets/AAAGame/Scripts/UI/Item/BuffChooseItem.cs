@@ -41,9 +41,14 @@ public partial class BuffChooseItem : UIItemBase
             return;
         }
 
-        if (varImg != null && effectConfig.IconId > 0)
+        // 从 CombatEffectTable 获取图标
+        if (varImg != null)
         {
-            _ = ResourceExtension.LoadSpriteAsync(effectConfig.IconId, varImg);
+            var combatRow = CombatTriggerManager.Instance?.GetCombatEffectRow(effectId);
+            if (combatRow != null && combatRow.IconId > 0)
+            {
+                _ = ResourceExtension.LoadSpriteAsync(combatRow.IconId, varImg);
+            }
         }
 
         if (varBuffName != null)
@@ -56,7 +61,6 @@ public partial class BuffChooseItem : UIItemBase
             varDesc.text = effectConfig.Description;
         }
 
-        // 注册按钮点击事件
         if (varBtn != null)
         {
             varBtn.onClick.RemoveAllListeners();

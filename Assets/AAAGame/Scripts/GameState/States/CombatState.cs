@@ -370,15 +370,8 @@ public class CombatState : FsmState<InGameState>
         }
 
         int effectId = context.SelectedEffectId;
-        var specialEffectTable = GF.DataTable.GetDataTable<SpecialEffectTable>();
-        if (specialEffectTable == null)
-        {
-            DebugEx.Warning("CombatState", "SpecialEffectTable未加载，无法应用待定效果");
-            return;
-        }
-
-        var effect = specialEffectTable.GetDataRow(effectId);
-        if (effect == null)
+        var effectData = ItemManager.Instance?.GetSpecialEffectData(effectId);
+        if (effectData == null)
         {
             DebugEx.Warning("CombatState", $"未找到效果配置: EffectId={effectId}");
             return;
@@ -391,30 +384,30 @@ public class CombatState : FsmState<InGameState>
             return;
         }
 
+        var buffIds = effectData.GetParamValue<int[]>("BuffIds", null);
+        var selfBuffIds = effectData.GetParamValue<int[]>("SelfBuffIds", null);
+
         switch (context.TriggerType)
         {
             case CombatTriggerType.SneakAttack:
-                // 偷袭：BuffIds 应用到敌人（全体），SelfBuffIds 应用到玩家（全体）
-                ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 1); // 敌方
-                ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 0); // 我方
+                ApplyBuffsToChessByCamp(buffIds, allChess, 1);
+                ApplyBuffsToChessByCamp(selfBuffIds, allChess, 0);
                 DebugEx.Log("CombatState",
-                    $"已应用偷袭效果: {effect.Name} (EffectId={effectId})");
+                    $"已应用偷袭效果: {effectData.Name} (EffectId={effectId})");
                 break;
 
             case CombatTriggerType.Encounter:
-                // 玩家先手：BuffIds + SelfBuffIds 都应用到玩家（全体）
-                ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 0);
-                ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 0);
+                ApplyBuffsToChessByCamp(buffIds, allChess, 0);
+                ApplyBuffsToChessByCamp(selfBuffIds, allChess, 0);
                 DebugEx.Log("CombatState",
-                    $"已应用玩家先手效果: {effect.Name} (EffectId={effectId})");
+                    $"已应用玩家先手效果: {effectData.Name} (EffectId={effectId})");
                 break;
 
             case CombatTriggerType.EnemyInitiated:
-                // 敌方先手：BuffIds + SelfBuffIds 都应用到敌人（全体）
-                ApplyBuffsToChessByCamp(effect.BuffIds, allChess, 1);
-                ApplyBuffsToChessByCamp(effect.SelfBuffIds, allChess, 1);
+                ApplyBuffsToChessByCamp(buffIds, allChess, 1);
+                ApplyBuffsToChessByCamp(selfBuffIds, allChess, 1);
                 DebugEx.Log("CombatState",
-                    $"已应用敌方先手效果: {effect.Name} (EffectId={effectId})");
+                    $"已应用敌方先手效果: {effectData.Name} (EffectId={effectId})");
                 break;
 
             default:
