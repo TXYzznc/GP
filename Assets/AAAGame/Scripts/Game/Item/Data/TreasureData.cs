@@ -12,5 +12,4 @@ public class TreasureData
     public int SpecialEffectId;
     public List<int> SynergyIds;
     public Dictionary<AttributeType, float> BaseAttributes;
-    public int MaxDurability;
 }

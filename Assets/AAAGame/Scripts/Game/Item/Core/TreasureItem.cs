@@ -29,7 +29,6 @@ public class TreasureItem : ItemBase
     public int SpecialEffectId => m_TreasureData?.SpecialEffectId ?? 0;
     public List<int> SynergyIds => m_TreasureData?.SynergyIds;
     public Dictionary<AttributeType, float> BaseAttributes => m_TreasureData?.BaseAttributes;
-    public int MaxDurability => m_TreasureData?.MaxDurability ?? 0;
 
     public override bool CanUse => false;
     public override bool CanStack => false;
@@ -59,6 +58,50 @@ public class TreasureItem : ItemBase
     public void SetAffixes(List<AffixEffect> affixes)
     {
         m_Affixes = affixes ?? new List<AffixEffect>();
+    }
+
+    /// <summary>
+    /// 获取词条数据用于持久化（转换运行时词条为持久化格式）
+    /// </summary>
+    public List<AffixData> GetAffixDataForPersistence()
+    {
+        var result = new List<AffixData>();
+        if (m_Affixes == null || m_Affixes.Count == 0)
+            return result;
+
+        foreach (var affix in m_Affixes)
+        {
+            result.Add(new AffixData
+            {
+                Id = affix.AffixId,
+                Name = affix.Name,
+                Description = affix.Description,
+                AffixType = affix.AffixType,
+                AttributeType = affix.AttributeType,
+                ValueType = affix.ValueType,
+                ValueMin = affix.Value,
+                ValueMax = affix.Value,
+                Weight = 0
+            });
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 获取词条对棋子的属性加成信息（用于UI显示）
+    /// </summary>
+    public List<string> GetAffixBonusStrings()
+    {
+        var bonuses = new List<string>();
+        if (m_Affixes == null) return bonuses;
+
+        foreach (var affix in m_Affixes)
+        {
+            bonuses.Add(affix.GetFormattedDescription());
+        }
+
+        return bonuses;
     }
 
     /// <summary>

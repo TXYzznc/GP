@@ -334,6 +334,9 @@ public class PlayerAccountDataManager
         saveData.SetSettings(new PlayerSetting());
         saveData.SetStatistics(new PlayerStatistics());
 
+        // 8.5 初始化宝物系统
+        InitializeTreasureData(saveData);
+
         // 9. 初始化棋子解锁数据（新存档默认解锁初始棋子）
         if (ChessUnlockManager.Instance != null)
         {
@@ -401,6 +404,9 @@ public class PlayerAccountDataManager
                 );
             }
 
+            // 保存宝物数据
+            SaveTreasureData(m_CurrentSaveData);
+
             // 序列化为JSON
             string json = JsonUtility.ToJson(m_CurrentSaveData, true);
 
@@ -466,6 +472,9 @@ public class PlayerAccountDataManager
             var saveData = JsonUtility.FromJson<PlayerSaveData>(json);
             saveData.LastPlayTime = GetCurrentTimestamp();
             m_CurrentSaveData = saveData;
+
+            // 恢复宝物数据
+            LoadTreasureData(saveData);
 
             // 上次未正常结算（异常退出），回滚到快照状态
             if (!string.IsNullOrEmpty(saveData.InGameSnapshot))
@@ -1176,6 +1185,296 @@ public class PlayerAccountDataManager
         {
             DebugEx.Error("PlayerAccountDataManager", $"快照恢复失败: {e.Message}");
         }
+    }
+
+    #endregion
+
+    #region 宝物系统
+
+    /// <summary>
+    /// 装备宝物给棋子
+    /// </summary>
+    /// <summary>
+    /// 获取宝物（添加到存档，自动生成 InstanceId）
+    /// 用于掉落、宝箱、任务奖励等获取宝物的场景
+    /// </summary>
+    public TreasureInstanceData ObtainTreasure(TreasureItem treasureItem)
+    {
+        if (treasureItem == null || m_CurrentSaveData == null)
+        {
+            DebugEx.Error(nameof(PlayerAccountDataManager), "获取宝物失败：物品或存档为空");
+            return null;
+        }
+
+        // 生成唯一 InstanceId（使用时间戳 + 随机数保证唯一性）
+        int instanceId = GenerateUniqueInstanceId();
+
+        // 转换为持久化数据（自动调用 GetAffixDataForPersistence，保存词条）
+        var instanceData = ItemManager.Instance.CreateTreasureInstanceData(treasureItem, instanceId);
+        if (instanceData == null)
+        {
+            DebugEx.Error(nameof(PlayerAccountDataManager), $"创建宝物实例数据失败: {treasureItem.Name}");
+            return null;
+        }
+
+        // 添加到存档
+        m_CurrentSaveData.Treasures.Add(instanceData);
+
+        DebugEx.Success(nameof(PlayerAccountDataManager),
+            $"✅ 宝物已获取: {treasureItem.Name} (InstanceId:{instanceId}, 词条数:{instanceData.Affixes.Count})");
+
+        return instanceData;
+    }
+
+    /// <summary>
+    /// 生成唯一的 InstanceId
+    /// </summary>
+    private int GenerateUniqueInstanceId()
+    {
+        // 使用时间戳 + 随机数确保唯一性
+        long timestamp = System.DateTime.Now.Ticks;
+        int randomPart = UnityEngine.Random.Range(1000, 9999);
+        return (int)((timestamp / 100000) % int.MaxValue) ^ randomPart;
+    }
+
+    public void EquipTreasure(int instanceId, int chessId)
+    {
+        var saveData = CurrentSaveData;
+        if (saveData == null) return;
+
+        var treasure = saveData.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
+        if (treasure == null || treasure.Location == TreasureLocation.Warehouse)
+            return; // 只能装备背包中的宝物
+
+        if (!saveData.ChessTreasureSlots.ContainsKey(chessId))
+            saveData.ChessTreasureSlots[chessId] = new();
+
+        var slots = saveData.ChessTreasureSlots[chessId];
+
+        // 最多装备 3 个且不重复
+        if (slots.Count < 3 && !slots.Contains(instanceId))
+        {
+            slots.Add(instanceId);
+            treasure.EquippedChessId = chessId;
+        }
+    }
+
+    /// <summary>
+    /// 卸载宝物（保留在原位置，只取消装备）
+    /// </summary>
+    public void UnequipTreasure(int instanceId)
+    {
+        var saveData = CurrentSaveData;
+        var treasure = saveData?.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
+
+        if (treasure == null || treasure.EquippedChessId == 0)
+            return;
+
+        int chessId = treasure.EquippedChessId;
+
+        // 从装备槽中移除
+        if (saveData.ChessTreasureSlots.TryGetValue(chessId, out var slots))
+            slots.Remove(instanceId);
+
+        treasure.EquippedChessId = 0;  // 取消装备标记
+    }
+
+    /// <summary>
+    /// 获取棋子的装备列表
+    /// </summary>
+    public List<TreasureInstanceData> GetChessEquipments(int chessId)
+    {
+        var saveData = CurrentSaveData;
+        if (saveData == null) return new();
+
+        return saveData.Treasures
+            .Where(t => t.EquippedChessId == chessId)
+            .ToList();
+    }
+
+    /// <summary>
+    /// 获取背包中的宝物（包括已装备的）
+    /// </summary>
+    public List<TreasureInstanceData> GetInventoryTreasures()
+    {
+        var saveData = CurrentSaveData;
+        if (saveData == null) return new();
+
+        return saveData.Treasures
+            .Where(t => t.Location == TreasureLocation.Inventory)
+            .ToList();
+    }
+
+    /// <summary>
+    /// 获取仓库中的宝物
+    /// </summary>
+    public List<TreasureInstanceData> GetWarehouseTreasures()
+    {
+        var saveData = CurrentSaveData;
+        if (saveData == null) return new();
+
+        return saveData.Treasures
+            .Where(t => t.Location == TreasureLocation.Warehouse)
+            .ToList();
+    }
+
+    /// <summary>
+    /// 将宝物从背包移到仓库
+    /// </summary>
+    public void MoveToWarehouse(int instanceId)
+    {
+        var saveData = CurrentSaveData;
+        var treasure = saveData?.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
+
+        if (treasure == null) return;
+
+        // 先卸装
+        if (treasure.EquippedChessId != 0)
+            UnequipTreasure(instanceId);
+
+        // 再移动
+        treasure.Location = TreasureLocation.Warehouse;
+    }
+
+    /// <summary>
+    /// 将宝物从仓库移到背包
+    /// </summary>
+    public void MoveToInventory(int instanceId)
+    {
+        var saveData = CurrentSaveData;
+        var treasure = saveData?.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
+
+        if (treasure == null) return;
+
+        treasure.Location = TreasureLocation.Inventory;
+    }
+
+    /// <summary>
+    /// 获取宝物实例
+    /// </summary>
+    public TreasureInstanceData GetTreasureInstanceById(int instanceId)
+    {
+        var saveData = CurrentSaveData;
+        if (saveData == null) return null;
+
+        return saveData.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
+    }
+
+    /// <summary>
+    /// 序列化宝物数据到 JSON 字符串
+    /// </summary>
+    private void SaveTreasureData(PlayerSaveData saveData)
+    {
+        if (saveData == null) return;
+
+        // 1. 序列化宝物列表
+        if (saveData.Treasures != null && saveData.Treasures.Count > 0)
+        {
+            try
+            {
+                var treasureList = new SerializedTreasureList { Items = saveData.Treasures };
+                saveData.TreasureData = JsonUtility.ToJson(treasureList, true);
+            }
+            catch
+            {
+                DebugEx.Error(nameof(PlayerAccountDataManager), "序列化宝物数据失败");
+                saveData.TreasureData = "";
+            }
+        }
+        else
+        {
+            saveData.TreasureData = "";
+        }
+
+        // 2. 序列化宝物槽数据
+        if (saveData.ChessTreasureSlots != null && saveData.ChessTreasureSlots.Count > 0)
+        {
+            try
+            {
+                var equipmentSlots = new SerializedChessTreasureSlots();
+                foreach (var kvp in saveData.ChessTreasureSlots)
+                {
+                    equipmentSlots.Slots.Add(new SerializedChessTreasureSlot
+                    {
+                        ChessId = kvp.Key,
+                        InstanceIds = kvp.Value
+                    });
+                }
+                saveData.ChessTreasureSlotsData = JsonUtility.ToJson(equipmentSlots, true);
+            }
+            catch
+            {
+                DebugEx.Error(nameof(PlayerAccountDataManager), "序列化宝物槽数据失败");
+                saveData.ChessTreasureSlotsData = "";
+            }
+        }
+        else
+        {
+            saveData.ChessTreasureSlotsData = "";
+        }
+    }
+
+    /// <summary>
+    /// 从 JSON 字符串反序列化宝物数据
+    /// </summary>
+    private void LoadTreasureData(PlayerSaveData saveData)
+    {
+        if (saveData == null) return;
+
+        // 1. 恢复宝物列表
+        if (!string.IsNullOrEmpty(saveData.TreasureData))
+        {
+            try
+            {
+                var treasureList = JsonUtility.FromJson<SerializedTreasureList>(saveData.TreasureData);
+                saveData.Treasures = treasureList.Items ?? new List<TreasureInstanceData>();
+            }
+            catch
+            {
+                DebugEx.Error(nameof(PlayerAccountDataManager), "加载宝物数据失败，初始化为空列表");
+                saveData.Treasures = new List<TreasureInstanceData>();
+            }
+        }
+        else
+        {
+            saveData.Treasures = new List<TreasureInstanceData>();
+        }
+
+        // 2. 恢复宝物槽数据
+        if (!string.IsNullOrEmpty(saveData.ChessTreasureSlotsData))
+        {
+            try
+            {
+                var equipmentSlots = JsonUtility.FromJson<SerializedChessTreasureSlots>(saveData.ChessTreasureSlotsData);
+                saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
+
+                foreach (var slot in equipmentSlots.Slots)
+                {
+                    saveData.ChessTreasureSlots[slot.ChessId] = slot.InstanceIds ?? new List<int>();
+                }
+            }
+            catch
+            {
+                DebugEx.Error(nameof(PlayerAccountDataManager), "加载宝物槽数据失败，初始化为空字典");
+                saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
+            }
+        }
+        else
+        {
+            saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
+        }
+    }
+
+    /// <summary>
+    /// 初始化新存档的宝物数据
+    /// </summary>
+    private void InitializeTreasureData(PlayerSaveData saveData)
+    {
+        if (saveData == null) return;
+
+        // 初始化空列表
+        saveData.Treasures = new List<TreasureInstanceData>();
+        saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
     }
 
     #endregion

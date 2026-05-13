@@ -172,7 +172,6 @@ public class ItemManager : SingletonBase<ItemManager>
                 SpecialEffectId = row.SpecialEffectId,
                 SynergyIds = new List<int>(row.SynergyIds ?? new int[0]),
                 BaseAttributes = ParseAttributes(row.BaseAttributes),
-                MaxDurability = row.MaxDurability,
             };
             m_TreasureDataDict[row.ItemTableId] = data;
         }
@@ -374,6 +373,31 @@ public class ItemManager : SingletonBase<ItemManager>
     public List<AffixData> GetAllAffixData()
     {
         return new List<AffixData>(m_AffixDataDict.Values);
+    }
+
+    /// <summary>
+    /// 从宝物物品创建持久化数据（用于保存到存档）
+    /// </summary>
+    public TreasureInstanceData CreateTreasureInstanceData(TreasureItem treasureItem, int instanceId)
+    {
+        if (treasureItem == null)
+        {
+            DebugEx.Error("ItemManager", $"CreateTreasureInstanceData: treasureItem is null");
+            return null;
+        }
+
+        var instanceData = new TreasureInstanceData
+        {
+            InstanceId = instanceId,
+            TreasureId = treasureItem.ItemId,
+            EnhanceLevel = 0,
+            Location = TreasureLocation.Inventory,
+            EquippedChessId = 0,
+            Affixes = treasureItem.GetAffixDataForPersistence()
+        };
+
+        DebugEx.Log("ItemManager", $"创建宝物实例: {treasureItem.Name} (InstanceId:{instanceId}, 词条数:{instanceData.Affixes.Count})");
+        return instanceData;
     }
 
     /// <summary>
