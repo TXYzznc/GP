@@ -245,9 +245,18 @@ public partial class SummonChessSkillTable : DataRowBase
         }
 
         /// <summary>
-        /// 技能描述
+        /// 技能效果（如"造成200%伤害"）
         /// </summary>
-        public string Desc
+        public string EffectText
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 技能文本描述（补充世界观，≤30字）
+        /// </summary>
+        public string DescText
         {
             get;
             private set;
@@ -289,7 +298,8 @@ public partial class SummonChessSkillTable : DataRowBase
             EffectSpawnHeight = float.Parse(columnStrings[index++]);
             HitEffectId = int.Parse(columnStrings[index++]);
             CustomData = columnStrings[index++];
-            Desc = columnStrings[index++];
+            EffectText = columnStrings[index++];
+            DescText = columnStrings[index++];
 
             return true;
         }
@@ -325,7 +335,8 @@ public partial class SummonChessSkillTable : DataRowBase
                     EffectSpawnHeight = binaryReader.ReadSingle();
                     HitEffectId = binaryReader.Read7BitEncodedInt32();
                     CustomData = binaryReader.ReadString();
-                    Desc = binaryReader.ReadString();
+                    EffectText = binaryReader.ReadString();
+                    DescText = binaryReader.ReadString();
                 }
             }
 

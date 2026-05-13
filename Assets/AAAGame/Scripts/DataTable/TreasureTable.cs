@@ -73,15 +73,6 @@ public partial class TreasureTable : DataRowBase
             private set;
         }
 
-        /// <summary>
-        /// 最大耐久度
-        /// </summary>
-        public int MaxDurability
-        {
-            get;
-            private set;
-        }
-
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -98,7 +89,6 @@ public partial class TreasureTable : DataRowBase
             SpecialEffectId = int.Parse(columnStrings[index++]);
             SynergyIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             BaseAttributes = columnStrings[index++];
-            MaxDurability = int.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -115,7 +105,6 @@ public partial class TreasureTable : DataRowBase
                     SpecialEffectId = binaryReader.Read7BitEncodedInt32();
                     SynergyIds = binaryReader.ReadArray<int>();
                     BaseAttributes = binaryReader.ReadString();
-                    MaxDurability = binaryReader.Read7BitEncodedInt32();
                 }
             }
 

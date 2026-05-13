@@ -254,9 +254,18 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 大招ID（三个值，暂时相同）
+        /// 技能二ID（三个值，暂时相同）（没有则不填）
         /// </summary>
         public int[] Skill2Id
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 大招ID（三个值，暂时相同）
+        /// </summary>
+        public int[] UltimateId
         {
             get;
             private set;
@@ -281,9 +290,9 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
-        /// 棋子的背景描述（三个值：一阶/二阶/三阶）
+        /// 棋子背景故事（多段，100-200字每段）
         /// </summary>
-        public string[] Description
+        public string[] StoryText
         {
             get;
             private set;
@@ -327,9 +336,10 @@ public partial class SummonChessTable : DataRowBase
             NormalAtkId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             Skill1Id = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             Skill2Id = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            UltimateId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             AIType = int.Parse(columnStrings[index++]);
             CustomData = columnStrings[index++];
-            Description = DataTableExtension.ParseArray<string>(columnStrings[index++]);
+            StoryText = DataTableExtension.ParseArray<string>(columnStrings[index++]);
 
             return true;
         }
@@ -367,9 +377,10 @@ public partial class SummonChessTable : DataRowBase
                     NormalAtkId = binaryReader.ReadArray<int>();
                     Skill1Id = binaryReader.ReadArray<int>();
                     Skill2Id = binaryReader.ReadArray<int>();
+                    UltimateId = binaryReader.ReadArray<int>();
                     AIType = binaryReader.Read7BitEncodedInt32();
                     CustomData = binaryReader.ReadString();
-                    Description = binaryReader.ReadArray<string>();
+                    StoryText = binaryReader.ReadArray<string>();
                 }
             }
 
