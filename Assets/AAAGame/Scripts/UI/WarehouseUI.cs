@@ -32,6 +32,10 @@ public partial class WarehouseUI : UIFormBase
         m_WarehouseManager = WarehouseManager.Instance;
         if (m_WarehouseManager != null)
         {
+            // 确保仓库管理器已初始化
+            if (!m_WarehouseManager.IsInitialized)
+                m_WarehouseManager.Initialize(50);
+
             m_WarehouseManager.OnSlotChanged += OnWarehouseSlotChanged;
             m_WarehouseManager.OnCapacityChanged += OnCapacityChanged;
         }
