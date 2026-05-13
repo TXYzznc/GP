@@ -163,6 +163,29 @@ public class PlayerSaveData
     /// </summary>
     public string InGameSnapshot;
 
+    // ========== 宝物系统 ==========
+    /// <summary>
+    /// 所有宝物实例数据（运行时使用，不直接序列化）
+    /// </summary>
+    [System.NonSerialized]
+    public List<TreasureInstanceData> Treasures;
+
+    /// <summary>
+    /// 棋子的宝物槽（运行时使用，不直接序列化）：Key=ChessId, Value=[InstanceId, InstanceId, InstanceId]（最多3个）
+    /// </summary>
+    [System.NonSerialized]
+    public System.Collections.Generic.Dictionary<int, List<int>> ChessTreasureSlots;
+
+    /// <summary>
+    /// 宝物数据 JSON 字符串（用于实际存储）
+    /// </summary>
+    public string TreasureData = "";
+
+    /// <summary>
+    /// 宝物槽数据 JSON 字符串（用于实际存储）
+    /// </summary>
+    public string ChessTreasureSlotsData = "";
+
     // ========== 运行时缓存数据，不存储到配置表中 ==========
 
     /// <summary>
@@ -177,6 +200,8 @@ public class PlayerSaveData
         CompletedQuestIds = new List<int>();
         DiscoveredItemIds = new List<int>();
         DiscoveredEnemyIds = new List<int>();
+        Treasures = new List<TreasureInstanceData>();
+        ChessTreasureSlots = new System.Collections.Generic.Dictionary<int, List<int>>();
     }
 
     #region 辅助方法
@@ -469,4 +494,60 @@ public class PlayerSaveSnapshot
     public string InventoryItems;
     public int InventoryCapacity;
     public List<int> CompletedQuestIds;
+}
+
+/// <summary>
+/// 宝物实例数据（每个宝物都独一无二）
+/// </summary>
+[Serializable]
+public class TreasureInstanceData
+{
+    public int InstanceId;              // 物品实例的唯一 ID
+    public int TreasureId;              // 宝物配置表 ID
+    public int EnhanceLevel;            // 强化等级
+    public List<AffixData> Affixes;     // 词条效果列表
+    public TreasureLocation Location;   // 背包/仓库（物理位置）
+    public int EquippedChessId;         // 装备给哪个棋子（0=未装备）
+
+    public TreasureInstanceData()
+    {
+        Affixes = new List<AffixData>();
+        EquippedChessId = 0;
+        EnhanceLevel = 0;
+        Location = TreasureLocation.Inventory;
+    }
+}
+
+/// <summary>
+/// 宝物位置枚举
+/// </summary>
+public enum TreasureLocation
+{
+    Inventory = 0,  // 在背包中
+    Warehouse = 1   // 在仓库中
+}
+
+/// <summary>
+/// 用于 JSON 序列化的宝物列表包装类
+/// </summary>
+[Serializable]
+public class SerializedTreasureList
+{
+    public List<TreasureInstanceData> Items = new();
+}
+
+/// <summary>
+/// 用于 JSON 序列化的宝物槽包装类（将 Dictionary 转换为列表）
+/// </summary>
+[Serializable]
+public class SerializedChessTreasureSlot
+{
+    public int ChessId;
+    public List<int> InstanceIds = new();
+}
+
+[Serializable]
+public class SerializedChessTreasureSlots
+{
+    public List<SerializedChessTreasureSlot> Slots = new();
 }
