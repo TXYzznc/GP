@@ -14,7 +14,7 @@ public class SummonChessConfig
     public string Name; // 棋子名称
     public int Quality; // 品质（1-4：白、绿、蓝、紫）
     public int PopCost; // 人口消耗
-    public string[] Description; // 描述（按等级 1-3）
+    public string[] StoryText; // 背景故事（按等级 1-3）
     #endregion
 
     #region 种族与职业
@@ -52,7 +52,8 @@ public class SummonChessConfig
     public int[] PassiveIds; // 被动技能ID数组（按等级 1-3）
     public int[] NormalAtkId; // 普攻效果配置ID（按等级 1-3）
     public int[] Skill1Id; // 技能一ID（按等级 1-3）
-    public int[] Skill2Id; // 技能二/大招ID（按等级 1-3）
+    public int[] Skill2Id; // 技能二ID（可选的第二小技能，按等级 1-3）
+    public int[] UltimateId; // 大招ID（按等级 1-3）
     public int AIType; // AI类型（1=近战，2=远程）
     public int AttackHitType; // 普攻命中检测类型（0=瞬间，1=近战，2=投射物，3=AOE，4=射线）
     public int ProjectilePrefabId; // 投射物预制体ID（AttackHitType=2时使用）

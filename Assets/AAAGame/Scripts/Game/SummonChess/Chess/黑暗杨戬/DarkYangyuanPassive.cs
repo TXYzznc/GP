@@ -209,16 +209,45 @@ public class DarkYangyuanPassive : IChessPassive
             ReplaceNormalAttack(normalAttackId, skillTable);
         }
 
-        // 技能一替换
+        // 技能一替换（0 = 禁用技能）
         if (skillOverride.TryGetValue("Skill1Id", out int skill1Id))
         {
-            ReplaceSkill(skill1Id, SkillType.Skill1, skillTable);
+            if (skill1Id == 0)
+                DisableSkill(SkillType.Skill1);
+            else
+                ReplaceSkill(skill1Id, SkillType.Skill1, skillTable);
         }
 
-        // 技能二替换
+        // 技能二替换（0 = 禁用，> 0 = 替换为新技能）
         if (skillOverride.TryGetValue("Skill2Id", out int skill2Id))
         {
-            ReplaceSkill(skill2Id, SkillType.Skill2, skillTable);
+            if (skill2Id == 0)
+                DisableSkill(SkillType.Skill2);
+            else
+                ReplaceSkill(skill2Id, SkillType.Skill2, skillTable);
+        }
+
+        // 大招替换
+        if (skillOverride.TryGetValue("UltimateId", out int ultimateId))
+        {
+            ReplaceSkill(ultimateId, SkillType.Skill2, skillTable);  // 大招在 Entity 中存储为 Skill2
+        }
+    }
+
+    /// <summary>禁用指定技能</summary>
+    private void DisableSkill(SkillType skillType)
+    {
+        if (m_Ctx?.Entity == null) return;
+
+        if (skillType == SkillType.Skill1)
+        {
+            m_Ctx.Entity.ReplaceSkill1(null);
+            DebugEx.Log("DarkYangyuanPassive", $"✓ {skillType} 已禁用");
+        }
+        else if (skillType == SkillType.Skill2)
+        {
+            m_Ctx.Entity.ReplaceSkill2(null);
+            DebugEx.Log("DarkYangyuanPassive", $"✓ {skillType} 已禁用");
         }
     }
 

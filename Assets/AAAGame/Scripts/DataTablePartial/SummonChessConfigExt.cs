@@ -71,15 +71,19 @@ public static class SummonChessConfigHelper
     public static int[] GetPassiveIds(this SummonChessConfig config)
         => config.PassiveIds ?? System.Array.Empty<int>();
 
-    /// <summary>获取特定等级的描述</summary>
-    public static string GetDescription(this SummonChessConfig config, int rank)
+    /// <summary>获取特定等级的故事文本</summary>
+    public static string GetStoryText(this SummonChessConfig config, int rank)
     {
-        if (config.Description == null || config.Description.Length == 0)
+        if (config.StoryText == null || config.StoryText.Length == 0)
             return string.Empty;
-        if (rank <= 0 || rank > config.Description.Length)
-            return config.Description[0] ?? string.Empty;
-        return config.Description[rank - 1] ?? string.Empty;
+        if (rank <= 0 || rank > config.StoryText.Length)
+            return config.StoryText[0] ?? string.Empty;
+        return config.StoryText[rank - 1] ?? string.Empty;
     }
+
+    /// <summary>获取特定等级的描述（兼容旧方法，推荐使用 GetStoryText）</summary>
+    public static string GetDescription(this SummonChessConfig config, int rank)
+        => GetStoryText(config, rank);
 
     /// <summary>获取特定等级的普攻技能ID</summary>
     public static int GetNormalAtkId(this SummonChessConfig config, int rank)
@@ -89,7 +93,11 @@ public static class SummonChessConfigHelper
     public static int GetSkill1Id(this SummonChessConfig config, int rank)
         => GetByRank(config.Skill1Id, rank);
 
-    /// <summary>获取特定等级的技能2 ID</summary>
+    /// <summary>获取特定等级的技能2 ID（可选的第二小技能）</summary>
     public static int GetSkill2Id(this SummonChessConfig config, int rank)
         => GetByRank(config.Skill2Id, rank);
+
+    /// <summary>获取特定等级的大招 ID</summary>
+    public static int GetUltimateId(this SummonChessConfig config, int rank)
+        => GetByRank(config.UltimateId, rank);
 }

@@ -83,17 +83,25 @@ public static class SummonChessTableHelper
     public static int GetSkill1Id(this SummonChessTable row, int rank)
         => GetByRank(row.Skill1Id, rank);
 
-    /// <summary>获取特定等级的技能2 ID</summary>
+    /// <summary>获取特定等级的技能2 ID（可选的第二小技能）</summary>
     public static int GetSkill2Id(this SummonChessTable row, int rank)
         => GetByRank(row.Skill2Id, rank);
 
-    /// <summary>获取特定等级的描述</summary>
-    public static string GetDescription(this SummonChessTable row, int rank)
+    /// <summary>获取特定等级的大招 ID</summary>
+    public static int GetUltimateId(this SummonChessTable row, int rank)
+        => GetByRank(row.UltimateId, rank);
+
+    /// <summary>获取特定等级的故事文本</summary>
+    public static string GetStoryText(this SummonChessTable row, int rank)
     {
-        if (row.Description == null || row.Description.Length == 0)
+        if (row.StoryText == null || row.StoryText.Length == 0)
             return string.Empty;
-        if (rank <= 0 || rank > row.Description.Length)
-            return row.Description[0] ?? string.Empty;
-        return row.Description[rank - 1] ?? string.Empty;
+        if (rank <= 0 || rank > row.StoryText.Length)
+            return row.StoryText[0] ?? string.Empty;
+        return row.StoryText[rank - 1] ?? string.Empty;
     }
+
+    /// <summary>获取特定等级的描述（兼容旧方法，推荐使用 GetStoryText）</summary>
+    public static string GetDescription(this SummonChessTable row, int rank)
+        => GetStoryText(row, rank);
 }

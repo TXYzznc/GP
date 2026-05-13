@@ -86,7 +86,7 @@ public class ChessDataManager
                 Name = row.Name,
                 Quality = row.Quality,
                 PopCost = row.PopCost,
-                Description = row.Description,
+                StoryText = row.StoryText,
                 Races = row.Races,
                 Classes = row.Classes,
                 PrefabId = row.PrefabId,
@@ -109,6 +109,7 @@ public class ChessDataManager
                 NormalAtkId = row.NormalAtkId,
                 Skill1Id = row.Skill1Id,
                 Skill2Id = row.Skill2Id,
+                UltimateId = row.UltimateId,
                 AIType = row.AIType,
                 CustomData = row.CustomData,
             };

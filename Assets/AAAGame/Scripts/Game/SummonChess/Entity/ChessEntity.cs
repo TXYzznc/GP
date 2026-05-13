@@ -271,25 +271,25 @@ public class ChessEntity : MonoBehaviour
             }
         }
 
-        // 8. 初始化技能二/大招
-        int skill2Id = config.GetSkill2Id(Rank);
-        if (skill2Id != 0)
+        // 8. 初始化大招
+        int ultimateId = config.GetUltimateId(Rank);
+        if (ultimateId != 0)
         {
-            Skill2Config = skillTable?.GetDataRow(skill2Id);
+            Skill2Config = skillTable?.GetDataRow(ultimateId);
             if (Skill2Config != null)
             {
-                Skill2 = ChessFactory.CreateSkill(skill2Id);
+                Skill2 = ChessFactory.CreateSkill(ultimateId);
                 if (Skill2 != null)
                 {
                     Skill2.Init(m_Context, Skill2Config);
-                    DebugEx.Log(nameof(ChessEntity), $"大招初始化成功 (Id={skill2Id})");
+                    DebugEx.Log(nameof(ChessEntity), $"大招初始化成功 (Id={ultimateId})");
                 }
             }
             else
             {
                 DebugEx.Warning(
                     nameof(ChessEntity),
-                    $"{config.Name} 技能2配置 ID={skill2Id} 不存在"
+                    $"{config.Name} 大招配置 ID={ultimateId} 不存在"
                 );
             }
         }
@@ -888,14 +888,14 @@ public class ChessEntity : MonoBehaviour
             }
         }
 
-        // 更新技能2
-        int skill2Id = Config.GetSkill2Id(Rank);
-        if (skill2Id != 0)
+        // 更新大招
+        int ultimateId = Config.GetUltimateId(Rank);
+        if (ultimateId != 0)
         {
-            Skill2Config = skillTable?.GetDataRow(skill2Id);
+            Skill2Config = skillTable?.GetDataRow(ultimateId);
             if (Skill2Config != null)
             {
-                Skill2 = ChessFactory.CreateSkill(skill2Id);
+                Skill2 = ChessFactory.CreateSkill(ultimateId);
                 if (Skill2 != null)
                 {
                     Skill2.Init(m_Context, Skill2Config);
