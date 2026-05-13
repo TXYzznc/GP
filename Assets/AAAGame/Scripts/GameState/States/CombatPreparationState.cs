@@ -872,6 +872,7 @@ public class CombatPreparationState : FsmState<InGameState>
             NormalAtkId = chessTableRow.NormalAtkId ?? new int[] { 0 },
             Skill1Id = chessTableRow.Skill1Id ?? new int[] { 0 },
             Skill2Id = chessTableRow.Skill2Id ?? new int[] { 0 },
+            UltimateId = chessTableRow.UltimateId ?? new int[] { 0 },
             AIType = 0,
         };
 
@@ -897,6 +898,9 @@ public class CombatPreparationState : FsmState<InGameState>
 
         // 设置Layer为Chess，便于碰撞检测
         playerCharacter.layer = (int)LayerHelper.Layer.Chess;
+
+        // ⭐ 应用装备的宝物效果（词条、基础属性等）
+        TreasureEquipmentManager.Instance.ApplyPlayerEquippedTreasures(attribute, summonChessId);
 
         // 注册召唤师到战斗追踪系统
         CombatEntityTracker.Instance?.RegisterSummoner(summonerProxy);

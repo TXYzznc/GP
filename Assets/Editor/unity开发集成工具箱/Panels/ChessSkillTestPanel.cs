@@ -100,7 +100,7 @@ public class ChessSkillTestPanel : IToolHubPanel
             PenetrationCount = config.PenetrationCount;
             ProjectileSpeed = config.ProjectileSpeed;
             EffectSpawnHeight = config.EffectSpawnHeight;
-            Desc = config.Desc;
+            Desc = config.EffectText;
 
             // 加载Buff列表
             BuffIds.Clear();
