@@ -121,6 +121,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
     {
         if (m_SourceSlot == null)
         {
+            DebugEx.Warning(nameof(InventoryDragHandler), "[OnEndDrag] m_SourceSlot 为 null");
             CleanupDrag();
             return;
         }
@@ -135,10 +136,20 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         // 原有逻辑：拖放到 UI 格子
         var targetSlot = GetTargetSlot(eventData.position);
+        DebugEx.Log(nameof(InventoryDragHandler), $"[OnEndDrag] 寻找目标格子 鼠标位置={eventData.position} 找到={targetSlot != null}");
+
         if (targetSlot != null && targetSlot != m_SourceSlot)
         {
             DebugEx.Log(nameof(InventoryDragHandler), $"[OnEndDrag] 执行拖放 源={m_SourceSlot.ContainerType}/{m_SourceSlot.SlotIndex} → 目标={targetSlot.ContainerType}/{targetSlot.SlotIndex}");
             HandleDrop(m_SourceSlot, targetSlot);
+        }
+        else if (targetSlot == null)
+        {
+            DebugEx.Warning(nameof(InventoryDragHandler), $"[OnEndDrag] 未找到目标格子 位置={eventData.position}");
+        }
+        else if (targetSlot == m_SourceSlot)
+        {
+            DebugEx.Log(nameof(InventoryDragHandler), "[OnEndDrag] 目标格子与源格子相同，取消拖放");
         }
 
         CleanupDrag();
@@ -358,6 +369,12 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             results
         );
 
+        DebugEx.Log(nameof(InventoryDragHandler), $"[GetTargetSlot] RaycastAll 找到 {results.Count} 个物体 位置={position}");
+        for (int i = 0; i < results.Count; i++)
+        {
+            DebugEx.Log(nameof(InventoryDragHandler), $"  [{i}] {results[i].gameObject.name} ({results[i].gameObject.GetType().Name})");
+        }
+
         foreach (var r in results)
         {
             var slot = r.gameObject.GetComponent<InventorySlotUI>();
@@ -368,6 +385,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             }
         }
 
+        DebugEx.Warning(nameof(InventoryDragHandler), "[GetTargetSlot] 没有找到任何 InventorySlotUI");
         return null;
     }
 

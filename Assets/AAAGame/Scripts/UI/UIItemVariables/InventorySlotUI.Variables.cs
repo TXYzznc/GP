@@ -4,12 +4,15 @@
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public partial class InventorySlotUI
 {
 	[Space(10)]
 	[Header("UI Variables:")]
 	[SerializeField] private Image varBg = null;
-	[SerializeField] private GameObject varInventoryItemUI = null;
 	[SerializeField] private GameObject varLock = null;
 	[SerializeField] private Image varHighLightImg = null;
+	[SerializeField] private GameObject varInventoryItemUI = null;
+	[SerializeField] private GameObject varTreasureItemUI = null;
+	[SerializeField] private TextMeshProUGUI varLockText = null;
 }

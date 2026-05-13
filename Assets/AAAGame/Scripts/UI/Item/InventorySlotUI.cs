@@ -5,14 +5,16 @@ using Cysharp.Threading.Tasks;
 
 /// <summary>
 /// 背包/仓库格子UI
-/// 只负责格子容器（背景槽位），InventoryItemUI 已作为子对象预置在 varInventoryItemUI 下
-/// 关键：这个格子知道自己属于哪个容器（业务逻辑上），通过 m_Container 引用
+/// 只负责格子容器（背景槽位），InventoryItemUI 通过延迟加载实现
+/// 有物品时异步加载，无物品时隐藏（不销毁）
 /// </summary>
 public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointerExitHandler
 {
     /// <summary>缓存的 InventoryItemUI 组件</summary>
     private InventoryItemUI m_ItemUI;
 
+    /// <summary>InventoryItemUI 是否已实例化</summary>
+    private bool m_IsItemUILoaded = false;
 
     /// <summary>格子索引</summary>
     public int SlotIndex { get; private set; }
@@ -29,18 +31,8 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     protected override void OnInit()
     {
         base.OnInit();
-
-        // 动态查找子对象中的 InventoryItemUI（支持动态生成的格子）
-        m_ItemUI = GetComponentInChildren<InventoryItemUI>();
-
-        if (m_ItemUI == null)
-        {
-            DebugEx.Warning(
-                this.GetType().Name,
-                $"格子 {gameObject.name} 找不到 InventoryItemUI 子组件！"
-                    + $"请检查预制体层级：InventorySlotUI > InventoryItemUI"
-            );
-        }
+        m_ItemUI = null;
+        m_IsItemUILoaded = false;
     }
 
     public void SetSlotIndex(int index)
@@ -104,16 +96,28 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     public InventoryItemUI GetItemUI() => m_ItemUI;
 
     /// <summary>
-    /// 设置格子数据（纯展示，不管理事件订阅）
+    /// 设置格子数据（延迟加载 InventoryItemUI）
+    /// 有物品时：加载并显示 ItemUI
+    /// 无物品时：隐藏 ItemUI（不销毁，复用）
     /// </summary>
     public void SetData(ItemStack itemStack)
     {
-        var itemUI = GetItemUI();
+        // 1. 判断是否需要加载 InventoryItemUI
+        if (itemStack != null && !itemStack.IsEmpty && !m_IsItemUILoaded)
+        {
+            LoadItemUISync();
+        }
+
+        // 2. 获取 ItemUI
+        var itemUI = m_ItemUI;
         if (itemUI == null)
             return;
 
+        // 3. 设置数据并控制显隐
         itemUI.SetData(itemStack);
+        itemUI.gameObject.SetActive(!itemStack.IsEmpty);
 
+        // 4. 更新稀有度
         int quality = 0;
         if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
             quality = (int)itemStack.Item.Rarity;
@@ -124,6 +128,58 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// 清理（保留接口兼容性，不再有实际订阅需要清理）
     /// </summary>
     public void ClearItemQuantitySubscription() { }
+
+    /// <summary>
+    /// 加载 InventoryItemUI（异步）
+    /// </summary>
+    private void LoadItemUISync()
+    {
+        if (m_IsItemUILoaded || m_ItemUI != null)
+            return;
+
+        LoadItemUIAsync().Forget();
+    }
+
+    /// <summary>
+    /// 异步加载 InventoryItemUI 预制体并实例化
+    /// </summary>
+    private async UniTaskVoid LoadItemUIAsync()
+    {
+        if (m_IsItemUILoaded || m_ItemUI != null)
+            return;
+
+        if (varInventoryItemUI == null)
+        {
+            DebugEx.Error(this.GetType().Name, "InventoryItemUI 预制体未设置");
+            return;
+        }
+
+        DebugEx.Log(this.GetType().Name, $"→ 加载 InventoryItemUI");
+
+        // 下一帧再加载，避免同一帧实例化太多对象
+        await UniTask.Yield();
+
+        if (!gameObject.activeInHierarchy)
+        {
+            DebugEx.Warning(this.GetType().Name, "格子已销毁，取消加载");
+            return;
+        }
+
+        // 实例化预制体为子对象
+        GameObject instance = Instantiate(varInventoryItemUI, transform);
+        instance.name = "InventoryItemUI";
+
+        m_ItemUI = instance.GetComponent<InventoryItemUI>();
+        if (m_ItemUI == null)
+        {
+            DebugEx.Error(this.GetType().Name, "InventoryItemUI 预制体缺少组件");
+            Destroy(instance);
+            return;
+        }
+
+        m_IsItemUILoaded = true;
+        DebugEx.Log(this.GetType().Name, $"✓ InventoryItemUI 加载完成");
+    }
 
     #region 鼠标交互
 
@@ -323,6 +379,33 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             this.GetType().Name,
             "[ShowContextMenu] 无法获取 InventoryUI、WarehouseUI 或 TreasureBoxUI"
         );
+    }
+
+    #endregion
+
+    #region 公共方法 - 用于设置宝物显示
+
+    /// <summary>
+    /// 获取宝物物品UI容器GameObject
+    /// </summary>
+    public GameObject GetTreasureItemUIContainer() => varTreasureItemUI;
+
+    /// <summary>
+    /// 显示或隐藏格子锁定状态
+    /// </summary>
+    public void SetLockVisible(bool visible)
+    {
+        if (varLock != null)
+            varLock.SetActive(visible);
+    }
+
+    /// <summary>
+    /// 设置锁定文本内容
+    /// </summary>
+    public void SetLockText(string text)
+    {
+        if (varLockText != null)
+            varLockText.text = text;
     }
 
     #endregion

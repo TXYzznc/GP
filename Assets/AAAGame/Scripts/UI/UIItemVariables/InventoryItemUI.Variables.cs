@@ -4,10 +4,13 @@
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public partial class InventoryItemUI
 {
 	[Space(10)]
 	[Header("UI Variables:")]
 	[SerializeField] private Image varItemImg = null;
 	[SerializeField] private Text varCountText = null;
+	[SerializeField] private TextMeshProUGUI varNameText = null;
+	[SerializeField] private RectTransform varNameBg = null;
 }
