@@ -14,7 +14,7 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
     private List<FunctionItem> m_FunctionItems = new List<FunctionItem>();
 
     // 功能按钮名称（商店和挑战暂时隐藏）
-    private readonly string[] m_FunctionNames = new string[] { "图鉴", "仓库", "出战预设" };
+    private readonly string[] m_FunctionNames = new string[] { "角色", "图鉴", "仓库", "出战预设" };
 
     #endregion
 
@@ -129,6 +129,9 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
         switch (functionName)
         {
+            case "角色":
+                GF.UI.OpenUIForm(UIViews.CharacterBagUI);
+                break;
             case "图鉴":
                 GF.UI.OpenUIForm(UIViews.DictionariesUI);
                 break;
