@@ -192,6 +192,15 @@ public partial class SettlementUIForm : StateAwareUIForm
     private void OnCloseButtonClicked()
     {
         DebugEx.Log("SettlementUIForm", "用户点击关闭按钮");
+
+        // ⭐ 在离开局内前，将背包中的所有宝物保存到存档
+        var playerDataManager = PlayerAccountDataManager.Instance;
+        if (playerDataManager != null)
+        {
+            playerDataManager.SaveTreasuresFromInventory();
+            DebugEx.Log("SettlementUIForm", "已保存背包中的宝物到存档");
+        }
+
         CloseWithAnimation();
     }
 

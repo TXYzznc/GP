@@ -1237,6 +1237,73 @@ public class PlayerAccountDataManager
         return (int)((timestamp / 100000) % int.MaxValue) ^ randomPart;
     }
 
+    /// <summary>
+    /// 离开局内时调用：将背包中的所有宝物转换并保存到存档
+    /// 流程：InventoryManager 的 TreasureItem → CurrentSaveData.Treasures
+    /// </summary>
+    public void SaveTreasuresFromInventory()
+    {
+        if (m_CurrentSaveData == null)
+        {
+            DebugEx.Error(nameof(PlayerAccountDataManager), "当前存档为空，无法保存宝物");
+            return;
+        }
+
+        try
+        {
+            // 1. 获取背包中所有 Treasure 类型物品
+            var inventoryManager = InventoryManager.Instance;
+            if (inventoryManager == null)
+            {
+                DebugEx.Warning(nameof(PlayerAccountDataManager), "InventoryManager 不存在，无法读取背包宝物");
+                return;
+            }
+
+            var treasureItems = new List<TreasureItem>();
+            var allItems = inventoryManager.GetAllItems();
+            foreach (var item in allItems)
+            {
+                if (item is TreasureItem treasureItem)
+                {
+                    treasureItems.Add(treasureItem);
+                }
+            }
+
+            DebugEx.Log(nameof(PlayerAccountDataManager),
+                $"背包中发现 {treasureItems.Count} 件宝物，准备保存到存档");
+
+            // 2. 清空存档中的旧宝物数据
+            m_CurrentSaveData.Treasures.Clear();
+            m_CurrentSaveData.ChessTreasureSlots.Clear();
+
+            // 3. 将背包物品转换为持久化数据并保存
+            int savedCount = 0;
+            foreach (var treasure in treasureItems)
+            {
+                var instanceData = ItemManager.Instance.CreateTreasureInstanceData(treasure, GenerateUniqueInstanceId());
+                if (instanceData != null)
+                {
+                    instanceData.Location = TreasureLocation.Inventory; // 从背包来的宝物标记为背包位置
+                    m_CurrentSaveData.Treasures.Add(instanceData);
+                    savedCount++;
+
+                    DebugEx.Log(nameof(PlayerAccountDataManager),
+                        $"已保存宝物: {treasure.Name} (词条数:{instanceData.Affixes.Count})");
+                }
+            }
+
+            DebugEx.Success(nameof(PlayerAccountDataManager),
+                $"✅ 已将 {savedCount} 件宝物从背包保存到存档");
+
+            // 4. 保存存档到文件
+            SaveCurrentSave();
+        }
+        catch (System.Exception ex)
+        {
+            DebugEx.Error(nameof(PlayerAccountDataManager), $"保存背包宝物失败: {ex.Message}");
+        }
+    }
+
     public void EquipTreasure(int instanceId, int chessId)
     {
         var saveData = CurrentSaveData;
