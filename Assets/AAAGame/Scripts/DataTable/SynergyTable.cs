@@ -38,15 +38,6 @@ public partial class SynergyTable : DataRowBase
         }
 
         /// <summary>
-        /// 羁绊类型
-        /// </summary>
-        public int Type
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 羁绊描述
         /// </summary>
         public string Description
@@ -74,18 +65,18 @@ public partial class SynergyTable : DataRowBase
         }
 
         /// <summary>
-        /// 需要的物品ID列表
+        /// 羁绊效果ID
         /// </summary>
-        public int[] RequireIds
+        public int EffectId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// 羁绊效果ID
+        /// 应用范围
         /// </summary>
-        public int EffectId
+        public int ApplyScope
         {
             get;
             private set;
@@ -113,12 +104,11 @@ public partial class SynergyTable : DataRowBase
             m_Id = int.Parse(columnStrings[index++]);
             index++;
             Name = columnStrings[index++];
-            Type = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
             IsTreasureSynergy = int.Parse(columnStrings[index++]);
             RequireCount = int.Parse(columnStrings[index++]);
-            RequireIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             EffectId = int.Parse(columnStrings[index++]);
+            ApplyScope = int.Parse(columnStrings[index++]);
             IconId = int.Parse(columnStrings[index++]);
 
             return true;
@@ -132,12 +122,11 @@ public partial class SynergyTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
-                    Type = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
                     IsTreasureSynergy = binaryReader.Read7BitEncodedInt32();
                     RequireCount = binaryReader.Read7BitEncodedInt32();
-                    RequireIds = binaryReader.ReadArray<int>();
                     EffectId = binaryReader.Read7BitEncodedInt32();
+                    ApplyScope = binaryReader.Read7BitEncodedInt32();
                     IconId = binaryReader.Read7BitEncodedInt32();
                 }
             }

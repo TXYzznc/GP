@@ -175,6 +175,23 @@ public class SynergyManager : SingletonBase<SynergyManager>
 
     #endregion
 
+    #region 工具方法
+
+    /// <summary>
+    /// 获取棋子携带的所有羁绊ID（Races + Classes 合并）
+    /// </summary>
+    private List<int> GetChessAllSynergyIds(ChessEntity chess)
+    {
+        var ids = new List<int>();
+        if (chess.Config.Races != null)
+            ids.AddRange(chess.Config.Races);
+        if (chess.Config.Classes != null)
+            ids.AddRange(chess.Config.Classes);
+        return ids;
+    }
+
+    #endregion
+
     #region 棋子羁绊检测
 
     /// <summary>
@@ -188,33 +205,20 @@ public class SynergyManager : SingletonBase<SynergyManager>
 
         var deployedChesses = GetDeployedChesses();
 
-        // 统计每个种族/职业的出战棋子数量
-        var raceCount = new Dictionary<int, int>();
-        var classCount = new Dictionary<int, int>();
+        // 统计每个羁绊ID的出战棋子数量（Races + Classes 合并）
+        var synergyCount = new Dictionary<int, int>();
 
         foreach (var chess in deployedChesses)
         {
             if (chess == null || chess.Config == null)
                 continue;
 
-            if (chess.Config.Races != null)
+            var allSynergyIds = GetChessAllSynergyIds(chess);
+            foreach (int id in allSynergyIds)
             {
-                foreach (int race in chess.Config.Races)
-                {
-                    if (!raceCount.ContainsKey(race))
-                        raceCount[race] = 0;
-                    raceCount[race]++;
-                }
-            }
-
-            if (chess.Config.Classes != null)
-            {
-                foreach (int cls in chess.Config.Classes)
-                {
-                    if (!classCount.ContainsKey(cls))
-                        classCount[cls] = 0;
-                    classCount[cls]++;
-                }
+                if (!synergyCount.ContainsKey(id))
+                    synergyCount[id] = 0;
+                synergyCount[id]++;
             }
         }
 
@@ -230,7 +234,7 @@ public class SynergyManager : SingletonBase<SynergyManager>
             if (synergyRow.IsTreasureSynergy != 0)
                 continue;
 
-            bool isSatisfied = CheckChessSynergyCondition(synergyRow, raceCount, classCount);
+            bool isSatisfied = CheckChessSynergyCondition(synergyRow, synergyCount);
             bool wasPreviouslyActive = previousActiveSynergies.Contains(synergyRow.Id);
             var synergyTargets = GetSynergyTargets(synergyRow, deployedChesses);
 
@@ -261,59 +265,43 @@ public class SynergyManager : SingletonBase<SynergyManager>
 
     /// <summary>
     /// 检查棋子羁绊条件是否满足
-    /// Type=1（种族）: RequireIds 中的种族ID在场上棋子数量 >= RequireCount
-    /// Type=3（职业）: RequireIds 中的职业ID在场上棋子数量 >= RequireCount
+    /// 检查该羁绊ID在场上的计数是否 >= RequireCount
     /// </summary>
-    private bool CheckChessSynergyCondition(SynergyTable synergyRow, Dictionary<int, int> raceCount, Dictionary<int, int> classCount)
+    private bool CheckChessSynergyCondition(SynergyTable synergyRow, Dictionary<int, int> synergyCount)
     {
-        if (synergyRow.RequireIds == null || synergyRow.RequireIds.Length == 0)
-            return false;
-
-        foreach (int requireId in synergyRow.RequireIds)
-        {
-            var countDict = synergyRow.Type == 1 ? raceCount : classCount;
-            if (countDict.TryGetValue(requireId, out int count) && count >= synergyRow.RequireCount)
-                return true;
-        }
-
-        return false;
+        return synergyCount.TryGetValue(synergyRow.Id, out int count) && count >= synergyRow.RequireCount;
     }
 
     /// <summary>
     /// 获取该羁绊应该作用的目标棋子
-    /// 只返回拥有对应种族/职业的棋子
+    /// ApplyScope=0: 全体出战棋子
+    /// ApplyScope=1: 仅携带该羁绊ID的棋子
     /// </summary>
     private List<GameObject> GetSynergyTargets(SynergyTable synergyRow, List<ChessEntity> deployedChesses)
     {
         var targets = new List<GameObject>();
-        if (synergyRow.RequireIds == null || synergyRow.RequireIds.Length == 0)
-            return targets;
 
-        var requireIdSet = new HashSet<int>(synergyRow.RequireIds);
-
-        foreach (var chess in deployedChesses)
+        if (synergyRow.ApplyScope == 0)
         {
-            if (chess == null || chess.Config == null)
-                continue;
-
-            bool matches = false;
-            if (synergyRow.Type == 1 && chess.Config.Races != null)
+            // 应用于全体出战棋子
+            foreach (var chess in deployedChesses)
             {
-                foreach (int race in chess.Config.Races)
-                {
-                    if (requireIdSet.Contains(race)) { matches = true; break; }
-                }
+                if (chess != null)
+                    targets.Add(chess.gameObject);
             }
-            else if (synergyRow.Type == 3 && chess.Config.Classes != null)
+        }
+        else
+        {
+            // 应用于仅携带该羁绊的棋子
+            foreach (var chess in deployedChesses)
             {
-                foreach (int cls in chess.Config.Classes)
-                {
-                    if (requireIdSet.Contains(cls)) { matches = true; break; }
-                }
-            }
+                if (chess == null || chess.Config == null)
+                    continue;
 
-            if (matches)
-                targets.Add(chess.gameObject);
+                var allSynergyIds = GetChessAllSynergyIds(chess);
+                if (allSynergyIds.Contains(synergyRow.Id))
+                    targets.Add(chess.gameObject);
+            }
         }
 
         return targets;

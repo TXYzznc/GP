@@ -5,19 +5,11 @@
 /// </summary>
 public partial class SynergyTable
 {
-    #region 辅助属性
-    
     /// <summary>
-    /// 获取需求ID列表（转换为List）
+    /// 获取羁绊类型（由 IsTreasureSynergy 字段驱动）
     /// </summary>
-    public List<int> GetRequireIdList()
+    public SynergyType GetSynergyType()
     {
-        if (RequireIds == null || RequireIds.Length == 0)
-        {
-            return new List<int>();
-        }
-        return new List<int>(RequireIds);
+        return IsTreasureSynergy == 1 ? SynergyType.Treasure : SynergyType.Chess;
     }
-    
-    #endregion
 }
