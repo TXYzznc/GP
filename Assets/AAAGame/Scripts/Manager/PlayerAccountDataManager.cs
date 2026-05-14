@@ -1260,11 +1260,12 @@ public class PlayerAccountDataManager
             }
 
             var treasureItems = new List<TreasureItem>();
-            var allItems = inventoryManager.GetAllItems();
-            foreach (var item in allItems)
+            var allSlots = inventoryManager.GetAllSlots();
+            foreach (var slot in allSlots)
             {
-                if (item is TreasureItem treasureItem)
+                if (slot?.ItemStack?.Item is TreasureItem treasureItem)
                 {
+                    // 注意：可能有多个槽位包含同一个宝物，或者一个槽位有多件堆叠的宝物
                     treasureItems.Add(treasureItem);
                 }
             }
