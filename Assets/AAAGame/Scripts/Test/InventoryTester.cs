@@ -15,12 +15,16 @@ public class InventoryTester : MonoBehaviour
 
     [Header("测试配置")]
     [SerializeField]
-    [Tooltip("每次添加的数量")]
-    private int m_TestAddCount = 5;
+    [Tooltip("每次添加物品的种类数（每种物品添加的个数在下面配置）")]
+    private int m_TestAddCount = 4;
+
+    [SerializeField]
+    [Tooltip("每种物品的添加数量")]
+    private int m_TestItemQuantity = 1;
 
     [SerializeField]
     [Tooltip("每次移除的数量")]
-    private int m_TestRemoveCount = 3;
+    private int m_TestRemoveCount = 2;
 
     [Header("运行时信息（只读）")]
     [Tooltip("可堆叠物品ID列表（从配置表读取）")]
@@ -216,25 +220,27 @@ public class InventoryTester : MonoBehaviour
             return;
         }
 
-        DebugEx.Log(nameof(InventoryTester), "随机添加物品...");
+        DebugEx.Log(nameof(InventoryTester), $"随机添加物品（{m_TestAddCount} 种）...");
 
-        // 随机添加 5-10 种物品
-        int itemTypesToAdd = Random.Range(5, Mathf.Min(11, allItemIds.Count + 1));
+        // 随机选择 m_TestAddCount 种物品
         var selectedItems = new List<int>();
+        int itemTypesToAdd = Mathf.Min(m_TestAddCount, allItemIds.Count);
 
-        // 随机选择不同的物品
-        for (int i = 0; i < itemTypesToAdd; i++)
+        // 随机选择不同的物品（避免重复）
+        var tempIds = new List<int>(allItemIds);
+        for (int i = 0; i < itemTypesToAdd && tempIds.Count > 0; i++)
         {
-            int randomIdx = Random.Range(0, allItemIds.Count);
-            selectedItems.Add(allItemIds[randomIdx]);
+            int randomIdx = Random.Range(0, tempIds.Count);
+            selectedItems.Add(tempIds[randomIdx]);
+            tempIds.RemoveAt(randomIdx);
         }
 
         // 添加选中的物品
         foreach (int itemId in selectedItems)
         {
-            // 判断是否可堆叠，随机确定数量
+            // 判断是否可堆叠，确定数量
             bool isStackable = m_StackableItemIds.Contains(itemId);
-            int addCount = isStackable ? Random.Range(1, m_TestAddCount + 1) : 1;
+            int addCount = isStackable ? m_TestItemQuantity : 1;
 
             bool success = InventoryManager.Instance.AddItem(itemId, addCount);
             var itemData = ItemManager.Instance?.GetItemData(itemId);
