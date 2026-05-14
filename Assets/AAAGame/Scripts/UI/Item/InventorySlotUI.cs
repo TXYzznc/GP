@@ -16,6 +16,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// <summary>InventoryItemUI 是否已实例化</summary>
     private bool m_IsItemUILoaded = false;
 
+    /// <summary>待设置的物品数据（等待异步加载完成后设置）</summary>
+    private ItemStack m_PendingItemStack;
+
     /// <summary>格子索引</summary>
     public int SlotIndex { get; private set; }
 
@@ -33,6 +36,12 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         base.OnInit();
         m_ItemUI = null;
         m_IsItemUILoaded = false;
+
+        // 为 TreasureItemUI 也设置大小和分层
+        if (varTreasureItemUI != null)
+        {
+            SetupChildUITransform(varTreasureItemUI);
+        }
     }
 
     public void SetSlotIndex(int index)
@@ -102,26 +111,63 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// </summary>
     public void SetData(ItemStack itemStack)
     {
+        // 暂存数据（可能需要异步加载后才能设置）
+        m_PendingItemStack = itemStack;
+
         // 1. 判断是否需要加载 InventoryItemUI
         if (itemStack != null && !itemStack.IsEmpty && !m_IsItemUILoaded)
         {
             LoadItemUISync();
+            return;  // 异步加载完成后会设置数据，这里先返回
         }
 
-        // 2. 获取 ItemUI
+        // 2. 如果已经加载完成或无物品，立即设置数据
+        ApplyItemData(itemStack);
+    }
+
+    /// <summary>
+    /// 应用物品数据到 ItemUI（确保加载完成后调用）
+    /// </summary>
+    private void ApplyItemData(ItemStack itemStack)
+    {
         var itemUI = m_ItemUI;
         if (itemUI == null)
             return;
 
-        // 3. 设置数据并控制显隐
         itemUI.SetData(itemStack);
-        itemUI.gameObject.SetActive(!itemStack.IsEmpty);
+        itemUI.gameObject.SetActive(itemStack != null && !itemStack.IsEmpty);
 
-        // 4. 更新稀有度
+        // 更新稀有度
         int quality = 0;
         if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
             quality = (int)itemStack.Item.Rarity;
         SetRarity(quality);
+    }
+
+    /// <summary>
+    /// 设置子 UI（如 InventoryItemUI、TreasureItemUI）的大小和分层
+    /// 确保子 UI 铺满整个槽位，且 varLock 始终在最上层
+    /// </summary>
+    public void SetupChildUITransform(GameObject childUI)
+    {
+        if (childUI == null)
+            return;
+
+        // 设置大小为与 InventorySlotUI 一致（铺满整个槽位）
+        var childRect = childUI.GetComponent<RectTransform>();
+        if (childRect != null)
+        {
+            childRect.anchorMin = Vector2.zero;
+            childRect.anchorMax = Vector2.one;
+            childRect.offsetMin = Vector2.zero;
+            childRect.offsetMax = Vector2.zero;
+        }
+
+        // 确保 varLock 始终在最上层（最后面）
+        if (varLock != null)
+        {
+            varLock.transform.SetAsLastSibling();
+        }
     }
 
     /// <summary>
@@ -177,8 +223,14 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             return;
         }
 
+        // 设置子 UI 的大小和分层
+        SetupChildUITransform(instance);
+
         m_IsItemUILoaded = true;
         DebugEx.Log(this.GetType().Name, $"✓ InventoryItemUI 加载完成");
+
+        // 加载完成后，应用待设置的数据
+        ApplyItemData(m_PendingItemStack);
     }
 
     #region 鼠标交互

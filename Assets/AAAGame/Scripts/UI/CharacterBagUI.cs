@@ -35,11 +35,49 @@ public partial class CharacterBagUI : UIFormBase
         m_DtSummonChess = GF.DataTable.GetDataTable<SummonChessTable>();
         m_DtSkill = GF.DataTable.GetDataTable<SummonChessSkillTable>();
 
+        // 重置默认显示状态
+        m_IsShowingChessList = true;     // 左侧默认显示角色栏
+        m_CurrentTabIndex = 0;           // 右侧默认显示StateUI
+        m_CurrentLevelStage = 0;         // 默认显示一阶数据
+        m_CurrentSelectedChessId = -1;   // 重置选中角色（等待列表加载后自动选择第一个）
+
         // 注册事件
         RegisterEvents();
 
+        // 初始化UI显示状态
+        InitializeUIAppearance();
+
         // 初始化 UI
         LoadChessListAsync().Forget();
+
+        // 请求解锁鼠标（通过引用计数管理）
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.RequestMouseUnlock();
+    }
+
+    /// <summary>
+    /// 初始化UI外观显示（默认状态）
+    /// </summary>
+    private void InitializeUIAppearance()
+    {
+        // 左侧默认显示角色栏（不显示宝物仓库）
+        if (varChessContent != null)
+            varChessContent.gameObject.SetActive(true);
+        if (varTreasureContent != null)
+            varTreasureContent.gameObject.SetActive(false);
+
+        // 中间默认显示模型（不显示立绘）
+        if (varNormalImage != null)
+            varNormalImage.gameObject.SetActive(false);
+        if (varOccupationImage != null)
+            varOccupationImage.gameObject.SetActive(true);
+
+        // 右侧默认显示StateUI（标签页0）
+        if (varStateUI != null) varStateUI.gameObject.SetActive(true);
+        if (varTreasureUI != null) varTreasureUI.gameObject.SetActive(false);
+        if (varLevelUpUI != null) varLevelUpUI.gameObject.SetActive(false);
+        if (varStoryUI != null) varStoryUI.gameObject.SetActive(false);
     }
 
     private void RegisterEvents()
@@ -218,7 +256,56 @@ public partial class CharacterBagUI : UIFormBase
         // 更新阶段按钮高亮
         UpdateLevelButtonHighlight();
 
+        // ⭐ 切换角色时，默认选中第一个技能（Passive）
+        SelectDefaultSkill();
+
+        // ⭐ 更新中间显示（刷新立绘/模型）
+        UpdateMiddleDisplay();
+
         DebugEx.Log(nameof(CharacterBagUI), $"选中棋子 {chessId}");
+    }
+
+    /// <summary>
+    /// 选中默认技能（Passive - 第一个）并显示其描述
+    /// </summary>
+    private void SelectDefaultSkill()
+    {
+        if (m_CurrentSelectedChessId <= 0)
+            return;
+
+        SummonChessTable chessRow = m_DtSummonChess.GetDataRow(m_CurrentSelectedChessId);
+        if (chessRow == null)
+            return;
+
+        // 获取Passive技能ID（第一个技能）
+        int passiveSkillId = chessRow.PassiveIds != null && chessRow.PassiveIds.Length > 0
+            ? chessRow.PassiveIds[0]
+            : 0;
+
+        if (passiveSkillId <= 0)
+            return;
+
+        SummonChessSkillTable skillRow = m_DtSkill.GetDataRow(passiveSkillId);
+        if (skillRow == null)
+            return;
+
+        // 更新技能描述显示
+        if (varSkillEffectText != null)
+            varSkillEffectText.text = skillRow.EffectText;
+
+        if (varSkillDescText != null)
+            varSkillDescText.text = skillRow.DescText ?? skillRow.EffectText;
+
+        DebugEx.Log(nameof(CharacterBagUI), $"默认选中技能 {passiveSkillId}: {skillRow.Name}");
+    }
+
+    /// <summary>
+    /// 更新中间显示内容（刷新立绘/模型及宝物槽）
+    /// </summary>
+    private void UpdateMiddleDisplay()
+    {
+        // 刷新宝物装备槽显示
+        UpdateTreasureSlots();
     }
 
     private void UpdateAllTabs()
@@ -232,8 +319,8 @@ public partial class CharacterBagUI : UIFormBase
 
         UpdateStateTab(chessRow);
         UpdateTreasureTab();
-        UpdateLevelUpTab(chessRow, 1);
-        UpdateStoryTab(chessRow, 1);
+        UpdateLevelUpTab(chessRow, 0);  // 默认显示第一阶段（一阶）数据
+        UpdateStoryTab(chessRow, 0);    // 默认显示第一阶段的故事
     }
 
     private void UpdateStateTab(SummonChessTable chessRow)
@@ -727,8 +814,6 @@ public partial class CharacterBagUI : UIFormBase
 
     protected override void OnClose(bool isShutdown, object userData)
     {
-        base.OnClose(isShutdown, userData);
-
         // 清理棋子卡片池
         foreach (var item in m_ChessItemPool)
         {
@@ -744,6 +829,13 @@ public partial class CharacterBagUI : UIFormBase
                 Destroy(item.gameObject);
         }
         m_TreasureSlotPool.Clear();
+
+        // 请求锁定鼠标（通过引用计数管理）
+        var input = PlayerInputManager.Instance;
+        if (input != null)
+            input.RequestMouseLock();
+
+        base.OnClose(isShutdown, userData);
     }
 
     #region 辅助类型
