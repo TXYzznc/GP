@@ -608,10 +608,10 @@ public class ItemManager : SingletonBase<ItemManager>
         {
             Id = row.Id,
             Name = row.Name,
-            Type = (SynergyType)row.Type,
+            Type = row.GetSynergyType(),
             Description = row.Description,
             RequireCount = row.RequireCount,
-            RequireIds = row.GetRequireIdList(),
+            RequireIds = new List<int>(), // 宝物羁绊需要特殊处理，暂时留空
             EffectId = row.EffectId,
         };
 

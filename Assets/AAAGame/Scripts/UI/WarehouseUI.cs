@@ -126,17 +126,23 @@ public partial class WarehouseUI : UIFormBase
     /// </summary>
     private void BuildSlots()
     {
+        DebugEx.Log("WarehouseUI", "→ BuildSlots 开始");
+
         if (varContent == null)
         {
-            DebugEx.Error("WarehouseUI", "varContent 未设置");
+            DebugEx.Error("WarehouseUI", "❌ varContent 未设置（需要在 Prefab 中配置 GridLayoutGroup）");
             return;
         }
 
+        DebugEx.Log("WarehouseUI", "✓ varContent 已设置");
+
         if (varInventorySlotUI == null)
         {
-            DebugEx.Error("WarehouseUI", "varInventorySlotUI 预制体未设置，无法生成格子");
+            DebugEx.Error("WarehouseUI", "❌ varInventorySlotUI 预制体未设置（需要在 Prefab 中拖入 InventorySlotUI 预制体）");
             return;
         }
+
+        DebugEx.Log("WarehouseUI", "✓ varInventorySlotUI 已设置");
 
         int capacity = m_WarehouseManager?.WarehouseCapacity ?? 50;
 

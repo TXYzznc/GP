@@ -94,12 +94,12 @@ public enum ValueType
 #region 羁绊类型枚举
 
 /// <summary>
-/// 羁绊类型
+/// 羁绊类型（由 SynergyTable.IsTreasureSynergy 字段决定）
 /// </summary>
 public enum SynergyType
 {
-    Chess = 1, // 棋子羁绊
-    Treasure = 2, // 宝物羁绊
+    Chess = 1,    // 棋子羁绊（战斗界面显示）
+    Treasure = 2  // 宝物羁绊（仅装备者，不在界面显示）
 }
 
 #endregion
