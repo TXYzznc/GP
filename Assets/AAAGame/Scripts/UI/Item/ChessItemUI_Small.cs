@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 using GameExtension;
 using Cysharp.Threading.Tasks;
@@ -7,7 +8,7 @@ using Cysharp.Threading.Tasks;
 /// <summary>
 /// 棋子小卡片 - 在 CharacterBagUI 的列表中显示
 /// </summary>
-public partial class ChessItemUI_Small : UIItemBase
+public partial class ChessItemUI_Small : UIItemBase, IPointerClickHandler
 {
     public delegate void OnChessSelectedDelegate(int chessId);
     public event OnChessSelectedDelegate OnChessSelected;
@@ -22,6 +23,11 @@ public partial class ChessItemUI_Small : UIItemBase
             DebugEx.Error(nameof(ChessItemUI_Small), "ChessItemUI_Small 缺少 UI 元素引用");
             return;
         }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        OnCardSelected();
     }
 
     public void InitChess(int chessId, SummonChessConfig config)

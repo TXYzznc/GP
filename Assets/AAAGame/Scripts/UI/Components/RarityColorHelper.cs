@@ -8,7 +8,7 @@ using GameFramework;
 public static class RarityColorHelper
 {
     // 默认格子底色（无物品时）
-    public static readonly Color DefaultBg = new Color(0.15f, 0.15f, 0.15f, 1f);
+    public static readonly Color DefaultBg = Color.white;
 
     // 缓存的颜色数据（避免频繁查表）
     private static readonly System.Collections.Generic.Dictionary<int, Color> s_ColorCache = 
