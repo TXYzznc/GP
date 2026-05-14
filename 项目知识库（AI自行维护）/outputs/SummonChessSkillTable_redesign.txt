@@ -1,0 +1,127 @@
+# 技能文本重新设计方案 (2026-05-14)
+# 所有技能的 EffectText 和 DescText 新内容
+
+## 后羿 (Hou Yi) - 4 skills
+
+ID 11 | 日落长弓 | 被动
+EffectText: 白天伤害提高15%，射程增加30点
+DescText: 逐日之弓，拯救苍生
+
+ID 12 | 后羿普攻 | 普攻
+EffectText: 造成物理伤害
+DescText: 落日长弓射出箭矢
+
+ID 13 | 神力 | 主动技能
+EffectText: 普攻附带灼烧伤害，攻击力提高25%
+DescText: 神灵之力显现
+或选项: 神力绽放
+
+ID 14 | 日陨 | 大招
+EffectText: 穿透直线范围伤害，命中敌人增加2层灼烧效果
+DescText: 炎日坠落，世界焦灼
+
+---
+
+## 嫦娥 (Chang E) - 4 skills
+
+ID 21 | 九天玄冰 | 被动
+EffectText: 敌人攻击时移速降低30%、攻速降低15%，自身夜间法强+40，攻击附加冻结
+DescText: 广寒仙子，寒宫之力
+
+ID 22 | 嫦娥普攻 | 普攻
+EffectText: 造成魔法伤害，附加冻结效果
+DescText: 月光化为冰晶
+
+ID 23 | 朔月飞轮 | 主动技能
+EffectText: 发射月形冰刃往返伤害，可命中多个敌人
+DescText: 月刃回旋，追寻目标
+
+ID 24 | 月华天倾 | 大招
+EffectText: 引导月光持续5秒，对范围造成多段轰击伤害
+DescText: 月华如潮，倾天而下
+
+---
+
+## 邪灵 (Xie Ling) - 4 skills
+
+ID 31 | 黑暗侵染 | 被动
+EffectText: 30%概率施加恐惧效果（持续2秒）
+DescText: 暗影侵蚀，心智破碎
+
+ID 32 | 邪灵普攻 | 普攻
+EffectText: 造成物理伤害，可施加恐惧
+DescText: 黑暗之爪挥落
+
+ID 33 | 污染斩击 | 主动技能
+EffectText: 扇形范围斩击，持续释放腐蚀伤害，多段打击
+DescText: 腐蚀之刃，生命凋零
+
+ID 34 | 腐蚀法阵 | 大招
+EffectText: 锚定范围释放法阵，敌人进入获得2层腐蚀，停留5秒再加1层，爆炸造成伤害并施加腐蚀
+DescText: 死亡陷阱展开，污染扩散
+
+---
+
+## 恶魂 (E Hun) - 4 skills
+
+ID 41 | 虚无之躯 | 被动
+EffectText: 物理伤害减免30%，魔法伤害无抵抗
+DescText: 虚无之物，难以伤害
+
+ID 42 | 恶魂普攻 | 普攻
+EffectText: 释放黑暗能量球造成魔法伤害，20%概率施加恐惧
+DescText: 邪恶呢喃，心灵破碎
+
+ID 43 | 心灵扭曲 | 主动技能
+EffectText: 范围魔法伤害，使敌人陷入混乱状态（有概率攻击队友）
+DescText: 意志扭曲，理智崩溃
+
+ID 44 | 邪念潮涌 | 大招
+EffectText: 锥形范围伤害，施加混乱，60%概率施加恐惧
+DescText: 邪念如潮，灵魂尖啸
+
+---
+
+## 黑暗杨戬 (Dark Yang Jian) - 5 skills
+
+ID 51 | 黑暗神力 | 被动
+EffectText: 所有攻击附带黑暗腐蚀效果，降低护甲/魔抗各10点，最多5层，持续8秒
+DescText: 堕落之力，黑暗侵染
+
+ID 52 | 黑暗戟横扫 | 普攻
+EffectText: 以黑暗戟横扫造成大量物理伤害，范围较大
+DescText: 戟横如月，黑暗之力
+
+ID 53 | 天威圣戟·黑暗 | 主动技能1
+EffectText: 范围清除护盾
+DescText: 护盾破碎，天威坠落
+
+ID 54 | 三眼天火 | 主动技能2
+EffectText: 直线法术伤害，施加灼烧效果（每秒损失5%最大生命值，持续4秒）
+DescText: 第三眼开启，天火燃烧
+
+ID 55 | 堕落劈山 | 大招
+EffectText: 真实伤害，在地面留下黑暗裂缝（持续5秒），踩入每秒损失3%最大生命值
+DescText: 山河裂陷，末日之刃
+
+---
+
+## 黑暗哮天犬 (Dark Xiao Tian Quan) - 1 skill
+
+ID 56 | 撕咬 | 普攻
+EffectText: 近战物理伤害，附带黑暗流血效果（每0.5秒损失1%最大生命值，持续4秒）
+DescText: 暗犬撕裂，血影之牙
+
+---
+
+## 用户反馈应用
+
+根据用户提供的参考样式调整：
+- DescText 应该更加简洁、有故事感
+- 采用"奋斗"、"誓言"等主题化语言
+
+可选的更精致版本（供用户选择）：
+ID 13 | 神力 | 主动技能
+DescText: 接下来交给我吧！ (可选: 神灵之力显现)
+
+其他技能 DescText 可根据此风格进一步调整。
