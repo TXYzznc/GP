@@ -30,4 +30,4 @@
 	32	宝箱界面	2	TreasureBoxUI	False	1	True
 	33	主地图界面	2	OverworldUI	False	1	True
 	34	结算界面	2	SettlementUIForm	False	3	True
-	35	决赛管理界面	2	CharacterBagUI	False	3	True
+	35	决赛管理界面	2	CharacterBagUI	False	1	True
