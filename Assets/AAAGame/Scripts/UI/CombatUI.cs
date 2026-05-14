@@ -19,6 +19,9 @@ public partial class CombatUI : StateAwareUIForm
     /// <summary>⭐ 新增：当前战斗中的刷新次数</summary>
     private int m_RefreshCount = 0;
 
+    /// <summary>⭐ 新增：羁绊Buff UI 缓存 (synergyId → BuffUI GameObject)</summary>
+    private Dictionary<int, GameObject> m_SynergyBuffUICache = new();
+
     #endregion
 
     #region 事件订阅
@@ -40,6 +43,12 @@ public partial class CombatUI : StateAwareUIForm
         // 订阅敌方棋子详情事件
         EnemyChessDetailManager.OnEnemyChessClicked += OnEnemyChessClickedForDetail;
         EnemyChessDetailManager.OnEnemyChessDeselected += OnEnemyChessDeselectedForDetail;
+
+        // ⭐ 新增：订阅羁绊状态变化事件
+        if (SynergyManager.Instance != null)
+        {
+            SynergyManager.Instance.OnSynergyStateChanged += OnSynergyStateChanged;
+        }
     }
 
     protected override void UnsubscribeEvents()
@@ -59,6 +68,12 @@ public partial class CombatUI : StateAwareUIForm
         // 取消订阅敌方棋子详情事件
         EnemyChessDetailManager.OnEnemyChessClicked -= OnEnemyChessClickedForDetail;
         EnemyChessDetailManager.OnEnemyChessDeselected -= OnEnemyChessDeselectedForDetail;
+
+        // ⭐ 新增：取消订阅羁绊状态变化事件
+        if (SynergyManager.Instance != null)
+        {
+            SynergyManager.Instance.OnSynergyStateChanged -= OnSynergyStateChanged;
+        }
     }
 
     /// <summary>
@@ -119,6 +134,9 @@ public partial class CombatUI : StateAwareUIForm
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
         DebugEx.Log(nameof(CombatUI), "收到战斗离开事件");
+
+        // ⭐ 新增：清空羁绊Buff UI
+        ClearAllSynergyBuffUI();
 
         // ⭐ 新增：销毁卡牌预览管理器
         if (CardPreviewDisplayShader.Instance != null)
@@ -874,6 +892,183 @@ public partial class CombatUI : StateAwareUIForm
                 await GameExtension.ResourceExtension.LoadSpriteAsync(row.IconId, btnImage, 1f, null);
             }
         }
+    }
+
+    #endregion
+
+    #region 羁绊Buff显示
+
+    /// <summary>
+    /// 羁绊状态变化处理（激活/失活）
+    /// </summary>
+    private void OnSynergyStateChanged(int synergyId, bool isActivated)
+    {
+        if (isActivated)
+        {
+            DisplaySynergyBuff(synergyId);
+        }
+        else
+        {
+            RemoveSynergyBuff(synergyId);
+        }
+    }
+
+    /// <summary>
+    /// 显示羁绊对应的Buff（IsHidden=1的Buff）
+    /// </summary>
+    private void DisplaySynergyBuff(int synergyId)
+    {
+        if (varSynergyPanel == null || varBuffItem == null)
+        {
+            DebugEx.Warning(nameof(CombatUI), "varSynergyPanel 或 varBuffItem 未配置");
+            return;
+        }
+
+        // 获取羁绊配置
+        var dtSynergy = GF.DataTable.GetDataTable<SynergyTable>();
+        var drSynergy = dtSynergy?.GetDataRow(synergyId);
+        if (drSynergy == null)
+        {
+            DebugEx.Warning(nameof(CombatUI), $"羁绊 {synergyId} 配置未找到");
+            return;
+        }
+
+        // 获取特效配置
+        var dtEffect = GF.DataTable.GetDataTable<SpecialEffectTable>();
+        var drEffect = dtEffect?.GetDataRow(drSynergy.EffectId);
+        if (drEffect == null)
+        {
+            DebugEx.Warning(nameof(CombatUI), $"特效 {drSynergy.EffectId} 配置未找到");
+            return;
+        }
+
+        // 获取Buff列表（从EffectParams解析BuffIds）
+        var buffIds = ExtractBuffIds(drEffect);
+        if (buffIds == null || buffIds.Count == 0)
+        {
+            DebugEx.Log(nameof(CombatUI), $"羁绊 {synergyId} 无对应Buff");
+            return;
+        }
+
+        // 获取Buff表
+        var dtBuff = GF.DataTable.GetDataTable<BuffTable>();
+
+        // 为每个Buff生成UI（只显示IsHidden=1的Buff）
+        var createdBuffUI = new List<GameObject>();
+        foreach (int buffId in buffIds)
+        {
+            var drBuff = dtBuff?.GetDataRow(buffId);
+            if (drBuff == null || drBuff.IsHidden == 0)
+                continue;
+
+            // 克隆Buff UI
+            var buffUI = Instantiate(varBuffItem, varSynergyPanel.transform);
+            buffUI.SetActive(true);
+
+            // 加载图标
+            if (drBuff.SpriteId > 0)
+            {
+                var img = buffUI.GetComponent<Image>();
+                if (img != null)
+                {
+                    GameExtension.ResourceExtension.LoadSpriteAsync(drBuff.SpriteId, img).Forget();
+                }
+            }
+
+            createdBuffUI.Add(buffUI);
+        }
+
+        if (createdBuffUI.Count > 0)
+        {
+            m_SynergyBuffUICache[synergyId] = createdBuffUI[0]; // 存储第一个（可扩展为列表）
+            DebugEx.Success(nameof(CombatUI), $"羁绊 {synergyId} Buff UI已显示 (共 {createdBuffUI.Count} 个)");
+        }
+    }
+
+    /// <summary>
+    /// 移除羁绊Buff UI
+    /// </summary>
+    private void RemoveSynergyBuff(int synergyId)
+    {
+        if (!m_SynergyBuffUICache.TryGetValue(synergyId, out var buffUI))
+            return;
+
+        if (buffUI != null)
+        {
+            Destroy(buffUI);
+            DebugEx.Log(nameof(CombatUI), $"羁绊 {synergyId} Buff UI已移除");
+        }
+
+        m_SynergyBuffUICache.Remove(synergyId);
+    }
+
+    /// <summary>
+    /// 从EffectParams中提取BuffIds
+    /// 支持 SelfBuffIds 和 BuffIds 字段
+    /// </summary>
+    private List<int> ExtractBuffIds(SpecialEffectTable drEffect)
+    {
+        var result = new List<int>();
+        if (string.IsNullOrEmpty(drEffect.EffectParams))
+            return result;
+
+        try
+        {
+            // 简单JSON解析（假设格式为 {"SelfBuffIds":[7001,7002]} 或 {"BuffIds":[...]}）
+            if (drEffect.EffectParams.Contains("SelfBuffIds"))
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(
+                    drEffect.EffectParams,
+                    @"""SelfBuffIds""\s*:\s*\[([\d,\s]+)\]"
+                );
+                if (match.Success)
+                {
+                    foreach (var id in match.Groups[1].Value.Split(','))
+                    {
+                        if (int.TryParse(id.Trim(), out int buffId))
+                            result.Add(buffId);
+                    }
+                }
+            }
+            else if (drEffect.EffectParams.Contains("BuffIds"))
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(
+                    drEffect.EffectParams,
+                    @"""BuffIds""\s*:\s*\[([\d,\s]*)\]"
+                );
+                if (match.Success)
+                {
+                    var ids = match.Groups[1].Value;
+                    if (!string.IsNullOrEmpty(ids))
+                    {
+                        foreach (var id in ids.Split(','))
+                        {
+                            if (int.TryParse(id.Trim(), out int buffId))
+                                result.Add(buffId);
+                        }
+                    }
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            DebugEx.Error(nameof(CombatUI), $"解析EffectParams失败: {ex.Message}");
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 清空所有羁绊Buff UI（战斗结束时调用）
+    /// </summary>
+    private void ClearAllSynergyBuffUI()
+    {
+        foreach (var buffUI in m_SynergyBuffUICache.Values)
+        {
+            if (buffUI != null)
+                Destroy(buffUI);
+        }
+        m_SynergyBuffUICache.Clear();
     }
 
     #endregion
