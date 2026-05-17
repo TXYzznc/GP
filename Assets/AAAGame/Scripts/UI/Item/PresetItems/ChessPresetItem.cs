@@ -68,10 +68,7 @@ public partial class ChessPresetItem : UIItemBase
             // 设置稀有度UI
             SetQualityUI(config.Quality);
 
-            DebugEx.Log(
-                "ChessPresetItem",
-                $"SetData: chessId={chessId}, name={config.Name}"
-            );
+            DebugEx.Log("ChessPresetItem", $"SetData: chessId={chessId}, name={config.Name}");
         }
         else
         {
@@ -167,6 +164,39 @@ public partial class ChessPresetItem : UIItemBase
             varMaskText.text = "已选中";
             varMaskText.gameObject.SetActive(true);
         }
+    }
+
+    /// <summary>
+    /// 设置为空占位状态（已选区域未填充的格子）
+    /// </summary>
+    public void SetEmpty()
+    {
+        m_ChessId = 0;
+        m_OnClickCallback = null;
+
+        if (varNameText != null)
+            varNameText.text = string.Empty;
+        if (varStar != null)
+            varStar.text = string.Empty;
+        if (varImage != null)
+            varImage.sprite = null;
+        if (varCardFrame != null)
+            varCardFrame.sprite = null;
+        if (varBg != null)
+            varBg.sprite = null;
+        HideMask();
+
+        DebugEx.Log("ChessPresetItem", "SetEmpty: 设置为空占位");
+    }
+
+    /// <summary>
+    /// 获取棋子名称（用于搜索过滤）
+    /// </summary>
+    public string GetChessName()
+    {
+        if (ChessDataManager.Instance.TryGetConfig(m_ChessId, out var config))
+            return config.Name;
+        return string.Empty;
     }
 
     #endregion

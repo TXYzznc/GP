@@ -27,4 +27,11 @@ public partial class BattlePresetUI
 	[SerializeField] private GameObject varChessItemTemplate = null;
 	[SerializeField] private TextMeshProUGUI varChessCountText2 = null;
 	[SerializeField] private TextMeshProUGUI varCardCountText2 = null;
+	[SerializeField] private Button varBtnTabChess = null;
+	[SerializeField] private Button varBtnTabCard = null;
+	[SerializeField] private TMP_InputField varPoolSearchInput = null;
+	[SerializeField] private Button varBtnPagePrev = null;
+	[SerializeField] private Button varBtnPageNext = null;
+	[SerializeField] private TextMeshProUGUI varPageText = null;
+	[SerializeField] private GameObject varEmptySlot = null;
 }

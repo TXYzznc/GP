@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameExtension;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,6 +20,33 @@ using UnityGameFramework.Runtime;
 public partial class BattlePresetUI : UIFormBase
 {
     #region 字段
+
+    /// <summary>预设槽位未选中图标（资源ID 1005）</summary>
+    private Sprite m_SlotNormalSprite;
+
+    /// <summary>预设槽位选中图标（资源ID 1006）</summary>
+    private Sprite m_SlotSelectedSprite;
+
+    /// <summary>预设槽位新增图标（资源ID 1007）</summary>
+    private Sprite m_SlotAddSprite;
+
+    /// <summary>当前显示的是棋子Tab（true=棋子，false=策略卡）</summary>
+    private bool m_IsChessTab = true;
+
+    /// <summary>当前搜索关键词</summary>
+    private string m_SearchKeyword = string.Empty;
+
+    /// <summary>当前页码（从0开始）</summary>
+    private int m_CurrentPage = 0;
+
+    /// <summary>每页显示数量</summary>
+    private const int PAGE_SIZE = 15;
+
+    /// <summary>当前过滤后的棋子ID列表（用于分页）</summary>
+    private List<int> m_FilteredChessIds = new List<int>();
+
+    /// <summary>当前过滤后的策略卡ID列表（用于分页）</summary>
+    private List<int> m_FilteredCardIds = new List<int>();
 
     /// <summary>当前编辑的预设索引（-1表示未选中）</summary>
     private int m_CurrentPresetIndex = -1;
@@ -41,6 +69,18 @@ public partial class BattlePresetUI : UIFormBase
     /// <summary>可选策略卡池的UI项字典（key=cardId, value=GameObject）</summary>
     private Dictionary<int, GameObject> m_PoolCardItemsDict = new Dictionary<int, GameObject>();
 
+    /// <summary>棋子已选区域的空位对象池</summary>
+    private List<GameObject> m_ChessEmptySlots = new List<GameObject>();
+
+    /// <summary>策略卡已选区域的空位对象池</summary>
+    private List<GameObject> m_CardEmptySlots = new List<GameObject>();
+
+    /// <summary>棋子计数文本的默认颜色</summary>
+    private Color m_ChessCountDefaultColor;
+
+    /// <summary>策略卡计数文本的默认颜色</summary>
+    private Color m_CardCountDefaultColor;
+
     #endregion
 
     #region 生命周期
@@ -49,6 +89,12 @@ public partial class BattlePresetUI : UIFormBase
     {
         base.OnInit(userData);
         DebugEx.Log(nameof(BattlePresetUI), "初始化");
+
+        // 记录计数文本的默认颜色（由预制体决定）
+        if (varChessCountText != null)
+            m_ChessCountDefaultColor = varChessCountText.color;
+        if (varCardCountText != null)
+            m_CardCountDefaultColor = varCardCountText.color;
     }
 
     protected override void OnOpen(object userData)
@@ -59,8 +105,31 @@ public partial class BattlePresetUI : UIFormBase
         // 绑定按钮事件
         BindButtons();
 
+        // 异步加载图标后再刷新列表
+        _ = OpenAsync();
+    }
+
+    private async UniTaskVoid OpenAsync()
+    {
+        // 加载预设槽位图标
+        m_SlotNormalSprite = await ResourceExtension.LoadSpriteAsync(1005);
+        m_SlotSelectedSprite = await ResourceExtension.LoadSpriteAsync(1006);
+        m_SlotAddSprite = await ResourceExtension.LoadSpriteAsync(1007);
+        DebugEx.Success(
+            nameof(BattlePresetUI),
+            $"槽位图标加载完成: normal={m_SlotNormalSprite != null}, selected={m_SlotSelectedSprite != null}, add={m_SlotAddSprite != null}"
+        );
+
         // 刷新预设列表
         RefreshPresetList();
+
+        // 初始化Tab状态（默认显示棋子Tab）
+        m_IsChessTab = true;
+        if (varChessPoolContainer != null)
+            varChessPoolContainer.SetActive(true);
+        if (varCardPoolContainer != null)
+            varCardPoolContainer.SetActive(false);
+        UpdateTabSelectionMark(true);
 
         // 默认选中第一个预设（如果有）
         var presets = BattlePresetManager.Instance.GetAllPresets();
@@ -130,6 +199,37 @@ public partial class BattlePresetUI : UIFormBase
             varBtnReset.onClick.RemoveAllListeners();
             varBtnReset.onClick.AddListener(OnResetClicked);
             AddButtonAnimation(varBtnReset);
+        }
+
+        // Tab 切换
+        if (varBtnTabChess != null)
+        {
+            varBtnTabChess.onClick.RemoveAllListeners();
+            varBtnTabChess.onClick.AddListener(() => SwitchTab(true));
+        }
+        if (varBtnTabCard != null)
+        {
+            varBtnTabCard.onClick.RemoveAllListeners();
+            varBtnTabCard.onClick.AddListener(() => SwitchTab(false));
+        }
+
+        // 搜索框
+        if (varPoolSearchInput != null)
+        {
+            varPoolSearchInput.onValueChanged.RemoveAllListeners();
+            varPoolSearchInput.onValueChanged.AddListener(OnSearchChanged);
+        }
+
+        // 分页按钮
+        if (varBtnPagePrev != null)
+        {
+            varBtnPagePrev.onClick.RemoveAllListeners();
+            varBtnPagePrev.onClick.AddListener(OnPagePrev);
+        }
+        if (varBtnPageNext != null)
+        {
+            varBtnPageNext.onClick.RemoveAllListeners();
+            varBtnPageNext.onClick.AddListener(OnPageNext);
         }
     }
 
@@ -207,6 +307,173 @@ public partial class BattlePresetUI : UIFormBase
 
     #endregion
 
+    #region Tab / 搜索 / 分页
+
+    /// <summary>切换棋子/策略卡Tab</summary>
+    private void SwitchTab(bool isChess)
+    {
+        m_IsChessTab = isChess;
+        m_CurrentPage = 0;
+
+        // 清空搜索框
+        if (varPoolSearchInput != null)
+            varPoolSearchInput.SetTextWithoutNotify(string.Empty);
+        m_SearchKeyword = string.Empty;
+
+        // 切换容器显示
+        if (varChessPoolContainer != null)
+            varChessPoolContainer.SetActive(isChess);
+        if (varCardPoolContainer != null)
+            varCardPoolContainer.SetActive(!isChess);
+
+        // 更新Tab选中标记
+        UpdateTabSelectionMark(isChess);
+
+        // 刷新过滤和分页
+        RefreshFilterAndPage();
+
+        DebugEx.Log(nameof(BattlePresetUI), $"切换Tab: {(isChess ? "棋子" : "策略卡")}");
+    }
+
+    /// <summary>更新Tab按钮的SelectionMark显示</summary>
+    private void UpdateTabSelectionMark(bool isChess)
+    {
+        if (varBtnTabChess != null)
+        {
+            var mark = varBtnTabChess.transform.Find("SelectionMark");
+            if (mark != null)
+                mark.gameObject.SetActive(isChess);
+        }
+        if (varBtnTabCard != null)
+        {
+            var mark = varBtnTabCard.transform.Find("SelectionMark");
+            if (mark != null)
+                mark.gameObject.SetActive(!isChess);
+        }
+    }
+
+    /// <summary>搜索框内容变化</summary>
+    private void OnSearchChanged(string keyword)
+    {
+        m_SearchKeyword = keyword ?? string.Empty;
+        m_CurrentPage = 0;
+        RefreshFilterAndPage();
+    }
+
+    /// <summary>上一页</summary>
+    private void OnPagePrev()
+    {
+        if (m_CurrentPage <= 0)
+            return;
+        m_CurrentPage--;
+        RefreshPageDisplay();
+    }
+
+    /// <summary>下一页</summary>
+    private void OnPageNext()
+    {
+        var filteredList = m_IsChessTab ? m_FilteredChessIds : m_FilteredCardIds;
+        int totalPages = Mathf.Max(1, Mathf.CeilToInt((float)filteredList.Count / PAGE_SIZE));
+        if (m_CurrentPage >= totalPages - 1)
+            return;
+        m_CurrentPage++;
+        RefreshPageDisplay();
+    }
+
+    /// <summary>重新过滤并刷新分页（搜索词或Tab变化时调用）</summary>
+    private void RefreshFilterAndPage()
+    {
+        string kw = m_SearchKeyword.ToLower();
+
+        if (m_IsChessTab)
+        {
+            var allIds = BattlePresetManager.Instance.GetAvailableChessIds();
+            m_FilteredChessIds.Clear();
+            foreach (int id in allIds)
+            {
+                if (string.IsNullOrEmpty(kw))
+                {
+                    m_FilteredChessIds.Add(id);
+                }
+                else
+                {
+                    // 通过ChessPresetItem或配置表匹配名称
+                    if (m_PoolChessItemsDict.TryGetValue(id, out var go))
+                    {
+                        var item = go.GetComponent<ChessPresetItem>();
+                        string name = item != null ? item.GetChessName().ToLower() : id.ToString();
+                        if (name.Contains(kw))
+                            m_FilteredChessIds.Add(id);
+                    }
+                }
+            }
+        }
+        else
+        {
+            var allIds = BattlePresetManager.Instance.GetAvailableCardIds();
+            m_FilteredCardIds.Clear();
+            var cardTable = GF.DataTable.GetDataTable<CardTable>();
+            foreach (int id in allIds)
+            {
+                if (string.IsNullOrEmpty(kw))
+                {
+                    m_FilteredCardIds.Add(id);
+                }
+                else
+                {
+                    var row = cardTable?.GetDataRow(id);
+                    string name = row != null ? row.Name.ToLower() : id.ToString();
+                    if (name.Contains(kw))
+                        m_FilteredCardIds.Add(id);
+                }
+            }
+        }
+
+        RefreshPageDisplay();
+    }
+
+    /// <summary>根据当前页和过滤列表刷新池中item的显示</summary>
+    private void RefreshPageDisplay()
+    {
+        var filteredList = m_IsChessTab ? m_FilteredChessIds : m_FilteredCardIds;
+        int totalPages = Mathf.Max(1, Mathf.CeilToInt((float)filteredList.Count / PAGE_SIZE));
+        m_CurrentPage = Mathf.Clamp(m_CurrentPage, 0, totalPages - 1);
+
+        int startIdx = m_CurrentPage * PAGE_SIZE;
+        int endIdx = Mathf.Min(startIdx + PAGE_SIZE, filteredList.Count);
+
+        // 构建本页可见ID集合
+        var pageIds = new HashSet<int>();
+        for (int i = startIdx; i < endIdx; i++)
+            pageIds.Add(filteredList[i]);
+
+        if (m_IsChessTab)
+        {
+            foreach (var kv in m_PoolChessItemsDict)
+                kv.Value.SetActive(pageIds.Contains(kv.Key));
+        }
+        else
+        {
+            foreach (var kv in m_PoolCardItemsDict)
+                kv.Value.SetActive(pageIds.Contains(kv.Key));
+        }
+
+        // 更新分页文本和按钮状态
+        if (varPageText != null)
+            varPageText.text = $"{m_CurrentPage + 1}/{totalPages}";
+        if (varBtnPagePrev != null)
+            varBtnPagePrev.interactable = m_CurrentPage > 0;
+        if (varBtnPageNext != null)
+            varBtnPageNext.interactable = m_CurrentPage < totalPages - 1;
+
+        DebugEx.Log(
+            nameof(BattlePresetUI),
+            $"分页刷新: 第{m_CurrentPage + 1}/{totalPages}页, 显示{pageIds.Count}项"
+        );
+    }
+
+    #endregion
+
     #region 预设列表
 
     /// <summary>
@@ -257,10 +524,13 @@ public partial class BattlePresetUI : UIFormBase
         if (defaultBadge != null)
             defaultBadge.gameObject.SetActive(isDefault);
 
-        // 选中高亮
-        var selectedBg = go.transform.Find("SelectedBg");
-        if (selectedBg != null)
-            selectedBg.gameObject.SetActive(isSelected);
+        // 选中图标切换
+        var slotIcon = go.GetComponent<Image>();
+        if (slotIcon != null)
+        {
+            slotIcon.sprite = isSelected ? m_SlotSelectedSprite : m_SlotNormalSprite;
+            DebugEx.Log(nameof(BattlePresetUI), $"槽位[{index}] 图标设置: isSelected={isSelected}");
+        }
 
         // 按钮事件
         var btn = go.GetComponent<Button>();
@@ -298,9 +568,10 @@ public partial class BattlePresetUI : UIFormBase
         if (defaultBadge != null)
             defaultBadge.gameObject.SetActive(false);
 
-        var selectedBg = go.transform.Find("SelectedBg");
-        if (selectedBg != null)
-            selectedBg.gameObject.SetActive(false);
+        // 空槽位显示新增图标
+        var slotIcon = go.GetComponent<Image>();
+        if (slotIcon != null)
+            slotIcon.sprite = m_SlotAddSprite;
 
         // 按钮事件 - 创建新预设
         var btn = go.GetComponent<Button>();
@@ -441,14 +712,22 @@ public partial class BattlePresetUI : UIFormBase
                 go.SetActive(false);
         }
 
-        // 更新已选棋子（复用对象池中的项）
-        int selectedIndex = 0;
-        foreach (int chessId in m_EditingPreset.UnitCardIds)
+        // 更新已选棋子（只显示有数据的格子）
+        for (int i = 0; i < m_EditingPreset.UnitCardIds.Count; i++)
         {
             GameObject go;
-            if (selectedIndex < m_SelectedChessItems.Count)
+            if (i < m_SelectedChessItems.Count)
             {
-                go = m_SelectedChessItems[selectedIndex];
+                go = m_SelectedChessItems[i];
+                // 重置动画残留状态
+                DOTween.Kill(go.transform);
+                go.transform.localScale = Vector3.one;
+                var cg = go.GetComponent<CanvasGroup>();
+                if (cg != null)
+                {
+                    DOTween.Kill(cg);
+                    cg.alpha = 1f;
+                }
                 go.SetActive(true);
             }
             else
@@ -460,12 +739,14 @@ public partial class BattlePresetUI : UIFormBase
             var chessPresetItem = go.GetComponent<ChessPresetItem>();
             if (chessPresetItem != null)
             {
+                int chessId = m_EditingPreset.UnitCardIds[i];
                 chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(chessId));
                 chessPresetItem.HideMask();
             }
-
-            selectedIndex++;
         }
+
+        // 刷新空位数量
+        RefreshChessEmptySlots();
 
         // 更新可选棋子池（不销毁，只改变Mask状态）
         foreach (int chessId in allChessIds)
@@ -518,6 +799,10 @@ public partial class BattlePresetUI : UIFormBase
             nameof(BattlePresetUI),
             $"刷新棋子区域: 已选={m_EditingPreset.UnitCardIds.Count}, 可选={allChessIds.Count}"
         );
+
+        // 如果当前是棋子Tab，刷新分页
+        if (m_IsChessTab)
+            RefreshFilterAndPage();
     }
 
     /// <summary>
@@ -564,6 +849,9 @@ public partial class BattlePresetUI : UIFormBase
                     string newCount = $"{m_EditingPreset.UnitCardIds.Count}/8";
                     varChessCountText.text = newCount;
                 }
+
+                // 激活一个空位
+                RefreshChessEmptySlots();
             }
         );
 
@@ -652,8 +940,7 @@ public partial class BattlePresetUI : UIFormBase
             // 播放达到上限动画
             if (varChessCountText != null)
             {
-                string limitText = $"{BattlePresetManager.MAX_CHESS_COUNT}/{BattlePresetManager.MAX_CHESS_COUNT}";
-                PlayCounterUpdateAnimation(varChessCountText, limitText, true);
+                PlayLimitShakeAnimation(varChessCountText, m_ChessCountDefaultColor);
             }
             return;
         }
@@ -679,9 +966,11 @@ public partial class BattlePresetUI : UIFormBase
         if (varChessCountText != null)
         {
             string newCount = $"{m_EditingPreset.UnitCardIds.Count}/8";
-            bool isLimit = m_EditingPreset.UnitCardIds.Count >= 8;
-            PlayCounterUpdateAnimation(varChessCountText, newCount, isLimit);
+            PlayCounterUpdateAnimation(varChessCountText, newCount);
         }
+
+        // 隐藏一个空位
+        RefreshChessEmptySlots();
 
         DebugEx.Log(nameof(BattlePresetUI), $"添加棋子: {chessId}");
     }
@@ -762,8 +1051,11 @@ public partial class BattlePresetUI : UIFormBase
 
         // 更新已选策略卡数量
         if (varCardCountText != null)
+        {
             varCardCountText.text =
                 $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
+            varCardCountText.color = m_CardCountDefaultColor; // 重置颜色，防止上限红色残留
+        }
 
         var allCardIds = BattlePresetManager.Instance.GetAvailableCardIds();
         var selectedSet = new HashSet<int>(m_EditingPreset.StrategyCardIds);
@@ -779,14 +1071,23 @@ public partial class BattlePresetUI : UIFormBase
                 go.SetActive(false);
         }
 
-        // 更新已选策略卡（复用对象池中的项）
-        int selectedIndex = 0;
-        foreach (int cardId in m_EditingPreset.StrategyCardIds)
+        // 更新已选策略卡（只显示有数据的格子）
+        var cardTableForSelected = GF.DataTable.GetDataTable<CardTable>();
+        for (int i = 0; i < m_EditingPreset.StrategyCardIds.Count; i++)
         {
             GameObject go;
-            if (selectedIndex < m_SelectedCardItems.Count)
+            if (i < m_SelectedCardItems.Count)
             {
-                go = m_SelectedCardItems[selectedIndex];
+                go = m_SelectedCardItems[i];
+                // 重置动画残留状态
+                DOTween.Kill(go.transform);
+                go.transform.localScale = Vector3.one;
+                var cg = go.GetComponent<CanvasGroup>();
+                if (cg != null)
+                {
+                    DOTween.Kill(cg);
+                    cg.alpha = 1f;
+                }
                 go.SetActive(true);
             }
             else
@@ -798,8 +1099,8 @@ public partial class BattlePresetUI : UIFormBase
             var cardPresetItem = go.GetComponent<CardPresetItem>();
             if (cardPresetItem != null)
             {
-                var cardTable = GF.DataTable.GetDataTable<CardTable>();
-                var row = cardTable?.GetDataRow(cardId);
+                int cardId = m_EditingPreset.StrategyCardIds[i];
+                var row = cardTableForSelected?.GetDataRow(cardId);
                 if (row != null)
                 {
                     cardPresetItem.SetData(
@@ -808,9 +1109,10 @@ public partial class BattlePresetUI : UIFormBase
                     );
                 }
             }
-
-            selectedIndex++;
         }
+
+        // 刷新空位数量
+        RefreshCardEmptySlots();
 
         // 更新可选策略卡池（不销毁，只改变状态）
         foreach (int cardId in allCardIds)
@@ -863,6 +1165,10 @@ public partial class BattlePresetUI : UIFormBase
             nameof(BattlePresetUI),
             $"刷新策略卡区域: 已选={m_EditingPreset.StrategyCardIds.Count}, 可选={allCardIds.Count}"
         );
+
+        // 如果当前是策略卡Tab，刷新分页
+        if (!m_IsChessTab)
+            RefreshFilterAndPage();
     }
 
     /// <summary>
@@ -910,6 +1216,9 @@ public partial class BattlePresetUI : UIFormBase
                         $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
                     varCardCountText.text = newCount;
                 }
+
+                // 激活一个空位
+                RefreshCardEmptySlots();
             }
         );
 
@@ -1004,9 +1313,7 @@ public partial class BattlePresetUI : UIFormBase
             // 播放达到上限动画
             if (varCardCountText != null)
             {
-                string limitText =
-                    $"{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
-                PlayCounterUpdateAnimation(varCardCountText, limitText, true);
+                PlayLimitShakeAnimation(varCardCountText, m_CardCountDefaultColor);
             }
             return;
         }
@@ -1033,10 +1340,11 @@ public partial class BattlePresetUI : UIFormBase
         {
             string newCount =
                 $"{m_EditingPreset.StrategyCardIds.Count}/{BattlePresetManager.MAX_STRATEGY_CARD_COUNT}";
-            bool isLimit =
-                m_EditingPreset.StrategyCardIds.Count >= BattlePresetManager.MAX_STRATEGY_CARD_COUNT;
-            PlayCounterUpdateAnimation(varCardCountText, newCount, isLimit);
+            PlayCounterUpdateAnimation(varCardCountText, newCount);
         }
+
+        // 隐藏一个空位
+        RefreshCardEmptySlots();
 
         DebugEx.Log(nameof(BattlePresetUI), $"添加策略卡: {cardId}");
     }
@@ -1104,6 +1412,73 @@ public partial class BattlePresetUI : UIFormBase
 
     #endregion
 
+    #region EmptySlot 管理
+
+    /// <summary>刷新棋子已选区域的空位数量</summary>
+    private void RefreshChessEmptySlots()
+    {
+        if (varEmptySlot == null || varSelectedChessContainer == null)
+            return;
+
+        int emptyCount = BattlePresetManager.MAX_CHESS_COUNT - m_EditingPreset.UnitCardIds.Count;
+
+        // 隐藏所有空位
+        foreach (var go in m_ChessEmptySlots)
+            if (go != null)
+                go.SetActive(false);
+
+        // 激活/创建需要的数量
+        for (int i = 0; i < emptyCount; i++)
+        {
+            if (i < m_ChessEmptySlots.Count)
+            {
+                m_ChessEmptySlots[i].SetActive(true);
+            }
+            else
+            {
+                var go = Instantiate(varEmptySlot, varSelectedChessContainer.transform);
+                go.SetActive(true);
+                m_ChessEmptySlots.Add(go);
+            }
+        }
+
+        DebugEx.Log(nameof(BattlePresetUI), $"棋子空位刷新: {emptyCount}个");
+    }
+
+    /// <summary>刷新策略卡已选区域的空位数量</summary>
+    private void RefreshCardEmptySlots()
+    {
+        if (varEmptySlot == null || varSelectedCardContainer == null)
+            return;
+
+        int emptyCount =
+            BattlePresetManager.MAX_STRATEGY_CARD_COUNT - m_EditingPreset.StrategyCardIds.Count;
+
+        // 隐藏所有空位
+        foreach (var go in m_CardEmptySlots)
+            if (go != null)
+                go.SetActive(false);
+
+        // 激活/创建需要的数量
+        for (int i = 0; i < emptyCount; i++)
+        {
+            if (i < m_CardEmptySlots.Count)
+            {
+                m_CardEmptySlots[i].SetActive(true);
+            }
+            else
+            {
+                var go = Instantiate(varEmptySlot, varSelectedCardContainer.transform);
+                go.SetActive(true);
+                m_CardEmptySlots.Add(go);
+            }
+        }
+
+        DebugEx.Log(nameof(BattlePresetUI), $"策略卡空位刷新: {emptyCount}个");
+    }
+
+    #endregion
+
     #region 清理
 
     private void ClearPresetSlots()
@@ -1126,6 +1501,14 @@ public partial class BattlePresetUI : UIFormBase
         }
         m_SelectedChessItems.Clear();
 
+        // 清空棋子空位
+        foreach (var go in m_ChessEmptySlots)
+        {
+            if (go != null)
+                Destroy(go);
+        }
+        m_ChessEmptySlots.Clear();
+
         // 清空可选棋子池
         foreach (var go in m_PoolChessItemsDict.Values)
         {
@@ -1144,6 +1527,14 @@ public partial class BattlePresetUI : UIFormBase
                 Destroy(go);
         }
         m_SelectedCardItems.Clear();
+
+        // 清空策略卡空位
+        foreach (var go in m_CardEmptySlots)
+        {
+            if (go != null)
+                Destroy(go);
+        }
+        m_CardEmptySlots.Clear();
 
         // 清空可选策略卡池
         foreach (var go in m_PoolCardItemsDict.Values)
@@ -1385,13 +1776,9 @@ public partial class BattlePresetUI : UIFormBase
     }
 
     /// <summary>
-    /// 播放数量计数器更新动画
+    /// 播放数量计数器更新动画（纯数字滚动，不改颜色）
     /// </summary>
-    private void PlayCounterUpdateAnimation(
-        TMP_Text counterText,
-        string newText,
-        bool isLimit = false
-    )
+    private void PlayCounterUpdateAnimation(TMP_Text counterText, string newText)
     {
         if (counterText == null)
             return;
@@ -1414,13 +1801,28 @@ public partial class BattlePresetUI : UIFormBase
                 // 新数字从下方淡入
                 counterText.DOFade(1, 0.125f);
                 counterText.transform.DOLocalMoveY(originalPos.y, 0.125f);
+            });
+    }
 
-                // 如果达到上限，变红并抖动
-                if (isLimit)
-                {
-                    counterText.DOColor(Color.red, 0.2f);
-                    counterText.transform.DOShakeRotation(0.3f, new Vector3(0, 0, 5), 10);
-                }
+    /// <summary>
+    /// 播放达到上限的抖动提示（变红 → 抖动 → 恢复默认色）
+    /// </summary>
+    private void PlayLimitShakeAnimation(TMP_Text counterText, Color defaultColor)
+    {
+        if (counterText == null)
+            return;
+
+        DOTween.Kill(counterText);
+        counterText
+            .DOColor(Color.red, 0.1f)
+            .OnComplete(() =>
+            {
+                counterText
+                    .transform.DOShakeRotation(0.3f, new Vector3(0, 0, 5), 10)
+                    .OnComplete(() =>
+                    {
+                        counterText.DOColor(defaultColor, 0.2f);
+                    });
             });
     }
 

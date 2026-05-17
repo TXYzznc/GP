@@ -2,7 +2,7 @@
 #	Level		EnemyDifficultyCoef	MinPopulation	MaxPopulation	RewardMultiplier
 #	int		float	int	int	float
 #	难度等级(1-10)	备注	敌人难度系数（用于调整敌人棋子的五大基础属性）	最小敌人数量	最大敌人数量	奖励倍率(对战时，每0.3会额外增加一个奖励，保底1个)
-	1		1	1	1	1
+	1		1	1	2	1
 	2		1.3	1	3	1.1
 	3		1.6	2	3	1.2
 	4		2	2	3	1.4

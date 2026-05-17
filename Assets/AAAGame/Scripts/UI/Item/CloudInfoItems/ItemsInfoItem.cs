@@ -13,11 +13,17 @@ public partial class ItemsInfoItem : UIItemBase
             rectTransform.localScale = Vector3.one;
         }
     }
+
     /// <summary>
     /// 设置物品信息
     /// </summary>
     public void SetData(int[] itemIconIds, int[] coinNums, int totalNums = 999)
     {
+        DebugEx.Log(
+            "ItemsInfoItem",
+            $"SetData: iconArr长度={varItemIconArr?.Length ?? -1}, iconIds长度={itemIconIds?.Length ?? -1}, totalNums={totalNums}"
+        );
+
         // 设置物品图标
         if (varItemIconArr != null && itemIconIds != null)
         {
@@ -26,9 +32,21 @@ public partial class ItemsInfoItem : UIItemBase
             {
                 if (varItemIconArr[i] != null)
                 {
+                    DebugEx.Log("ItemsInfoItem", $"加载图标[{i}]: id={itemIconIds[i]}");
                     varItemIconArr[i].SetSpriteById(itemIconIds[i]);
                 }
+                else
+                {
+                    DebugEx.Warning("ItemsInfoItem", $"varItemIconArr[{i}] 为 null");
+                }
             }
+        }
+        else
+        {
+            DebugEx.Warning(
+                "ItemsInfoItem",
+                $"varItemIconArr 或 itemIconIds 为 null，跳过图标加载"
+            );
         }
 
         // 设置物品数量
@@ -38,15 +56,12 @@ public partial class ItemsInfoItem : UIItemBase
             for (int i = 0; i < count; i++)
             {
                 if (varCoinNumsArr[i] != null)
-                {
                     varCoinNumsArr[i].text = coinNums[i].ToString();
-                }
             }
         }
+
         if (varNums != null)
-        {
-            varNums.text = "totalNums";
-        }
+            varNums.text = totalNums.ToString();
     }
 
     /// <summary>
@@ -58,7 +73,8 @@ public partial class ItemsInfoItem : UIItemBase
         {
             foreach (var text in varCoinNumsArr)
             {
-                if (text != null) text.text = "";
+                if (text != null)
+                    text.text = "";
             }
         }
     }

@@ -114,4 +114,30 @@ public partial class CardPresetItem : UIItemBase
     }
 
     #endregion
+
+    #region 占位状态
+
+    /// <summary>
+    /// 设置为空占位状态（已选区域未填充的格子）
+    /// </summary>
+    public void SetEmpty()
+    {
+        m_CardData = null;
+        m_OnClickCallback = null;
+
+        if (varNameText != null)
+            varNameText.text = string.Empty;
+        if (varDecsText != null)
+            varDecsText.text = string.Empty;
+        if (varStoryText != null)
+            varStoryText.text = string.Empty;
+        if (varCost != null)
+            varCost.text = string.Empty;
+        if (varCardImg != null)
+            varCardImg.sprite = null;
+
+        DebugEx.Log("CardPresetItem", "SetEmpty: 设置为空占位");
+    }
+
+    #endregion
 }

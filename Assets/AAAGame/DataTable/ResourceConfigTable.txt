@@ -6,6 +6,9 @@
 	1002		1	UI/StartMenuUI/诸神对决.png	游戏名称
 	1003		1	UI/StartMenuUI/Clash Of Gods.png	游戏名称-英文
 	1004		1	UI/StartMenuUI/存档上云.png	存档上云图标
+	1005		1	UI/BattlePresetUI/预设_未选中.png	战斗预设界面，未选中预设图标
+	1006		1	UI/BattlePresetUI/预设_选中.png	战斗预设界面，当前预设图标
+	1007		1	UI/BattlePresetUI/新增.png	战斗预设界面，新增预设
 	1101		1	UI/Items/Gold.png	金币图标
 	1102		1	UI/Items/OriginStone.png	起源石图标
 	1103		1	UI/Items/MagicalStone.png	灵石图标
@@ -42,12 +45,11 @@
 	1222		1	Card/策略卡/沉默之符.png	沉默之符-策略卡图标
 	1223		1	Card/策略卡/嘲讽之声.png	嘲讽之声-策略卡图标
 	1224		1	Card/策略卡/剧毒之雾.png	剧毒之雾-策略卡图标
-	1225	CardTable使用|资源暂不存在	1	Card/策略卡/伤害转移.png	伤害转移-策略卡图标
-	1226	CardTable使用|资源暂不存在	1	Card/策略卡/绝对零度.png	绝对零度-策略卡图标
-	1301		1	Chess/后羿/后羿立绘.png	棋子-后羿图标
-	1304		1	Chess/嫦娥/嫦娥立绘.png	棋子-嫦娥图标
-	1310	SummonChessTable使用|资源暂不存在	1	Chess/邪灵/邪灵立绘.png	棋子-邪灵图标
-	1311	SummonChessTable使用|资源暂不存在	1	Chess/恶魂/恶魂立绘.png	棋子-恶魂图标
+	1225		1	Card/策略卡/绝对零度.png	绝对零度-策略卡图标
+	1301		1	Chess/后羿/立绘.png	棋子-后羿图标
+	1304		1	Chess/嫦娥/立绘.png	棋子-嫦娥图标
+	1310	SummonChessTable使用|资源暂不存在	1	Chess/邪灵/立绘.png	棋子-邪灵图标
+	1311	SummonChessTable使用|资源暂不存在	1	Chess/恶魂/立绘.png	棋子-恶魂图标
 	1399		1	Chess/靶子.png	棋子-靶子图标
 	1401		1	Buff/1.png	灼烧Buff图标
 	1402		1	Buff/2.png	寒霜Buff图标
@@ -225,10 +227,13 @@
 	15019		1	Buff/5019.png	沉默之符Buff图标
 	15020		1	Buff/5020.png	嘲讽之声Buff图标
 	15021		1	Buff/5021.png	剧毒之雾Buff图标
-	15022	ResourceConfigTable使用|资源暂不存在	1	Buff/5022.png	伤害转移Buff图标
-	15023	ResourceConfigTable使用|资源暂不存在	1	Buff/5023.png	绝对零度Buff图标
-	16001	SynergyTable使用|资源暂不存在	1	Synergy/日月.png	日月-种族羁绊图标
-	16002	SynergyTable使用|资源暂不存在	1	Synergy/法师.png	法师-职业羁绊图标
+	15022	ResourceConfigTable使用	1	Buff/5022.png	绝对零度Buff图标
+	16001	SynergyTable使用	1	Synergy/日月.png	日月-种族羁绊图标
+	16002	SynergyTable使用	1	Synergy/污染生物.png	污染生物-种族羁绊图标
+	16003	SynergyTable使用	1	Synergy/灵魂.png	灵魂-种族羁绊图标
+	16004	SynergyTable使用	1	Synergy/射手.png	射手-职业羁绊图标
+	16005	SynergyTable使用	1	Synergy/法师.png	法师-职业羁绊图标
+	16006	SynergyTable使用	1	Synergy/战士.png	战士-职业羁绊图标
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4
@@ -264,8 +269,7 @@
 	20124	CardTable使用|资源暂不存在	2	Entity/Card/沉默之符_Effect	沉默之符-施法预制体
 	20125	CardTable使用|资源暂不存在	2	Entity/Card/嘲讽之声_Effect	嘲讽之声-施法预制体
 	20126	CardTable使用|资源暂不存在	2	Entity/Card/剧毒之雾_Effect	剧毒之雾-施法预制体
-	20127	CardTable使用|资源暂不存在	2	Entity/Card/伤害转移_Effect	伤害转移-施法预制体
-	20128	CardTable使用|资源暂不存在	2	Entity/Card/绝对零度_Effect	绝对零度-施法预制体
+	20127	CardTable使用|资源暂不存在	2	Entity/Card/绝对零度_Effect	绝对零度-施法预制体
 	30101	CardTable使用|资源暂不存在	3	Effect/Card/神圣庇护	神圣庇护-施法特效
 	30102	CardTable使用|资源暂不存在	3	Effect/Card/烈焰风暴	烈焰风暴-施法特效
 	30103	CardTable使用|资源暂不存在	3	Effect/Card/时间回溯	时间回溯-施法特效
@@ -290,8 +294,7 @@
 	30122	CardTable使用|资源暂不存在	3	Effect/Card/沉默之符	沉默之符-施法特效
 	30123	CardTable使用|资源暂不存在	3	Effect/Card/嘲讽之声	嘲讽之声-施法特效
 	30124	CardTable使用|资源暂不存在	3	Effect/Card/剧毒之雾	剧毒之雾-施法特效
-	30125	CardTable使用|资源暂不存在	3	Effect/Card/伤害转移	伤害转移-施法特效
-	30126	CardTable使用|资源暂不存在	3	Effect/Card/绝对零度	绝对零度-施法特效
+	30125	CardTable使用|资源暂不存在	3	Effect/Card/绝对零度	绝对零度-施法特效
 	30201	CardTable使用|资源暂不存在	3	Effect/Card/烈焰风暴_Hit	烈焰风暴-受击特效
 	30202	CardTable使用|资源暂不存在	3	Effect/Card/暗影突袭_Hit	暗影突袭-受击特效
 	30203	CardTable使用|资源暂不存在	3	Effect/Card/生命汲取_Hit	生命汲取-受击特效

@@ -1422,39 +1422,6 @@ Art style: eastern fantasy, game icon style, similar to Clash of Gods, ice magic
 
 ---
 
-### 37. 伤害转移Buff（Buff #5022）
-
-**Buff分析**：
-- 类型：增益Buff（转移防护）
-- 效果：伤害转向、反弹保护、能量转换
-- 核心视觉：护盾、箭头、转向、能量流、保护
-
-**【中文版提示词】**
-```
-512x512像素游戏Buff图标，东方奇幻风格，"伤害转移" Buff
-中央构图，能量护盾和转向箭头，象征伤害的转移和防护
-色彩：深紫色（#4B0082）、银白色（#E8E8E8）、金黄色（#FFD700）、淡蓝色（#ADD8E6）
-光效：能量护盾发出柔和的金色和蓝色光，转向箭头闪烁，保护感
-背景：能量场环境，护盾周围有转向的能量流、闪耀光点
-高饱和度，冷金色调，保护感
-卡牌效果：无边框，无圆角，全出血填充画布
-美术风格：东方奇幻，游戏图标风格，类似《Clash of Gods》，防护Buff主题
-```
-
-**【English Version】**
-```
-512x512 pixel game Buff icon, eastern fantasy style, "Damage Transfer" Buff
-Central composition, energy shield and directional arrows, symbolizing damage redirection and protection
-Color palette: deep purple (#4B0082), silver white (#E8E8E8), golden yellow (#FFD700), light blue (#ADD8E6)
-Lighting: energy shield emitting soft gold and blue glow, flickering directional arrows, protective feeling
-Background: energy field environment, redirecting energy flows around shield, shimmering particles
-High saturation, cool gold color tones, protective feeling
-Icon effect: no border, no rounded corners, full bleed filling the entire canvas
-Art style: eastern fantasy, game icon style, similar to Clash of Gods, protection Buff theme
-```
-
----
-
 ### 38. 绝对零度Buff（Buff #5023）
 
 **Buff分析**：

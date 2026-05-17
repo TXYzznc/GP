@@ -360,7 +360,10 @@ public class PlayerAccountDataManager
         // 11. 将存档ID添加到栈顶
         MoveToStackTop(newSaveId);
 
-        DebugEx.Log("PlayerAccountDataManager", $"创建新存档成功: {saveName}, 召唤师: {summonerConfig.Name}, SaveId: {newSaveId}");
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"创建新存档成功: {saveName}, 召唤师: {summonerConfig.Name}, SaveId: {newSaveId}"
+        );
 
         return saveData;
     }
@@ -399,7 +402,8 @@ public class PlayerAccountDataManager
             {
                 var inventoryData = InventoryManager.Instance.SaveInventory();
                 m_CurrentSaveData.SetInventoryItems(inventoryData);
-                DebugEx.Log("PlayerAccountDataManager",
+                DebugEx.Log(
+                    "PlayerAccountDataManager",
                     $"背包数据已保存，物品数量:{inventoryData.Count()}"
                 );
             }
@@ -479,8 +483,10 @@ public class PlayerAccountDataManager
             // 上次未正常结算（异常退出），回滚到快照状态
             if (!string.IsNullOrEmpty(saveData.InGameSnapshot))
             {
-                DebugEx.Warning("PlayerAccountDataManager",
-                    "检测到未结算的局内快照，自动回滚账号数据");
+                DebugEx.Warning(
+                    "PlayerAccountDataManager",
+                    "检测到未结算的局内快照，自动回滚账号数据"
+                );
                 RestoreFromSnapshot();
             }
 
@@ -493,7 +499,10 @@ public class PlayerAccountDataManager
             // 将此存档移到栈顶
             MoveToStackTop(saveId);
 
-            DebugEx.Log("PlayerAccountDataManager", $"加载存档成功: {saveData.SaveName} (SaveId: {saveId})");
+            DebugEx.Log(
+                "PlayerAccountDataManager",
+                $"加载存档成功: {saveData.SaveName} (SaveId: {saveId})"
+            );
             return saveData;
         }
         catch (Exception e)
@@ -509,15 +518,16 @@ public class PlayerAccountDataManager
     private void LoadRuntimeData(PlayerSaveData saveData)
     {
         var initTable = GF.DataTable.GetDataTable<PlayerInitTable>();
-        if (initTable != null)
-        {
-        }
+        if (initTable != null) { }
 
         // 初始化棋子解锁管理器
         if (ChessUnlockManager.Instance != null)
         {
             ChessUnlockManager.Instance.Initialize(saveData);
-            DebugEx.Log("PlayerAccountDataManager", $"棋子管理器已初始化，已解锁棋子数: {saveData.OwnedUnitCardIds?.Count ?? 0}");
+            DebugEx.Log(
+                "PlayerAccountDataManager",
+                $"棋子管理器已初始化，已解锁棋子数: {saveData.OwnedUnitCardIds?.Count ?? 0}"
+            );
         }
 
         // 加载背包数据
@@ -711,7 +721,10 @@ public class PlayerAccountDataManager
         }
 
         GF.Event.Fire(this, PlayerLevelUpEventArgs.Create(oldLevel, m_CurrentSaveData.GlobalLevel));
-        DebugEx.Log("PlayerAccountDataManager", $"玩家升级: {oldLevel} -> {m_CurrentSaveData.GlobalLevel}");
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"玩家升级: {oldLevel} -> {m_CurrentSaveData.GlobalLevel}"
+        );
     }
 
     /// <summary>
@@ -848,7 +861,8 @@ public class PlayerAccountDataManager
             return false;
         if (m_CurrentSaveData.OriginStone < amount)
         {
-            DebugEx.Warning("PlayerAccountDataManager",
+            DebugEx.Warning(
+                "PlayerAccountDataManager",
                 $"起源石不足: 需要 {amount}, 当前 {m_CurrentSaveData.OriginStone}"
             );
             return false;
@@ -884,7 +898,8 @@ public class PlayerAccountDataManager
             return false;
         if (m_CurrentSaveData.SpiritStone < amount)
         {
-            DebugEx.Warning("PlayerAccountDataManager",
+            DebugEx.Warning(
+                "PlayerAccountDataManager",
                 $"灵石不足: 需要 {amount}, 当前 {m_CurrentSaveData.SpiritStone}"
             );
             return false;
@@ -1000,7 +1015,10 @@ public class PlayerAccountDataManager
         }
 
         SaveCurrentSave();
-        DebugEx.Log("PlayerAccountDataManager", $"召唤师进阶成功: {currentPhaseId} -> {currentConfig.NextPhaseId}");
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"召唤师进阶成功: {currentPhaseId} -> {currentConfig.NextPhaseId}"
+        );
         return true;
     }
 
@@ -1099,22 +1117,25 @@ public class PlayerAccountDataManager
         var snapshot = new PlayerSaveSnapshot
         {
             GlobalLevel = m_CurrentSaveData.GlobalLevel,
-            CurrentExp  = m_CurrentSaveData.CurrentExp,
-            Gold        = m_CurrentSaveData.Gold,
+            CurrentExp = m_CurrentSaveData.CurrentExp,
+            Gold = m_CurrentSaveData.Gold,
             OriginStone = m_CurrentSaveData.OriginStone,
             SpiritStone = m_CurrentSaveData.SpiritStone,
-            InventoryItems    = m_CurrentSaveData.InventoryItems,
+            InventoryItems = m_CurrentSaveData.InventoryItems,
             InventoryCapacity = m_CurrentSaveData.InventoryCapacity,
-            CompletedQuestIds = m_CurrentSaveData.CompletedQuestIds != null
-                ? new List<int>(m_CurrentSaveData.CompletedQuestIds)
-                : new List<int>(),
+            CompletedQuestIds =
+                m_CurrentSaveData.CompletedQuestIds != null
+                    ? new List<int>(m_CurrentSaveData.CompletedQuestIds)
+                    : new List<int>(),
         };
 
         m_CurrentSaveData.InGameSnapshot = JsonUtility.ToJson(snapshot);
         SaveCurrentSave();
 
-        DebugEx.Log("PlayerAccountDataManager",
-            $"已创建局内快照: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}");
+        DebugEx.Log(
+            "PlayerAccountDataManager",
+            $"已创建局内快照: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}"
+        );
     }
 
     /// <summary>
@@ -1164,22 +1185,26 @@ public class PlayerAccountDataManager
 
         try
         {
-            var snapshot = JsonUtility.FromJson<PlayerSaveSnapshot>(m_CurrentSaveData.InGameSnapshot);
+            var snapshot = JsonUtility.FromJson<PlayerSaveSnapshot>(
+                m_CurrentSaveData.InGameSnapshot
+            );
 
-            m_CurrentSaveData.GlobalLevel        = snapshot.GlobalLevel;
-            m_CurrentSaveData.CurrentExp         = snapshot.CurrentExp;
-            m_CurrentSaveData.Gold               = snapshot.Gold;
-            m_CurrentSaveData.OriginStone        = snapshot.OriginStone;
-            m_CurrentSaveData.SpiritStone        = snapshot.SpiritStone;
-            m_CurrentSaveData.InventoryItems     = snapshot.InventoryItems;
-            m_CurrentSaveData.InventoryCapacity  = snapshot.InventoryCapacity;
-            m_CurrentSaveData.CompletedQuestIds  = snapshot.CompletedQuestIds ?? new List<int>();
-            m_CurrentSaveData.InGameSnapshot     = null;
+            m_CurrentSaveData.GlobalLevel = snapshot.GlobalLevel;
+            m_CurrentSaveData.CurrentExp = snapshot.CurrentExp;
+            m_CurrentSaveData.Gold = snapshot.Gold;
+            m_CurrentSaveData.OriginStone = snapshot.OriginStone;
+            m_CurrentSaveData.SpiritStone = snapshot.SpiritStone;
+            m_CurrentSaveData.InventoryItems = snapshot.InventoryItems;
+            m_CurrentSaveData.InventoryCapacity = snapshot.InventoryCapacity;
+            m_CurrentSaveData.CompletedQuestIds = snapshot.CompletedQuestIds ?? new List<int>();
+            m_CurrentSaveData.InGameSnapshot = null;
 
             SaveCurrentSave();
 
-            DebugEx.Log("PlayerAccountDataManager",
-                $"已从快照恢复: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}");
+            DebugEx.Log(
+                "PlayerAccountDataManager",
+                $"已从快照恢复: Lv={snapshot.GlobalLevel}, Exp={snapshot.CurrentExp}"
+            );
         }
         catch (System.Exception e)
         {
@@ -1210,18 +1235,26 @@ public class PlayerAccountDataManager
         int instanceId = GenerateUniqueInstanceId();
 
         // 转换为持久化数据（自动调用 GetAffixDataForPersistence，保存词条）
-        var instanceData = ItemManager.Instance.CreateTreasureInstanceData(treasureItem, instanceId);
+        var instanceData = ItemManager.Instance.CreateTreasureInstanceData(
+            treasureItem,
+            instanceId
+        );
         if (instanceData == null)
         {
-            DebugEx.Error(nameof(PlayerAccountDataManager), $"创建宝物实例数据失败: {treasureItem.Name}");
+            DebugEx.Error(
+                nameof(PlayerAccountDataManager),
+                $"创建宝物实例数据失败: {treasureItem.Name}"
+            );
             return null;
         }
 
         // 添加到存档
         m_CurrentSaveData.Treasures.Add(instanceData);
 
-        DebugEx.Success(nameof(PlayerAccountDataManager),
-            $"✅ 宝物已获取: {treasureItem.Name} (InstanceId:{instanceId}, 词条数:{instanceData.Affixes.Count})");
+        DebugEx.Success(
+            nameof(PlayerAccountDataManager),
+            $"✅ 宝物已获取: {treasureItem.Name} (InstanceId:{instanceId}, 词条数:{instanceData.Affixes.Count})"
+        );
 
         return instanceData;
     }
@@ -1255,7 +1288,10 @@ public class PlayerAccountDataManager
             var inventoryManager = InventoryManager.Instance;
             if (inventoryManager == null)
             {
-                DebugEx.Warning(nameof(PlayerAccountDataManager), "InventoryManager 不存在，无法读取背包宝物");
+                DebugEx.Warning(
+                    nameof(PlayerAccountDataManager),
+                    "InventoryManager 不存在，无法读取背包宝物"
+                );
                 return;
             }
 
@@ -1270,8 +1306,10 @@ public class PlayerAccountDataManager
                 }
             }
 
-            DebugEx.Log(nameof(PlayerAccountDataManager),
-                $"背包中发现 {treasureItems.Count} 件宝物，准备保存到存档");
+            DebugEx.Log(
+                nameof(PlayerAccountDataManager),
+                $"背包中发现 {treasureItems.Count} 件宝物，准备保存到存档"
+            );
 
             // 2. 清空存档中的旧宝物数据
             m_CurrentSaveData.Treasures.Clear();
@@ -1281,20 +1319,27 @@ public class PlayerAccountDataManager
             int savedCount = 0;
             foreach (var treasure in treasureItems)
             {
-                var instanceData = ItemManager.Instance.CreateTreasureInstanceData(treasure, GenerateUniqueInstanceId());
+                var instanceData = ItemManager.Instance.CreateTreasureInstanceData(
+                    treasure,
+                    GenerateUniqueInstanceId()
+                );
                 if (instanceData != null)
                 {
                     instanceData.Location = TreasureLocation.Inventory; // 从背包来的宝物标记为背包位置
                     m_CurrentSaveData.Treasures.Add(instanceData);
                     savedCount++;
 
-                    DebugEx.Log(nameof(PlayerAccountDataManager),
-                        $"已保存宝物: {treasure.Name} (词条数:{instanceData.Affixes.Count})");
+                    DebugEx.Log(
+                        nameof(PlayerAccountDataManager),
+                        $"已保存宝物: {treasure.Name} (词条数:{instanceData.Affixes.Count})"
+                    );
                 }
             }
 
-            DebugEx.Success(nameof(PlayerAccountDataManager),
-                $"✅ 已将 {savedCount} 件宝物从背包保存到存档");
+            DebugEx.Success(
+                nameof(PlayerAccountDataManager),
+                $"✅ 已将 {savedCount} 件宝物从背包保存到存档"
+            );
 
             // 4. 保存存档到文件
             SaveCurrentSave();
@@ -1308,7 +1353,8 @@ public class PlayerAccountDataManager
     public void EquipTreasure(int instanceId, int chessId)
     {
         var saveData = CurrentSaveData;
-        if (saveData == null) return;
+        if (saveData == null)
+            return;
 
         var treasure = saveData.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
         if (treasure == null || treasure.Location == TreasureLocation.Warehouse)
@@ -1344,7 +1390,7 @@ public class PlayerAccountDataManager
         if (saveData.ChessTreasureSlots.TryGetValue(chessId, out var slots))
             slots.Remove(instanceId);
 
-        treasure.EquippedChessId = 0;  // 取消装备标记
+        treasure.EquippedChessId = 0; // 取消装备标记
     }
 
     /// <summary>
@@ -1353,11 +1399,10 @@ public class PlayerAccountDataManager
     public List<TreasureInstanceData> GetChessEquipments(int chessId)
     {
         var saveData = CurrentSaveData;
-        if (saveData == null) return new();
+        if (saveData == null)
+            return new();
 
-        return saveData.Treasures
-            .Where(t => t.EquippedChessId == chessId)
-            .ToList();
+        return saveData.Treasures.Where(t => t.EquippedChessId == chessId).ToList();
     }
 
     /// <summary>
@@ -1366,11 +1411,10 @@ public class PlayerAccountDataManager
     public List<TreasureInstanceData> GetInventoryTreasures()
     {
         var saveData = CurrentSaveData;
-        if (saveData == null) return new();
+        if (saveData == null)
+            return new();
 
-        return saveData.Treasures
-            .Where(t => t.Location == TreasureLocation.Inventory)
-            .ToList();
+        return saveData.Treasures.Where(t => t.Location == TreasureLocation.Inventory).ToList();
     }
 
     /// <summary>
@@ -1379,11 +1423,10 @@ public class PlayerAccountDataManager
     public List<TreasureInstanceData> GetWarehouseTreasures()
     {
         var saveData = CurrentSaveData;
-        if (saveData == null) return new();
+        if (saveData == null)
+            return new();
 
-        return saveData.Treasures
-            .Where(t => t.Location == TreasureLocation.Warehouse)
-            .ToList();
+        return saveData.Treasures.Where(t => t.Location == TreasureLocation.Warehouse).ToList();
     }
 
     /// <summary>
@@ -1394,7 +1437,8 @@ public class PlayerAccountDataManager
         var saveData = CurrentSaveData;
         var treasure = saveData?.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
 
-        if (treasure == null) return;
+        if (treasure == null)
+            return;
 
         // 先卸装
         if (treasure.EquippedChessId != 0)
@@ -1412,7 +1456,8 @@ public class PlayerAccountDataManager
         var saveData = CurrentSaveData;
         var treasure = saveData?.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
 
-        if (treasure == null) return;
+        if (treasure == null)
+            return;
 
         treasure.Location = TreasureLocation.Inventory;
     }
@@ -1423,7 +1468,8 @@ public class PlayerAccountDataManager
     public TreasureInstanceData GetTreasureInstanceById(int instanceId)
     {
         var saveData = CurrentSaveData;
-        if (saveData == null) return null;
+        if (saveData == null)
+            return null;
 
         return saveData.Treasures.FirstOrDefault(t => t.InstanceId == instanceId);
     }
@@ -1433,7 +1479,8 @@ public class PlayerAccountDataManager
     /// </summary>
     private void SaveTreasureData(PlayerSaveData saveData)
     {
-        if (saveData == null) return;
+        if (saveData == null)
+            return;
 
         // 1. 序列化宝物列表
         if (saveData.Treasures != null && saveData.Treasures.Count > 0)
@@ -1462,11 +1509,13 @@ public class PlayerAccountDataManager
                 var equipmentSlots = new SerializedChessTreasureSlots();
                 foreach (var kvp in saveData.ChessTreasureSlots)
                 {
-                    equipmentSlots.Slots.Add(new SerializedChessTreasureSlot
-                    {
-                        ChessId = kvp.Key,
-                        InstanceIds = kvp.Value
-                    });
+                    equipmentSlots.Slots.Add(
+                        new SerializedChessTreasureSlot
+                        {
+                            ChessId = kvp.Key,
+                            InstanceIds = kvp.Value,
+                        }
+                    );
                 }
                 saveData.ChessTreasureSlotsData = JsonUtility.ToJson(equipmentSlots, true);
             }
@@ -1487,14 +1536,17 @@ public class PlayerAccountDataManager
     /// </summary>
     private void LoadTreasureData(PlayerSaveData saveData)
     {
-        if (saveData == null) return;
+        if (saveData == null)
+            return;
 
         // 1. 恢复宝物列表
         if (!string.IsNullOrEmpty(saveData.TreasureData))
         {
             try
             {
-                var treasureList = JsonUtility.FromJson<SerializedTreasureList>(saveData.TreasureData);
+                var treasureList = JsonUtility.FromJson<SerializedTreasureList>(
+                    saveData.TreasureData
+                );
                 saveData.Treasures = treasureList.Items ?? new List<TreasureInstanceData>();
             }
             catch
@@ -1513,7 +1565,9 @@ public class PlayerAccountDataManager
         {
             try
             {
-                var equipmentSlots = JsonUtility.FromJson<SerializedChessTreasureSlots>(saveData.ChessTreasureSlotsData);
+                var equipmentSlots = JsonUtility.FromJson<SerializedChessTreasureSlots>(
+                    saveData.ChessTreasureSlotsData
+                );
                 saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
 
                 foreach (var slot in equipmentSlots.Slots)
@@ -1523,7 +1577,10 @@ public class PlayerAccountDataManager
             }
             catch
             {
-                DebugEx.Error(nameof(PlayerAccountDataManager), "加载宝物槽数据失败，初始化为空字典");
+                DebugEx.Error(
+                    nameof(PlayerAccountDataManager),
+                    "加载宝物槽数据失败，初始化为空字典"
+                );
                 saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
             }
         }
@@ -1538,11 +1595,36 @@ public class PlayerAccountDataManager
     /// </summary>
     private void InitializeTreasureData(PlayerSaveData saveData)
     {
-        if (saveData == null) return;
+        if (saveData == null)
+            return;
 
         // 初始化空列表
         saveData.Treasures = new List<TreasureInstanceData>();
         saveData.ChessTreasureSlots = new Dictionary<int, List<int>>();
+    }
+
+    #endregion
+
+    #region 只读工具方法
+
+    /// <summary>
+    /// 只读方式加载存档数据（不触发运行时初始化，仅用于UI展示）
+    /// </summary>
+    public PlayerSaveData ReadSaveDataReadOnly(string saveId)
+    {
+        string filePath = GetSaveFilePath(m_CurrentAccountId, saveId);
+        if (!File.Exists(filePath))
+            return null;
+        try
+        {
+            string json = File.ReadAllText(filePath, System.Text.Encoding.UTF8);
+            return JsonUtility.FromJson<PlayerSaveData>(json);
+        }
+        catch (Exception e)
+        {
+            DebugEx.Error("PlayerAccountDataManager", $"只读加载存档失败: {e.Message}");
+            return null;
+        }
     }
 
     #endregion

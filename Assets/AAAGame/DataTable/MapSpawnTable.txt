@@ -2,5 +2,5 @@
 #	MapId		SpawnEnemys	EnemyNums	SpawnTreasures	TreasureNums	LevelCoefficient
 #	int		string	int[]	string	int[]	int[]
 #	地图ID（主键）	备注	敌人配置(格式:101:30,102:50)	敌人数量范围(min,max)	宝箱配置(格式:201:40,202:60)	宝箱数量范围(min,max)	等级系数范围(min,max)
-	3	TutorialScene	1:30,2:50,3:20	1,2	1:40,2:60	10,20	1,10
+	3	TutorialScene	1:30,2:50,3:20	10,20	1:40,2:60	10,20	1,10
 	10		1:30,2:50,3:20	20,30	1:40,2:60	30,40	10,30

@@ -64,7 +64,7 @@ public partial class StartMenuUI : UIFormBase
         base.OnInit(userData);
 
         // 设置背景图和通过资源ID加载
-        varImgBackground.SetSpriteById(ResourceIds.MENU_BACKGROUND);
+        varImgBackground.SetSpriteById(ResourceIds.MENU_BACKGROUND, 0.7f);
         varName.SetSpriteById(ResourceIds.MENU_NAME);
         varNameEn.SetSpriteById(ResourceIds.MENU_NAME_EN);
         var存档上云.image.SetSpriteById(ResourceIds.MENU_YUN);

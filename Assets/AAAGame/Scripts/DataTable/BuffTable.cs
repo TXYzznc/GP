@@ -56,6 +56,15 @@ public partial class BuffTable : DataRowBase
         }
 
         /// <summary>
+        /// 故事文本描述
+        /// </summary>
+        public string StoryDesc
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 是否隐藏图标（羁绊相关Buff隐藏）
         /// </summary>
         public int IsHidden
@@ -169,6 +178,7 @@ public partial class BuffTable : DataRowBase
             Name = columnStrings[index++];
             SpriteId = int.Parse(columnStrings[index++]);
             Desc = columnStrings[index++];
+            StoryDesc = columnStrings[index++];
             IsHidden = int.Parse(columnStrings[index++]);
             BuffType = int.Parse(columnStrings[index++]);
             EffectType = int.Parse(columnStrings[index++]);
@@ -194,6 +204,7 @@ public partial class BuffTable : DataRowBase
                     Name = binaryReader.ReadString();
                     SpriteId = binaryReader.Read7BitEncodedInt32();
                     Desc = binaryReader.ReadString();
+                    StoryDesc = binaryReader.ReadString();
                     IsHidden = binaryReader.Read7BitEncodedInt32();
                     BuffType = binaryReader.Read7BitEncodedInt32();
                     EffectType = binaryReader.Read7BitEncodedInt32();
