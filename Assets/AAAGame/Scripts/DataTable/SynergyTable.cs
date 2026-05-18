@@ -74,7 +74,7 @@ public partial class SynergyTable : DataRowBase
         }
 
         /// <summary>
-        /// 应用范围
+        /// 应用范围（0表示只对携带者生效）
         /// </summary>
         public int ApplyScope
         {

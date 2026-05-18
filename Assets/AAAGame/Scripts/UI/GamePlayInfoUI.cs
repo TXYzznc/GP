@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using GameExtension;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
@@ -159,16 +161,14 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         switch (triggerType)
         {
             case CombatTriggerType.SneakAttack:
-                // 设置偷袭图标和文本
-                // varInteractIcon.sprite = LoadSprite("Icon_SneakAttack");
+                ResourceExtension.LoadSpriteAsync(1008, varInteractIcon).Forget();
                 varInteractText.text = "按下【Space】进行偷袭";
                 DebugEx.Log("GamePlayInfoUI",
                     $"<color=yellow>[诊断] ✓ 显示偷袭交互UI | 文本=\"{varInteractText.text}\"</color>");
                 break;
 
             case CombatTriggerType.Encounter:
-                // 设置遭遇战图标和文本
-                // varInteractIcon.sprite = LoadSprite("Icon_Encounter");
+                ResourceExtension.LoadSpriteAsync(1009, varInteractIcon).Forget();
                 varInteractText.text = "按下【Space】进入战斗";
                 DebugEx.Log("GamePlayInfoUI",
                     $"<color=yellow>[诊断] ✓ 显示遭遇战交互UI | 文本=\"{varInteractText.text}\"</color>");

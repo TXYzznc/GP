@@ -129,7 +129,7 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
         }
 
         // 设置指示器
-        indicator.Setup(enemy, GetEnemyIcon(enemy), alertProgress);
+        indicator.Setup(enemy, alertProgress);
         indicator.transform.SetParent(m_IndicatorContainer);
         indicator.gameObject.SetActive(true);
 
@@ -311,20 +311,6 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
         {
             kvp.Value.transform.SetSiblingIndex(siblingIndex++);
         }
-    }
-
-    /// <summary>
-    /// 获取敌人的头像Sprite
-    /// （需要从敌人配置或资源管理器获取）
-    /// </summary>
-    private Sprite GetEnemyIcon(EnemyEntity enemy)
-    {
-        if (enemy == null || enemy.Config == null)
-            return null;
-
-        // TODO: 从资源管理器或配置中获取敌人头像
-        // 临时返回null，UI会使用默认显示
-        return null;
     }
 
     #endregion

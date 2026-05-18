@@ -1,30 +1,18 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using GameExtension;
+using UnityEngine;
 
-/// <summary>
-/// 敌人警示指示器
-/// 显示单个敌人的头像和警觉度进度条
-///
-/// 需要的UI变量（需要用户创建预制体）：
-/// - varEnemyIcon (Image) - 敌人头像
-/// - varAlertProgress (Slider) - 警觉度进度条
-/// - varEnemyName (Text, 可选) - 敌人名称
-/// - varDistanceText (Text, 可选) - 距离显示
-/// </summary>
 public partial class EnemyMask : UIItemBase
 {
     #region 私有字段
 
-    /// <summary>所追踪的敌人实体</summary>
     private EnemyEntity m_TrackedEnemy;
 
     #endregion
 
     #region 公共方法
 
-    /// <summary>
-    /// 设置指示器数据
-    /// </summary>
-    public void Setup(EnemyEntity enemy, Sprite icon, float alertProgress)
+    public void Setup(EnemyEntity enemy, float alertProgress)
     {
         m_TrackedEnemy = enemy;
 
@@ -34,19 +22,16 @@ public partial class EnemyMask : UIItemBase
             return;
         }
 
-        // 设置敌人头像
-        if (varEnemyImg != null && icon != null)
+        if (varEnemyImg != null && enemy.Config.EnemyIconId > 0)
         {
-            varEnemyImg.sprite = icon;
+            ResourceExtension.LoadSpriteAsync(enemy.Config.EnemyIconId, varEnemyImg).Forget();
         }
 
-        // 设置警觉度进度条
         if (varWarningSlider != null)
         {
             varWarningSlider.value = alertProgress;
         }
 
-        // 设置敌人名称（可选）
         if (varEnemyName != null)
         {
             varEnemyName.text = m_TrackedEnemy.Config.Name;

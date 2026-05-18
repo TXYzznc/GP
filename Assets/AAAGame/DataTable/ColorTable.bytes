@@ -1,0 +1,1 @@
+4Green#61F34A$稀有度1-绿色（Common 普通）5Blue#0099FF&稀有度2-蓝色（Uncommon 优良）3Purple#9933FF"稀有度3-紫色（Rare 稀有）1Gold#FFD700"稀有度4-金色（Epic 史诗）VRainbow#FF88FFD稀有度5-炫彩（Legendary 传说，UI层需实现渐变动画）)White#FFFFFF白色（普通/默认）)Black#000000黑色（背景/禁用）*Yellow#FFFF00黄色（警告/重要）+	Gray#808080灰色（禁用/不可用）

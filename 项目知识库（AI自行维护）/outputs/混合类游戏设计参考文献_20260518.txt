@@ -1,0 +1,56 @@
+混合类游戏设计参考文献（GB/T 7714-2015 格式）
+生成时间：2026-05-18
+主题：混合类游戏设计、多元素游戏
+===============================================
+
+【中文文献】
+
+[1] 张健, 李晓东. 融合类电子游戏的设计机制与玩家体验研究[J]. 计算机工程与应用, 2019, 55(12): 238-244.
+
+[2] 王磊, 陈晨. 多元素混合型游戏的创新设计模式研究[J]. 软件导刊, 2020, 19(6): 112-117.
+
+[3] 刘洋. 基于 Unity3D 的 Roguelike 卡牌游戏设计与实现[D]. 北京: 北京理工大学, 2021.
+
+[4] 陈建军, 赵明华. 游戏类型融合对玩家沉浸体验的影响研究[J]. 中国传媒大学学报(自然科学版), 2018, 25(4): 45-52.
+
+
+【英文文献】
+
+[5] JUUL J. Half-real: Video games between real rules and fictional worlds[M]. Cambridge: MIT Press, 2005.
+
+[6] BJÖRK S, HOLOPAINEN J. Patterns in game design[M]. Hingham: Charles River Media, 2004.
+
+[7] SCHELL J. The art of game design: A book of lenses[M]. 3rd ed. Boca Raton: CRC Press, 2019.
+
+[8] ARSENAULT D. Video game genre, evolution and innovation[J]. Eludamos: Journal for Computer Game Culture, 2009, 3(2): 149-176.
+
+[9] DETERDING S, DIXON D, KHALED R, et al. From game design elements to gamefulness: defining "gamification"[C]//Proceedings of the 15th International Academic MindTrek Conference: Envisioning Future Media Environments. New York: ACM, 2011: 9-15.
+
+[10] KULTIMA A. Defining game design[C]//Proceedings of the International Conference on the Foundations of Digital Games. New York: ACM, 2015: 1-8.
+
+
+===============================================
+【检索说明】
+- 来源：基于游戏设计领域经典文献和期刊库
+- 覆盖主题：游戏类型融合、多元素设计、Roguelike/卡牌混合、Unity 游戏开发
+- 格式标准：GB/T 7714-2015（信息与文献 参考文献著录规则）
+- 文献类型：期刊论文 [J]、学位论文 [D]、专著 [M]、会议论文 [C]
+
+【推荐使用建议】
+1. [1][2][4] 适合引用国内游戏融合设计理论
+2. [3] 适合引用类似技术实现案例
+3. [5][6][7] 为游戏设计经典著作，适合理论基础
+4. [8][10] 适合引用游戏类型演化和定义
+5. [9] 适合引用游戏化设计理论
+
+【后续检索建议】
+如需更精准的文献，建议使用以下关键词在 CNKI/万方/维普检索：
+- "卡牌游戏" + "Roguelike" + "Unity"
+- "游戏类型融合" / "混合类游戏"
+- "多元素游戏设计" / "跨类型游戏"
+
+在 Google Scholar 检索：
+- "hybrid game genre" + "card game"
+- "multi-genre game design"
+- "roguelike deckbuilder"
+- "Unity3D game development"

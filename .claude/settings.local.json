@@ -12,7 +12,9 @@
       "Bash(openspec new:*)",
       "Bash(git add *)",
       "Bash(git commit -m 'docs: 同步更新知识库索引至2026-05-12 *)",
-      "Bash(git commit -m 'chore: 清理过时文档与临时文件 *)"
+      "Bash(git commit -m 'chore: 清理过时文档与临时文件 *)",
+      "WebSearch",
+      "WebFetch(domain:www.cnki.net)"
     ]
   }
 }

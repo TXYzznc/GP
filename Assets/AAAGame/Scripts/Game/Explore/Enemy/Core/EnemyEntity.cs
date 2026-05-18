@@ -173,12 +173,14 @@ public class EnemyEntity : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+#if UNITY_EDITOR
         if (!m_ShowDebug || !Application.isPlaying || m_AI == null)
             return;
 
         // 显示当前状态
         Vector3 textPos = transform.position + Vector3.up * 3f;
         UnityEditor.Handles.Label(textPos, $"State: {m_AI.CurrentState}");
+#endif
     }
 
     private void OnDestroy()

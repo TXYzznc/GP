@@ -274,16 +274,16 @@ public class SynergyManager : SingletonBase<SynergyManager>
 
     /// <summary>
     /// 获取该羁绊应该作用的目标棋子
-    /// ApplyScope=0: 全体出战棋子
-    /// ApplyScope=1: 仅携带该羁绊ID的棋子
+    /// ApplyScope=0: 仅携带该羁绊ID的棋子
+    /// ApplyScope=1: 全体出战友方棋子
     /// </summary>
     private List<GameObject> GetSynergyTargets(SynergyTable synergyRow, List<ChessEntity> deployedChesses)
     {
         var targets = new List<GameObject>();
 
-        if (synergyRow.ApplyScope == 0)
+        if (synergyRow.ApplyScope == 1)
         {
-            // 应用于全体出战棋子
+            // 应用于全体出战友方棋子
             foreach (var chess in deployedChesses)
             {
                 if (chess != null)
@@ -292,7 +292,7 @@ public class SynergyManager : SingletonBase<SynergyManager>
         }
         else
         {
-            // 应用于仅携带该羁绊的棋子
+            // 应用于仅携带该羁绊的棋子（默认）
             foreach (var chess in deployedChesses)
             {
                 if (chess == null || chess.Config == null)

@@ -554,10 +554,23 @@ public class TreasureChestInteractable : InteractableBase
             return null;
         }
 
-        // 合并所有物品组的物品ID
-        var allItemIds = new List<int>();
-        foreach (var groupId in itemGroupIds)
+        // 解析物品组配置，格式：「ID:权重,ID:权重」
+        // 权重=-1 表示必得（每个必得组固定产出一件物品）
+        // 权重>0 表示随机池权重（放回加权随机）
+        var guaranteedGroups = new List<int[]>();              // 必得组的物品ID列表
+        var weightedGroups = new List<(int[] itemIds, int weight)>(); // 随机组
+
+        foreach (var entry in itemGroupIds.Split(','))
         {
+            var parts = entry.Trim().Split(':');
+            if (parts.Length < 2
+                || !int.TryParse(parts[0].Trim(), out int groupId)
+                || !int.TryParse(parts[1].Trim(), out int weight))
+            {
+                DebugEx.Warning(nameof(TreasureChestInteractable), $"物品组配置格式错误: {entry}，跳过");
+                continue;
+            }
+
             var itemGroupRow = itemGroupTable.GetDataRow(groupId);
             if (itemGroupRow == null)
             {
@@ -566,60 +579,65 @@ public class TreasureChestInteractable : InteractableBase
             }
 
             var itemIds = itemGroupRow.ItemIds;
-            if (itemIds != null && itemIds.Length > 0)
+            if (itemIds == null || itemIds.Length == 0)
             {
-                allItemIds.AddRange(itemIds);
-                DebugEx.Log(
-                    nameof(TreasureChestInteractable),
-                    $"[GenerateTreasureItems] 物品组 {groupId} 添加 {itemIds.Length} 个物品"
-                );
+                DebugEx.Warning(nameof(TreasureChestInteractable), $"物品组 {groupId} 为空，跳过");
+                continue;
             }
-            else
+
+            if (weight == -1)
             {
-                DebugEx.Warning(nameof(TreasureChestInteractable), $"物品组 {groupId} 为空");
+                guaranteedGroups.Add(itemIds);
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[GenerateTreasureItems] 必得组 {groupId}，{itemIds.Length} 个物品");
+            }
+            else if (weight > 0)
+            {
+                weightedGroups.Add((itemIds, weight));
+                DebugEx.Log(nameof(TreasureChestInteractable), $"[GenerateTreasureItems] 随机组 {groupId} 权重={weight}，{itemIds.Length} 个物品");
             }
         }
 
-        // 检查合并后的物品列表
-        if (allItemIds.Count == 0)
+        if (guaranteedGroups.Count == 0 && weightedGroups.Count == 0)
         {
             DebugEx.Warning(nameof(TreasureChestInteractable), $"宝箱 ID {m_TreasureBoxId} 的所有物品组都为空");
-            return items; // 返回空列表
+            return items;
         }
 
-        // 根据宝箱等级计算开出物品数量
-        int itemCount = CalculateItemCount(
-            treasureBoxRow.ItemCountMin,
-            treasureBoxRow.ItemCountMax,
-            m_ChestLevel
-        );
-
-        DebugEx.Log(
-            nameof(TreasureChestInteractable),
-            $"[GenerateTreasureItems] 宝箱 {m_TreasureBoxId} 生成 {itemCount} 个物品，总物品池大小 {allItemIds.Count}"
-        );
-
-        // 随机从合并的物品列表中选择物品
-        for (int i = 0; i < itemCount; i++)
+        // 1. 先从每个必得组各抽一件物品
+        foreach (var groupItemIds in guaranteedGroups)
         {
-            int randomIndex = Random.Range(0, allItemIds.Count);
-            int itemId = allItemIds[randomIndex];
+            int itemId = groupItemIds[Random.Range(0, groupItemIds.Length)];
+            AddItemToResult(items, itemManager, itemId);
+        }
 
-            var item = itemManager?.CreateItem(itemId);
-            if (item != null)
+        // 2. 按权重放回抽取 itemCount 次（每次从随机组中加权选一组，再从组内随机一件）
+        if (weightedGroups.Count > 0)
+        {
+            int totalWeight = 0;
+            foreach (var g in weightedGroups) totalWeight += g.weight;
+
+            int itemCount = CalculateItemCount(treasureBoxRow.ItemCountMin, treasureBoxRow.ItemCountMax, m_ChestLevel);
+            DebugEx.Log(nameof(TreasureChestInteractable),
+                $"[GenerateTreasureItems] 宝箱 {m_TreasureBoxId} 随机抽取 {itemCount} 次，总权重 {totalWeight}");
+
+            for (int i = 0; i < itemCount; i++)
             {
-                items.Add(new ItemStack(item, 1));
-                DebugEx.Log(
-                    nameof(TreasureChestInteractable),
-                    $"[GenerateTreasureItems] 生成物品: {item.Name} (ID: {itemId})"
-                );
-            }
-            else
-            {
-                DebugEx.Warning(
-                    nameof(TreasureChestInteractable),
-                    $"[GenerateTreasureItems] 无法创建物品 ID {itemId}"
-                );
+                // 加权随机选物品组（放回抽取）
+                int roll = Random.Range(0, totalWeight);
+                int cumulative = 0;
+                int[] selectedItemIds = weightedGroups[0].itemIds;
+                foreach (var (groupItemIds, weight) in weightedGroups)
+                {
+                    cumulative += weight;
+                    if (roll < cumulative)
+                    {
+                        selectedItemIds = groupItemIds;
+                        break;
+                    }
+                }
+
+                int itemId = selectedItemIds[Random.Range(0, selectedItemIds.Length)];
+                AddItemToResult(items, itemManager, itemId);
             }
         }
 
@@ -678,6 +696,21 @@ public class TreasureChestInteractable : InteractableBase
         PrintTreasureBoxLoot(treasureBoxRow.Name, items, totalCoins, totalMagicaStone);
 
         return items;
+    }
+
+    /// <summary>从物品ID创建物品并加入结果列表</summary>
+    private void AddItemToResult(List<ItemStack> items, ItemManager itemManager, int itemId)
+    {
+        var item = itemManager?.CreateItem(itemId);
+        if (item != null)
+        {
+            items.Add(new ItemStack(item, 1));
+            DebugEx.Log(nameof(TreasureChestInteractable), $"[GenerateTreasureItems] 生成物品: {item.Name} (ID:{itemId})");
+        }
+        else
+        {
+            DebugEx.Warning(nameof(TreasureChestInteractable), $"[GenerateTreasureItems] 无法创建物品 ID {itemId}");
+        }
     }
 
     /// <summary>

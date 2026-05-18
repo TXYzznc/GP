@@ -56,6 +56,15 @@ public partial class EnemyEntityTable : DataRowBase
         }
 
         /// <summary>
+        /// 敌人头像资源ID
+        /// </summary>
+        public int EnemyIconId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 敌人类型(0=普通,1=精英,2=Boss)
         /// </summary>
         public int EnemyType
@@ -295,6 +304,7 @@ public partial class EnemyEntityTable : DataRowBase
             Name = columnStrings[index++];
             IconId = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
+            EnemyIconId = int.Parse(columnStrings[index++]);
             EnemyType = int.Parse(columnStrings[index++]);
             PurificationCardId = int.Parse(columnStrings[index++]);
             CanBroadcast = bool.Parse(columnStrings[index++]);
@@ -334,6 +344,7 @@ public partial class EnemyEntityTable : DataRowBase
                     Name = binaryReader.ReadString();
                     IconId = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
+                    EnemyIconId = binaryReader.Read7BitEncodedInt32();
                     EnemyType = binaryReader.Read7BitEncodedInt32();
                     PurificationCardId = binaryReader.Read7BitEncodedInt32();
                     CanBroadcast = binaryReader.ReadBoolean();

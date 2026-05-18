@@ -9,6 +9,8 @@
 	1005		1	UI/BattlePresetUI/预设_未选中.png	战斗预设界面，未选中预设图标
 	1006		1	UI/BattlePresetUI/预设_选中.png	战斗预设界面，当前预设图标
 	1007		1	UI/BattlePresetUI/新增.png	战斗预设界面，新增预设
+	1008		1	UI/Combat/SneakAttack.png	探索阶段-偷袭图标
+	1009		1	UI/Combat/Encounter.png	探索阶段-遭遇战图标
 	1101		1	UI/Items/Gold.png	金币图标
 	1102		1	UI/Items/OriginStone.png	起源石图标
 	1103		1	UI/Items/MagicalStone.png	灵石图标
@@ -65,7 +67,9 @@
 	1501		1	UI/Icons/Skill_Dash.png	飞雷神-角色技能图标
 	1502		1	UI/Icons/Skill_Heal.png	治疗术-角色技能图标
 	1503		1	UI/Icons/Skill_Bomb.png	爆裂弹-角色技能图标
-	1601	ResourceConfigTable使用|资源暂不存在	1	Equipment/SunsetBow.png	落日弓-棋子装备图标
+	1601		1	Chess/邪灵/邪灵头像.png	邪灵-敌人头像
+	1602		1	Chess/恶魂/恶魂头像.png	恶魂-敌人头像
+	1603		1	Chess/黑暗杨戬/黑暗杨戬头像.png	黑暗杨戬-敌人头像
 	1701		1	Summoner/Skill/狂怒之心技能.png	狂怒之心-召唤师技能图标
 	1702		1	Summoner/Skill/战意激昂技能.png	战意激昂-召唤师技能图标
 	1703		1	Summoner/Skill/王者号令技能.png	王者号令-召唤师技能图标
