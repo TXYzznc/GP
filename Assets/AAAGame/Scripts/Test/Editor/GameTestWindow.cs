@@ -56,7 +56,15 @@ public class GameTestWindow : EditorWindow
 
     // 页签系统
     private int m_SelectedTab = 0;
-    private readonly string[] m_TabNames = { "🧪 Buff", "📦 物品", "⚔️ 战斗", "🎲 状态", "✨ 描边", "📋 日志" };
+    private readonly string[] m_TabNames =
+    {
+        "🧪 Buff",
+        "📦 物品",
+        "⚔️ 战斗",
+        "🎲 状态",
+        "✨ 描边",
+        "📋 日志",
+    };
 
     // 结算系统测试
     private int m_SettlementTriggerType = 0; // 0=传送, 1=污染死亡
@@ -76,7 +84,10 @@ public class GameTestWindow : EditorWindow
     {
         // 标题栏
         EditorGUILayout.LabelField("🎮 游戏测试管理窗口 v2.0", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("集中管理所有游戏系统的测试功能，支持 Buff、物品、战斗等多个模块", MessageType.Info);
+        EditorGUILayout.HelpBox(
+            "集中管理所有游戏系统的测试功能，支持 Buff、物品、战斗等多个模块",
+            MessageType.Info
+        );
         EditorGUILayout.Space();
 
         // 顶部状态栏
@@ -86,7 +97,10 @@ public class GameTestWindow : EditorWindow
         GUI.color = statusColor;
         EditorGUILayout.LabelField($"游戏状态: {playModeText}", GUILayout.Width(150));
         GUI.color = Color.white;
-        EditorGUILayout.LabelField($"场景: {EditorSceneManager.GetActiveScene().name}", GUILayout.ExpandWidth(true));
+        EditorGUILayout.LabelField(
+            $"场景: {EditorSceneManager.GetActiveScene().name}",
+            GUILayout.ExpandWidth(true)
+        );
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
 
@@ -104,14 +118,22 @@ public class GameTestWindow : EditorWindow
                 break;
 
             case 1: // 物品系统（背包 + 仓库）
-                m_ExpandInventorySection = EditorGUILayout.Foldout(m_ExpandInventorySection, "📦 背包系统", true);
+                m_ExpandInventorySection = EditorGUILayout.Foldout(
+                    m_ExpandInventorySection,
+                    "📦 背包系统",
+                    true
+                );
                 if (m_ExpandInventorySection)
                 {
                     DrawInventoryTestSection();
                     EditorGUILayout.Space(15);
                 }
 
-                m_ExpandWarehouseSection = EditorGUILayout.Foldout(m_ExpandWarehouseSection, "🏪 仓库系统", true);
+                m_ExpandWarehouseSection = EditorGUILayout.Foldout(
+                    m_ExpandWarehouseSection,
+                    "🏪 仓库系统",
+                    true
+                );
                 if (m_ExpandWarehouseSection)
                 {
                     DrawWarehouseTestSection();
@@ -120,7 +142,11 @@ public class GameTestWindow : EditorWindow
                 break;
 
             case 2: // 战斗系统（战斗 + 敌人 + 投射物 + 结算）
-                m_ExpandCombatSection = EditorGUILayout.Foldout(m_ExpandCombatSection, "⚔️ 战斗系统", true);
+                m_ExpandCombatSection = EditorGUILayout.Foldout(
+                    m_ExpandCombatSection,
+                    "⚔️ 战斗系统",
+                    true
+                );
                 if (m_ExpandCombatSection)
                 {
                     DrawCombatTestSection();
@@ -170,7 +196,9 @@ public class GameTestWindow : EditorWindow
 
         // 目标选择
         EditorGUILayout.LabelField("目标选择", EditorStyles.boldLabel);
-        m_SelectedBuffTarget = EditorGUILayout.ObjectField("当前目标:", m_SelectedBuffTarget, typeof(GameObject), true) as GameObject;
+        m_SelectedBuffTarget =
+            EditorGUILayout.ObjectField("当前目标:", m_SelectedBuffTarget, typeof(GameObject), true)
+            as GameObject;
 
         if (m_SelectedBuffTarget == null)
         {
@@ -182,7 +210,10 @@ public class GameTestWindow : EditorWindow
         var buffManager = m_SelectedBuffTarget.GetComponent<BuffManager>();
         if (buffManager == null)
         {
-            EditorGUILayout.HelpBox($"目标 '{m_SelectedBuffTarget.name}' 没有 BuffManager 组件", MessageType.Error);
+            EditorGUILayout.HelpBox(
+                $"目标 '{m_SelectedBuffTarget.name}' 没有 BuffManager 组件",
+                MessageType.Error
+            );
             return;
         }
 
@@ -198,7 +229,11 @@ public class GameTestWindow : EditorWindow
         {
             m_CachedBuffList.Clear();
             m_CachedBuffList.AddRange(BuffTestTool.Instance.GetAllAvailableBuffs());
-            EditorUtility.DisplayDialog("刷新成功", $"已加载 {m_CachedBuffList.Count} 个 Buff", "确定");
+            EditorUtility.DisplayDialog(
+                "刷新成功",
+                $"已加载 {m_CachedBuffList.Count} 个 Buff",
+                "确定"
+            );
         }
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
@@ -225,7 +260,11 @@ public class GameTestWindow : EditorWindow
             {
                 int buffId = m_CachedBuffList[m_SelectedBuffIndex].BuffId;
                 BuffTestTool.Instance.ApplyBuffToTarget(buffId, m_SelectedBuffTarget);
-                EditorUtility.DisplayDialog("成功", $"已应用 Buff: {m_CachedBuffList[m_SelectedBuffIndex].Name}", "确定");
+                EditorUtility.DisplayDialog(
+                    "成功",
+                    $"已应用 Buff: {m_CachedBuffList[m_SelectedBuffIndex].Name}",
+                    "确定"
+                );
             }
         }
         EditorGUILayout.EndHorizontal();
@@ -247,7 +286,11 @@ public class GameTestWindow : EditorWindow
             presetOptions[i] = m_CachedPresetList[i].Name;
         }
 
-        m_SelectedPresetIndex = EditorGUILayout.Popup("选择预设:", m_SelectedPresetIndex, presetOptions);
+        m_SelectedPresetIndex = EditorGUILayout.Popup(
+            "选择预设:",
+            m_SelectedPresetIndex,
+            presetOptions
+        );
 
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("应用预设", GUILayout.Height(BUTTON_HEIGHT)))
@@ -305,7 +348,10 @@ public class GameTestWindow : EditorWindow
 
         // Buff 诊断
         EditorGUILayout.LabelField("🔍 Buff 效果诊断", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("详细分析每个 Buff 如何修改属性值，用于调试 Buff 不生效的问题", MessageType.Info);
+        EditorGUILayout.HelpBox(
+            "详细分析每个 Buff 如何修改属性值，用于调试 Buff 不生效的问题",
+            MessageType.Info
+        );
 
         if (buffList.Count > 0)
         {
@@ -332,10 +378,14 @@ public class GameTestWindow : EditorWindow
                     {
                         var modDetails = statModBuff.GetModDetails();
                         var appliedValues = statModBuff.GetAppliedValues();
-                        var buffName = dtBuff?.GetDataRow(buff.BuffId)?.Name ?? $"Buff_{buff.BuffId}";
+                        var buffName =
+                            dtBuff?.GetDataRow(buff.BuffId)?.Name ?? $"Buff_{buff.BuffId}";
 
                         EditorGUILayout.BeginVertical("box");
-                        EditorGUILayout.LabelField($"📌 {buffName} (ID={buff.BuffId})", EditorStyles.boldLabel);
+                        EditorGUILayout.LabelField(
+                            $"📌 {buffName} (ID={buff.BuffId})",
+                            EditorStyles.boldLabel
+                        );
 
                         for (int i = 0; i < modDetails.Count; i++)
                         {
@@ -375,7 +425,10 @@ public class GameTestWindow : EditorWindow
 
         if (m_InventoryTester == null)
         {
-            EditorGUILayout.HelpBox("场景中未找到 InventoryTester 组件，请先添加到场景", MessageType.Warning);
+            EditorGUILayout.HelpBox(
+                "场景中未找到 InventoryTester 组件，请先添加到场景",
+                MessageType.Warning
+            );
             return;
         }
 
@@ -444,7 +497,10 @@ public class GameTestWindow : EditorWindow
 
         if (m_WarehouseTester == null)
         {
-            EditorGUILayout.HelpBox("场景中未找到 WarehouseTester 组件，请先添加到场景", MessageType.Warning);
+            EditorGUILayout.HelpBox(
+                "场景中未找到 WarehouseTester 组件，请先添加到场景",
+                MessageType.Warning
+            );
             return;
         }
 
@@ -527,7 +583,10 @@ public class GameTestWindow : EditorWindow
 
     private void DrawSettlementTestSection()
     {
-        EditorGUILayout.HelpBox("快速触发游戏结算系统测试，支持传送和污染死亡两种方式", MessageType.Info);
+        EditorGUILayout.HelpBox(
+            "快速触发游戏结算系统测试，支持传送和污染死亡两种方式",
+            MessageType.Info
+        );
 
         // 获取GameTestManager
         if (m_GameTestManager == null)
@@ -541,7 +600,11 @@ public class GameTestWindow : EditorWindow
 
         // 结算触发类型选择
         EditorGUILayout.LabelField("结算触发方式", EditorStyles.boldLabel);
-        m_SettlementTriggerType = EditorGUILayout.Popup("触发类型:", m_SettlementTriggerType, m_SettlementTriggerOptions);
+        m_SettlementTriggerType = EditorGUILayout.Popup(
+            "触发类型:",
+            m_SettlementTriggerType,
+            m_SettlementTriggerOptions
+        );
 
         EditorGUILayout.Space();
 
@@ -565,9 +628,10 @@ public class GameTestWindow : EditorWindow
         EditorGUILayout.Space();
 
         // 说明信息
-        string triggerDescription = m_SettlementTriggerType == 0
-            ? "触发传送结算：直接传送回基地，显示结算 UI，然后切换场景"
-            : "触发污染死亡结算：模拟污染过高导致死亡，显示失败结算 UI，然后切换场景";
+        string triggerDescription =
+            m_SettlementTriggerType == 0
+                ? "触发传送结算：直接传送回基地，显示结算 UI，然后切换场景"
+                : "触发污染死亡结算：模拟污染过高导致死亡，显示失败结算 UI，然后切换场景";
 
         EditorGUILayout.HelpBox(triggerDescription, MessageType.Info);
     }
@@ -619,7 +683,10 @@ public class GameTestWindow : EditorWindow
 
         if (m_ProjectileTestController == null)
         {
-            EditorGUILayout.HelpBox("场景中未找到 ProjectileTestController 组件", MessageType.Warning);
+            EditorGUILayout.HelpBox(
+                "场景中未找到 ProjectileTestController 组件",
+                MessageType.Warning
+            );
             return;
         }
 
@@ -638,7 +705,10 @@ public class GameTestWindow : EditorWindow
     private void DrawOutlineTestSection()
     {
         EditorGUILayout.LabelField("✨ 描边系统", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("测试 OutlineController 的描边效果（选中/友方/敌方/自定义）", MessageType.Info);
+        EditorGUILayout.HelpBox(
+            "测试 OutlineController 的描边效果（选中/友方/敌方/自定义）",
+            MessageType.Info
+        );
 
         // 获取 OutlineTestController（反射方式）
         if (m_OutlineTestController == null)
@@ -652,7 +722,10 @@ public class GameTestWindow : EditorWindow
 
         if (m_OutlineTestController == null)
         {
-            EditorGUILayout.HelpBox("场景中未找到 OutlineTestController 组件，请先添加到场景中的 GameTestManager 上", MessageType.Warning);
+            EditorGUILayout.HelpBox(
+                "场景中未找到 OutlineTestController 组件，请先添加到场景中的 GameTestManager 上",
+                MessageType.Warning
+            );
             if (GUILayout.Button("自动添加到 GameTestManager", GUILayout.Height(BUTTON_HEIGHT)))
             {
                 var gtm = FindObjectOfType<GameTestManager>();
@@ -674,7 +747,9 @@ public class GameTestWindow : EditorWindow
 
         // 测试目标
         EditorGUILayout.LabelField("测试目标", EditorStyles.boldLabel);
-        m_OutlineTestTarget = EditorGUILayout.ObjectField("目标对象:", m_OutlineTestTarget, typeof(GameObject), true) as GameObject;
+        m_OutlineTestTarget =
+            EditorGUILayout.ObjectField("目标对象:", m_OutlineTestTarget, typeof(GameObject), true)
+            as GameObject;
 
         // 通过反射设置 ManualTarget 字段
         if (m_OutlineTestTarget != null)
@@ -709,7 +784,11 @@ public class GameTestWindow : EditorWindow
         // 自定义描边
         EditorGUILayout.LabelField("自定义描边", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
-        m_CustomOutlineColor = EditorGUILayout.ColorField("颜色:", m_CustomOutlineColor, GUILayout.Width(250));
+        m_CustomOutlineColor = EditorGUILayout.ColorField(
+            "颜色:",
+            m_CustomOutlineColor,
+            GUILayout.Width(250)
+        );
         m_CustomOutlineSize = EditorGUILayout.Slider("宽度:", m_CustomOutlineSize, 1f, 50f);
         EditorGUILayout.EndHorizontal();
 
@@ -718,7 +797,10 @@ public class GameTestWindow : EditorWindow
             var method = m_OutlineTestController.GetType().GetMethod("TestCustomOutline");
             if (method != null)
             {
-                method.Invoke(m_OutlineTestController, new object[] { m_CustomOutlineColor, m_CustomOutlineSize });
+                method.Invoke(
+                    m_OutlineTestController,
+                    new object[] { m_CustomOutlineColor, m_CustomOutlineSize }
+                );
             }
         }
 
@@ -741,7 +823,8 @@ public class GameTestWindow : EditorWindow
         // 状态和清理
         EditorGUILayout.LabelField("状态", EditorStyles.boldLabel);
         var getCountMethod = m_OutlineTestController.GetType().GetMethod("GetActiveCount");
-        int activeCount = getCountMethod != null ? (int)getCountMethod.Invoke(m_OutlineTestController, null) : 0;
+        int activeCount =
+            getCountMethod != null ? (int)getCountMethod.Invoke(m_OutlineTestController, null) : 0;
         EditorGUILayout.LabelField($"当前活跃描边数: {activeCount}");
 
         EditorGUILayout.Space();
@@ -783,7 +866,10 @@ public class GameTestWindow : EditorWindow
             if (gm != null)
             {
                 var inGameState = gm.GetInGameState();
-                if (inGameState != null && inGameState.CurrentSubState != InGameStateType.CombatPreparation)
+                if (
+                    inGameState != null
+                    && inGameState.CurrentSubState != InGameStateType.CombatPreparation
+                )
                 {
                     inGameState.SwitchToCombatPreparation();
                 }
@@ -834,36 +920,64 @@ public class GameTestWindow : EditorWindow
         // 日志统计（两行显示）
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField($"总日志: {logBuffer.TotalLogCount}", GUILayout.Width(100));
-        EditorGUILayout.LabelField($"Info: {logBuffer.GetLogCountByType(LogType.Log)}", GUILayout.Width(100));
+        EditorGUILayout.LabelField(
+            $"Info: {logBuffer.GetLogCountByType(LogType.Log)}",
+            GUILayout.Width(100)
+        );
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField($"Warning: {logBuffer.GetLogCountByType(LogType.Warning)}", GUILayout.Width(100));
-        EditorGUILayout.LabelField($"Error: {logBuffer.GetLogCountByType(LogType.Error)}", GUILayout.Width(100));
+        EditorGUILayout.LabelField(
+            $"Warning: {logBuffer.GetLogCountByType(LogType.Warning)}",
+            GUILayout.Width(100)
+        );
+        EditorGUILayout.LabelField(
+            $"Error: {logBuffer.GetLogCountByType(LogType.Error)}",
+            GUILayout.Width(100)
+        );
         EditorGUILayout.EndHorizontal();
 
         // 日志统计显示（不再显示详细日志内容）
         EditorGUILayout.LabelField("日志统计已记录", EditorStyles.boldLabel);
-        m_LogScrollPosition = EditorGUILayout.BeginScrollView(m_LogScrollPosition, EditorStyles.helpBox, GUILayout.Height(200));
+        m_LogScrollPosition = EditorGUILayout.BeginScrollView(
+            m_LogScrollPosition,
+            EditorStyles.helpBox,
+            GUILayout.Height(200)
+        );
 
         GUI.color = Color.green;
-        EditorGUILayout.LabelField($"记录日志总数: {logBuffer.TotalLogCount}", EditorStyles.wordWrappedLabel);
+        EditorGUILayout.LabelField(
+            $"记录日志总数: {logBuffer.TotalLogCount}",
+            EditorStyles.wordWrappedLabel
+        );
         GUI.color = Color.white;
 
         GUI.color = Color.cyan;
-        EditorGUILayout.LabelField($"普通日志 (Log): {logBuffer.LogCount}", EditorStyles.wordWrappedLabel);
+        EditorGUILayout.LabelField(
+            $"普通日志 (Log): {logBuffer.LogCount}",
+            EditorStyles.wordWrappedLabel
+        );
         GUI.color = Color.white;
 
         GUI.color = Color.yellow;
-        EditorGUILayout.LabelField($"警告 (Warning): {logBuffer.WarningCount}", EditorStyles.wordWrappedLabel);
+        EditorGUILayout.LabelField(
+            $"警告 (Warning): {logBuffer.WarningCount}",
+            EditorStyles.wordWrappedLabel
+        );
         GUI.color = Color.white;
 
         GUI.color = Color.red;
-        EditorGUILayout.LabelField($"错误 (Error): {logBuffer.ErrorCount}", EditorStyles.wordWrappedLabel);
+        EditorGUILayout.LabelField(
+            $"错误 (Error): {logBuffer.ErrorCount}",
+            EditorStyles.wordWrappedLabel
+        );
         GUI.color = Color.white;
 
         GUI.color = new Color(1f, 0.5f, 0f);
-        EditorGUILayout.LabelField($"异常 (Exception): {logBuffer.ExceptionCount}", EditorStyles.wordWrappedLabel);
+        EditorGUILayout.LabelField(
+            $"异常 (Exception): {logBuffer.ExceptionCount}",
+            EditorStyles.wordWrappedLabel
+        );
         GUI.color = Color.white;
 
         EditorGUILayout.EndScrollView();
@@ -878,7 +992,11 @@ public class GameTestWindow : EditorWindow
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("🔍 浏览", GUILayout.Height(BUTTON_HEIGHT)))
         {
-            string selectedPath = EditorUtility.OpenFolderPanel("选择日志输出路径", currentPath, "");
+            string selectedPath = EditorUtility.OpenFolderPanel(
+                "选择日志输出路径",
+                currentPath,
+                ""
+            );
             if (!string.IsNullOrEmpty(selectedPath))
             {
                 logBuffer.SetOutputPath(selectedPath);
@@ -900,7 +1018,13 @@ public class GameTestWindow : EditorWindow
             logBuffer.ExportLogsToFile();
         }
 
-        GUI.backgroundColor = Color.red;
+        if (GUILayout.Button("📤 导出控制台日志", GUILayout.Height(BUTTON_HEIGHT)))
+        {
+            ExportConsoleLogsToFile(logBuffer.GetOutputPath());
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("清空日志", GUILayout.Height(BUTTON_HEIGHT)))
         {
             if (EditorUtility.DisplayDialog("确认", "确定要清空所有日志吗？", "确定", "取消"))
@@ -914,9 +1038,9 @@ public class GameTestWindow : EditorWindow
 
     private bool ShouldShowLog(LogType type)
     {
-        return (type == LogType.Log && m_ShowInfo) ||
-               (type == LogType.Warning && m_ShowWarning) ||
-               ((type == LogType.Error || type == LogType.Exception) && m_ShowError);
+        return (type == LogType.Log && m_ShowInfo)
+            || (type == LogType.Warning && m_ShowWarning)
+            || ((type == LogType.Error || type == LogType.Exception) && m_ShowError);
     }
 
     private Color GetLogColor(LogType type)
@@ -927,7 +1051,7 @@ public class GameTestWindow : EditorWindow
             LogType.Warning => new Color(1, 0.9f, 0),
             LogType.Error => Color.red,
             LogType.Exception => Color.red,
-            _ => Color.white
+            _ => Color.white,
         };
     }
 
@@ -949,10 +1073,124 @@ public class GameTestWindow : EditorWindow
         if (target == null)
             return;
 
-        var method = target.GetType().GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+        var method = target
+            .GetType()
+            .GetMethod(
+                methodName,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance
+            );
         if (method != null)
         {
             method.Invoke(target, null);
+        }
+    }
+
+    /// <summary>
+    /// 导出当前 Unity Console 中的所有日志到文件（不依赖捕获状态）
+    /// </summary>
+    private void ExportConsoleLogsToFile(string outputPath)
+    {
+        try
+        {
+            var logEntriesType = System.Type.GetType("UnityEditor.LogEntries, UnityEditor");
+            if (logEntriesType == null)
+            {
+                EditorUtility.DisplayDialog("错误", "无法访问 Unity Console 日志", "确定");
+                return;
+            }
+
+            var getCountMethod = logEntriesType.GetMethod(
+                "GetCount",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public
+            );
+            int count = (int)getCountMethod.Invoke(null, null);
+
+            if (count == 0)
+            {
+                EditorUtility.DisplayDialog("提示", "Console 中没有日志", "确定");
+                return;
+            }
+
+            var startMethod = logEntriesType.GetMethod(
+                "StartGettingEntries",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public
+            );
+            var endMethod = logEntriesType.GetMethod(
+                "EndGettingEntries",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public
+            );
+            var getEntryMethod = logEntriesType.GetMethod(
+                "GetEntryInternal",
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public
+            );
+
+            var logEntryType = System.Type.GetType("UnityEditor.LogEntry, UnityEditor");
+            var messageField = logEntryType?.GetField(
+                "message",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance
+            );
+            var modeField = logEntryType?.GetField(
+                "mode",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance
+            );
+
+            if (!System.IO.Directory.Exists(outputPath))
+                System.IO.Directory.CreateDirectory(outputPath);
+
+            string fileName = $"ConsoleLog_{System.DateTime.Now:yyyy-MM-dd_HH-mm-ss}.log";
+            string filePath = System.IO.Path.Combine(outputPath, fileName);
+
+            startMethod?.Invoke(null, null);
+            try
+            {
+                using (
+                    var writer = new System.IO.StreamWriter(
+                        filePath,
+                        false,
+                        System.Text.Encoding.UTF8
+                    )
+                )
+                {
+                    writer.WriteLine(
+                        $"Unity Console 日志导出 - {System.DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                    );
+                    writer.WriteLine(new string('=', 80));
+                    writer.WriteLine($"共 {count} 条日志");
+                    writer.WriteLine(new string('=', 80));
+                    writer.WriteLine();
+
+                    var entryObj = System.Activator.CreateInstance(logEntryType);
+                    for (int i = 0; i < count; i++)
+                    {
+                        getEntryMethod?.Invoke(null, new object[] { i, entryObj });
+                        string msg = messageField?.GetValue(entryObj) as string ?? "";
+                        int mode = modeField != null ? (int)modeField.GetValue(entryObj) : 0;
+
+                        // mode 低位：1=Error/Assert, 4=Warning, 其余=Log
+                        string typeStr =
+                            (mode & 1) != 0 ? "[Error]"
+                            : (mode & 4) != 0 ? "[Warning]"
+                            : "[Log]";
+
+                        // 只取第一行，避免堆栈信息混入
+                        int newline = msg.IndexOf('\n');
+                        string firstLine = newline > 0 ? msg.Substring(0, newline) : msg;
+                        writer.WriteLine($"{typeStr} {firstLine}");
+                    }
+                }
+            }
+            finally
+            {
+                endMethod?.Invoke(null, null);
+            }
+
+            Debug.Log($"[GameTestWindow] Console 日志已导出: {filePath}");
+            EditorUtility.DisplayDialog("导出成功", $"已导出 {count} 条日志\n{filePath}", "确定");
+        }
+        catch (System.Exception ex)
+        {
+            EditorUtility.DisplayDialog("导出失败", ex.Message, "确定");
+            Debug.LogError($"[GameTestWindow] 导出 Console 日志失败: {ex}");
         }
     }
 

@@ -13,6 +13,7 @@ public class ItemManager : SingletonBase<ItemManager>
     private Dictionary<int, SpecialEffectData> m_EffectDataDict;
     private Dictionary<int, AffixData> m_AffixDataDict;
     private Dictionary<int, SynergyData> m_SynergyDataDict;
+
     // key = ItemTableId
     private Dictionary<int, ConsumableData> m_ConsumableDataDict;
     private Dictionary<int, TreasureData> m_TreasureDataDict;
@@ -138,7 +139,10 @@ public class ItemManager : SingletonBase<ItemManager>
             m_ConsumableDataDict[row.ItemTableId] = data;
         }
 
-        DebugEx.Success("ItemManager", $"消耗品配置表加载完成，共 {m_ConsumableDataDict.Count} 条数据");
+        DebugEx.Success(
+            "ItemManager",
+            $"消耗品配置表加载完成，共 {m_ConsumableDataDict.Count} 条数据"
+        );
     }
 
     /// <summary>
@@ -213,7 +217,10 @@ public class ItemManager : SingletonBase<ItemManager>
             m_EquipmentDataDict[row.ItemTableId] = data;
         }
 
-        DebugEx.Success("ItemManager", $"装备配置表加载完成，共 {m_EquipmentDataDict.Count} 条数据");
+        DebugEx.Success(
+            "ItemManager",
+            $"装备配置表加载完成，共 {m_EquipmentDataDict.Count} 条数据"
+        );
     }
 
     /// <summary>
@@ -378,7 +385,10 @@ public class ItemManager : SingletonBase<ItemManager>
     /// <summary>
     /// 从宝物物品创建持久化数据（用于保存到存档）
     /// </summary>
-    public TreasureInstanceData CreateTreasureInstanceData(TreasureItem treasureItem, int instanceId)
+    public TreasureInstanceData CreateTreasureInstanceData(
+        TreasureItem treasureItem,
+        int instanceId
+    )
     {
         if (treasureItem == null)
         {
@@ -393,10 +403,13 @@ public class ItemManager : SingletonBase<ItemManager>
             EnhanceLevel = 0,
             Location = TreasureLocation.Inventory,
             EquippedChessId = 0,
-            Affixes = treasureItem.GetAffixDataForPersistence()
+            Affixes = treasureItem.GetAffixDataForPersistence(),
         };
 
-        DebugEx.Log("ItemManager", $"创建宝物实例: {treasureItem.Name} (InstanceId:{instanceId}, 词条数:{instanceData.Affixes.Count})");
+        DebugEx.Log(
+            "ItemManager",
+            $"创建宝物实例: {treasureItem.Name} (InstanceId:{instanceId}, 词条数:{instanceData.Affixes.Count})"
+        );
         return instanceData;
     }
 
@@ -663,11 +676,22 @@ public class ItemManager : SingletonBase<ItemManager>
             {
                 string name = property.Name;
                 // 兼容旧配置表中的属性名
-                if (name == "MagicPower") name = "SpellPower";
+                if (name == "MagicPower")
+                    name = "SpellPower";
 
                 if (System.Enum.TryParse<AttributeType>(name, out var attrType))
                 {
-                    float value = property.Value.ToObject<float>();
+                    // 兼容百分比格式，如 "15%" → 0.15f
+                    string rawValue = property.Value.ToString();
+                    float value;
+                    if (rawValue.EndsWith("%"))
+                    {
+                        value = float.Parse(rawValue.TrimEnd('%')) / 100f;
+                    }
+                    else
+                    {
+                        value = property.Value.ToObject<float>();
+                    }
                     dict[attrType] = value;
                 }
                 else

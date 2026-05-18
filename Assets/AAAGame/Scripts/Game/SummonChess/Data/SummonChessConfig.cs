@@ -95,7 +95,7 @@ public class SummonChessConfig
         }
 
         // 验证数值
-        if (MaxHp == null || MaxHp.Length == 0 || MaxHp[0] <= 0)
+        if (MaxHp == null || MaxHp.Length == 0 || MaxHp[0] < 0)
         {
             errorMsg = $"Invalid MaxHp: {MaxHp} for Id: {Id}";
             return false;
@@ -107,7 +107,12 @@ public class SummonChessConfig
             return false;
         }
 
-        if (InitialMp == null || InitialMp.Length == 0 || InitialMp[0] < 0 || InitialMp[0] > MaxMp[0])
+        if (
+            InitialMp == null
+            || InitialMp.Length == 0
+            || InitialMp[0] < 0
+            || (MaxMp[0] > 0 && InitialMp[0] > MaxMp[0])
+        )
         {
             errorMsg = $"Invalid InitialMp for Id: {Id}";
             return false;
