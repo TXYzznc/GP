@@ -814,7 +814,7 @@ public partial class CombatPreparationUI : UIFormBase
         }
 
         m_NotificationCts = new System.Threading.CancellationTokenSource();
-        DisplayEnemyBuffNotificationAsync(buffId, m_NotificationCts.Token);
+        DisplayEnemyBuffNotificationAsync(buffId, m_NotificationCts.Token).Forget();
     }
 
     /// <summary>
@@ -1107,7 +1107,7 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>
     /// 异步显示敌方先手效果通知
     /// </summary>
-    private async void DisplayEnemyBuffNotificationAsync(
+    private async UniTaskVoid DisplayEnemyBuffNotificationAsync(
         int effectId,
         System.Threading.CancellationToken cancellationToken
     )

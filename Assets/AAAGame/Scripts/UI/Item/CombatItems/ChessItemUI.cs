@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -169,10 +170,10 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
             }
 
             // 加载图标（异步，使用Rank 1）
-            LoadIconAsync(config.GetIconId(1));
+            LoadIconAsync(config.GetIconId(1)).Forget();
 
             // ⭐ 根据稀有度设置卡牌框、背景和名字背景
-            SetQualityUI(config.Quality);
+            SetQualityUI(config.Quality).Forget();
 
             // 刷新出战/死亡状态显示
             RefreshDeployStatus();
@@ -197,7 +198,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     /// <summary>
     /// 根据稀有度设置卡牌框、背景和名字背景
     /// </summary>
-    private async void SetQualityUI(int quality)
+    private async UniTaskVoid SetQualityUI(int quality)
     {
         // 稀有度映射到资源ID
         int cardFrameId = 19000 + quality;
@@ -242,7 +243,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     /// <summary>
     /// 异步加载图标
     /// </summary>
-    private async void LoadIconAsync(int iconResourceId)
+    private async UniTaskVoid LoadIconAsync(int iconResourceId)
     {
         if (varImage == null)
             return;

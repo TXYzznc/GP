@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using GameExtension;
 using UnityEngine;
 using UnityGameFramework.Runtime;
@@ -90,7 +91,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
         int prefabConfigId = summonerRow.PrefabId;
 
         // 异步加载并生成角色
-        SpawnCharacter(prefabConfigId, spawnPosition, onComplete);
+        SpawnCharacter(prefabConfigId, spawnPosition, onComplete).Forget();
     }
 
     /// <summary>
@@ -144,7 +145,7 @@ public class PlayerCharacterManager : SingletonBase<PlayerCharacterManager>
     /// <summary>
     /// 生成角色
     /// </summary>
-    private async void SpawnCharacter(
+    private async UniTask SpawnCharacter(
         int prefabConfigId,
         Vector3 position,
         Action<GameObject> onComplete

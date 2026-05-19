@@ -65,6 +65,8 @@ namespace GameExtension
             // 根据资源类型构建完整路径
             string fullPath = GetFullAssetPath(config.Path, (ResourceType)config.Type);
 
+            DebugEx.Log("ResourceExtension", $"[加载开始-回调] ConfigId={configId} | Type={((ResourceType)config.Type)} | Path={fullPath} | T={typeof(T).Name}");
+
             // ✅ 使用正确的方式：LoadAsset(string, Type, LoadAssetCallbacks)
             GF.Resource.LoadAsset(
                 fullPath,
@@ -72,6 +74,7 @@ namespace GameExtension
                 new LoadAssetCallbacks(
                     (assetName, asset, duration, userData) =>
                     {
+                        DebugEx.Log("ResourceExtension", $"[加载成功-回调] ConfigId={configId} | Path={fullPath}");
                         // 成功回调
                         onSuccess?.Invoke(asset as T);
                     },
@@ -183,10 +186,17 @@ namespace GameExtension
             // 根据资源类型构建完整路径
             string fullPath = GetFullAssetPath(config.Path, (ResourceType)config.Type);
 
+            DebugEx.Log("ResourceExtension", $"[加载开始] ConfigId={configId} | Type={((ResourceType)config.Type)} | Path={fullPath} | T={typeof(T).Name}");
+
             try
             {
                 // ✅ 使用 AwaitExtension 中的 LoadAssetAwait 方法
-                return await GF.Resource.LoadAssetAwait<T>(fullPath);
+                var result = await GF.Resource.LoadAssetAwait<T>(fullPath);
+                if (result != null)
+                    DebugEx.Log("ResourceExtension", $"[加载成功] ConfigId={configId} | Path={fullPath}");
+                else
+                    DebugEx.Warning("ResourceExtension", $"[加载结果为null] ConfigId={configId} | Path={fullPath}");
+                return result;
             }
             catch (Exception ex)
             {

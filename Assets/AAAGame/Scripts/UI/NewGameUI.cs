@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using GameExtension;
 using UnityEngine;
 using UnityEngine.Events;
@@ -388,7 +389,7 @@ public partial class NewGameUI : UIFormBase
         UpdateSkillDisplay(summoner);
 
         // 加载并显示召唤师模型
-        LoadSummonerModel(summoner);
+        LoadSummonerModel(summoner).Forget();
     }
 
     /// <summary>
@@ -815,7 +816,7 @@ public partial class NewGameUI : UIFormBase
     /// <summary>
     /// 加载并显示召唤师模型
     /// </summary>
-    private async void LoadSummonerModel(SummonerTable summoner)
+    private async UniTaskVoid LoadSummonerModel(SummonerTable summoner)
     {
         if (summoner == null || m_ModelViewer == null)
             return;

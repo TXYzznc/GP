@@ -32,7 +32,7 @@ public class PreloadProcedure : ProcedureBase
         GF.Log("加载HybridCLR热更代码! 预加载游戏数据...");
 
         InitAppSettings();
-        PreloadAndInitData();
+        PreloadAndInitData().Forget();
     }
 
     protected override void OnLeave(IFsm<IProcedureManager> procedureOwner, bool isShutdown)
@@ -230,7 +230,7 @@ public class PreloadProcedure : ProcedureBase
     /// <summary>
     /// 预加载数据表和游戏配置，以及初始化游戏数据
     /// </summary>
-    private async void PreloadAndInitData()
+    private async UniTaskVoid PreloadAndInitData()
     {
         preloadAllCompleted = false;
         smoothProgress = 0;
@@ -292,7 +292,7 @@ public class PreloadProcedure : ProcedureBase
         GF.Log("棋子系统初始化完成");
     }
 
-    private async void LoadConfigsAndDataTables()
+    private async UniTaskVoid LoadConfigsAndDataTables()
     {
         var appConfig = await AppConfigs.GetInstanceSync();
         m_DataTablesCount = appConfig.DataTables.Length;
@@ -318,7 +318,7 @@ public class PreloadProcedure : ProcedureBase
         );
     }
 
-    private async void InitAndLoadLanguage()
+    private async UniTaskVoid InitAndLoadLanguage()
     {
         // 初始化语言
         GameFramework.Localization.Language language = GF.Setting.GetLanguage();
@@ -370,7 +370,7 @@ public class PreloadProcedure : ProcedureBase
         {
             GF.Log("GF框架扩展成功!");
             loadedProgress++;
-            LoadConfigsAndDataTables();
+            LoadConfigsAndDataTables().Forget();
         }
     }
 
@@ -425,7 +425,7 @@ public class PreloadProcedure : ProcedureBase
                 ItemManager.Instance.LoadAllTables();
             }
 
-            InitAndLoadLanguage();
+            InitAndLoadLanguage().Forget();
         }
     }
 

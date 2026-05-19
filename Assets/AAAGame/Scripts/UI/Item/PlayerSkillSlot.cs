@@ -38,7 +38,12 @@ public partial class PlayerSkillSlot : UIItemBase
     /// <summary>
     /// 绑定技能数据
     /// </summary>
-    public async void BindSkill(IPlayerSkill skill, SkillCommonConfig config, int slotIndex)
+    public void BindSkill(IPlayerSkill skill, SkillCommonConfig config, int slotIndex)
+    {
+        BindSkillAsync(skill, config, slotIndex).Forget();
+    }
+
+    private async UniTaskVoid BindSkillAsync(IPlayerSkill skill, SkillCommonConfig config, int slotIndex)
     {
         m_Skill = skill;
         m_SkillConfig = config;

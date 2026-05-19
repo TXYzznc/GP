@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AAAGame.Audio;
+using Cysharp.Threading.Tasks;
 using GameFramework.Event;
 using GameFramework.Fsm;
 using GameFramework.Procedure;
@@ -31,9 +32,6 @@ public class GameProcedure : ProcedureBase
             GF.Base.ResumeGame();
         }
 
-        // 根据当前场景类型初始化游戏状态
-        InitializeGameStateByScene();
-
         // 锁定鼠标（进入游戏流程）
         if (PlayerInputManager.Instance != null)
         {
@@ -44,11 +42,6 @@ public class GameProcedure : ProcedureBase
         // 订阅游戏事件
         GF.Event.Subscribe(OpenUIFormSuccessEventArgs.EventId, OnOpenUIFormSuccess);
         GF.Event.Subscribe(CloseUIFormCompleteEventArgs.EventId, OnCloseUIForm);
-
-        // TODO: 这里开始初始化游戏相关的内容
-        // 例如：打开游戏UI，开始加载关卡，生成实体等
-        // GF.UI.OpenUIForm(UIViews.GameUIForm);
-        // 建议：先生成后再加载，生成角色
 
         // 0. 加载日志配置（仅编辑器模式）
 #if UNITY_EDITOR
@@ -61,33 +54,21 @@ public class GameProcedure : ProcedureBase
         // 1. 初始化物品效果工厂
         ItemEffectFactory.RegisterAll();
 
-        // 2. 先实例化技能管理器（在场景中）
-        InitializeSkillManager();
-
-        // 3. 初始化卡牌系统（动态添加 CardManager）
+        // 2. 初始化卡牌系统
         InitializeCardSystem();
 
-        // 4. 初始化战斗特效系统
-        InitializeCombatVFXSystem();
+        // 3. 初始化战斗特效系统
+        InitializeCombatVFXSystem().Forget();
 
-        // 5. 初始化场景生成管理器（根据当前地图 ID 生成敌人/宝箱）
+        // 4. 初始化场景生成管理器
         InitializeSceneSpawnManager();
 
-        // 6. 打开常驻游戏UI（这些UI会根据状态事件自动显示/隐藏）
-        OpenGameUIs();
+        // 5. 打开常驻游戏UI，等所有UI加载完后再切换游戏状态
+        // 注意：状态切换会Fire事件，UI必须已订阅（OnOpen中订阅）才能收到
+        OpenGameUIsAndInitStateAsync().Forget();
 
-        // 7. 最后生成角色（敌人AI测试模式由panel生成）
-        var testModeData = m_ProcedureFsm.GetData<VarString>("IsExploreAITestMode");
-        bool isTestMode = testModeData != null && testModeData.Value == "true";
-
-        if (!isTestMode)
-        {
-            PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
-        }
-        else
-        {
-            DebugEx.Log("GameProcedure", "✓ 敌人AI测试模式已识别，跳过自动玩家生成");
-        }
+        // 6. 异步加载SkillManager，完成后再生成角色（只有角色生成需要等SkillManager）
+        SpawnCharacterAfterSkillManagerAsync().Forget();
 
         Log.Info("GameProcedure 初始化完成");
     }
@@ -219,8 +200,7 @@ public class GameProcedure : ProcedureBase
 
     private void OnOpenUIFormSuccess(object sender, GameEventArgs e)
     {
-        // TODO: 处理UI打开事件
-        // 例如：打开暂停菜单时暂停游戏
+        // 由 OpenGameUIsAndInitStateAsync 通过 OpenUIFormAwait 精确等待，此处不再使用全局计数
     }
 
     private void OnCloseUIForm(object sender, GameEventArgs e)
@@ -234,7 +214,7 @@ public class GameProcedure : ProcedureBase
     /// <summary>
     /// 初始化技能管理器
     /// </summary>
-    private async void InitializeSkillManager()
+    public async UniTask InitializeSkillManagerAsync()
     {
         // 创建技能管理器对象
         GameObject skillManagerObj = new GameObject("PlayerSkillManager");
@@ -266,6 +246,27 @@ public class GameProcedure : ProcedureBase
         Log.Info("GameProcedure: 技能管理器已创建");
     }
 
+    /// <summary>
+    /// 等待技能参数注册表加载完成后，再执行后续初始化和角色生成
+    /// 解决打包后异步加载比编辑器慢导致的时序问题
+    /// </summary>
+    private async UniTask SpawnCharacterAfterSkillManagerAsync()
+    {
+        await InitializeSkillManagerAsync();
+
+        var testModeData = m_ProcedureFsm.GetData<VarString>("IsExploreAITestMode");
+        bool isTestMode = testModeData != null && testModeData.Value == "true";
+
+        if (!isTestMode)
+        {
+            PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
+        }
+        else
+        {
+            DebugEx.Log("GameProcedure", "✓ 敌人AI测试模式已识别，跳过自动玩家生成");
+        }
+    }
+
     #endregion
 
     #region 卡牌系统初始化
@@ -291,7 +292,7 @@ public class GameProcedure : ProcedureBase
     /// <summary>
     /// 初始化战斗特效系统
     /// </summary>
-    private async void InitializeCombatVFXSystem()
+    private async UniTaskVoid InitializeCombatVFXSystem()
     {
         // CombatVFXManager 是静态类，调用初始化方法
         // 使用 InitializeAndWaitAsync 确保初始化完成后再继续
@@ -377,6 +378,18 @@ public class GameProcedure : ProcedureBase
         if (character != null)
         {
             Log.Info("角色生成成功，开始游戏流程");
+
+            // 局外状态下确保 PlayerController 启用（角色生成时状态已切换，OnEnter里角色还不存在）
+            var currentState = GameStateManager.Instance.CurrentState;
+            if (currentState == GameStateType.OutOfGame)
+            {
+                var controller = character.GetComponent<PlayerController>();
+                if (controller != null)
+                {
+                    controller.enabled = true;
+                    DebugEx.Log(nameof(GameProcedure), "局外场景角色生成完成，PlayerController 已启用");
+                }
+            }
 
             // 为玩家角色添加战斗机会检测器
             AddCombatOpportunityDetector(character);
@@ -564,58 +577,38 @@ public class GameProcedure : ProcedureBase
     }
 
     /// <summary>
-    /// 打开常驻游戏UI
+    /// 并行打开所有UI，等全部加载完成后再切换游戏状态
+    /// 用 UniTask.WhenAll 精确等待，避免全局事件计数的干扰
     /// </summary>
-    private void OpenGameUIs()
+    private async UniTaskVoid OpenGameUIsAndInitStateAsync()
     {
-        var gameState = GameStateManager.Instance.CurrentState;
+        // 用场景类型判断要打开哪些UI（此时gameState还没切换，不能用它）
+        var sceneType = SceneStateManager.Instance.CurrentSceneType;
+        var targetGameState = SceneStateManager.Instance.GetGameStateBySceneType(sceneType);
 
-        // 局外状态UI（基地场景）
-        if (gameState == GameStateType.OutOfGame)
+        if (targetGameState == GameStateType.OutOfGame)
         {
-            // 打开经常通用UI（右上角 - 货币显示）
-            GF.UI.OpenUIForm(UIViews.CurrencyUI);
-            Log.Info("GameProcedure: 已打开 CurrencyUI");
-
-            // 打开游戏信息UI
-            GF.UI.OpenUIForm(UIViews.GamePlayInfoUI);
-            Log.Info("GameProcedure: 已打开 GamePlayInfoUI");
-
-            // 打开星机UI
-            GF.UI.OpenUIForm(UIViews.StarPhoneUI);
-            Log.Info("GameProcedure: 已打开 StarPhoneUI");
-
-            // 打开局外功能UI
-            GF.UI.OpenUIForm(UIViews.OutsiderFunctionUI);
-            Log.Info("GameProcedure: 已打开 OutsiderFunctionUI");
+            await UniTask.WhenAll(
+                GF.UI.OpenUIFormAwait(UIViews.CurrencyUI),
+                GF.UI.OpenUIFormAwait(UIViews.GamePlayInfoUI),
+                GF.UI.OpenUIFormAwait(UIViews.StarPhoneUI),
+                GF.UI.OpenUIFormAwait(UIViews.OutsiderFunctionUI)
+            );
         }
-        // 局内状态UI（探索/战斗场景）
-        else if (gameState == GameStateType.InGame)
+        else if (targetGameState == GameStateType.InGame)
         {
-            // 打开经常通用UI（左上角 - 游戏信息）
-            GF.UI.OpenUIForm(UIViews.GamePlayInfoUI);
-            Log.Info("GameProcedure: 已打开 GamePlayInfoUI");
-
-            // 打开经常通用UI（右上角 - 货币显示）
-            GF.UI.OpenUIForm(UIViews.CurrencyUI);
-            Log.Info("GameProcedure: 已打开 CurrencyUI");
-
-            // 探索UI（右下角 - 星机）
-            GF.UI.OpenUIForm(UIViews.StarPhoneUI);
-            Log.Info("GameProcedure: 已打开 StarPhoneUI");
-
-            // 战斗UI（开始隐藏，等待战斗状态事件）
-            GF.UI.OpenUIForm(UIViews.CombatUI);
-            Log.Info("GameProcedure: 已打开 CombatUI");
-
-            // 打开技能UI（底部中间 - 技能快捷栏）
-            GF.UI.OpenUIForm(UIViews.PlayerSkillUI);
-            Log.Info("GameProcedure: 已打开 PlayerSkillUI");
-
-            // 注意：背包UI不在这里打开，由玩家手动打开
-            // 注意：这些UI打开后会被隐藏（SetActive(false)）
-            // 在状态切换时，它们会根据订阅的事件自动显示/隐藏
+            await UniTask.WhenAll(
+                GF.UI.OpenUIFormAwait(UIViews.GamePlayInfoUI),
+                GF.UI.OpenUIFormAwait(UIViews.CurrencyUI),
+                GF.UI.OpenUIFormAwait(UIViews.StarPhoneUI),
+                GF.UI.OpenUIFormAwait(UIViews.CombatUI),
+                GF.UI.OpenUIFormAwait(UIViews.PlayerSkillUI)
+            );
         }
+
+        // 所有UI都已 OnOpen（SubscribeEvents已执行），现在切换状态才能让UI收到事件
+        InitializeGameStateByScene();
+        Log.Info("GameProcedure: 所有UI加载完成，游戏状态已初始化");
     }
 
     #region 音乐系统初始化

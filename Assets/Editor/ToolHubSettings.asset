@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ToolHubSettings
   m_EditorClassIdentifier: 
   locked: 0
-  selectedIndex: 7
+  selectedIndex: 5
   tools:
   - typeName: NoiseGeneratorPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
@@ -63,3 +63,7 @@ MonoBehaviour:
       PublicKeyToken=null
     displayName: "\u654C\u4EBAAI\u6A21\u62DF\u5668"
     description: "\u751F\u6210\u73A9\u5BB6\u548C\u654C\u4EBA\uFF0C\u6D4B\u8BD5AI\u884C\u4E3A\uFF08\u89C6\u91CE\u68C0\u6D4B\u3001\u8B66\u89C9\u3001\u8FFD\u51FB\u7B49\uFF09"
+  - typeName: FindMissingScriptPanel, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    displayName: FindMissingScript
+    description: "\u626B\u63CF\u9884\u5236\u4F53\u4E2D\u7684\u7F3A\u5931\u811A\u672CGUID\u5F15\u7528"

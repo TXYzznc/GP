@@ -11,6 +11,13 @@ using UnityEngine.AI;
 /// </summary>
 public class SceneSpawnManager : MonoBehaviour
 {
+    private struct SpawnConfig
+    {
+        public long SpawnTargetId;
+        public int ComputedDifficultyLevel;
+        public float LevelCoefficient;
+    }
+
     private int m_MapId;
     private bool m_ShowSpawnLogs = true;
 
@@ -107,10 +114,14 @@ public class SceneSpawnManager : MonoBehaviour
     {
         m_Statistics.Reset();
 
-        await UniTask.Yield();
+        // 等待多帧确保NavMesh在打包后完全初始化（打包后比编辑器慢）
+        for (int i = 0; i < 10; i++)
+        {
+            await UniTask.Yield();
+            m_CachedTriangulation = NavMesh.CalculateTriangulation();
+            if (m_CachedTriangulation.indices.Length > 0) break;
+        }
 
-        // 初始化 NavMesh 缓存
-        m_CachedTriangulation = NavMesh.CalculateTriangulation();
         if (m_CachedTriangulation.indices.Length == 0)
         {
             DebugEx.Error("SceneSpawnManager", "NavMesh 为空或未烘烤");
@@ -228,8 +239,7 @@ public class SceneSpawnManager : MonoBehaviour
         // 映射到 1-10 级别
         int difficultyLevel = DifficultyCalculator.MapDifficultyToLevel(difficulty);
 
-        // 创建配置对象用于生成，包含难度等级
-        var config = new { SpawnTargetId = (long)enemyId, ComputedDifficultyLevel = difficultyLevel };
+        var config = new SpawnConfig { SpawnTargetId = (long)enemyId, ComputedDifficultyLevel = difficultyLevel };
         await TrySpawnAsync(config, isEnemy: true);
     }
 
@@ -238,12 +248,11 @@ public class SceneSpawnManager : MonoBehaviour
     /// </summary>
     private async UniTask TrySpawnChestAsync(int chestId, float levelCoefficient)
     {
-        // 创建配置对象用于生成（需要传递等级系数给 SetTreasureBoxData）
-        var config = new { SpawnTargetId = (long)chestId, LevelCoefficient = levelCoefficient };
+        var config = new SpawnConfig { SpawnTargetId = (long)chestId, LevelCoefficient = levelCoefficient };
         await TrySpawnAsync(config, isEnemy: false);
     }
 
-    private async UniTask TrySpawnAsync(dynamic config, bool isEnemy, float difficulty = 0f, float levelCoefficient = 0f)
+    private async UniTask TrySpawnAsync(SpawnConfig config, bool isEnemy, float difficulty = 0f, float levelCoefficient = 0f)
     {
         // 获取对应类型的参数
         int maxAttempts = isEnemy ? m_EnemyMaxAttempts : m_ChestMaxAttempts;
@@ -272,7 +281,7 @@ public class SceneSpawnManager : MonoBehaviour
         {
             m_Statistics.PrefabLoadFailures++;
             DebugEx.Warning("SceneSpawnManager",
-                $"❌ 找不到预制体配置: 目标ID={config.SpawnTargetId}");
+                $"❌ 找不到预制体配置: 目标ID={targetId}");
             return;
         }
 
@@ -315,10 +324,7 @@ public class SceneSpawnManager : MonoBehaviour
                 {
                     enemyEntity.SetEntityConfigId(targetId);
 
-                    // 设置动态难度等级（来自dynamic对象或默认值）
-                    int difficultyLevel = 0;
-                    if (config.ComputedDifficultyLevel != null)
-                        difficultyLevel = (int)config.ComputedDifficultyLevel;
+                    int difficultyLevel = config.ComputedDifficultyLevel;
                     if (difficultyLevel > 0)
                         enemyEntity.SetComputedDifficultyLevel(difficultyLevel);
 
@@ -350,10 +356,7 @@ public class SceneSpawnManager : MonoBehaviour
 
                 try
                 {
-                    // 获取等级系数（来自dynamic对象或默认值）
-                    float levelCoeff = 100f; // 默认值
-                    if (config.LevelCoefficient != null)
-                        levelCoeff = (float)config.LevelCoefficient;
+                    float levelCoeff = config.LevelCoefficient > 0f ? config.LevelCoefficient : 100f;
 
                     chest.SetTreasureBoxData(targetId, levelCoeff);
                     m_Statistics.SuccessfulSpawns++;

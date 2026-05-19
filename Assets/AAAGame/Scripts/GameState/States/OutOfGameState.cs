@@ -21,8 +21,25 @@ public class OutOfGameState : FsmState<GameStateManager>
         base.OnEnter(fsm);
         DebugEx.Log("OutOfGameState", "进入局外状态");
 
+        // 局外也需要玩家可以行走，启用 PlayerController
+        // 注意：角色可能还未生成（异步加载中），此处先尝试启用，角色生成后由 OnCharacterSpawned 再次确保启用
+        EnablePlayerController();
+
         // 触发进入局外状态事件
         GF.Event.Fire(this, ReferencePool.Acquire<OutOfGameEnterEventArgs>());
+    }
+
+    private void EnablePlayerController()
+    {
+        if (PlayerCharacterManager.Instance == null) return;
+        var character = PlayerCharacterManager.Instance.CurrentPlayerCharacter;
+        if (character == null) return;
+        var controller = character.GetComponent<PlayerController>();
+        if (controller != null)
+        {
+            controller.enabled = true;
+            DebugEx.Log("OutOfGameState", "PlayerController 已启用");
+        }
     }
 
     protected override void OnUpdate(IFsm<GameStateManager> fsm, float elapseSeconds, float realElapseSeconds)
