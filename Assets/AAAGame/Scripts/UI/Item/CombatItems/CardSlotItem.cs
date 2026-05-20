@@ -926,21 +926,16 @@ public partial class CardSlotItem
             return;
         }
 
-        // 灵力消耗检查
+        // 先检查灵力是否足够（不扣除）
         float spiritCost = m_CardData.SpiritCost;
-        if (spiritCost > 0)
+        if (spiritCost > 0 && SummonerRuntimeDataManager.Instance.CurrentMP < spiritCost)
         {
-            bool consumed = SummonerRuntimeDataManager.Instance.ConsumeMP(spiritCost);
-            if (!consumed)
-            {
-                DebugEx.Log(this.GetType().Name, $"灵力不足，无法使用卡牌: {m_CardData.Name} (需要 {spiritCost})");
-                ReturnToSlot();
-                return;
-            }
+            DebugEx.Log(this.GetType().Name, $"灵力不足，无法使用卡牌: {m_CardData.Name} (需要 {spiritCost})");
+            ReturnToSlot();
+            return;
         }
 
-        DebugEx.Log(this.GetType().Name, $"执行卡牌效果: {m_CardData.Name}");
-
+        // 先确认是否有有效目标
         var executor = new GameObject("CardEffectExecutor_Temp").AddComponent<CardEffectExecutor>();
         if (executor == null)
         {
@@ -953,16 +948,16 @@ public partial class CardSlotItem
 
         if (!success)
         {
-            // 无有效目标，返还灵力并退回手牌
-            float spiritCost = m_CardData.SpiritCost;
-            if (spiritCost > 0)
-                SummonerRuntimeDataManager.Instance?.AddMP(spiritCost);
             DebugEx.Log(this.GetType().Name, $"卡牌无有效目标，退回手牌: {m_CardData.Name}");
             ReturnToSlot();
             return;
         }
 
-        // 有效果生效：播放闪光并由 OnEndDrag 触发销毁
+        // 有效果生效：此时才扣除灵力
+        if (spiritCost > 0)
+            SummonerRuntimeDataManager.Instance.ConsumeMP(spiritCost);
+
+        DebugEx.Log(this.GetType().Name, $"执行卡牌效果: {m_CardData.Name}");
         PlayFlashEffect();
     }
 
