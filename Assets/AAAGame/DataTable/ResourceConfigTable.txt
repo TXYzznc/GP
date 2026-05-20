@@ -52,7 +52,6 @@
 	1304		1	Chess/嫦娥/立绘.png	棋子-嫦娥图标
 	1310	SummonChessTable使用|资源暂不存在	1	Chess/邪灵/立绘.png	棋子-邪灵图标
 	1311	SummonChessTable使用|资源暂不存在	1	Chess/恶魂/立绘.png	棋子-恶魂图标
-	1399		1	Chess/靶子.png	棋子-靶子图标
 	1401		1	Buff/1.png	灼烧Buff图标
 	1402		1	Buff/2.png	寒霜Buff图标
 	1403		1	Buff/3.png	融化Buff图标
