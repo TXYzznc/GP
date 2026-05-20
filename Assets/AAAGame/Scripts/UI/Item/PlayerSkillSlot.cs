@@ -16,8 +16,8 @@ public partial class PlayerSkillSlot : UIItemBase
     private SkillCommonConfig m_SkillConfig;
     private int m_SlotIndex;
 
-    // 使用反射访问私有字段cdRemain
-    private System.Reflection.FieldInfo m_CdRemainField;
+    // 上帧是否处于冷却中，用于跳过无变化的帧刷新
+    private bool m_WasInCooldown;
 
     #endregion
 
@@ -27,7 +27,6 @@ public partial class PlayerSkillSlot : UIItemBase
     {
         base.OnInit();
 
-        // 初始化时隐藏冷却遮罩UI
         if (varCooldownMask != null)
             varCooldownMask.fillAmount = 0f;
 
@@ -48,30 +47,13 @@ public partial class PlayerSkillSlot : UIItemBase
         m_Skill = skill;
         m_SkillConfig = config;
         m_SlotIndex = slotIndex;
+        m_WasInCooldown = false;
 
-        // 设置按键提示（显示对应的按键名称）
         if (varKeyHint != null)
-        {
-            string keyName = GetKeyNameBySlot(slotIndex);
-            varKeyHint.text = keyName;
-        }
+            varKeyHint.text = GetKeyNameBySlot(slotIndex);
 
-        // 获取cdRemain字段的反射信息（用于读取冷却时间）
-        if (m_Skill != null)
-        {
-            m_CdRemainField = m_Skill
-                .GetType()
-                .GetField(
-                    "cdRemain",
-                    System.Reflection.BindingFlags.NonPublic
-                        | System.Reflection.BindingFlags.Instance
-                );
-        }
-
-        // 加载并设置图标
         await LoadIconAsync(config.IconId);
 
-        // 刷新显示
         RefreshDisplay();
     }
 
@@ -96,7 +78,7 @@ public partial class PlayerSkillSlot : UIItemBase
     {
         m_Skill = null;
         m_SkillConfig = default;
-        m_CdRemainField = null;
+        m_WasInCooldown = false;
 
         // 清空图标
         if (varIcon != null)
@@ -125,12 +107,15 @@ public partial class PlayerSkillSlot : UIItemBase
         if (m_Skill == null)
             return;
 
-        // 获取当前冷却时间
-        float cdRemaining = GetCooldownRemaining();
-        float cdTotal = m_SkillConfig.Cooldown;
+        float cdRemaining = m_Skill.CdRemain;
+        bool isInCooldown = cdRemaining > 0f;
 
-        // 更新冷却显示
-        UpdateCooldownDisplay(cdRemaining, cdTotal);
+        // 不在冷却且上帧也不在冷却：无需刷新，跳过避免 Canvas Rebuild
+        if (!isInCooldown && !m_WasInCooldown)
+            return;
+
+        m_WasInCooldown = isInCooldown;
+        UpdateCooldownDisplay(cdRemaining, m_SkillConfig.Cooldown);
     }
 
     /// <summary>
@@ -193,34 +178,6 @@ public partial class PlayerSkillSlot : UIItemBase
         {
             DebugEx.Error("PlayerSkillSlot", e.Message);
         }
-    }
-
-    #endregion
-
-    #region 冷却时间获取
-
-    /// <summary>
-    /// 获取技能剩余冷却时间（通过反射）
-    /// </summary>
-    private float GetCooldownRemaining()
-    {
-        if (m_Skill == null || m_CdRemainField == null)
-            return 0f;
-
-        try
-        {
-            object value = m_CdRemainField.GetValue(m_Skill);
-            if (value is float cdRemain)
-            {
-                return cdRemain;
-            }
-        }
-        catch (Exception ex)
-        {
-            DebugEx.Error("PlayerSkillSlot", $"获取冷却时间失败: {ex.Message}");
-        }
-
-        return 0f;
     }
 
     #endregion
