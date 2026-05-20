@@ -589,6 +589,10 @@ public partial class CombatUI : StateAwareUIForm
             return;
         }
 
+        // 确保对象池已初始化（打包后需要异步加载Prefab）
+        if (CardSlotItemPool.Instance != null)
+            await CardSlotItemPool.Instance.InitializeAsync();
+
         var container = GetCardSlotContainer();
         if (container == null)
         {

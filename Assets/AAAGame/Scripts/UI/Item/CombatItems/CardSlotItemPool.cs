@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using GameFramework.Resource;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -72,15 +74,19 @@ public class CardSlotItemPool : MonoBehaviour
 
     #region 初始化
 
-    private void EnsureInitialized()
+    /// <summary>
+    /// 异步初始化：通过 GF 资源系统加载 Prefab，确保打包后也能正常使用
+    /// 调用方需先 await 此方法再使用 GetCard()
+    /// </summary>
+    public async UniTask InitializeAsync()
     {
         if (m_Initialized)
             return;
 
         m_Initialized = true;
 
-        // 从资源文件夹加载预制体
-        LoadCardSlotItemPrefab();
+        // 通过 GF 资源系统加载（编辑器和打包后均适用）
+        m_CardSlotItemPrefab = await LoadPrefabAsync();
 
         if (m_CardSlotItemPrefab == null)
         {
@@ -98,36 +104,50 @@ public class CardSlotItemPool : MonoBehaviour
         // 预生成池内对象
         for (int i = 0; i < INITIAL_POOL_SIZE; i++)
         {
-            CreateNewCard();
+            var card = CreateNewCard();
+            if (card != null)
+                m_AvailableCards.Push(card);
         }
 
         DebugEx.Log(this.GetType().Name, $"对象池初始化完成，初始大小={INITIAL_POOL_SIZE}");
     }
 
-    private void LoadCardSlotItemPrefab()
+    private async UniTask<CardSlotItem> LoadPrefabAsync()
     {
-        if (m_CardSlotItemPrefab != null)
-            return;
-
-        // 尝试从资源文件夹加载
 #if UNITY_EDITOR
-        m_CardSlotItemPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<CardSlotItem>(CARD_SLOT_ITEM_PREFAB_PATH);
-        if (m_CardSlotItemPrefab != null)
-        {
-            DebugEx.Log(this.GetType().Name, $"从资源文件夹加载 CardSlotItem 预制体");
-            return;
-        }
+        // 编辑器直接加载
+        var editorPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(CARD_SLOT_ITEM_PREFAB_PATH);
+        if (editorPrefab != null)
+            return editorPrefab.GetComponent<CardSlotItem>();
 #endif
+        // 打包后通过 GF 资源系统加载
+        var tcs = new UniTaskCompletionSource<CardSlotItem>();
+        GF.Resource.LoadAsset(
+            CARD_SLOT_ITEM_PREFAB_PATH,
+            typeof(GameObject),
+            new LoadAssetCallbacks(
+                (assetName, asset, duration, userData) =>
+                {
+                    var go = asset as GameObject;
+                    tcs.TrySetResult(go != null ? go.GetComponent<CardSlotItem>() : null);
+                },
+                (assetName, status, error, userData) =>
+                {
+                    DebugEx.Error(this.GetType().Name, $"加载 CardSlotItem 预制体失败: {error}");
+                    tcs.TrySetResult(null);
+                }
+            )
+        );
+        return await tcs.Task;
+    }
 
-        // 运行时从 Resources 加载（需要将预制体放在 Resources 文件夹）
-        m_CardSlotItemPrefab = Resources.Load<CardSlotItem>("Prefabs/UI/Items/CardSlotItem");
-        if (m_CardSlotItemPrefab != null)
+    private void EnsureInitialized()
+    {
+        // 同步检查，InitializeAsync 应提前被调用
+        if (!m_Initialized || m_CardSlotItemPrefab == null)
         {
-            DebugEx.Log(this.GetType().Name, $"从 Resources 加载 CardSlotItem 预制体");
-            return;
+            DebugEx.Error(this.GetType().Name, "CardSlotItemPool 未初始化，请先调用 InitializeAsync()");
         }
-
-        DebugEx.Error(this.GetType().Name, $"无法加载 CardSlotItem 预制体");
     }
 
     #endregion
@@ -149,8 +169,8 @@ public class CardSlotItemPool : MonoBehaviour
         }
         else
         {
-            // 池中没有可用对象，创建新的
-            card = CreateNewCard();
+            // 池中没有可用对象，直接创建并返回
+            return CreateAndGetNewCard();
         }
 
         if (card != null)
@@ -210,6 +230,21 @@ public class CardSlotItemPool : MonoBehaviour
         card.gameObject.name = $"CardSlotItem_Pool_{m_AvailableCards.Count + m_ActiveCards.Count}";
 
         DebugEx.Log(this.GetType().Name, $"创建新卡牌，当前池大小={m_AvailableCards.Count + m_ActiveCards.Count}");
+        return card;
+    }
+
+    /// <summary>
+    /// 从池中获取，池空时创建新卡并直接返回（不 Push 到池里）
+    /// </summary>
+    private CardSlotItem CreateAndGetNewCard()
+    {
+        var card = CreateNewCard();
+        if (card != null)
+        {
+            card.ResetState();
+            card.gameObject.SetActive(true);
+            m_ActiveCards.Add(card);
+        }
         return card;
     }
 
