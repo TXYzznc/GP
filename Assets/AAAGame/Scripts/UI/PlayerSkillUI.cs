@@ -369,7 +369,6 @@ public partial class PlayerSkillUI : StateAwareUIForm
             if (slot == null || !slot.HasSkill())
                 continue;
 
-            // 获取当前冷却时间（通过反射）
             float currentCd = GetSkillCooldown(i);
 
             // 检测是否刚完成冷却
@@ -387,43 +386,13 @@ public partial class PlayerSkillUI : StateAwareUIForm
         }
     }
 
-    /// <summary>
-    /// 获取技能冷却时间（通过反射）
-    /// </summary>
     private float GetSkillCooldown(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= m_SkillManager.Skills.Count)
             return 0f;
 
         var skill = m_SkillManager.Skills[slotIndex];
-        if (skill == null)
-            return 0f;
-
-        try
-        {
-            var cdField = skill
-                .GetType()
-                .GetField(
-                    "cdRemain",
-                    System.Reflection.BindingFlags.NonPublic
-                        | System.Reflection.BindingFlags.Instance
-                );
-
-            if (cdField != null)
-            {
-                object value = cdField.GetValue(skill);
-                if (value is float cdRemain)
-                {
-                    return cdRemain;
-                }
-            }
-        }
-        catch (System.Exception ex)
-        {
-            DebugEx.Error("PlayerSkillUI", $"获取技能冷却时间失败: {ex.Message}");
-        }
-
-        return 0f;
+        return skill?.CdRemain ?? 0f;
     }
 
     /// <summary>

@@ -9,4 +9,7 @@ public interface IPlayerSkill
 
     /// <summary>尝试释放，内部判断冷却、蓝等</summary>
     bool TryCast();
+
+    /// <summary>剩余冷却时间（秒），0 表示可释放</summary>
+    float CdRemain { get; }
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 public class HealSkill : IPlayerSkill
 {
     public int SkillId => common.Id;
+    public float CdRemain => cdRemain;
 
     private PlayerSkillContext ctx;
     private SkillCommonConfig common;

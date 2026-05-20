@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 public class DashSkill : IPlayerSkill
 {
     public int SkillId => common.Id;
+    public float CdRemain => cdRemain;
 
     #region 私有字段
 
