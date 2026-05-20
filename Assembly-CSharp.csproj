@@ -79,7 +79,6 @@
     <Compile Include="Assets\EnvironmentResources\云\SkyCloudsURP\Runtime\Script\SkyCloudTurbulence.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\测试输出日志\unity_log_20260519_182954.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\AAAGame\DataTable\Core\LanguagesTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SynergyTable.txt" />
@@ -115,12 +114,9 @@
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_183105.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatRuleTable.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_183333.txt" />
     <None Include="Assets\AAAGame\DataTable\TreasureBoxTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_183341.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Particles_Cutout.shader" />
     <None Include="Assets\AAAGame\DataTable\AudioClipTable.txt" />
     <None Include="Assets\AAAGame\DataTable\BuffTable.txt" />
@@ -135,17 +131,16 @@
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\VFX_Resources\Shaders\PFX_Trail.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_181525.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF.shader" />
     <None Include="Assets\link.xml" />
     <None Include="Assets\AAAGame\DataTable\Core\SoundGroupTable.txt" />
-    <None Include="Assets\测试输出日志\snapshot_20260519_154514.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\AAAGame\DataTable\EnemyTable.txt" />
     <None Include="Assets\TA\Cartoon\BuildingCartoon.shader" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Dilate.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260520_182102.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
     <None Include="Assets\AAAGame\DataTable\TargetSearchStrategyTable.txt" />
@@ -166,7 +161,6 @@
     <None Include="Assets\AAAGame\DataTable\EnemyEntityTable.txt" />
     <None Include="Assets\AAAGame\DataTable\ChessEXPRuleTable.txt" />
     <None Include="Assets\TA\OuterGlow\Custom_Outline_Blur.shader" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_183228.txt" />
     <None Include="Assets\AAAGame\DataTable\PlayerAccountTable.txt" />
     <None Include="Assets\AAAGame\DataTable\ProfessionAttributeModel.txt" />
     <None Include="Assets\AAAGame\DataTable\MapSpawnTable.txt" />
@@ -178,8 +172,6 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\AAAGame\DataTable\SceneTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_183403.txt" />
-    <None Include="Assets\测试输出日志\unity_log_20260519_154504.txt" />
     <None Include="Assets\AAAGame\DataTable\PosTable.txt" />
     <None Include="Assets\TA\Cartoon\PlayerCartoon.shader" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
