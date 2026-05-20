@@ -27,6 +27,10 @@ public partial class CardSlotItem
     private Vector2 m_BaseAnchoredPos;
     private float m_BaseRotZ;
 
+    // 缓存父级组件，避免 GetComponentInParent 重复查找
+    private CombatUI m_CombatUI;
+    private Canvas m_ParentCanvas;
+
     // 拖拽相关字段
     private GameObject m_DragPreview;
     private Image m_DragPreviewImage;
@@ -84,6 +88,9 @@ public partial class CardSlotItem
         m_Container = container;
         m_BaseAnchoredPos = anchoredPos;
         m_BaseRotZ = rotZ;
+
+        m_CombatUI = GetComponentInParent<CombatUI>();
+        m_ParentCanvas = GetComponentInParent<Canvas>();
 
         // 更新 RectTransform
         var rectTransform = GetComponent<RectTransform>();
@@ -471,7 +478,7 @@ public partial class CardSlotItem
         }
 
         // 显示 DetailInfoUI 并播放滑入动画
-        var combatUI = GetComponentInParent<CombatUI>();
+        var combatUI = m_CombatUI;
         if (combatUI != null)
         {
             var detailUI = combatUI.GetDetailInfoUI();
@@ -522,7 +529,7 @@ public partial class CardSlotItem
     /// </summary>
     private void HideDetailInfoUI()
     {
-        var combatUI = GetComponentInParent<CombatUI>();
+        var combatUI = m_CombatUI;
         if (combatUI != null)
         {
             var detailUI = combatUI.GetDetailInfoUI();
@@ -610,7 +617,7 @@ public partial class CardSlotItem
         if (m_ItemRectTransform != null)
         {
             var canvasRectTransform = m_ItemRectTransform.parent as RectTransform;
-            var canvas = GetComponentInParent<Canvas>();
+            var canvas = m_ParentCanvas;
 
             if (canvasRectTransform != null && canvas != null)
             {
@@ -649,7 +656,7 @@ public partial class CardSlotItem
         // 计算卡牌位置，使卡牌右下角坐标与鼠标屏幕坐标一致
         if (m_ItemRectTransform != null)
         {
-            var canvas = GetComponentInParent<Canvas>();
+            var canvas = m_ParentCanvas;
             if (canvas != null)
             {
                 RectTransform parentRect = m_ItemRectTransform.parent as RectTransform;
@@ -775,7 +782,7 @@ public partial class CardSlotItem
         }
 
         // 隐藏区域高亮显示
-        var combatUI = GetComponentInParent<CombatUI>();
+        var combatUI = m_CombatUI;
         if (combatUI != null)
         {
             var greenArea = combatUI.GetCardSlotAdsorptionArea();
@@ -794,7 +801,7 @@ public partial class CardSlotItem
     private void CreateDragPreview()
     {
         // 显式找到 Canvas
-        Canvas canvas = GetComponentInParent<Canvas>();
+        Canvas canvas = m_ParentCanvas;
         if (canvas == null)
         {
             DebugEx.Error(this.GetType().Name, "找不到Canvas，无法创建拖拽预览");
@@ -857,7 +864,7 @@ public partial class CardSlotItem
     /// </summary>
     private bool IsPositionInInvalidArea(Vector3 screenPosition)
     {
-        var combatUI = GetComponentInParent<CombatUI>();
+        var combatUI = m_CombatUI;
         if (combatUI == null)
             return false;
 
@@ -869,7 +876,7 @@ public partial class CardSlotItem
         if (rectTransform == null)
             return false;
 
-        var canvas = GetComponentInParent<Canvas>();
+        var canvas = m_ParentCanvas;
         Camera canvasCamera = canvas != null ? canvas.worldCamera : null;
 
         return RectTransformUtility.RectangleContainsScreenPoint(
@@ -884,11 +891,11 @@ public partial class CardSlotItem
     /// </summary>
     private bool IsPositionInAdsorptionArea(Vector3 screenPosition)
     {
-        var combatUI = GetComponentInParent<CombatUI>();
+        var combatUI = m_CombatUI;
         if (combatUI == null)
             return false;
 
-        var canvas = GetComponentInParent<Canvas>();
+        var canvas = m_ParentCanvas;
         Camera canvasCamera = canvas != null ? canvas.worldCamera : null;
 
         // 获取绿色矩形区域的 Image（吸附区域）
@@ -1103,7 +1110,7 @@ public partial class CardSlotItem
     /// </summary>
     private void UpdateAreaHighlight(bool isInRetractArea, bool isInInvalidArea)
     {
-        var combatUI = GetComponentInParent<CombatUI>();
+        var combatUI = m_CombatUI;
         if (combatUI == null)
         {
             DebugEx.Warning(this.GetType().Name, "无法获取 CombatUI，区域预览无法更新");
