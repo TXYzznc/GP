@@ -92,8 +92,10 @@ public static class EntityPositionHelper
             bottomPos.y = renderer.bounds.min.y;
             if (enableLog)
             {
-                DebugEx.Log(nameof(EntityPositionHelper),
-                    $"GetBottomPosition: {obj.name} 使用 Renderer.bounds.min.y = {bottomPos}");
+                DebugEx.Log(
+                    nameof(EntityPositionHelper),
+                    $"GetBottomPosition: {obj.name} 使用 Renderer.bounds.min.y = {bottomPos}"
+                );
             }
             return bottomPos;
         }
@@ -106,8 +108,10 @@ public static class EntityPositionHelper
             bottomPos.y = collider.bounds.min.y;
             if (enableLog)
             {
-                DebugEx.Log(nameof(EntityPositionHelper),
-                    $"GetBottomPosition: {obj.name} 使用 Collider.bounds.min.y = {bottomPos}");
+                DebugEx.Log(
+                    nameof(EntityPositionHelper),
+                    $"GetBottomPosition: {obj.name} 使用 Collider.bounds.min.y = {bottomPos}"
+                );
             }
             return bottomPos;
         }
@@ -115,8 +119,10 @@ public static class EntityPositionHelper
         // 最后使用 Transform.position（假设锚点在底部）
         if (enableLog)
         {
-            DebugEx.Log(nameof(EntityPositionHelper),
-                $"GetBottomPosition: {obj.name} 使用 Transform.position = {obj.transform.position}");
+            DebugEx.Log(
+                nameof(EntityPositionHelper),
+                $"GetBottomPosition: {obj.name} 使用 Transform.position = {obj.transform.position}"
+            );
         }
         return obj.transform.position;
     }
@@ -149,8 +155,10 @@ public static class EntityPositionHelper
             );
             if (enableLog)
             {
-                DebugEx.Log(nameof(EntityPositionHelper),
-                    $"GetTopPosition: {obj.name} 使用 Renderer.bounds.max.y = {top}");
+                DebugEx.Log(
+                    nameof(EntityPositionHelper),
+                    $"GetTopPosition: {obj.name} 使用 Renderer.bounds.max.y = {top}"
+                );
             }
             return top;
         }
@@ -166,8 +174,10 @@ public static class EntityPositionHelper
             );
             if (enableLog)
             {
-                DebugEx.Log(nameof(EntityPositionHelper),
-                    $"GetTopPosition: {obj.name} 使用 Collider.bounds.max.y = {top}");
+                DebugEx.Log(
+                    nameof(EntityPositionHelper),
+                    $"GetTopPosition: {obj.name} 使用 Collider.bounds.max.y = {top}"
+                );
             }
             return top;
         }
@@ -176,8 +186,10 @@ public static class EntityPositionHelper
         Vector3 fallbackTop = obj.transform.position + Vector3.up * (DEFAULT_HEIGHT_OFFSET * 2f);
         if (enableLog)
         {
-            DebugEx.Log(nameof(EntityPositionHelper),
-                $"GetTopPosition: {obj.name} 使用默认偏移 = {fallbackTop}");
+            DebugEx.Log(
+                nameof(EntityPositionHelper),
+                $"GetTopPosition: {obj.name} 使用默认偏移 = {fallbackTop}"
+            );
         }
         return fallbackTop;
     }
@@ -210,8 +222,10 @@ public static class EntityPositionHelper
 
         if (enableLog)
         {
-            DebugEx.Log(nameof(EntityPositionHelper),
-                $"GetPositionAtRatio: {obj.name} ratio={ratio:F2}, 底部Y={bottomPos.y:F2}, 顶部Y={topPos.y:F2}, 结果Y={result.y:F2}");
+            DebugEx.Log(
+                nameof(EntityPositionHelper),
+                $"GetPositionAtRatio: {obj.name} ratio={ratio:F2}, 底部Y={bottomPos.y:F2}, 顶部Y={topPos.y:F2}, 结果Y={result.y:F2}"
+            );
         }
 
         return result;
@@ -290,7 +304,9 @@ public static class EntityPositionHelper
     /// </summary>
     public static Vector3 GetCenterPosition(Transform transform, bool enableLog = false)
     {
-        return transform != null ? GetCenterPosition(transform.gameObject, enableLog) : Vector3.zero;
+        return transform != null
+            ? GetCenterPosition(transform.gameObject, enableLog)
+            : Vector3.zero;
     }
 
     /// <summary>
@@ -298,7 +314,9 @@ public static class EntityPositionHelper
     /// </summary>
     public static Vector3 GetBottomPosition(Transform transform, bool enableLog = false)
     {
-        return transform != null ? GetBottomPosition(transform.gameObject, enableLog) : Vector3.zero;
+        return transform != null
+            ? GetBottomPosition(transform.gameObject, enableLog)
+            : Vector3.zero;
     }
 
     /// <summary>
@@ -312,9 +330,15 @@ public static class EntityPositionHelper
     /// <summary>
     /// 按比例获取 Transform 位置
     /// </summary>
-    public static Vector3 GetPositionAtRatio(Transform transform, float ratio, bool enableLog = false)
+    public static Vector3 GetPositionAtRatio(
+        Transform transform,
+        float ratio,
+        bool enableLog = false
+    )
     {
-        return transform != null ? GetPositionAtRatio(transform.gameObject, ratio, enableLog) : Vector3.zero;
+        return transform != null
+            ? GetPositionAtRatio(transform.gameObject, ratio, enableLog)
+            : Vector3.zero;
     }
 
     /// <summary>
@@ -322,7 +346,9 @@ public static class EntityPositionHelper
     /// </summary>
     public static Vector3 GetPositionAtHeight(Transform transform, float heightOffset)
     {
-        return transform != null ? GetPositionAtHeight(transform.gameObject, heightOffset) : Vector3.zero;
+        return transform != null
+            ? GetPositionAtHeight(transform.gameObject, heightOffset)
+            : Vector3.zero;
     }
 
     /// <summary>
@@ -372,9 +398,15 @@ public static class EntityPositionHelper
     /// <summary>
     /// 按比例获取 ChessEntity 位置
     /// </summary>
-    public static Vector3 GetPositionAtRatio(ChessEntity entity, float ratio, bool enableLog = false)
+    public static Vector3 GetPositionAtRatio(
+        ChessEntity entity,
+        float ratio,
+        bool enableLog = false
+    )
     {
-        return entity != null ? GetPositionAtRatio(entity.gameObject, ratio, enableLog) : Vector3.zero;
+        return entity != null
+            ? GetPositionAtRatio(entity.gameObject, ratio, enableLog)
+            : Vector3.zero;
     }
 
     /// <summary>
@@ -399,6 +431,34 @@ public static class EntityPositionHelper
     public static float CalculateBottomOffset(ChessEntity entity)
     {
         return entity != null ? CalculateBottomOffset(entity.gameObject) : 0f;
+    }
+
+    /// <summary>
+    /// 基于 Collider 计算底部偏移量（不依赖 Renderer，Instantiate 后立即可用）
+    /// 适用于放置棋子时的贴地对齐
+    /// </summary>
+    public static float CalculateBottomOffsetByCollider(GameObject obj)
+    {
+        if (obj == null)
+            return 0f;
+
+        Collider col = obj.GetComponentInChildren<Collider>();
+        if (col == null)
+        {
+            DebugEx.Warning(
+                nameof(EntityPositionHelper),
+                $"CalculateBottomOffsetByCollider: {obj.name} 未找到 Collider，返回 0"
+            );
+            return 0f;
+        }
+
+        // pivot.y - collider.bounds.min.y = 需要向上移动的量
+        float offset = obj.transform.position.y - col.bounds.min.y;
+        DebugEx.Log(
+            nameof(EntityPositionHelper),
+            $"CalculateBottomOffsetByCollider: {obj.name}, pivotY={obj.transform.position.y:F3}, colliderMinY={col.bounds.min.y:F3}, offset={offset:F3}"
+        );
+        return offset;
     }
 
     #endregion

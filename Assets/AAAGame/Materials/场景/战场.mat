@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4648564238760677755
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 7
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -7,17 +20,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: "\u5AE6\u5A25\u6CD5\u6756"
-  m_Shader: {fileID: 4800000, guid: de4de622106204a4380db6ae998ceeb3, type: 3}
+  m_Name: "\u6218\u573A"
+  m_Shader: {fileID: 4800000, guid: 395d06d2b7989934bb99aa6bc8deb07e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _DISSOLVE_MODE_SINGLE
-  - _DISSOLVE_ON
-  m_InvalidKeywords:
-  - _METALLICSPECGLOSSMAP
-  - _NORMALMAP
-  - _PARALLAXMAP
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -29,11 +38,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 07473a0a7c44d0145992d74ee9716588, type: 3}
+        m_Texture: {fileID: 2800000, guid: a6a16a8e3438d7d40a3265bf1aea9680, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: b1f146669b6af5f4fa09718151fd00c9, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -48,8 +57,12 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DetailTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _DissolveTex:
-        m_Texture: {fileID: 2800000, guid: 6b1c959d63b7c2540a3ee23f2557ff71, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -57,11 +70,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 07473a0a7c44d0145992d74ee9716588, type: 3}
+        m_Texture: {fileID: 2800000, guid: a6a16a8e3438d7d40a3265bf1aea9680, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 2800000, guid: ee58b6349aac8844997a2068cf6be554, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -69,7 +82,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
-        m_Texture: {fileID: 2800000, guid: 9f21121fef511f6459d0cc0440150de0, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -92,7 +105,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AmbientStrength: 1.5
+    - _AmbientStrength: 5
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
@@ -103,77 +116,59 @@ Material:
     - _DISSOLVE_MODE: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DissolveEdgeWidth: 0.03
-    - _DissolveEnabled: 1
-    - _DissolveThreshold: 0.002
+    - _DetailStrength: 0.5
+    - _DissolveAmount: 0
+    - _DissolveEdgeWidth: 0.1
+    - _DissolveEnabled: 0
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _LocalOutlineCurve: 1
-    - _LocalOutlineDepthFar: 5
-    - _LocalOutlineDepthNear: 0.5
-    - _LocalOutlineWidthFarRate: 0.2
-    - _LocalOutlineWidthNearRate: 1.2
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OilPaintingBrushScale: 2
-    - _OilPaintingHardness: 8
-    - _OilPaintingRadius: 3
-    - _OilPaintingSharpness: 0.5
     - _OutlineDistanceCurve: 1
-    - _OutlineDistanceMax: 2
-    - _OutlineDistanceMin: 20
-    - _OutlineLocalEnableDistance: 5
-    - _OutlineWidth: 0.003
-    - _OutlineWidthMax: 0.03
-    - _OutlineWidthMin: 0.005
+    - _OutlineDistanceMax: 3
+    - _OutlineDistanceMin: 25
+    - _OutlineWidth: 0.01
+    - _OutlineWidthMax: 0.02
+    - _OutlineWidthMin: 0.002
     - _OutlineZOffset: -0.001
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _RainbowIntensity: 2
     - _RampSmooth: 0
-    - _RampThreshold: 0.15
+    - _RampThreshold: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.5
+    - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _StealthAlpha: 1
     - _Surface: 0
-    - _ToonSteps: 8
+    - _ToonSteps: 5
+    - _UseAO: 0
+    - _UseDetail: 0
     - _UseDistanceOutline: 0
-    - _UseLocalDepthOutline: 0
-    - _UseOilPainting: 0
+    - _UseEmission: 0
+    - _UseNormal: 0
+    - _UsePBR: 0
     - _UseSmoothNormal: 0
+    - _UseVertexColor: 0
+    - _VertexColorStrength: 1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DissolveEdgeColor: {r: 0, g: 2.0269992, b: 3, a: 2}
+    - _DissolveEdgeColor: {r: 3, g: 1, b: 0, a: 2}
     - _DissolveInnerColor: {r: 1, g: 0, b: 0, a: 1}
     - _DissolveMidColor: {r: 3, g: 1, b: 0, a: 2}
     - _DissolveOuterColor: {r: 5, g: 5, b: 2, a: 2}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    - _HColor: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _SColor: {r: 0.14999998, g: 0.19999996, b: 0.29999998, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &4210987613770736599
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 7

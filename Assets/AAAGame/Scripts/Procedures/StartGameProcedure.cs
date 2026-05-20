@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using AAAGame.Audio;
 using GameFramework.Fsm;
 using GameFramework.Procedure;
+using UnityEngine;
 using UnityGameFramework.Runtime;
-using AAAGame.Audio;
 
 /// <summary>
 /// 游戏开始流程 - 主菜单游戏逻辑处理
@@ -35,6 +35,34 @@ public class StartGameProcedure : ProcedureBase
         AudioEventListener.Instance?.PlayBGMForProcedure("StartGameProcedure");
 
         GF.UI.OpenUIForm(UIViews.StartMenuUI);
+
+        // 播放开场遮罩动画
+        PlayOpeningMaskAsync().Forget();
+    }
+
+    /// <summary>
+    /// 播放开场遮罩淡出动画
+    /// </summary>
+    private async Cysharp.Threading.Tasks.UniTaskVoid PlayOpeningMaskAsync()
+    {
+        var maskGo = GameObject.Find("Mask");
+        if (maskGo == null)
+        {
+            DebugEx.Warning("StartGameProcedure", "未找到 Mask 对象，跳过开场动画");
+            return;
+        }
+
+        var controller = maskGo.GetComponent<OpeningMaskController>();
+        if (controller == null)
+        {
+            DebugEx.Warning(
+                "StartGameProcedure",
+                "Mask 对象上未挂载 OpeningMaskController，跳过开场动画"
+            );
+            return;
+        }
+
+        await controller.PlayAsync();
     }
 
     /// <summary>
@@ -62,7 +90,11 @@ public class StartGameProcedure : ProcedureBase
         }
     }
 
-    protected override void OnUpdate(IFsm<IProcedureManager> procedureOwner, float elapseSeconds, float realElapseSeconds)
+    protected override void OnUpdate(
+        IFsm<IProcedureManager> procedureOwner,
+        float elapseSeconds,
+        float realElapseSeconds
+    )
     {
         base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
 

@@ -91,6 +91,27 @@ public partial class StartMenuUI : UIFormBase
     {
         // 不调用 base（base 会直接设 Interactable = true，我们需要等动画结束）
         Interactable = false;
+
+        // 如果 Mask 还在播放，等它完成后再播放入场动画
+        var maskGo = GameObject.Find("Mask");
+        if (maskGo != null && maskGo.activeSelf)
+        {
+            DebugEx.Log(nameof(StartMenuUI), "等待开场遮罩淡出...");
+            OpeningMaskController.OnMaskComplete += OnMaskCompleteHandler;
+        }
+        else
+        {
+            // Mask 不存在或已隐藏，直接播放
+            PlayOpenAnimation();
+        }
+    }
+
+    /// <summary>
+    /// 开场遮罩完成回调
+    /// </summary>
+    private void OnMaskCompleteHandler()
+    {
+        OpeningMaskController.OnMaskComplete -= OnMaskCompleteHandler;
         PlayOpenAnimation();
     }
 
@@ -196,26 +217,20 @@ public partial class StartMenuUI : UIFormBase
     /// </summary>
     private void SetInitialState()
     {
-        // 背景透明
-        m_BgCanvasGroup.alpha = 0f;
+        // 背景、标题、按钮的 alpha 均由 Prefab 预设为 0，此处只设置位置偏移
 
-        // 标题：上移 + 透明
-        m_TitleCnCanvasGroup.alpha = 0f;
+        // 标题：上移
         m_TitleCnRect.anchoredPosition = m_TitleCnOriginalPos + new Vector2(0f, TITLE_OFFSET_Y);
-
-        m_TitleEnCanvasGroup.alpha = 0f;
         m_TitleEnRect.anchoredPosition = m_TitleEnOriginalPos + new Vector2(0f, TITLE_OFFSET_Y);
 
-        // 按钮组：左移 + 透明
+        // 按钮组：左移
         for (int i = 0; i < m_ButtonAnimDatas.Length; i++)
         {
-            var data = m_ButtonAnimDatas[i];
-            data.canvasGroup.alpha = 0f;
-            data.rectTransform.anchoredPosition = data.originalPos + new Vector2(BTN_OFFSET_X, 0f);
+            m_ButtonAnimDatas[i].rectTransform.anchoredPosition =
+                m_ButtonAnimDatas[i].originalPos + new Vector2(BTN_OFFSET_X, 0f);
         }
 
-        // 云存档按钮：缩小 + 透明
-        m_CloudBtnCanvasGroup.alpha = 0f;
+        // 云存档按钮：缩小
         m_CloudBtnRect.localScale = Vector3.one * CLOUD_BTN_START_SCALE;
     }
 

@@ -89,8 +89,8 @@ public class SummonChessManager : MonoBehaviour
         GameObject chessObj = Instantiate(prefab, position, Quaternion.identity);
         chessObj.name = $"Chess_{config.Name}_{m_NextInstanceId}";
 
-        // 3.5. 底部对齐地面
-        float bottomOffset = EntityPositionHelper.CalculateBottomOffset(chessObj);
+        // 3.5. 底部对齐地面（基于Collider，Instantiate后立即可用，无需等帧）
+        float bottomOffset = EntityPositionHelper.CalculateBottomOffsetByCollider(chessObj);
         chessObj.transform.position = new Vector3(
             position.x,
             position.y + bottomOffset,

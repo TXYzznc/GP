@@ -15,7 +15,6 @@ public class ChessGhostPreview : MonoBehaviour
     /// <summary>底部偏移量（用于对齐底部到目标位置）</summary>
     private float m_BottomOffset;
 
-
     #endregion
 
     #region 属性
@@ -36,20 +35,25 @@ public class ChessGhostPreview : MonoBehaviour
     {
         Hide();
 
-        if (prefab == null) return;
+        if (prefab == null)
+            return;
 
         // 先在原点生成，用于计算底部偏移
         m_PreviewInstance = Instantiate(prefab, Vector3.zero, Quaternion.identity);
         m_PreviewInstance.name = "ChessGhostPreview";
 
+        // 先计算底部偏移（必须在禁用Collider之前，Collider.bounds在Instantiate后立即可用）
+        m_BottomOffset = EntityPositionHelper.CalculateBottomOffsetByCollider(m_PreviewInstance);
+
         // 禁用所有非渲染组件(Collider和脚本保留)
         DisableNonVisualComponents(m_PreviewInstance);
 
-        // 计算底部偏移量
-        m_BottomOffset = EntityPositionHelper.CalculateBottomOffset(m_PreviewInstance);
-
         // 应用底部对齐后的位置
-        m_PreviewInstance.transform.position = new Vector3(position.x, position.y + m_BottomOffset, position.z);
+        m_PreviewInstance.transform.position = new Vector3(
+            position.x,
+            position.y + m_BottomOffset,
+            position.z
+        );
 
         Log.Info($"ChessGhostPreview: 显示预览, 底部偏移={m_BottomOffset}");
     }
@@ -61,10 +65,15 @@ public class ChessGhostPreview : MonoBehaviour
     /// <param name="isValid">是否为有效放置位置(暂未使用颜色)</param>
     public void UpdatePreview(Vector3 position, bool isValid)
     {
-        if (m_PreviewInstance == null) return;
+        if (m_PreviewInstance == null)
+            return;
 
         // 应用底部对齐后的位置
-        m_PreviewInstance.transform.position = new Vector3(position.x, position.y + m_BottomOffset, position.z);
+        m_PreviewInstance.transform.position = new Vector3(
+            position.x,
+            position.y + m_BottomOffset,
+            position.z
+        );
     }
 
     /// <summary>
@@ -100,7 +109,8 @@ public class ChessGhostPreview : MonoBehaviour
         for (int i = 0; i < scripts.Length; i++)
         {
             // 跳过自己
-            if (scripts[i] == this) continue;
+            if (scripts[i] == this)
+                continue;
             scripts[i].enabled = false;
         }
 
