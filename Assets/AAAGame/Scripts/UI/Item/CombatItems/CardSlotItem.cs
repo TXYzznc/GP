@@ -941,24 +941,29 @@ public partial class CardSlotItem
 
         DebugEx.Log(this.GetType().Name, $"执行卡牌效果: {m_CardData.Name}");
 
-        // 播放卡牌使用闪光效果
-        PlayFlashEffect();
-
-        // 创建临时 CardEffectExecutor 执行卡牌效果（参考 Buff 的动态创建方式）
         var executor = new GameObject("CardEffectExecutor_Temp").AddComponent<CardEffectExecutor>();
-        if (executor != null)
-        {
-            executor.ExecuteCardEffect(m_CardData, releasePosition);
-            // 执行完毕后销毁临时对象
-            Destroy(executor.gameObject);
-        }
-        else
+        if (executor == null)
         {
             DebugEx.Error(this.GetType().Name, "无法创建 CardEffectExecutor");
+            return;
         }
 
-        // 注意：销毁流程由 OnEndDrag 中的 SetState(CardSlotItemState.Destroying) 来触发
-        // 避免在这里重复调用 PlayDestroyAnimationAndRemoveAsync()
+        bool success = executor.ExecuteCardEffect(m_CardData, releasePosition);
+        Destroy(executor.gameObject);
+
+        if (!success)
+        {
+            // 无有效目标，返还灵力并退回手牌
+            float spiritCost = m_CardData.SpiritCost;
+            if (spiritCost > 0)
+                SummonerRuntimeDataManager.Instance?.AddMP(spiritCost);
+            DebugEx.Log(this.GetType().Name, $"卡牌无有效目标，退回手牌: {m_CardData.Name}");
+            ReturnToSlot();
+            return;
+        }
+
+        // 有效果生效：播放闪光并由 OnEndDrag 触发销毁
+        PlayFlashEffect();
     }
 
     /// <summary>

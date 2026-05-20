@@ -16,17 +16,17 @@ public class ResurrectionCardEffect : ICardEffect
         m_CardData = cardData;
     }
 
-    public void Execute(Vector3 targetPosition)
+    public bool Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null) return;
+        if (m_CardData == null) return false;
 
         var selector = new ClosestDeadAllySelector();
         List<ChessEntity> targets = selector.SelectTargets(null, m_CardData, targetPosition);
 
         if (targets == null || targets.Count == 0)
         {
-            DebugEx.Warning("ResurrectionCardEffect", "没有找到可复活的目标");
-            return;
+            DebugEx.Warning("ResurrectionCardEffect", "没有找到可复活的目标，返回手牌");
+            return false;
         }
 
         var target = targets[0];
@@ -64,5 +64,6 @@ public class ResurrectionCardEffect : ICardEffect
 
         DebugEx.Log("ResurrectionCardEffect", $"复活 {target.Config?.Name}，恢复 {reviveHpRatio * 100}% HP");
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
+        return true;
     }
 }

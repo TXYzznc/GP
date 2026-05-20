@@ -13,40 +13,40 @@ public class LifeDrainCardEffect : ICardEffect
         m_CardData = cardData;
     }
 
-    public void Execute(Vector3 targetPosition)
+    public bool Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null) return;
+        if (m_CardData == null) return false;
 
         float damage = m_CardData.TableRow.BaseDamage;
         int damageType = m_CardData.TableRow.DamageType;
         float healRatio = m_CardData.GetParam("healRatio", 0.5f);
 
-        // 使用 AllEnemiesSelector 选择有效敌方目标进行伤害
         var enemySelector = new AllEnemiesSelector();
         var enemies = enemySelector.SelectTargets(null, m_CardData, targetPosition);
 
-        float totalDamage = 0f;
-        if (enemies != null)
+        if (enemies == null || enemies.Count == 0)
         {
-            foreach (var enemy in enemies)
-            {
-                CardEffectHelper.DealDamage(enemy, damage, damageType);
-                totalDamage += damage;
-            }
+            DebugEx.Log("LifeDrainCardEffect", "没有敌方目标，返回手牌");
+            return false;
         }
 
-        // 使用 LowestHpAllySelector 选择有效友方进行治疗
+        float totalDamage = 0f;
+        foreach (var enemy in enemies)
+        {
+            CardEffectHelper.DealDamage(enemy, damage, damageType);
+            totalDamage += damage;
+        }
+
         var allySelector = new LowestHpAllySelector();
         var healTargets = allySelector.SelectTargets(null, m_CardData, targetPosition);
-
         if (healTargets != null && healTargets.Count > 0)
         {
-            var lowestHpAlly = healTargets[0];
             float healAmount = totalDamage * healRatio;
-            CardEffectHelper.HealTarget(lowestHpAlly, healAmount);
-            DebugEx.Log("LifeDrainCardEffect", $"治疗 HP 最低的友方 {lowestHpAlly.Config?.Name}，回复 {healAmount}");
+            CardEffectHelper.HealTarget(healTargets[0], healAmount);
+            DebugEx.Log("LifeDrainCardEffect", $"治疗 HP 最低的友方 {healTargets[0].Config?.Name}，回复 {healAmount}");
         }
 
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
+        return true;
     }
 }

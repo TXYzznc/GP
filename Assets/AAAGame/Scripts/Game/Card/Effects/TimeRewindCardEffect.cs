@@ -15,21 +15,22 @@ public class TimeRewindCardEffect : ICardEffect
         m_CardData = cardData;
     }
 
-    public void Execute(Vector3 targetPosition)
+    public bool Execute(Vector3 targetPosition)
     {
-        if (m_CardData == null) return;
+        if (m_CardData == null) return false;
 
-        // 使用 ClosestAllySelector 选择有效目标
         var selector = new ClosestAllySelector();
         var targets = selector.SelectTargets(null, m_CardData, targetPosition);
 
         if (targets == null || targets.Count == 0)
-            return;
+        {
+            DebugEx.Log("TimeRewindCardEffect", "没有找到目标，返回手牌");
+            return false;
+        }
 
-        var closestAlly = targets[0];
         float healAmount = m_CardData.GetParam("healAmount", 200f);
-        CardEffectHelper.HealTarget(closestAlly, healAmount);
-
+        CardEffectHelper.HealTarget(targets[0], healAmount);
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
+        return true;
     }
 }

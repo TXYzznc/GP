@@ -11,7 +11,7 @@ public interface ICardEffect
     void Init(CardData cardData);
 
     /// <summary>
-    /// 执行效果
+    /// 执行效果，返回 true 表示成功作用于目标，false 表示无有效目标（卡牌应返回手牌）
     /// </summary>
-    void Execute(Vector3 targetPosition);
+    bool Execute(Vector3 targetPosition);
 }

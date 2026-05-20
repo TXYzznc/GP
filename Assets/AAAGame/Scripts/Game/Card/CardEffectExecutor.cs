@@ -52,40 +52,39 @@ public class CardEffectExecutor : MonoBehaviour
     /// <summary>
     /// 执行卡牌效果
     /// </summary>
-    public void ExecuteCardEffect(CardData cardData, Vector3 targetPosition)
+    /// <summary>
+    /// 执行卡牌效果，返回 true 表示成功作用于目标，false 表示无有效目标
+    /// </summary>
+    public bool ExecuteCardEffect(CardData cardData, Vector3 targetPosition)
     {
         if (cardData == null)
         {
             DebugEx.Error("CardEffectExecutor", "卡牌数据为空");
-            return;
+            return false;
         }
 
         try
         {
             ICardEffect effectInstance = null;
 
-            // 尝试使用特殊脚本（有复杂逻辑的卡牌）
             if (m_EffectTypeMap.TryGetValue(cardData.CardId, out var effectType))
             {
                 effectInstance = Activator.CreateInstance(effectType) as ICardEffect;
                 if (effectInstance == null)
                 {
                     DebugEx.Error("CardEffectExecutor", $"无法创建效果实例: {effectType.Name}");
-                    return;
+                    return false;
                 }
-
                 effectInstance.Init(cardData);
             }
             else
             {
-                // 使用通用框架
                 var targetSelector = GetTargetSelector(cardData.CTargetType);
                 if (targetSelector == null)
                 {
                     DebugEx.Error("CardEffectExecutor", $"未找到目标类型选择器: {cardData.CTargetType}");
-                    return;
+                    return false;
                 }
-
                 var appliers = GetEffectAppliers(cardData);
                 effectInstance = CreateGenericEffect(cardData, targetSelector, appliers);
             }
@@ -93,15 +92,17 @@ public class CardEffectExecutor : MonoBehaviour
             if (effectInstance == null)
             {
                 DebugEx.Error("CardEffectExecutor", $"无法创建效果实例: ID={cardData.CardId}");
-                return;
+                return false;
             }
 
-            effectInstance.Execute(targetPosition);
-            DebugEx.Log("CardEffectExecutor", $"执行卡牌效果: {cardData.CardId}");
+            bool success = effectInstance.Execute(targetPosition);
+            DebugEx.Log("CardEffectExecutor", $"执行卡牌效果: {cardData.CardId}, 成功={success}");
+            return success;
         }
         catch (Exception ex)
         {
             DebugEx.Error("CardEffectExecutor", $"执行卡牌效果异常: {ex.Message}\n{ex.StackTrace}");
+            return false;
         }
     }
 

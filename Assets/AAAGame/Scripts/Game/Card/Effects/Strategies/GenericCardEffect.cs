@@ -30,30 +30,27 @@ public class GenericCardEffect : ICardEffect
         // 此处不做处理
     }
 
-    public void Execute(Vector3 targetPosition)
+    public bool Execute(Vector3 targetPosition)
     {
         if (m_CardData == null || m_TargetSelector == null || m_EffectAppliers.Count == 0)
         {
             DebugEx.Warning("GenericCardEffect", "未正确初始化（缺少选择器或应用器）");
-            return;
+            return false;
         }
 
-        // 1. 选择目标（allChess 参数不再使用，已由 TargetSelectors 改为使用 CombatEntityTracker）
         var targets = m_TargetSelector.SelectTargets(null, m_CardData, targetPosition);
         if (targets == null || targets.Count == 0)
         {
-            DebugEx.Log("GenericCardEffect", $"卡牌 {m_CardData.CardId} 未找到目标");
-            CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
-            return;
+            DebugEx.Log("GenericCardEffect", $"卡牌 {m_CardData.CardId} 未找到目标，返回手牌");
+            return false;
         }
 
-        // 2. 应用所有效果
         foreach (var applier in m_EffectAppliers)
         {
             applier.ApplyEffect(targets, m_CardData);
         }
 
-        // 3. 播放特效
         CardEffectHelper.PlayEffect(m_CardData.TableRow.EffectId, targetPosition);
+        return true;
     }
 }
