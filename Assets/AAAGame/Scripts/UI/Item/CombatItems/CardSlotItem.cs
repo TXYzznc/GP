@@ -775,10 +775,11 @@ public partial class CardSlotItem
         }
         else
         {
-            // 战场区域：执行卡牌效果，转换到 Destroying 状态
+            // 战场区域：执行卡牌效果，成功才销毁
             DebugEx.Log(this.GetType().Name, $"释放位置在战场，执行卡牌效果");
-            ExecuteCardEffect(GetWorldPosFromScreen(eventData.position));
-            SetState(CardSlotItemState.Destroying);
+            bool effectSuccess = ExecuteCardEffect(GetWorldPosFromScreen(eventData.position));
+            if (effectSuccess)
+                SetState(CardSlotItemState.Destroying);
         }
 
         // 隐藏区域高亮显示
@@ -918,12 +919,13 @@ public partial class CardSlotItem
     /// <summary>
     /// 执行卡牌效果
     /// </summary>
-    private void ExecuteCardEffect(Vector3 releasePosition)
+    /// <summary>返回 true 表示效果成功生效，false 表示退回手牌</summary>
+    private bool ExecuteCardEffect(Vector3 releasePosition)
     {
         if (m_CardData == null)
         {
             DebugEx.Error(this.GetType().Name, "卡牌数据为空，无法执行效果");
-            return;
+            return false;
         }
 
         // 先检查灵力是否足够（不扣除）
@@ -932,15 +934,14 @@ public partial class CardSlotItem
         {
             DebugEx.Log(this.GetType().Name, $"灵力不足，无法使用卡牌: {m_CardData.Name} (需要 {spiritCost})");
             ReturnToSlot();
-            return;
+            return false;
         }
 
-        // 先确认是否有有效目标
         var executor = new GameObject("CardEffectExecutor_Temp").AddComponent<CardEffectExecutor>();
         if (executor == null)
         {
             DebugEx.Error(this.GetType().Name, "无法创建 CardEffectExecutor");
-            return;
+            return false;
         }
 
         bool success = executor.ExecuteCardEffect(m_CardData, releasePosition);
@@ -950,7 +951,7 @@ public partial class CardSlotItem
         {
             DebugEx.Log(this.GetType().Name, $"卡牌无有效目标，退回手牌: {m_CardData.Name}");
             ReturnToSlot();
-            return;
+            return false;
         }
 
         // 有效果生效：此时才扣除灵力
@@ -959,6 +960,7 @@ public partial class CardSlotItem
 
         DebugEx.Log(this.GetType().Name, $"执行卡牌效果: {m_CardData.Name}");
         PlayFlashEffect();
+        return true;
     }
 
     /// <summary>
