@@ -186,7 +186,11 @@ public class PlayerSaveData
     /// </summary>
     public string ChessTreasureSlotsData = "";
 
-    // ========== 运行时缓存数据，不存储到配置表中 ==========
+    // ========== 运行时缓存（NonSerialized，不参与存档序列化）==========
+
+    [System.NonSerialized] private List<InventoryItemSaveData> m_InventoryItemsCache;
+    [System.NonSerialized] private List<DeckData> m_SavedDecksCache;
+    [System.NonSerialized] private List<int> m_UnlockedSummonerIdsCache;
 
     /// <summary>
     /// 默认构造函数
@@ -211,19 +215,24 @@ public class PlayerSaveData
     /// </summary>
     public List<int> GetUnlockedSummonerIds()
     {
+        if (m_UnlockedSummonerIdsCache != null)
+            return m_UnlockedSummonerIdsCache;
+
         if (string.IsNullOrEmpty(UnlockedSummonerInfo))
         {
-            return new List<int>();
+            m_UnlockedSummonerIdsCache = new List<int>();
+            return m_UnlockedSummonerIdsCache;
         }
 
         try
         {
-            return JsonUtility.FromJson<ListWrapper<int>>(UnlockedSummonerInfo).Items;
+            m_UnlockedSummonerIdsCache = JsonUtility.FromJson<ListWrapper<int>>(UnlockedSummonerInfo).Items;
         }
         catch
         {
-            return new List<int>();
+            m_UnlockedSummonerIdsCache = new List<int>();
         }
+        return m_UnlockedSummonerIdsCache;
     }
 
     /// <summary>
@@ -231,6 +240,7 @@ public class PlayerSaveData
     /// </summary>
     public void SetUnlockedSummonerIds(List<int> ids)
     {
+        m_UnlockedSummonerIdsCache = ids;
         UnlockedSummonerInfo = JsonUtility.ToJson(new ListWrapper<int> { Items = ids });
     }
 
@@ -241,19 +251,24 @@ public class PlayerSaveData
     /// </summary>
     public List<InventoryItemSaveData> GetInventoryItems()
     {
+        if (m_InventoryItemsCache != null)
+            return m_InventoryItemsCache;
+
         if (string.IsNullOrEmpty(InventoryItems))
         {
-            return new List<InventoryItemSaveData>();
+            m_InventoryItemsCache = new List<InventoryItemSaveData>();
+            return m_InventoryItemsCache;
         }
 
         try
         {
-            return JsonUtility.FromJson<ListWrapper<InventoryItemSaveData>>(InventoryItems).Items;
+            m_InventoryItemsCache = JsonUtility.FromJson<ListWrapper<InventoryItemSaveData>>(InventoryItems).Items;
         }
         catch
         {
-            return new List<InventoryItemSaveData>();
+            m_InventoryItemsCache = new List<InventoryItemSaveData>();
         }
+        return m_InventoryItemsCache;
     }
 
     /// <summary>
@@ -263,6 +278,7 @@ public class PlayerSaveData
     /// </summary>
     public void SetInventoryItems(List<InventoryItemSaveData> items)
     {
+        m_InventoryItemsCache = items;
         InventoryItems = JsonUtility.ToJson(
             new ListWrapper<InventoryItemSaveData> { Items = items }
         );
@@ -273,19 +289,24 @@ public class PlayerSaveData
     /// </summary>
     public List<DeckData> GetSavedDecks()
     {
+        if (m_SavedDecksCache != null)
+            return m_SavedDecksCache;
+
         if (string.IsNullOrEmpty(SavedDecks))
         {
-            return new List<DeckData>();
+            m_SavedDecksCache = new List<DeckData>();
+            return m_SavedDecksCache;
         }
 
         try
         {
-            return JsonUtility.FromJson<ListWrapper<DeckData>>(SavedDecks).Items;
+            m_SavedDecksCache = JsonUtility.FromJson<ListWrapper<DeckData>>(SavedDecks).Items;
         }
         catch
         {
-            return new List<DeckData>();
+            m_SavedDecksCache = new List<DeckData>();
         }
+        return m_SavedDecksCache;
     }
 
     /// <summary>
@@ -293,6 +314,7 @@ public class PlayerSaveData
     /// </summary>
     public void SetSavedDecks(List<DeckData> decks)
     {
+        m_SavedDecksCache = decks;
         SavedDecks = JsonUtility.ToJson(new ListWrapper<DeckData> { Items = decks });
     }
 
