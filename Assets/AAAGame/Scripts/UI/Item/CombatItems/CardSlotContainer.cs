@@ -570,6 +570,8 @@ public class CardSlotContainer : MonoBehaviour
         return m_Cards.IndexOf(card);
     }
 
+    public IReadOnlyList<CardSlotItem> GetCards() => m_Cards;
+
     /// <summary>
     /// 根据鼠标屏幕位置计算卡牌应该插入的索引
     /// </summary>

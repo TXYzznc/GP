@@ -538,16 +538,14 @@ public partial class CardSlotItem
     /// </summary>
     private CardSlotItem FindCardSlotByCardData(CardData cardData)
     {
-        if (cardData == null)
+        if (cardData == null || m_Container == null)
             return null;
 
-        var allSlots = FindObjectsOfType<CardSlotItem>();
-        foreach (var slot in allSlots)
+        var cards = m_Container.GetCards();
+        foreach (var slot in cards)
         {
-            if (slot.m_CardData == cardData)
-            {
+            if (slot != null && slot.m_CardData == cardData)
                 return slot;
-            }
         }
 
         return null;
