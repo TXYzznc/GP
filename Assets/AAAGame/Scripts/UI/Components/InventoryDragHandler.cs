@@ -317,16 +317,7 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         if (success)
         {
             DebugEx.Log(nameof(InventoryDragHandler), "[HandleDrop] 拖放成功");
-
-            // 刷新目标格子的 UI（显示新的物品或清空格子）
-            var dstSlot = dst.SlotContainer.GetSlot(dst.SlotIndex);
-            var dstItemStack = dstSlot?.ItemStack;
-            dst.SetData(dstItemStack);
-
-            // 刷新源格子的 UI（显示空格子）
-            var srcSlot = src.SlotContainer.GetSlot(src.SlotIndex);
-            var srcItemStack = srcSlot?.ItemStack;
-            src.SetData(srcItemStack);
+            // UI 刷新由 InventoryManager.OnSlotChanged 事件驱动，无需手动 SetData
         }
         else
         {

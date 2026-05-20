@@ -77,33 +77,20 @@ public class FastBarSlotContainerImpl : SlotContainerBase
     private bool MoveToInventory(InventorySlotContainerImpl _, InventorySlot fromSlot, int targetSlotIndex)
     {
         var inv = InventoryManager.Instance;
-        var targetSlot = inv?.GetSlot(targetSlotIndex);
-
-        if (targetSlot == null)
-            return false;
+        if (inv == null) return false;
 
         var item = fromSlot.ItemStack?.Item;
         var count = fromSlot.Count;
+        if (item == null) return false;
 
-        if (item == null)
+        var targetSlot = inv.GetSlot(targetSlotIndex);
+        if (targetSlot == null) return false;
+
+        if (!targetSlot.IsEmpty && targetSlot.ItemId != item.ItemId)
             return false;
 
-        if (targetSlot.IsEmpty)
-        {
-            var newItem = ItemManager.Instance?.CreateItem(item.ItemId);
-            if (newItem == null)
-                return false;
-
-            targetSlot.SetItem(newItem, count);
-            return true;
-        }
-        else if (targetSlot.ItemId == item.ItemId && item.MaxStackCount > 1)
-        {
-            targetSlot.AddItem(count);
-            return true;
-        }
-
-        return false;
+        // 通过 InventoryManager.SetItemToSlot 写入，确保触发 NotifySlotChanged
+        return inv.SetItemToSlot(targetSlotIndex, item, count);
     }
 
     private bool MoveToFastBar(int fromSlotIndex, int targetSlotIndex)
