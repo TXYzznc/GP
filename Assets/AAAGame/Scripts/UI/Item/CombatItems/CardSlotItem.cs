@@ -48,9 +48,7 @@ public partial class CardSlotItem
     private Tween m_DragPreviewTween;
     private Tween m_PositionTween;
     private CanvasGroup m_BtnCanvasGroup;
-    private CanvasGroup m_CardCanvasGroup;
     private RectTransform m_ItemRectTransform;
-    public RectTransform ItemRectTransform => m_ItemRectTransform;
     private const float HOVER_SCALE = 1.05f;
     private const float HOVER_DURATION = 0.2f;
     private const float HOVER_OFFSET_Y = 30f;
@@ -104,12 +102,7 @@ public partial class CardSlotItem
         }
 
         m_ItemRectTransform = rectTransform;
-
-        if (m_CardCanvasGroup == null)
-            m_CardCanvasGroup = GetComponent<CanvasGroup>();
     }
-
-    public CanvasGroup CardCanvasGroup => m_CardCanvasGroup;
 
     /// <summary>
     /// 设置卡牌交互状态（禁用/启用）
@@ -303,6 +296,8 @@ public partial class CardSlotItem
     /// </summary>
     private async UniTaskVoid PlayDestroyAnimationAndRemoveAsync()
     {
+        var ct = this.GetCancellationTokenOnDestroy();
+
         // 保存必要信息
         int cardId = m_CardData?.CardId ?? -1;
         string cardName = m_CardData?.Name ?? "unknown";
@@ -331,6 +326,8 @@ public partial class CardSlotItem
 
         // ==================== 后续清理（异步进行） ====================
         // 第4步：等待容器重排完成，然后归还到对象池
+        if (ct.IsCancellationRequested) return;
+
         if (m_Container != null)
         {
             try
@@ -341,11 +338,12 @@ public partial class CardSlotItem
             catch (OperationCanceledException)
             {
                 DebugEx.Log(this.GetType().Name, $"[后台] 重排被取消: {cardName}");
+                return;
             }
         }
 
         // 第5步：归还到对象池
-        if (CardSlotItemPool.Instance != null)
+        if (!ct.IsCancellationRequested && CardSlotItemPool.Instance != null)
         {
             CardSlotItemPool.Instance.ReturnCard(this);
             DebugEx.Log(this.GetType().Name, $"[完成] 卡牌已归还到对象池: {cardName}");

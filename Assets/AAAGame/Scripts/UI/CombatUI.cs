@@ -293,7 +293,7 @@ public partial class CombatUI : StateAwareUIForm
             return;
 
         // 只更新当前显示的棋子
-        if (m_CurrentDetailChess.Config.Id != chessId)
+        if (m_CurrentDetailChess.Config?.Id != chessId)
             return;
 
         var detailUI = GetDetailInfoUI();
@@ -870,7 +870,8 @@ public partial class CombatUI : StateAwareUIForm
         if (varBtn1Arr == null || varBtn1Arr.Length == 0)
             return;
 
-        // 从玩家角色上取 SummonerSkillManager
+        var ct = this.GetCancellationTokenOnDestroy();
+
         var playerCharacter = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
         var skillManager = playerCharacter != null
             ? playerCharacter.GetComponent<SummonerSkillManager>()
@@ -880,10 +881,11 @@ public partial class CombatUI : StateAwareUIForm
 
         for (int i = 0; i < varBtn1Arr.Length; i++)
         {
+            if (ct.IsCancellationRequested) return;
+
             var btn = varBtn1Arr[i];
             if (btn == null) continue;
 
-            // 有对应主动技能时才显示并加载图标
             bool hasSkill = skillManager != null && i < skillManager.Skills.Count;
             btn.gameObject.SetActive(hasSkill);
 
@@ -893,11 +895,11 @@ public partial class CombatUI : StateAwareUIForm
             var row = skillTable.GetDataRow(skillId);
             if (row == null) continue;
 
-            // 加载技能图标到按钮的 Image
             var btnImage = btn.GetComponent<Image>();
             if (btnImage != null && row.IconId > 0)
             {
                 await GameExtension.ResourceExtension.LoadSpriteAsync(row.IconId, btnImage, 1f, null);
+                if (ct.IsCancellationRequested) return;
             }
         }
     }
