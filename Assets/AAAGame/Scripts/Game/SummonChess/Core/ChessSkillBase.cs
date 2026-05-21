@@ -11,6 +11,7 @@ public abstract class ChessSkillBase : IChessSkill
     protected ChessContext m_Ctx;
     protected SummonChessSkillTable m_Config;
     protected float m_CooldownRemain;
+    protected float m_LastCastTime = -float.MaxValue; // 上次释放时间，初始时视为很久前
 
     #endregion
 
@@ -72,6 +73,9 @@ public abstract class ChessSkillBase : IChessSkill
         double cdReduce = m_Ctx.Attribute.CooldownReduce;
         m_CooldownRemain = (float)(m_Config.Cooldown * (1.0 - cdReduce));
 
+        // 记录释放时间
+        m_LastCastTime = Time.time;
+
         DebugEx.Log(
             GetType().Name,
             $"技能释放成功！消耗MP={m_Config.MpCost}, 原始冷却={m_Config.Cooldown}s, "
@@ -82,6 +86,27 @@ public abstract class ChessSkillBase : IChessSkill
     }
 
     public float GetCooldownRemaining() => m_CooldownRemain;
+
+    /// <summary>
+    /// 计算技能欲望值（用于优先级决策）
+    /// DesireValue = Strength × min(TimeSinceLastCast / MaxWaitSeconds, 1.5)
+    /// </summary>
+    public float GetDesireValue(float currentTime)
+    {
+        if (!CanCast())
+            return 0f; // 无法释放则欲望值为0
+
+        float timeSinceLastCast = currentTime - m_LastCastTime;
+        float maxWaitSeconds = (float)m_Config.MaxWaitSeconds;
+
+        if (maxWaitSeconds <= 0)
+            maxWaitSeconds = 1f; // 防止除零
+
+        float ratio = timeSinceLastCast / maxWaitSeconds;
+        float cappedRatio = Mathf.Min(ratio, 1.5f); // 上限为1.5倍
+
+        return m_Config.Strength * cappedRatio;
+    }
 
     // 核心方法：子类必须实现
     public abstract void ExecuteSkill(ChessEntity caster);

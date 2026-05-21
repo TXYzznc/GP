@@ -9,16 +9,13 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
 {
     #region 常量
 
-    /// <summary>战斗检测范围（米）</summary>
-    private const float COMBAT_DETECTION_RANGE = 15f;
-
     private const int OVERLAP_BUFFER_SIZE = 20;
 
     #endregion
 
     #region 字段
 
-    private static readonly int s_EnemyLayerMask = LayerMask.GetMask("Enemy");
+    private int m_EnemyLayerMask;
     private readonly Collider[] m_OverlapBuffer = new Collider[OVERLAP_BUFFER_SIZE];
 
     #endregion
@@ -28,6 +25,7 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
     protected override void Awake()
     {
         base.Awake();
+        m_EnemyLayerMask = LayerMask.GetMask("Enemy");
         DebugEx.Log("EnemyGroupManager", "初始化完成");
     }
 
@@ -64,7 +62,7 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
             triggerEnemy.transform.position,
             detectionRange,
             m_OverlapBuffer,
-            s_EnemyLayerMask
+            m_EnemyLayerMask
         );
 
         List<EnemyEntity> combatGroup = new List<EnemyEntity>();
@@ -130,7 +128,7 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
             broadcaster.transform.position,
             broadcastRange,
             m_OverlapBuffer,
-            s_EnemyLayerMask
+            m_EnemyLayerMask
         );
 
         int notifiedCount = 0;

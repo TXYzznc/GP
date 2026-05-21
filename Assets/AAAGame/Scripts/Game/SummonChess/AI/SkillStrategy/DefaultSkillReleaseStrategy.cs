@@ -1,12 +1,21 @@
-﻿/// <summary>
+﻿using UnityEngine;
+
+/// <summary>
 /// 默认技能释放策略
-/// 技能1：满足条件（冷却结束 + 法力足够）立即释放
-/// 大招：满足条件（冷却结束 + 法力足够）立即释放
-/// 优先级：大招 > 技能1
+/// 基于欲望值（Desire Value）的动态优先级：
+/// DesireValue = Strength × min(TimeSinceLastCast / MaxWaitSeconds, 1.5)
+/// 选择欲望值最高的可释放技能
 /// </summary>
 public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
 {
     protected ChessContext m_Context;
+
+    /// <summary>
+    /// 欲望值上限倍数（防止数值无限增长）
+    /// 默认1.5表示最大欲望值 = Strength × 1.5
+    /// 可在子类中覆盖
+    /// </summary>
+    protected virtual float DesireValueCap => 1.5f;
 
     #region 接口实现
 
@@ -41,18 +50,32 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
 
     public virtual int GetPrioritySkill()
     {
-        // 默认优先级：大招 > 技能1
-        if (ShouldUseSkill2())
+        float currentTime = Time.time;
+
+        // 计算两个技能的欲望值
+        float skill1Desire = (m_Context.Entity.Skill1?.CanCast() == true)
+            ? m_Context.Entity.Skill1.GetDesireValue(currentTime)
+            : 0f;
+        float skill2Desire = (m_Context.Entity.Skill2?.CanCast() == true)
+            ? m_Context.Entity.Skill2.GetDesireValue(currentTime)
+            : 0f;
+
+        // 输出决策信息，包含所有欲望值
+        DebugEx.Log("DefaultSkillReleaseStrategy",
+            $"{m_Context.Entity.Config.Name} 欲望值对比: 技能1={skill1Desire:F2}, 大招={skill2Desire:F2}");
+
+        // 选择欲望值最高的技能
+        if (skill2Desire > skill1Desire && skill2Desire > 0)
         {
             DebugEx.Log("DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 使用大招");
+                $"{m_Context.Entity.Config.Name} 决策: 释放大招");
             return 2;
         }
 
-        if (ShouldUseSkill1())
+        if (skill1Desire > 0)
         {
             DebugEx.Log("DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 使用技能1");
+                $"{m_Context.Entity.Config.Name} 决策: 释放技能1");
             return 1;
         }
 

@@ -50,7 +50,15 @@ public interface IChessSkill
     /// 获取当前冷却剩余时间
     /// </summary>
     float GetCooldownRemaining();
-    
+
+    /// <summary>
+    /// 计算技能欲望值（用于优先级决策）
+    /// DesireValue = Strength × min(TimeSinceLastCast / MaxWaitSeconds, 1.5)
+    /// </summary>
+    /// <param name="currentTime">当前时间</param>
+    /// <returns>欲望值，若无法释放则返回0</returns>
+    float GetDesireValue(float currentTime);
+
     #endregion
     
     #region 核心执行
