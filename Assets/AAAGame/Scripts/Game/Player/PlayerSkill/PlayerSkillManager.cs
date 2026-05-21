@@ -7,6 +7,9 @@ public class PlayerSkillManager : MonoBehaviour
 
     public List<IPlayerSkill> Skills { get; private set; } = new();
 
+    // 槽位 → 技能的快速索引，避免 Update 每帧遍历 + DataTable 查询
+    private readonly Dictionary<int, IPlayerSkill> m_SlotMap = new();
+
     [SerializeField]
     private SkillParamRegistrySO paramRegistry;
 
@@ -56,25 +59,10 @@ public class PlayerSkillManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 根据槽位索引查找技能
-    /// </summary>
     private IPlayerSkill FindSkillBySlot(int slotIndex)
     {
-        for (int i = 0; i < Skills.Count; i++)
-        {
-            if (Skills[i].SkillId != 0)
-            {
-                // 从配置表获取槽位信息
-                var tb = GF.DataTable.GetDataTable<PlayerSkillTable>();
-                var row = tb?.GetDataRow(Skills[i].SkillId);
-                if (row != null && row.SlotIndex == slotIndex)
-                {
-                    return Skills[i];
-                }
-            }
-        }
-        return null;
+        m_SlotMap.TryGetValue(slotIndex, out var skill);
+        return skill;
     }
 
     /// <summary>
@@ -113,6 +101,7 @@ public class PlayerSkillManager : MonoBehaviour
     public void UpdateSkillsFromPlayerData(IReadOnlyList<int> playerSkillIds)
     {
         Skills.Clear();
+        m_SlotMap.Clear();
         if (playerSkillIds == null)
             return;
 
@@ -139,6 +128,8 @@ public class PlayerSkillManager : MonoBehaviour
             skill.Init(ctx, common, param);
 
             Skills.Add(skill);
+            if (common.SlotIndex > 0)
+                m_SlotMap[common.SlotIndex] = skill;
         }
     }
 
