@@ -262,6 +262,24 @@ public partial class SummonChessSkillTable : DataRowBase
             private set;
         }
 
+        /// <summary>
+        /// 技能强度（用于欲望值计算，数值越大越优先）
+        /// </summary>
+        public int Strength
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 最大等待时间（秒，技能应在此时间内被释放）
+        /// </summary>
+        public double MaxWaitSeconds
+        {
+            get;
+            private set;
+        }
+
         public override bool ParseDataRow(string dataRowString, object userData)
         {
             string[] columnStrings = dataRowString.Split(DataTableExtension.DataSplitSeparators);
@@ -300,6 +318,8 @@ public partial class SummonChessSkillTable : DataRowBase
             CustomData = columnStrings[index++];
             EffectText = columnStrings[index++];
             DescText = columnStrings[index++];
+            Strength = int.Parse(columnStrings[index++]);
+            MaxWaitSeconds = double.Parse(columnStrings[index++]);
 
             return true;
         }
@@ -337,6 +357,8 @@ public partial class SummonChessSkillTable : DataRowBase
                     CustomData = binaryReader.ReadString();
                     EffectText = binaryReader.ReadString();
                     DescText = binaryReader.ReadString();
+                    Strength = binaryReader.Read7BitEncodedInt32();
+                    MaxWaitSeconds = binaryReader.ReadDouble();
                 }
             }
 
