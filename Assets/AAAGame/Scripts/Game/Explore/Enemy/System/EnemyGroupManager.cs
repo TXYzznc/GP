@@ -12,6 +12,15 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
     /// <summary>战斗检测范围（米）</summary>
     private const float COMBAT_DETECTION_RANGE = 15f;
 
+    private const int OVERLAP_BUFFER_SIZE = 20;
+
+    #endregion
+
+    #region 字段
+
+    private static readonly int s_EnemyLayerMask = LayerMask.GetMask("Enemy");
+    private readonly Collider[] m_OverlapBuffer = new Collider[OVERLAP_BUFFER_SIZE];
+
     #endregion
 
     #region Unity 生命周期
@@ -51,18 +60,19 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
             $"检测群体战斗，触发者={triggerEnemy.Config.Name}，检测范围={detectionRange}m"
         );
 
-        Collider[] nearbyColliders = Physics.OverlapSphere(
+        int hitCount = Physics.OverlapSphereNonAlloc(
             triggerEnemy.transform.position,
             detectionRange,
-            LayerMask.GetMask("Enemy")
+            m_OverlapBuffer,
+            s_EnemyLayerMask
         );
 
         List<EnemyEntity> combatGroup = new List<EnemyEntity>();
         combatGroup.Add(triggerEnemy);
 
-        foreach (var collider in nearbyColliders)
+        for (int i = 0; i < hitCount; i++)
         {
-            EnemyEntity nearbyEnemy = collider.GetComponent<EnemyEntity>();
+            EnemyEntity nearbyEnemy = m_OverlapBuffer[i].GetComponent<EnemyEntity>();
             if (
                 nearbyEnemy != null
                 && nearbyEnemy != triggerEnemy
@@ -116,23 +126,23 @@ public class EnemyGroupManager : SingletonBase<EnemyGroupManager>
         );
 
         // 查找范围内的其他敌人
-        Collider[] nearbyColliders = Physics.OverlapSphere(
+        int hitCount = Physics.OverlapSphereNonAlloc(
             broadcaster.transform.position,
             broadcastRange,
-            LayerMask.GetMask("Enemy")
+            m_OverlapBuffer,
+            s_EnemyLayerMask
         );
 
         int notifiedCount = 0;
-        foreach (var collider in nearbyColliders)
+        for (int i = 0; i < hitCount; i++)
         {
-            EnemyEntity nearbyEnemy = collider.GetComponent<EnemyEntity>();
+            EnemyEntity nearbyEnemy = m_OverlapBuffer[i].GetComponent<EnemyEntity>();
             if (
                 nearbyEnemy != null
                 && nearbyEnemy != broadcaster
                 && nearbyEnemy.Status == EnemyStatus.Alive
             )
             {
-                // 通知敌人玩家位置
                 nearbyEnemy.AI.OnReceiveBroadcast(playerPosition);
                 notifiedCount++;
             }
