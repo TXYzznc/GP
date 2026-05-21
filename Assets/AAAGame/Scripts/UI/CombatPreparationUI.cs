@@ -53,6 +53,10 @@ public partial class CombatPreparationUI : UIFormBase
     /// <summary>已生成的 BuffChooseItem 列表</summary>
     private List<GameObject> m_BuffChooseItems = new List<GameObject>();
 
+    [Header("BuffChooseItem 位置调试")]
+    [SerializeField] private float m_BuffItemSpacingX = 420f;
+    [SerializeField] private float m_BuffItemOffsetY = 0f;
+
     /// <summary>⭐ 新增：当前显示详情的棋子实体</summary>
     private ChessEntity m_CurrentDetailChess;
 
@@ -849,9 +853,7 @@ public partial class CombatPreparationUI : UIFormBase
 
         int count = Mathf.Min(m_AvailableBuffIds.Count, 3);
 
-        // ⭐ 新增：计算水平排列的位置（假设三个元素均匀分布）
-        float spacingX = 400f; // 元素间隔（根据UI尺寸调整）
-        float startX = -(spacingX * (count - 1)) / 2f; // 中心对齐
+        float startX = -(m_BuffItemSpacingX * (count - 1)) / 2f;
 
         for (int i = 0; i < count; i++)
         {
@@ -871,7 +873,7 @@ public partial class CombatPreparationUI : UIFormBase
             // ⭐ 新增：手动设置水平位置（因为已移除LayoutGroup）
             if (itemGo.TryGetComponent<RectTransform>(out var itemRect))
             {
-                itemRect.anchoredPosition = new Vector2(startX + i * spacingX, 20f);
+                itemRect.anchoredPosition = new Vector2(startX + i * m_BuffItemSpacingX, m_BuffItemOffsetY);
             }
 
             // ⭐ 新增：选项进场动效（初始缩放为0，然后弹出）
