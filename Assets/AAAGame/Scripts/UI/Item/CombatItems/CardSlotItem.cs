@@ -48,7 +48,9 @@ public partial class CardSlotItem
     private Tween m_DragPreviewTween;
     private Tween m_PositionTween;
     private CanvasGroup m_BtnCanvasGroup;
+    private CanvasGroup m_CardCanvasGroup;
     private RectTransform m_ItemRectTransform;
+    public RectTransform ItemRectTransform => m_ItemRectTransform;
     private const float HOVER_SCALE = 1.05f;
     private const float HOVER_DURATION = 0.2f;
     private const float HOVER_OFFSET_Y = 30f;
@@ -102,7 +104,12 @@ public partial class CardSlotItem
         }
 
         m_ItemRectTransform = rectTransform;
+
+        if (m_CardCanvasGroup == null)
+            m_CardCanvasGroup = GetComponent<CanvasGroup>();
     }
+
+    public CanvasGroup CardCanvasGroup => m_CardCanvasGroup;
 
     /// <summary>
     /// 设置卡牌交互状态（禁用/启用）
