@@ -25,6 +25,11 @@ public class InventoryManager : SingletonBase<InventoryManager>
     private int m_CachedGold = 0;      // 金币缓存
     private int m_CachedSpiritStone = 0; // 灵石缓存
 
+    // 性能缓存
+    private int m_UsedSlotCount = 0;        // 已使用格子数（增量维护，O(1) 读取）
+    private float m_CachedWeight = 0f;      // 负重缓存
+    private bool m_WeightDirty = true;      // 负重脏标记
+
     // 虚拟物品 ID 常量
     public const int VIRTUAL_ITEM_GOLD = 999;           // 金币
     public const int VIRTUAL_ITEM_ORIGIN_STONE = 99999; // 起源石
@@ -86,23 +91,9 @@ public class InventoryManager : SingletonBase<InventoryManager>
     public int SpiritStone => m_CachedSpiritStone;
 
     /// <summary>
-    /// 当前使用的格子数量
+    /// 当前使用的格子数量（O(1)）
     /// </summary>
-    public int UsedSlotCount
-    {
-        get
-        {
-            int count = 0;
-            foreach (var slot in m_Slots)
-            {
-                if (!slot.IsEmpty)
-                {
-                    count++;
-                }
-            }
-            return count;
-        }
-    }
+    public int UsedSlotCount => m_UsedSlotCount;
 
     #endregion
 
@@ -561,12 +552,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public float CalculateCurrentWeight()
     {
+        if (!m_WeightDirty)
+            return m_CachedWeight;
+
         float total = 0f;
         foreach (var slot in m_Slots)
         {
             if (!slot.IsEmpty)
                 total += slot.ItemStack.Item.ItemData.Weight * slot.Count;
         }
+        m_CachedWeight = total;
+        m_WeightDirty = false;
         return total;
     }
 
@@ -724,6 +720,8 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
         m_CachedGold = 0;
         m_CachedSpiritStone = 0;
+        m_UsedSlotCount = 0;
+        m_WeightDirty = true;
     }
 
     /// <summary>
@@ -731,6 +729,13 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     private void NotifySlotChanged(int slotIndex, SlotChangeType changeType, int oldCount, int newCount)
     {
+        // 维护 UsedSlotCount 计数器
+        if (oldCount == 0 && newCount > 0) m_UsedSlotCount++;
+        else if (oldCount > 0 && newCount == 0) m_UsedSlotCount--;
+
+        // 标记负重脏
+        m_WeightDirty = true;
+
         var slot = GetSlotInternal(slotIndex);
         var args = new SlotChangeEventArgs
         {
