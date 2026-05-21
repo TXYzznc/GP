@@ -33,6 +33,16 @@ public partial class DetailInfoUI : UIItemBase
     private ChessSlotContainerImpl m_EquipContainer;
     private InventorySlot[] m_EquipSlotData; // 装备槽数据包装
 
+    // 装备加成数据结构
+    private struct EquipmentBonus
+    {
+        public double MaxHp;
+        public double CurrentMp;
+        public double AtkDamage;
+        public double Armor;
+        public double MagicResist;
+    }
+
     #endregion
 
     #region Unity 生命周期
@@ -153,6 +163,9 @@ public partial class DetailInfoUI : UIItemBase
 
         if (varBuffBg != null) varBuffBg.gameObject.SetActive(false);
         if (varEquipBg != null) varEquipBg.gameObject.SetActive(false);
+        if (varDesc_1Text != null) varDesc_1Text.gameObject.SetActive(true);
+        if (varChessAttribute != null) varChessAttribute.gameObject.SetActive(false);
+        if (varPopulation != null) varPopulation.gameObject.SetActive(false);
 
         if (varTitleText != null)
             varTitleText.text = m_CardData.Name;
@@ -179,6 +192,9 @@ public partial class DetailInfoUI : UIItemBase
 
         if (varBuffBg != null) varBuffBg.gameObject.SetActive(true);
         if (varEquipBg != null) varEquipBg.gameObject.SetActive(true);
+        if (varDesc_1Text != null) varDesc_1Text.gameObject.SetActive(false);
+        if (varChessAttribute != null) varChessAttribute.gameObject.SetActive(true);
+        if (varPopulation != null) varPopulation.gameObject.SetActive(true);
 
         var config = m_ChessEntity.Config;
         var attr = m_ChessEntity.Attribute;
@@ -186,17 +202,15 @@ public partial class DetailInfoUI : UIItemBase
         if (varTitleText != null)
             varTitleText.text = $"{config.Name} Lv{m_ChessEntity.Rank}";
 
-        if (varDesc_1Text != null)
-        {
-            varDesc_1Text.text = $"HP: {attr.CurrentHp:F0}/{attr.MaxHp:F0}\n"
-                               + $"MP: {attr.CurrentMp:F0}/{config.GetMaxMp(m_ChessEntity.Rank):F0}\n"
-                               + $"攻击: {attr.AtkDamage:F0}  护甲: {attr.Armor:F0}\n"
-                               + $"魔抗: {attr.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
-                               + $"暴击率: {config.GetCritRate(m_ChessEntity.Rank) * 100:F0}%  人口: {config.PopCost}";
-        }
-
         if (varDesc_2Text != null)
             varDesc_2Text.text = config.GetDescription(m_ChessEntity.Rank);
+
+        // 刷新属性显示
+        RefreshAttributeDisplay(attr, config, m_ChessEntity.Rank);
+
+        // 刷新人口显示
+        if (varPopulationText != null)
+            varPopulationText.text = $"{config.PopCost}";
 
         RefreshAllBuffs();
         RefreshEquipmentUI();
@@ -206,7 +220,6 @@ public partial class DetailInfoUI : UIItemBase
 
     /// <summary>
     /// 刷新棋子配置UI显示（准备阶段）
-    /// ⭐ 修改：支持显示 ChessEntity 的实时属性（如果有关联的实体）
     /// </summary>
     private void RefreshChessConfigUI()
     {
@@ -218,49 +231,33 @@ public partial class DetailInfoUI : UIItemBase
 
         if (varBuffBg != null) varBuffBg.gameObject.SetActive(false);
         if (varEquipBg != null) varEquipBg.gameObject.SetActive(true);
+        if (varDesc_1Text != null) varDesc_1Text.gameObject.SetActive(false);
+        if (varChessAttribute != null) varChessAttribute.gameObject.SetActive(true);
+        if (varPopulation != null) varPopulation.gameObject.SetActive(true);
 
         var config = m_ChessConfig;
 
         if (varTitleText != null)
             varTitleText.text = $"{config.Name}";
 
-        if (varDesc_1Text != null)
+        // 优先使用 ChessEntity 的实时属性，如果没有则使用配置和全局状态
+        if (m_ChessEntity != null && m_ChessEntity.Attribute != null)
         {
-            // ⭐ 优先使用 ChessEntity 的实时属性，如果没有则使用配置和全局状态
-            if (m_ChessEntity != null && m_ChessEntity.Attribute != null)
-            {
-                // 使用 ChessEntity 的实时属性（HP、MP、攻击等）
-                var attr = m_ChessEntity.Attribute;
-                var globalState = GlobalChessManager.Instance?.GetChessState(config.Id) ?? m_GlobalState;
-                int level = globalState?.Level ?? 1;
-                int experience = globalState?.Experience ?? 0;
-
-                varDesc_1Text.text = $"等级: {level}  经验: {experience}\n"
-                                   + $"HP: {attr.CurrentHp:F0}/{attr.MaxHp:F0}\n"
-                                   + $"MP: {attr.CurrentMp:F0}/{config.GetMaxMp(m_ChessEntity.Rank):F0}\n"
-                                   + $"攻击: {attr.AtkDamage:F0}  护甲: {attr.Armor:F0}\n"
-                                   + $"魔抗: {attr.MagicResist:F0}  速度: {config.MoveSpeed:F1}\n"
-                                   + $"暴击率: {config.GetCritRate(m_ChessEntity.Rank) * 100:F0}%  人口: {config.PopCost}";
-
-                DebugEx.Log(nameof(DetailInfoUI), $"棋子配置UI已刷新（使用实体属性）: {config.Name} HP={attr.CurrentHp:F0}/{attr.MaxHp:F0}");
-            }
-            else if (m_GlobalState != null)
-            {
-                // 使用全局状态（静态数据，显示Rank 1的配置）
-                var state = m_GlobalState;
-                varDesc_1Text.text = $"等级: {state.Level}  经验: {state.Experience}\n"
-                                   + $"HP: {state.CurrentHp:F0}/{state.MaxHp:F0}\n"
-                                   + $"MP: 0/{config.GetMaxMp(1):F0}\n"
-                                   + $"攻击: {config.GetAtkDamage(1):F0}  护甲: {config.GetArmor(1):F0}\n"
-                                   + $"魔抗: {config.GetMagicResist(1):F0}  速度: {config.MoveSpeed:F1}\n"
-                                   + $"暴击率: {config.GetCritRate(1) * 100:F0}%  人口: {config.PopCost}";
-
-                DebugEx.Log(nameof(DetailInfoUI), $"棋子配置UI已刷新（使用全局状态）: {config.Name}");
-            }
+            var attr = m_ChessEntity.Attribute;
+            RefreshAttributeDisplay(attr, config, m_ChessEntity.Rank);
+        }
+        else if (m_GlobalState != null)
+        {
+            // 使用全局状态（静态数据）
+            RefreshAttributeDisplayFromGlobalState(m_GlobalState, config);
         }
 
         if (varDesc_2Text != null)
             varDesc_2Text.text = config.GetDescription(1);
+
+        // 刷新人口显示
+        if (varPopulationText != null)
+            varPopulationText.text = $"{config.PopCost}";
 
         RefreshEquipmentUI();
     }
@@ -380,6 +377,204 @@ public partial class DetailInfoUI : UIItemBase
 
     #endregion
 
+    #region 属性显示
+
+    /// <summary>
+    /// 刷新属性显示（包含装备加成）
+    /// </summary>
+    private void RefreshAttributeDisplay(ChessAttribute attr, SummonChessConfig config, int rank)
+    {
+        if (attr == null || config == null) return;
+
+        var globalState = GlobalChessManager.Instance?.GetChessState(config.Id) ?? m_GlobalState;
+        int level = globalState?.Level ?? rank;
+        int experience = globalState?.Experience ?? 0;
+
+        // 获取装备加成
+        var equipBonus = GetEquipmentBonus(m_CurrentChessId);
+
+        // 显示等级
+        if (varGradeText != null)
+            varGradeText.text = $"{level}";
+
+        // 显示经验值
+        if (varExpText != null)
+            varExpText.text = $"{experience}";
+
+        // 显示HP（格式：当前值/基础值+装备加成）
+        if (varHPText != null)
+        {
+            double baseHp = attr.MaxHp - equipBonus.MaxHp;
+            if (equipBonus.MaxHp > 0)
+                varHPText.text = $"{attr.CurrentHp:F0}/<color=white>{baseHp:F0}</color><color=green>+{equipBonus.MaxHp:F0}</color>";
+            else
+                varHPText.text = $"{attr.CurrentHp:F0}/{attr.MaxHp:F0}";
+        }
+
+        // 显示MP
+        if (varMpText != null)
+        {
+            double maxMp = config.GetMaxMp(rank);
+            double baseMp = maxMp - equipBonus.CurrentMp;
+            if (equipBonus.CurrentMp > 0)
+                varMpText.text = $"{attr.CurrentMp:F0}/<color=white>{baseMp:F0}</color><color=green>+{equipBonus.CurrentMp:F0}</color>";
+            else
+                varMpText.text = $"{attr.CurrentMp:F0}/{maxMp:F0}";
+        }
+
+        // 显示攻击（包含装备加成）
+        if (varAttackText != null)
+        {
+            double baseAtk = attr.AtkDamage - equipBonus.AtkDamage;
+            if (equipBonus.AtkDamage > 0)
+                varAttackText.text = $"<color=white>{baseAtk:F0}</color><color=green>+{equipBonus.AtkDamage:F0}</color>";
+            else
+                varAttackText.text = $"{attr.AtkDamage:F0}";
+        }
+
+        // 显示护甲
+        if (varArmorText != null)
+        {
+            double baseArmor = attr.Armor - equipBonus.Armor;
+            if (equipBonus.Armor > 0)
+                varArmorText.text = $"<color=white>{baseArmor:F0}</color><color=green>+{equipBonus.Armor:F0}</color>";
+            else
+                varArmorText.text = $"{attr.Armor:F0}";
+        }
+
+        // 显示攻速
+        if (varAttackSpeedText != null && config.AtkSpeed != null && rank > 0 && rank <= config.AtkSpeed.Length)
+            varAttackSpeedText.text = $"{(float)config.AtkSpeed[rank - 1]:F1}";
+
+        // 显示暴击率
+        if (varCriticalChanceText != null && config.CritRate != null && rank > 0 && rank <= config.CritRate.Length)
+            varCriticalChanceText.text = $"{(float)config.CritRate[rank - 1] * 100:F0}%";
+
+        // 显示暴击伤害
+        if (varCriticalDamageText != null && config.CritDamage != null && rank > 0 && rank <= config.CritDamage.Length)
+            varCriticalDamageText.text = $"{(float)config.CritDamage[rank - 1]:F0}";
+
+        // 显示法强
+        if (varMagicalAttackText != null && config.SpellPower != null && rank > 0 && rank <= config.SpellPower.Length)
+            varMagicalAttackText.text = $"{(float)config.SpellPower[rank - 1]:F0}";
+
+        // 显示魔抗
+        if (varSpelResistanceText != null)
+        {
+            double baseMagicResist = attr.MagicResist - equipBonus.MagicResist;
+            if (equipBonus.MagicResist > 0)
+                varSpelResistanceText.text = $"<color=white>{baseMagicResist:F0}</color><color=green>+{equipBonus.MagicResist:F0}</color>";
+            else
+                varSpelResistanceText.text = $"{attr.MagicResist:F0}";
+        }
+
+        // 显示移动速度
+        if (varMoveSpeedText != null)
+            varMoveSpeedText.text = $"{(float)config.MoveSpeed:F1}";
+    }
+
+    /// <summary>
+    /// 获取装备加成（根据当前装备的BaseAttributes计算）
+    /// </summary>
+    private EquipmentBonus GetEquipmentBonus(int chessId)
+    {
+        var bonus = new EquipmentBonus();
+        if (chessId < 0) return bonus;
+
+        var equipMgr = ChessEquipmentManager.Instance;
+        if (equipMgr == null) return bonus;
+
+        // 遍历所有装备槽，累加基础属性加成
+        for (int i = 0; i < ChessEquipmentManager.EQUIP_SLOT_COUNT; i++)
+        {
+            var equipItem = equipMgr.GetEquippedItem(chessId, i);
+            if (equipItem == null || equipItem.BaseAttributes == null) continue;
+
+            // 遍历装备的所有基础属性
+            foreach (var attrKvp in equipItem.BaseAttributes)
+            {
+                switch (attrKvp.Key)
+                {
+                    case AttributeType.MaxHP:
+                        bonus.MaxHp += (double)attrKvp.Value;
+                        break;
+                    case AttributeType.Attack:
+                        bonus.AtkDamage += (double)attrKvp.Value;
+                        break;
+                    case AttributeType.Defense:
+                        bonus.Armor += (double)attrKvp.Value;
+                        break;
+                    case AttributeType.MagicResist:
+                        bonus.MagicResist += (double)attrKvp.Value;
+                        break;
+                    case AttributeType.MaxMP:
+                        bonus.CurrentMp += (double)attrKvp.Value;
+                        break;
+                }
+            }
+        }
+
+        return bonus;
+    }
+
+    /// <summary>
+    /// 从全局状态刷新属性显示（准备阶段使用）
+    /// </summary>
+    private void RefreshAttributeDisplayFromGlobalState(GlobalChessState state, SummonChessConfig config)
+    {
+        if (state == null || config == null) return;
+
+        // 显示等级
+        if (varGradeText != null)
+            varGradeText.text = $"{state.Level}";
+
+        // 显示经验值
+        if (varExpText != null)
+            varExpText.text = $"{state.Experience}";
+
+        // 显示HP
+        if (varHPText != null)
+            varHPText.text = $"{state.CurrentHp:F0}/{state.MaxHp:F0}";
+
+        // 显示MP
+        if (varMpText != null)
+            varMpText.text = $"0/{(float)config.GetMaxMp(1):F0}";
+
+        // 显示攻击
+        if (varAttackText != null)
+            varAttackText.text = $"{(float)config.GetAtkDamage(1):F0}";
+
+        // 显示护甲
+        if (varArmorText != null)
+            varArmorText.text = $"{(float)config.GetArmor(1):F0}";
+
+        // 显示攻速
+        if (varAttackSpeedText != null && config.AtkSpeed != null && config.AtkSpeed.Length > 0)
+            varAttackSpeedText.text = $"{(float)config.AtkSpeed[0]:F1}";
+
+        // 显示暴击率
+        if (varCriticalChanceText != null && config.CritRate != null && config.CritRate.Length > 0)
+            varCriticalChanceText.text = $"{(float)config.CritRate[0] * 100:F0}%";
+
+        // 显示暴击伤害
+        if (varCriticalDamageText != null && config.CritDamage != null && config.CritDamage.Length > 0)
+            varCriticalDamageText.text = $"{(float)config.CritDamage[0]:F0}";
+
+        // 显示法强
+        if (varMagicalAttackText != null && config.SpellPower != null && config.SpellPower.Length > 0)
+            varMagicalAttackText.text = $"{(float)config.SpellPower[0]:F0}";
+
+        // 显示魔抗
+        if (varSpelResistanceText != null)
+            varSpelResistanceText.text = $"{(float)config.GetMagicResist(1):F0}";
+
+        // 显示移动速度
+        if (varMoveSpeedText != null)
+            varMoveSpeedText.text = $"{(float)config.MoveSpeed:F1}";
+    }
+
+    #endregion
+
     #region 装备管理
 
     /// <summary>
@@ -387,14 +582,11 @@ public partial class DetailInfoUI : UIItemBase
     /// </summary>
     private void InitEquipSlots()
     {
-        if (varEquipBg == null || varInventorySlotUI == null)
+        if (varEquipBg == null || varInventorySlotUI1Arr == null || varInventorySlotUI1Arr.Length == 0)
         {
-            DebugEx.Warning(nameof(DetailInfoUI), "装备槽模板或容器为空，跳过初始化");
+            DebugEx.Warning(nameof(DetailInfoUI), "装备槽预制体或容器为空，跳过初始化");
             return;
         }
-
-        // 隐藏模板
-        varInventorySlotUI.SetActive(false);
 
         // 创建装备容器组件
         m_EquipContainer = varEquipBg.gameObject.GetComponent<ChessSlotContainerImpl>();
@@ -412,12 +604,13 @@ public partial class DetailInfoUI : UIItemBase
         m_EquipContainer.SetEquipSlotData(m_EquipSlotData);
         m_EquipContainer.SetDetailInfoUI(this);
 
-        // 实例化装备槽UI
+        // 使用预创建的装备槽UI
         m_EquipSlots = new InventorySlotUI[ChessEquipmentManager.EQUIP_SLOT_COUNT];
-        for (int i = 0; i < ChessEquipmentManager.EQUIP_SLOT_COUNT; i++)
+        for (int i = 0; i < ChessEquipmentManager.EQUIP_SLOT_COUNT && i < varInventorySlotUI1Arr.Length; i++)
         {
-            var slotGo = Instantiate(varInventorySlotUI, varEquipBg.transform, false);
-            slotGo.SetActive(true);
+            var slotGo = varInventorySlotUI1Arr[i];
+            if (slotGo == null)
+                continue;
 
             var slotUI = slotGo.GetComponent<InventorySlotUI>();
             if (slotUI != null)
