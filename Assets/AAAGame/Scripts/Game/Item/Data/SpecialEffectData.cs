@@ -14,6 +14,7 @@ public class SpecialEffectData
     public string EffectParams; // 效果参数（JSON格式）
 
     private JObject m_ParsedParams; // 解析后的参数
+    private static readonly JObject s_EmptyParams = new JObject();
 
     /// <summary>
     /// 获取解析后的参数对象
@@ -32,7 +33,7 @@ public class SpecialEffectData
                 m_ParsedParams = new JObject();
             }
         }
-        return m_ParsedParams ?? new JObject();
+        return m_ParsedParams ?? s_EmptyParams;
     }
 
     /// <summary>
