@@ -211,11 +211,11 @@ public partial class PlayerSkillUI : StateAwareUIForm
             cts.CancelAfter(TimeSpan.FromSeconds(10));
 
             await UniTask.WaitUntil(
-                () => FindObjectOfType<PlayerSkillManager>() != null,
+                () => PlayerSkillManager.Instance != null,
                 cancellationToken: cts.Token
             );
 
-            m_SkillManager = FindObjectOfType<PlayerSkillManager>();
+            m_SkillManager = PlayerSkillManager.Instance;
             DebugEx.Log("PlayerSkillUI", "✓ 找到技能管理器");
 
             // 等待技能加载完成（最多等待5秒）

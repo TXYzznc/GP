@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PlayerSkillManager : MonoBehaviour
 {
+    public static PlayerSkillManager Instance { get; private set; }
+
     public List<IPlayerSkill> Skills { get; private set; } = new();
 
     [SerializeField]
@@ -13,12 +15,19 @@ public class PlayerSkillManager : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         ctx = new PlayerSkillContext
         {
             Owner = gameObject,
             Transform = transform,
             Controller = GetComponent<PlayerController>(),
         };
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     private void Update()

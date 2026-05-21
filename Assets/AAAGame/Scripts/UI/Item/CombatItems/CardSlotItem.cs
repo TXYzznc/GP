@@ -33,6 +33,7 @@ public partial class CardSlotItem
 
     // 拖拽相关字段
     private GameObject m_DragPreview;
+    private RectTransform m_DragPreviewRect;
     private Image m_DragPreviewImage;
     private CanvasGroup m_DragPreviewCanvasGroup;
     private float m_LastRaycastTime;
@@ -176,6 +177,7 @@ public partial class CardSlotItem
             m_DragPreviewTween?.Kill();
             Destroy(m_DragPreview);
             m_DragPreview = null;
+            m_DragPreviewRect = null;
         }
 
         DebugEx.Log(this.GetType().Name, $"卡牌UI已销毁: {m_CardData?.Name ?? "unknown"}");
@@ -645,8 +647,6 @@ public partial class CardSlotItem
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
-        DebugEx.Log(this.GetType().Name, $"[OnDrag] 鼠标位置={eventData.position}");
-
         if (m_DragPreview == null)
             return;
 
@@ -679,16 +679,15 @@ public partial class CardSlotItem
 
 
         // 更新拖拽预览位置，跟随鼠标
-        var dragPreviewRect = m_DragPreview.GetComponent<RectTransform>();
-        if (dragPreviewRect != null)
+        if (m_DragPreviewRect != null)
         {
             // Screen Space - Camera 模式：屏幕坐标 → anchoredPosition
-            var canvasRectTransform = dragPreviewRect.parent as RectTransform;
+            var canvasRectTransform = m_DragPreviewRect.parent as RectTransform;
             if (canvasRectTransform != null)
             {
                 Vector2 canvasSize = canvasRectTransform.sizeDelta;
                 Vector2 anchoredPos = screenPos - new Vector2(canvasSize.x / 2f, canvasSize.y / 2f);
-                dragPreviewRect.anchoredPosition = anchoredPos;
+                m_DragPreviewRect.anchoredPosition = anchoredPos;
             }
         }
 
@@ -745,6 +744,7 @@ public partial class CardSlotItem
             m_DragPreviewTween?.Kill();
             Destroy(m_DragPreview);
             m_DragPreview = null;
+            m_DragPreviewRect = null;
             m_DragPreviewTween = null;
         }
 
@@ -813,6 +813,7 @@ public partial class CardSlotItem
         m_DragPreview = new GameObject("CardDragPreview");
         m_DragPreview.transform.SetParent(canvas.transform);
         m_DragPreview.transform.localScale = Vector3.one;
+        m_DragPreviewRect = m_DragPreview.GetComponent<RectTransform>();
 
         // 添加 Image 组件
         m_DragPreviewImage = m_DragPreview.AddComponent<Image>();
