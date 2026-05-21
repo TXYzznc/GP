@@ -12,6 +12,8 @@ public static class CampRelationService
     /// <summary>本地玩家阵营（用于确定敌我显示）</summary>
     private static int s_LocalPlayerCamp = (int)CampType.Player;
 
+    private static readonly LayerMask s_ChessLayerMask = LayerMask.GetMask("Chess");
+
     /// <summary>
     /// 阵营敌对关系表
     /// Key: 阵营ID, Value: 该阵营的敌对阵营列表
@@ -164,7 +166,7 @@ public static class CampRelationService
     {
         // 当前简化实现：所有棋子都在Chess层
         // 未来可以根据阵营返回不同的Layer组合
-        return LayerMask.GetMask("Chess");
+        return s_ChessLayerMask;
     }
 
     /// <summary>
