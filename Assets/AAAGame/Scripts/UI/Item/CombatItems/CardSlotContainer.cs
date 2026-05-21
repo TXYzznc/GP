@@ -41,8 +41,6 @@ public class CardSlotContainer : MonoBehaviour
 
     private RectTransform m_RectTransform;
     private List<CardSlotItem> m_Cards = new List<CardSlotItem>();
-    // 复用 List，避免 RearrangeAsync 每次分配
-    private readonly List<CardSlotItem> m_ActiveCardsBuffer = new List<CardSlotItem>();
 
     // 拖拽上下文：记录当前谁在拖拽、插入位置在哪（仅缓存，不控制）
     private DragContext m_DragContext;
@@ -110,31 +108,27 @@ public class CardSlotContainer : MonoBehaviour
         CardSlotItemEventDispatcher.OnAboutToDestroy -= OnCardAboutToDestroy;
     }
 
+#if UNITY_EDITOR
     private void Update()
     {
-        // 仅在运行时检测参数变化（用于编辑器调参）
         if (!Application.isPlaying)
             return;
 
-        // 每 0.5s 检测一次参数变化（减少热路径负担）
         m_DebugTimer += Time.deltaTime;
         if (m_DebugTimer >= m_DebugInterval)
         {
             m_DebugTimer = 0f;
 
-            // 检测参数是否有变化
             if (HasParametersChanged())
             {
-                //DebugEx.LogModule("CardSlotContainer", "检测到参数变化，立即更新卡牌位置");
                 CacheParameters();
-                // 立即更新位置（不播放动画，实时反馈）
                 RefreshCardPositionsImmediate();
             }
 
-            // 调试：输出卡牌位置
             DebugCardPositions();
         }
     }
+#endif
 
     /// <summary>
     /// 缓存当前参数
@@ -235,7 +229,7 @@ public class CardSlotContainer : MonoBehaviour
             if (card == null)
                 continue;
 
-            var rect = card.ItemRectTransform;
+            var rect = card.GetComponent<RectTransform>();
             if (rect != null)
             {
                 var pos = rect.anchoredPosition;
@@ -594,7 +588,7 @@ public class CardSlotContainer : MonoBehaviour
             if (m_Cards[i] == m_DragContext.Card)
                 continue;
 
-            var cardRect = m_Cards[i].ItemRectTransform;
+            var cardRect = m_Cards[i].GetComponent<RectTransform>();
             if (cardRect == null)
                 continue;
 
@@ -608,7 +602,7 @@ public class CardSlotContainer : MonoBehaviour
 
         // 根据距离判断是左还是右
         var closestCard = m_Cards[closestIndex];
-        var closestCardRect = closestCard.ItemRectTransform;
+        var closestCardRect = closestCard.GetComponent<RectTransform>();
         if (localPos.x > closestCardRect.anchoredPosition.x)
         {
             closestIndex = (closestIndex + 1) % m_Cards.Count;
@@ -630,8 +624,8 @@ public class CardSlotContainer : MonoBehaviour
         if (card == null)
             return;
 
-        var cardRect = card.ItemRectTransform;
-        var cardImage = card.CardCanvasGroup;
+        var cardRect = card.GetComponent<RectTransform>();
+        var cardImage = card.GetComponent<CanvasGroup>();
 
         if (cardRect == null)
             return;
@@ -686,14 +680,8 @@ public class CardSlotContainer : MonoBehaviour
 
         //DebugEx.LogModule("CardSlotContainer", $"[RearrangeAsync] 开始重排，当前卡牌数={m_Cards.Count}");
 
-        // 创建活跃卡快照（复用 buffer，避免每次分配 List）
-        m_ActiveCardsBuffer.Clear();
-        for (int i = 0; i < m_Cards.Count; i++)
-        {
-            if (m_Cards[i] != m_DragContext.Card)
-                m_ActiveCardsBuffer.Add(m_Cards[i]);
-        }
-        var activeCards = m_ActiveCardsBuffer;
+        // 创建快照：只对当前活跃卡进行动画（拖拽中的卡不动画）
+        var activeCards = m_Cards.Where(c => c != m_DragContext.Card).ToList();
 
         if (activeCards.Count == 0)
         {
@@ -719,7 +707,7 @@ public class CardSlotContainer : MonoBehaviour
         for (int i = 0; i < activeCards.Count; i++)
         {
             var card = activeCards[i];
-            var cardRect = card.ItemRectTransform;
+            var cardRect = card.GetComponent<RectTransform>();
             if (cardRect == null)
                 continue;
 
@@ -777,7 +765,7 @@ public class CardSlotContainer : MonoBehaviour
             if (card == m_DragContext.Card)
                 continue;
 
-            var cardRect = card.ItemRectTransform;
+            var cardRect = card.GetComponent<RectTransform>();
             if (cardRect == null)
                 continue;
 

@@ -78,21 +78,20 @@ public class ChessSlotContainer : MonoBehaviour
         CacheParameters();
     }
 
+#if UNITY_EDITOR
     private void Update()
     {
-        // 仅在运行时检测参数变化（用于实时调参）
         if (!Application.isPlaying)
             return;
 
-        // 检测参数是否有变化
         if (HasParametersChanged())
         {
             DebugEx.Log(nameof(ChessSlotContainer), "检测到参数变化，立即更新棋子位置");
             CacheParameters();
-            // 立即更新位置（不播放动画，实时反馈）
             RefreshCardPositionsImmediate();
         }
     }
+#endif
 
     /// <summary>
     /// 缓存当前参数
