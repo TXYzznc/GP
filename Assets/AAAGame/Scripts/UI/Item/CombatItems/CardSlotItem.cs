@@ -970,11 +970,18 @@ public partial class CardSlotItem
     {
         DebugEx.Log(this.GetType().Name, $"卡牌返回卡槽: {m_CardData.Name}");
 
-        // 恢复到基准位置
-        if (m_ItemRectTransform != null)
+        // 通知容器重排，让所有卡牌回到正确位置（包含本张卡）
+        if (m_Container != null)
         {
+            m_Container.RearrangeAsync(default).Forget();
+        }
+        else if (m_ItemRectTransform != null)
+        {
+            // 没有容器时降级为直接移回基准位
             m_ItemRectTransform.DOAnchorPos(m_BaseAnchoredPos, 0.2f).SetEase(Ease.OutQuad);
         }
+
+        SetState(CardSlotItemState.Idle);
     }
 
     #endregion
