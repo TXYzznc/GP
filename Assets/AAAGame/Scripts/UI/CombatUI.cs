@@ -22,6 +22,8 @@ public partial class CombatUI : StateAwareUIForm
     /// <summary>⭐ 新增：羁绊Buff UI 缓存 (synergyId → BuffUI GameObject)</summary>
     private Dictionary<int, GameObject> m_SynergyBuffUICache = new();
 
+    private CardSlotContainer m_CardSlotContainerCache;
+
     #endregion
 
     #region 事件订阅
@@ -674,7 +676,9 @@ public partial class CombatUI : StateAwareUIForm
     /// </summary>
     private CardSlotContainer GetCardSlotContainer()
     {
-        return varCardSlots?.GetComponent<CardSlotContainer>();
+        if (m_CardSlotContainerCache == null)
+            m_CardSlotContainerCache = varCardSlots?.GetComponent<CardSlotContainer>();
+        return m_CardSlotContainerCache;
     }
 
     /// <summary>
