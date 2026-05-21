@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -41,6 +40,11 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
 
     /// <summary>实例化计数器，用于生成唯一编号</summary>
     private int m_IndicatorCounter = 0;
+
+    // 复用列表，避免每帧/每0.5s分配
+    private readonly List<EnemyEntity> m_ToRemoveBuffer = new List<EnemyEntity>();
+    private readonly List<KeyValuePair<EnemyEntity, EnemyMask>> m_SortBuffer =
+        new List<KeyValuePair<EnemyEntity, EnemyMask>>();
 
     #endregion
 
@@ -246,36 +250,30 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
     /// </summary>
     private void UpdateAllIndicators()
     {
-        // 创建待删除列表，避免在迭代时修改字典
-        List<EnemyEntity> toRemove = new List<EnemyEntity>();
+        m_ToRemoveBuffer.Clear();
 
         foreach (var kvp in m_ActiveIndicators)
         {
             EnemyEntity enemy = kvp.Key;
             EnemyMask indicator = kvp.Value;
 
-            // 检查敌人是否仍然有效
             if (enemy == null || enemy.VisionDetector == null)
             {
-                toRemove.Add(enemy);
+                m_ToRemoveBuffer.Add(enemy);
                 continue;
             }
 
-            // 更新进度条
             float alertProgress = enemy.VisionDetector.AlertLevel;
-
-            // 如果警觉度降到0，移除指示器
             if (alertProgress <= 0f)
             {
-                toRemove.Add(enemy);
+                m_ToRemoveBuffer.Add(enemy);
                 continue;
             }
 
             indicator.UpdateProgress(alertProgress);
         }
 
-        // 移除失效的指示器
-        foreach (var enemy in toRemove)
+        foreach (var enemy in m_ToRemoveBuffer)
         {
             HideAlert(enemy);
         }
@@ -289,28 +287,30 @@ public class EnemyAlertUIManager : SingletonBase<EnemyAlertUIManager>
         if (m_PlayerTransform == null || m_ActiveIndicators.Count == 0)
             return;
 
-        // 按距离排序活跃指示器
-        var sortedIndicators = m_ActiveIndicators
-            .OrderBy(kvp =>
-                Vector3.Distance(m_PlayerTransform.position, kvp.Key.transform.position)
-            )
-            .Take(MAX_DISPLAY_COUNT)
-            .ToList();
+        Vector3 playerPos = m_PlayerTransform.position;
 
-        // 只保留距离最近的指示器
-        var toRemove = m_ActiveIndicators.Keys.Except(sortedIndicators.Select(x => x.Key)).ToList();
+        // 填充缓冲区并排序
+        m_SortBuffer.Clear();
+        foreach (var kvp in m_ActiveIndicators)
+            m_SortBuffer.Add(kvp);
 
-        foreach (var enemy in toRemove)
+        m_SortBuffer.Sort((a, b) =>
         {
+            float da = (a.Key.transform.position - playerPos).sqrMagnitude;
+            float db = (b.Key.transform.position - playerPos).sqrMagnitude;
+            return da.CompareTo(db);
+        });
+
+        // 超出上限的移除
+        m_ToRemoveBuffer.Clear();
+        for (int i = MAX_DISPLAY_COUNT; i < m_SortBuffer.Count; i++)
+            m_ToRemoveBuffer.Add(m_SortBuffer[i].Key);
+        foreach (var enemy in m_ToRemoveBuffer)
             HideAlert(enemy);
-        }
 
-        // 重新排序UI
-        int siblingIndex = 0;
-        foreach (var kvp in sortedIndicators)
-        {
-            kvp.Value.transform.SetSiblingIndex(siblingIndex++);
-        }
+        // 重新排序 UI
+        for (int i = 0; i < m_SortBuffer.Count && i < MAX_DISPLAY_COUNT; i++)
+            m_SortBuffer[i].Value.transform.SetSiblingIndex(i);
     }
 
     #endregion
