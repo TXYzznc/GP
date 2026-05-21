@@ -26,16 +26,40 @@ public class SynergyData
         if (ownedIds == null || ownedIds.Count < RequireCount)
             return false;
 
+        var ownedSet = new HashSet<int>(ownedIds);
         int matchCount = 0;
         foreach (int requireId in RequireIds)
         {
-            if (ownedIds.Contains(requireId))
+            if (ownedSet.Contains(requireId))
             {
                 matchCount++;
                 if (matchCount >= RequireCount)
-                {
                     return true;
-                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 检查是否满足激活条件（调用方已有 HashSet 时使用，避免重复转换）
+    /// </summary>
+    public bool CheckActivation(HashSet<int> ownedSet)
+    {
+        if (RequireIds == null || RequireIds.Count == 0)
+            return false;
+
+        if (ownedSet == null)
+            return false;
+
+        int matchCount = 0;
+        foreach (int requireId in RequireIds)
+        {
+            if (ownedSet.Contains(requireId))
+            {
+                matchCount++;
+                if (matchCount >= RequireCount)
+                    return true;
             }
         }
 
