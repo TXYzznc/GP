@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:DESKTOP-7JQ11GM
+//更新自:一只靓仔的电脑
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +16,6 @@ public partial class GamePlayInfoUI
 	[SerializeField] private HorizontalLayoutGroup varEnemyWarningHead = null;
 	[SerializeField] private GameObject varEnemyMask = null;
 	[SerializeField] private RectTransform varCombatInteractUI = null;
-	[SerializeField] private Image varInteractIcon = null;
 	[SerializeField] private Text varInteractText = null;
 	[SerializeField] private Text varStealthText = null;
 }

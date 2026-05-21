@@ -1,9 +1,9 @@
 using Cysharp.Threading.Tasks;
 using GameExtension;
+using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using GameFramework.Event;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -12,6 +12,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 {
     /// <summary>当前订阅的隐身组件（用于取消订阅）</summary>
     private PostCombatStealth m_SubscribedStealth;
+
     #region 事件订阅
 
     protected override void SubscribeEvents()
@@ -103,7 +104,8 @@ public partial class GamePlayInfoUI : StateAwareUIForm
                 if (indicatorTemplate != null)
                 {
                     // varEnemyWarningHead是HorizontalLayoutGroup，需要获取其RectTransform
-                    RectTransform containerTransform = varEnemyWarningHead.GetComponent<RectTransform>();
+                    RectTransform containerTransform =
+                        varEnemyWarningHead.GetComponent<RectTransform>();
                     if (containerTransform != null)
                     {
                         alertUIManager.Initialize(containerTransform, indicatorTemplate);
@@ -111,7 +113,10 @@ public partial class GamePlayInfoUI : StateAwareUIForm
                     }
                     else
                     {
-                        DebugEx.Warning("GamePlayInfoUI", "varEnemyWarningHead上未找到RectTransform组件");
+                        DebugEx.Warning(
+                            "GamePlayInfoUI",
+                            "varEnemyWarningHead上未找到RectTransform组件"
+                        );
                     }
                 }
                 else
@@ -134,44 +139,52 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     /// </summary>
     public void ShowCombatInteract(CombatTriggerType triggerType)
     {
-        DebugEx.Log("GamePlayInfoUI",
-            $"<color=cyan>[诊断] ShowCombatInteract 被调用 | triggerType={triggerType}</color>");
+        DebugEx.Log(
+            "GamePlayInfoUI",
+            $"<color=cyan>[诊断] ShowCombatInteract 被调用 | triggerType={triggerType}</color>"
+        );
 
-        DebugEx.Log("GamePlayInfoUI",
-            $"<color=cyan>[诊断] 组件状态: " +
-            $"varCombatInteractUI={varCombatInteractUI != null} (name={(varCombatInteractUI != null ? varCombatInteractUI.name : "null")}) | " +
-            $"varInteractIcon={varInteractIcon != null} | " +
-            $"varInteractText={varInteractText != null}</color>");
+        DebugEx.Log(
+            "GamePlayInfoUI",
+            $"<color=cyan>[诊断] 组件状态: "
+                + $"varCombatInteractUI={varCombatInteractUI != null} (name={(varCombatInteractUI != null ? varCombatInteractUI.name : "null")}) | "
+                + $"varInteractText={varInteractText != null}</color>"
+        );
 
-        if (varCombatInteractUI == null || varInteractIcon == null || varInteractText == null)
+        if (varCombatInteractUI == null || varInteractText == null)
         {
-            DebugEx.Error("GamePlayInfoUI",
-                $"<color=red>[诊断] ❌ 战斗交互UI组件未设置！" +
-                $"varCombatInteractUI={varCombatInteractUI} | " +
-                $"varInteractIcon={varInteractIcon} | " +
-                $"varInteractText={varInteractText}</color>");
+            DebugEx.Error(
+                "GamePlayInfoUI",
+                $"<color=red>[诊断] ❌ 战斗交互UI组件未设置！"
+                    + $"varCombatInteractUI={varCombatInteractUI} | "
+                    + $"varInteractText={varInteractText}</color>"
+            );
             return;
         }
 
-        DebugEx.Log("GamePlayInfoUI",
-            $"<color=cyan>[诊断] ✓ 所有组件都存在，激活 varCombatInteractUI</color>");
+        DebugEx.Log(
+            "GamePlayInfoUI",
+            $"<color=cyan>[诊断] ✓ 所有组件都存在，激活 varCombatInteractUI</color>"
+        );
 
         varCombatInteractUI.gameObject.SetActive(true);
 
         switch (triggerType)
         {
             case CombatTriggerType.SneakAttack:
-                ResourceExtension.LoadSpriteAsync(1008, varInteractIcon).Forget();
                 varInteractText.text = "按下【Space】进行偷袭";
-                DebugEx.Log("GamePlayInfoUI",
-                    $"<color=yellow>[诊断] ✓ 显示偷袭交互UI | 文本=\"{varInteractText.text}\"</color>");
+                DebugEx.Log(
+                    "GamePlayInfoUI",
+                    $"<color=yellow>[诊断] ✓ 显示偷袭交互UI | 文本=\"{varInteractText.text}\"</color>"
+                );
                 break;
 
             case CombatTriggerType.Encounter:
-                ResourceExtension.LoadSpriteAsync(1009, varInteractIcon).Forget();
                 varInteractText.text = "按下【Space】进入战斗";
-                DebugEx.Log("GamePlayInfoUI",
-                    $"<color=yellow>[诊断] ✓ 显示遭遇战交互UI | 文本=\"{varInteractText.text}\"</color>");
+                DebugEx.Log(
+                    "GamePlayInfoUI",
+                    $"<color=yellow>[诊断] ✓ 显示遭遇战交互UI | 文本=\"{varInteractText.text}\"</color>"
+                );
                 break;
 
             default:
@@ -180,7 +193,6 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         }
 
         // TODO: 播放跳动动画（使用DOTween或Animator）
-        // PlayBounceAnimation(varInteractIcon.transform);
     }
 
     /// <summary>
@@ -191,13 +203,14 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         if (varCombatInteractUI != null)
         {
             varCombatInteractUI.gameObject.SetActive(false);
-            DebugEx.Log("GamePlayInfoUI",
-                "<color=cyan>[诊断] 隐藏战斗交互UI</color>");
+            DebugEx.Log("GamePlayInfoUI", "<color=cyan>[诊断] 隐藏战斗交互UI</color>");
         }
         else
         {
-            DebugEx.Warning("GamePlayInfoUI",
-                "<color=yellow>[诊断] varCombatInteractUI 为 null，无法隐藏</color>");
+            DebugEx.Warning(
+                "GamePlayInfoUI",
+                "<color=yellow>[诊断] varCombatInteractUI 为 null，无法隐藏</color>"
+            );
         }
     }
 
@@ -287,7 +300,8 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         UnsubscribeStealthEvents();
 
         var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
-        if (playerGo == null) return;
+        if (playerGo == null)
+            return;
 
         m_SubscribedStealth = playerGo.GetComponent<PostCombatStealth>();
         if (m_SubscribedStealth != null)
@@ -336,18 +350,22 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         // 刷新时间信息
         if (varTimeText != null)
         {
-            varTimeText.text = "白天";  // TODO: 从游戏数据获取
+            varTimeText.text = "白天"; // TODO: 从游戏数据获取
         }
 
         // 刷新天气信息
         if (varWeatherText != null)
         {
-            varWeatherText.text = "晴";  // TODO: 从游戏数据获取
+            varWeatherText.text = "晴"; // TODO: 从游戏数据获取
         }
 
-        // 隐身文本默认隐藏（仅隐身激活时由 OnStealthChanged 显示）
+        // 隐身文本：仅在隐身未激活时隐藏（避免覆盖已激活的隐身状态）
         if (varStealthText != null)
-            varStealthText.gameObject.SetActive(false);
+        {
+            bool isStealthActive = m_SubscribedStealth != null && m_SubscribedStealth.IsActive;
+            if (!isStealthActive)
+                varStealthText.gameObject.SetActive(false);
+        }
 
         // 刷新污染值（使用HP滑条显示）
         RefreshCorruption();
@@ -387,15 +405,18 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         if (varHPSlider != null)
         {
             // 从玩家运行时数据获取污染值百分比
-            if (PlayerRuntimeDataManager.Instance != null && PlayerRuntimeDataManager.Instance.IsInitialized)
+            if (
+                PlayerRuntimeDataManager.Instance != null
+                && PlayerRuntimeDataManager.Instance.IsInitialized
+            )
             {
                 varHPSlider.value = PlayerRuntimeDataManager.Instance.CorruptionPercent;
-                // DebugEx.LogModule("GamePlayInfoUI", 
+                // DebugEx.LogModule("GamePlayInfoUI",
                 //     $"污染值显示更新: {PlayerRuntimeDataManager.Instance.CurrentCorruption:F1}/{PlayerRuntimeDataManager.Instance.MaxCorruption:F1} ({PlayerRuntimeDataManager.Instance.CorruptionPercent:P1})");
             }
             else
             {
-                varHPSlider.value = 0f;  // 默认无污染
+                varHPSlider.value = 0f; // 默认无污染
             }
         }
     }
@@ -409,14 +430,21 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         base.OnUpdate(elapseSeconds, realElapseSeconds);
 
         // 更新玩家污染值增长
-        if (PlayerRuntimeDataManager.Instance != null && PlayerRuntimeDataManager.Instance.IsInitialized)
+        if (
+            PlayerRuntimeDataManager.Instance != null
+            && PlayerRuntimeDataManager.Instance.IsInitialized
+        )
         {
             PlayerRuntimeDataManager.Instance.UpdateCorruptionGrowth(elapseSeconds);
         }
 
         // 更新隐身倒计时显示
-        if (varStealthText != null && varStealthText.gameObject.activeSelf
-            && m_SubscribedStealth != null && m_SubscribedStealth.IsActive)
+        if (
+            varStealthText != null
+            && varStealthText.gameObject.activeSelf
+            && m_SubscribedStealth != null
+            && m_SubscribedStealth.IsActive
+        )
         {
             varStealthText.text = $"隐身 {m_SubscribedStealth.RemainingTime:F0}s";
         }

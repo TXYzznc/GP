@@ -172,13 +172,19 @@ public abstract class ChessAIBase : IChessAI
         if (strategy != null)
         {
             m_SearchConfig = TargetSearchStrategyDataManager.Instance.ConvertToConfig(strategy);
-            DebugEx.Log(GetType().Name, $"[{m_Context.Entity.Config.Name}] 已加载索敌策略: {strategy.Name}");
+            DebugEx.Log(
+                GetType().Name,
+                $"[{m_Context.Entity.Config.Name}] 已加载索敌策略: {strategy.Name}"
+            );
         }
         else
         {
             // 降级处理：如果找不到配置表数据，使用硬编码默认配置
             m_SearchConfig = TargetSearchConfig.CreateDefault();
-            DebugEx.Warning(GetType().Name, $"[{m_Context.Entity.Config.Name}] 未能从配置表加载索敌策略，使用硬编码默认配置");
+            DebugEx.Warning(
+                GetType().Name,
+                $"[{m_Context.Entity.Config.Name}] 未能从配置表加载索敌策略，使用硬编码默认配置"
+            );
         }
     }
 
@@ -256,9 +262,7 @@ public abstract class ChessAIBase : IChessAI
         }
 
         // ⭐ 添加成功执行的日志（仅在状态变化时输出，避免刷屏）
-        if (m_CurrentState == ChessAIState.Attacking)
-        {
-        }
+        if (m_CurrentState == ChessAIState.Attacking) { }
 
         return true;
     }
@@ -298,7 +302,10 @@ public abstract class ChessAIBase : IChessAI
 
         if (m_SummoningTimer <= 0)
         {
-            DebugEx.Log(GetType().Name, $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 召唤完成");
+            DebugEx.Log(
+                GetType().Name,
+                $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 召唤完成"
+            );
             ChangeState(ChessAIState.Idle);
         }
     }
@@ -316,7 +323,10 @@ public abstract class ChessAIBase : IChessAI
         // 定期搜索目标
         if (m_TargetSearchTimer <= 0)
         {
-            DebugEx.Log(GetType().Name, $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 开始搜索目标...");
+            DebugEx.Log(
+                GetType().Name,
+                $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 开始搜索目标..."
+            );
 
             m_CurrentTarget = FindTarget();
             m_TargetSearchTimer = TARGET_SEARCH_INTERVAL;
@@ -346,8 +356,10 @@ public abstract class ChessAIBase : IChessAI
                 // ⭐ 让技能释放策略选择技能目标
                 m_SkillTarget = m_SkillStrategy.SelectSkillTarget(m_PendingSkillIndex);
 
-                DebugEx.Log(GetType().Name,
-                    $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 决策: 使用技能{m_PendingSkillIndex}, 目标={m_SkillTarget?.gameObject?.name ?? "null"}");
+                DebugEx.Log(
+                    GetType().Name,
+                    $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 决策: 使用技能{m_PendingSkillIndex}, 目标={m_SkillTarget?.gameObject?.name ?? "null"}"
+                );
                 ChangeState(ChessAIState.UsingSkill);
                 return;
             }
@@ -364,7 +376,10 @@ public abstract class ChessAIBase : IChessAI
             }
 
             // 优先级3：需要移动到目标位置
-            DebugEx.Log(GetType().Name, $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 决策: 移动到目标");
+            DebugEx.Log(
+                GetType().Name,
+                $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 决策: 移动到目标"
+            );
             ChangeState(ChessAIState.Moving);
         }
     }
@@ -396,7 +411,10 @@ public abstract class ChessAIBase : IChessAI
         // 1. 检查目标有效性
         if (!IsTargetValid())
         {
-            DebugEx.Log(GetType().Name, $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 目标无效，返回待机");
+            DebugEx.Log(
+                GetType().Name,
+                $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 目标无效，返回待机"
+            );
             m_ShouldUseSkillAfterAttack = false; // 清除技能标记
             ChangeState(ChessAIState.Idle);
             return;
@@ -478,8 +496,10 @@ public abstract class ChessAIBase : IChessAI
         {
             if (!m_IsUsingSkill)
             {
-                DebugEx.Warning(GetType().Name,
-                    $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 技能目标死亡，中断技能释放");
+                DebugEx.Warning(
+                    GetType().Name,
+                    $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 技能目标死亡，中断技能释放"
+                );
                 ChangeState(ChessAIState.Idle);
                 return;
             }
@@ -519,6 +539,14 @@ public abstract class ChessAIBase : IChessAI
                 DebugEx.Log(
                     GetType().Name,
                     $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 请求 Controller 执行大招"
+                );
+            }
+            else if (m_PendingSkillIndex == 3)
+            {
+                m_Context.Entity.CombatController?.TriggerSkill1_2FromAI();
+                DebugEx.Log(
+                    GetType().Name,
+                    $"[{m_Context.Entity.gameObject.name}] {m_Context.Entity.Config.Name} 请求 Controller 执行技能二"
                 );
             }
             else if (m_PendingSkillIndex == 1)
@@ -650,7 +678,7 @@ public abstract class ChessAIBase : IChessAI
                 m_IsUsingSkill = false;
                 m_ShouldUseSkillAfterAttack = false;
                 m_PendingSkillIndex = 0;
-                m_SkillTarget = null;  // ⭐ 清除技能目标
+                m_SkillTarget = null; // ⭐ 清除技能目标
                 break;
         }
     }
@@ -748,12 +776,15 @@ public abstract class ChessAIBase : IChessAI
     /// </summary>
     private ChessEntity CheckTauntedTarget(List<EnemyInfoCache> enemyCache)
     {
-        if (m_Context?.Entity == null) return null;
+        if (m_Context?.Entity == null)
+            return null;
 
-        if (!m_Context.Entity.IsTaunted) return null;
+        if (!m_Context.Entity.IsTaunted)
+            return null;
 
         var buffManager = m_Context.Entity.BuffManager;
-        if (buffManager == null) return null;
+        if (buffManager == null)
+            return null;
 
         var tauntBuff = buffManager.GetBuff(TauntBuff.BUFF_ID) as TauntBuff;
         if (tauntBuff == null)
@@ -939,20 +970,14 @@ public abstract class ChessAIBase : IChessAI
     {
         if (target == null || m_Context?.Entity == null)
         {
-            DebugEx.Warning(
-                GetType().Name,
-                $"{m_Context?.Entity?.Config?.Name} 攻击目标为null"
-            );
+            DebugEx.Warning(GetType().Name, $"{m_Context?.Entity?.Config?.Name} 攻击目标为null");
             return;
         }
 
         // 检查是否在攻击范围内
         if (!IsInAttackRange(target))
         {
-            DebugEx.Warning(
-                GetType().Name,
-                $"{m_Context.Entity.Config.Name} 目标不在攻击范围内"
-            );
+            DebugEx.Warning(GetType().Name, $"{m_Context.Entity.Config.Name} 目标不在攻击范围内");
             return;
         }
 
@@ -1009,10 +1034,7 @@ public abstract class ChessAIBase : IChessAI
 
         m_IsAttacking = false;
 
-        DebugEx.Log(
-            GetType().Name,
-            $"{m_Context.Entity.Config.Name} 攻击动作完成，重置攻击标记"
-        );
+        DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 攻击动作完成，重置攻击标记");
 
         // ✅ 检查是否应该在攻击结束后释放技能
         if (m_ShouldUseSkillAfterAttack)
@@ -1074,10 +1096,7 @@ public abstract class ChessAIBase : IChessAI
     /// </summary>
     public virtual void ResetTargetAfterPlayerMove()
     {
-        DebugEx.Log(
-            GetType().Name,
-            $"{m_Context.Entity.Config.Name} 手动移动完成，开始立即索敌"
-        );
+        DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 手动移动完成，开始立即索敌");
 
         // ⭐ 玩家手动移动会强制打断当前行为，必须重置动作状态标记
         // 否则如果打断时处于攻击或技能动作中，m_IsAttacking/m_IsUsingSkill 会一直为 true
@@ -1087,10 +1106,7 @@ public abstract class ChessAIBase : IChessAI
         m_ShouldUseSkillAfterAttack = false;
 
         // ⭐ 检查当前状态和CombatController状态
-        DebugEx.Log(
-            GetType().Name,
-            $"{m_Context.Entity.Config.Name} 当前AI状态: {m_CurrentState}"
-        );
+        DebugEx.Log(GetType().Name, $"{m_Context.Entity.Config.Name} 当前AI状态: {m_CurrentState}");
 
         if (m_Context.Entity.CombatController != null)
         {

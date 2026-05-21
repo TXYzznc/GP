@@ -46,6 +46,9 @@ public class ChessEntity : MonoBehaviour
     /// <summary>技能一</summary>
     public IChessSkill Skill1 { get; private set; }
 
+    /// <summary>技能二（可选的第二主动技能，区别于大招）</summary>
+    public IChessSkill Skill1_2 { get; private set; }
+
     /// <summary>技能二/大招</summary>
     public IChessSkill Skill2 { get; private set; }
 
@@ -271,9 +274,24 @@ public class ChessEntity : MonoBehaviour
             }
         }
 
+        // 7.5. 初始化技能二（可选的第二主动技能）
+        int skill2Id = config.GetSkill2Id(Rank);
+        if (skill2Id != 0)
+        {
+            var skill2Config = skillTable?.GetDataRow(skill2Id);
+            if (skill2Config != null)
+            {
+                Skill1_2 = ChessFactory.CreateSkill(skill2Id);
+                if (Skill1_2 != null)
+                {
+                    Skill1_2.Init(m_Context, skill2Config);
+                    DebugEx.Log(nameof(ChessEntity), $"技能二初始化成功 (Id={skill2Id})");
+                }
+            }
+        }
+
         // 8. 初始化大招
         int ultimateId = config.GetUltimateId(Rank);
-        if (ultimateId != 0)
         {
             Skill2Config = skillTable?.GetDataRow(ultimateId);
             if (Skill2Config != null)
@@ -409,15 +427,18 @@ public class ChessEntity : MonoBehaviour
             Config = config,
         };
 
-        DebugEx.Log(nameof(ChessEntity),
-            $"InitializeAsSummoner 完成: [{config?.Name ?? "召唤师"}] ChessId={chessId}, Camp={camp}");
+        DebugEx.Log(
+            nameof(ChessEntity),
+            $"InitializeAsSummoner 完成: [{config?.Name ?? "召唤师"}] ChessId={chessId}, Camp={camp}"
+        );
     }
 
     #endregion
 
     #region Unity生命周期
 
-    private readonly System.Collections.Generic.Dictionary<string, int> m_SpecialStateCounts = new System.Collections.Generic.Dictionary<string, int>();
+    private readonly System.Collections.Generic.Dictionary<string, int> m_SpecialStateCounts =
+        new System.Collections.Generic.Dictionary<string, int>();
 
     public void AddSpecialState(string key)
     {
@@ -818,7 +839,10 @@ public class ChessEntity : MonoBehaviour
     {
         if (Rank >= 3)
         {
-            DebugEx.Warning(nameof(ChessEntity), $"棋子 {Config?.Name} 已是最高阶（{Rank}），不能继续升阶");
+            DebugEx.Warning(
+                nameof(ChessEntity),
+                $"棋子 {Config?.Name} 已是最高阶（{Rank}），不能继续升阶"
+            );
             return;
         }
 
@@ -828,7 +852,10 @@ public class ChessEntity : MonoBehaviour
         bool advanceSuccess = GlobalChessManager.Instance.AdvanceChessRank(ChessId);
         if (!advanceSuccess)
         {
-            DebugEx.Warning(nameof(ChessEntity), $"棋子 {Config?.Name} 升阶失败（经验不足或等级已满）");
+            DebugEx.Warning(
+                nameof(ChessEntity),
+                $"棋子 {Config?.Name} 升阶失败（经验不足或等级已满）"
+            );
             return;
         }
 

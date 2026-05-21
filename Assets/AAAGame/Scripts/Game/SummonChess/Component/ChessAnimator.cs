@@ -9,14 +9,16 @@ public enum ChessActionType
 {
     /// <summary>无动作</summary>
     None,
+
     /// <summary>普通攻击</summary>
     Attack,
+
     /// <summary>技能1</summary>
     Skill1,
-    /// <summary>技能2/大招</summary>
-    Skill2
-}
 
+    /// <summary>技能2/大招</summary>
+    Skill2,
+}
 
 /// <summary>
 /// 通用棋子动画控制器
@@ -34,6 +36,10 @@ public class ChessAnimator : MonoBehaviour
     private static readonly int PARAM_SKILL1 = Animator.StringToHash("Skill1");
     private static readonly int PARAM_SKILL2 = Animator.StringToHash("Skill2");
     private static readonly int PARAM_DEATH = Animator.StringToHash("Death");
+    private static readonly int PARAM_ULTIMATE = Animator.StringToHash("Skill2_True");
+
+    // Int 参数（随机普攻）
+    private static readonly int PARAM_ATTACK_INDEX = Animator.StringToHash("AttackIndex");
 
     // Float 参数（攻速倍率）
     private static readonly int PARAM_ATTACK_SPEED = Animator.StringToHash("AttackSpeed");
@@ -108,8 +114,9 @@ public class ChessAnimator : MonoBehaviour
     public ChessActionType CurrentActionType => m_CurrentActionType;
 
     /// <summary>是否正在使用技能</summary>
-    public bool IsPlayingSkill => m_CurrentActionType == ChessActionType.Skill1 ||
-                                   m_CurrentActionType == ChessActionType.Skill2;
+    public bool IsPlayingSkill =>
+        m_CurrentActionType == ChessActionType.Skill1
+        || m_CurrentActionType == ChessActionType.Skill2;
 
     /// <summary>是否正在普攻</summary>
     public bool IsPlayingAttack => m_CurrentActionType == ChessActionType.Attack;
@@ -172,7 +179,8 @@ public class ChessAnimator : MonoBehaviour
 
     private void Update()
     {
-        if (!IsInitialized || m_IsDead) return;
+        if (!IsInitialized || m_IsDead)
+            return;
 
         // 更新移动动画状态
         UpdateMovementAnimation();
@@ -207,7 +215,11 @@ public class ChessAnimator : MonoBehaviour
         float multiplier = attackSpeed * m_BaseAttackDuration;
 
         // 限制在合理范围内
-        m_CurrentAttackSpeedMultiplier = Mathf.Clamp(multiplier, m_MinAttackSpeedMultiplier, m_MaxAttackSpeedMultiplier);
+        m_CurrentAttackSpeedMultiplier = Mathf.Clamp(
+            multiplier,
+            m_MinAttackSpeedMultiplier,
+            m_MaxAttackSpeedMultiplier
+        );
 
         // 更新 Animator 参数
         if (m_Animator != null)
@@ -221,15 +233,23 @@ public class ChessAnimator : MonoBehaviour
     #region 动画播放接口
 
     /// <summary>
-    /// 播放普攻动画
+    /// 播放普攻动画（如果控制器有 AttackIndex 参数则随机选择 Attack1/Attack2）
     /// </summary>
     /// <returns>返回实际播放时长（秒）</returns>
     public float PlayAttack()
     {
-        if (m_IsDead || m_Animator == null) return 0f;
+        if (m_IsDead || m_Animator == null)
+            return 0f;
 
         m_IsPlayingAction = true;
-        m_CurrentActionType = ChessActionType.Attack;  // ⭐ 记录动作类型
+        m_CurrentActionType = ChessActionType.Attack;
+
+        // 如果控制器有 AttackIndex 参数，随机选择普攻变体（0=Attack1, 1=Attack2）
+        if (HasParameter(PARAM_ATTACK_INDEX))
+        {
+            m_Animator.SetInteger(PARAM_ATTACK_INDEX, UnityEngine.Random.Range(0, 2));
+        }
+
         m_Animator.SetTrigger(PARAM_ATTACK);
 
         float duration = CurrentAttackDuration;
@@ -243,10 +263,11 @@ public class ChessAnimator : MonoBehaviour
     /// <returns>返回实际播放时长</returns>
     public float PlaySkill1(float duration = 1.0f)
     {
-        if (m_IsDead || m_Animator == null) return 0f;
+        if (m_IsDead || m_Animator == null)
+            return 0f;
 
         m_IsPlayingAction = true;
-        m_CurrentActionType = ChessActionType.Skill1;  // ⭐ 记录动作类型
+        m_CurrentActionType = ChessActionType.Skill1; // ⭐ 记录动作类型
         m_Animator.SetTrigger(PARAM_SKILL1);
 
         return duration;
@@ -259,11 +280,41 @@ public class ChessAnimator : MonoBehaviour
     /// <returns>返回实际播放时长</returns>
     public float PlaySkill2(float duration = 1.5f)
     {
-        if (m_IsDead || m_Animator == null) return 0f;
+        if (m_IsDead || m_Animator == null)
+            return 0f;
 
         m_IsPlayingAction = true;
-        m_CurrentActionType = ChessActionType.Skill2;  // ⭐ 记录动作类型
+        m_CurrentActionType = ChessActionType.Skill2; // ⭐ 记录动作类型
         m_Animator.SetTrigger(PARAM_SKILL2);
+
+        return duration;
+    }
+
+    /// <summary>
+    /// 播放技能二动画（使用 Skill2_True Trigger，用于有独立技能二的棋子，如黑暗杨戬）
+    /// 如果控制器没有 Skill2_True 参数，自动降级到 PlaySkill1()
+    /// </summary>
+    /// <param name="duration">动画持续时间（秒）</param>
+    /// <returns>返回实际播放时长</returns>
+    public float PlaySkill2True(float duration = 1.5f)
+    {
+        if (m_IsDead || m_Animator == null)
+            return 0f;
+
+        m_IsPlayingAction = true;
+        m_CurrentActionType = ChessActionType.Skill1;
+
+        if (HasParameter(PARAM_ULTIMATE))
+        {
+            m_Animator.SetTrigger(PARAM_ULTIMATE);
+            DebugEx.Log("ChessAnimator", $"{gameObject.name} 播放技能二动画（Skill2_True）");
+        }
+        else
+        {
+            // 降级：控制器没有 Skill2_True 参数，用 Skill1 代替
+            m_Animator.SetTrigger(PARAM_SKILL1);
+            DebugEx.Log("ChessAnimator", $"{gameObject.name} 播放技能二动画（降级到 Skill1）");
+        }
 
         return duration;
     }
@@ -273,7 +324,8 @@ public class ChessAnimator : MonoBehaviour
     /// </summary>
     public void PlayDeath()
     {
-        if (m_IsDead || m_Animator == null) return;
+        if (m_IsDead || m_Animator == null)
+            return;
 
         m_IsDead = true;
         m_IsPlayingAction = false;
@@ -287,7 +339,8 @@ public class ChessAnimator : MonoBehaviour
     /// </summary>
     public void PlayRevive()
     {
-        if (m_Animator == null) return;
+        if (m_Animator == null)
+            return;
 
         m_IsDead = false;
         m_IsPlayingAction = false;
@@ -303,7 +356,7 @@ public class ChessAnimator : MonoBehaviour
     public void EndAction()
     {
         m_IsPlayingAction = false;
-        m_CurrentActionType = ChessActionType.None;  // ⭐ 清除动作类型
+        m_CurrentActionType = ChessActionType.None; // ⭐ 清除动作类型
     }
 
     /// <summary>
@@ -314,7 +367,7 @@ public class ChessAnimator : MonoBehaviour
     {
         if (!m_IsPlayingAction)
         {
-            return false;  // 没有正在播放的动作
+            return false; // 没有正在播放的动作
         }
 
         // 只能打断普攻，不能打断技能
@@ -349,10 +402,26 @@ public class ChessAnimator : MonoBehaviour
     /// </summary>
     private void UpdateMovementAnimation()
     {
-        if (m_Animator == null || m_IsPlayingAction) return;
+        if (m_Animator == null || m_IsPlayingAction)
+            return;
 
         bool isMoving = m_Movement != null && m_Movement.IsMoving;
         m_Animator.SetBool(PARAM_IS_MOVING, isMoving);
+    }
+
+    /// <summary>
+    /// 检查 Animator 是否有指定参数（用于兼容不同棋子的动画控制器）
+    /// </summary>
+    private bool HasParameter(int paramHash)
+    {
+        if (m_Animator == null)
+            return false;
+        foreach (var param in m_Animator.parameters)
+        {
+            if (param.nameHash == paramHash)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -372,7 +441,7 @@ public class ChessAnimator : MonoBehaviour
     private void OnAnimationComplete(string animName)
     {
         m_IsPlayingAction = false;
-        m_CurrentActionType = ChessActionType.None;  // ⭐ 清除动作类型
+        m_CurrentActionType = ChessActionType.None; // ⭐ 清除动作类型
     }
 
     #endregion

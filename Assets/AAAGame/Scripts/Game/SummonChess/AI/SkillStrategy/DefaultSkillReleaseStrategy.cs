@@ -23,8 +23,10 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
     {
         m_Context = context;
 
-        DebugEx.Log("DefaultSkillReleaseStrategy",
-            $"{context.Entity.Config.Name} 使用默认技能释放策略");
+        DebugEx.Log(
+            "DefaultSkillReleaseStrategy",
+            $"{context.Entity.Config.Name} 使用默认技能释放策略"
+        );
     }
 
     public virtual bool ShouldUseSkill1()
@@ -52,34 +54,53 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
     {
         float currentTime = Time.time;
 
-        // 计算两个技能的欲望值
-        float skill1Desire = (m_Context.Entity.Skill1?.CanCast() == true)
-            ? m_Context.Entity.Skill1.GetDesireValue(currentTime)
-            : 0f;
-        float skill2Desire = (m_Context.Entity.Skill2?.CanCast() == true)
-            ? m_Context.Entity.Skill2.GetDesireValue(currentTime)
-            : 0f;
+        float skill1Desire =
+            (m_Context.Entity.Skill1?.CanCast() == true)
+                ? m_Context.Entity.Skill1.GetDesireValue(currentTime)
+                : 0f;
+        float skill1_2Desire =
+            (m_Context.Entity.Skill1_2?.CanCast() == true)
+                ? m_Context.Entity.Skill1_2.GetDesireValue(currentTime)
+                : 0f;
+        float skill2Desire =
+            (m_Context.Entity.Skill2?.CanCast() == true)
+                ? m_Context.Entity.Skill2.GetDesireValue(currentTime)
+                : 0f;
 
-        // 输出决策信息，包含所有欲望值
-        DebugEx.Log("DefaultSkillReleaseStrategy",
-            $"{m_Context.Entity.Config.Name} 欲望值对比: 技能1={skill1Desire:F2}, 大招={skill2Desire:F2}");
+        DebugEx.Log(
+            "DefaultSkillReleaseStrategy",
+            $"{m_Context.Entity.Config.Name} 欲望值对比: 技能1={skill1Desire:F2}, 技能二={skill1_2Desire:F2}, 大招={skill2Desire:F2}"
+        );
 
-        // 选择欲望值最高的技能
-        if (skill2Desire > skill1Desire && skill2Desire > 0)
+        // 选择欲望值最高的技能（大招 > 技能二 > 技能一）
+        if (skill2Desire > skill1Desire && skill2Desire > skill1_2Desire && skill2Desire > 0)
         {
-            DebugEx.Log("DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 释放大招");
+            DebugEx.Log(
+                "DefaultSkillReleaseStrategy",
+                $"{m_Context.Entity.Config.Name} 决策: 释放大招"
+            );
             return 2;
+        }
+
+        if (skill1_2Desire > skill1Desire && skill1_2Desire > 0)
+        {
+            DebugEx.Log(
+                "DefaultSkillReleaseStrategy",
+                $"{m_Context.Entity.Config.Name} 决策: 释放技能二"
+            );
+            return 3;
         }
 
         if (skill1Desire > 0)
         {
-            DebugEx.Log("DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 释放技能1");
+            DebugEx.Log(
+                "DefaultSkillReleaseStrategy",
+                $"{m_Context.Entity.Config.Name} 决策: 释放技能1"
+            );
             return 1;
         }
 
-        return 0; // 无技能可用
+        return 0;
     }
 
     public virtual ChessEntity SelectSkillTarget(int skillIndex)
