@@ -116,6 +116,7 @@
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_simple.shader" />
     <None Include="Assets\TA\Cartoon\Modules\DissolveModule.hlsl" />
     <None Include="Assets\AAAGame\DataTable\DamageFloatingTextTable.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260522_182730.txt" />
     <None Include="Assets\AAAGame\DataTable\CombatRuleTable.txt" />
     <None Include="Assets\AAAGame\DataTable\TreasureBoxTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessTable.txt" />
@@ -182,7 +183,9 @@
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
     <None Include="Assets\测试输出日志\unity_log_20260522_174535.txt" />
     <None Include="Assets\特效\Buff特效\Shader\SH_HunFX_common_front.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260522_182645.txt" />
     <None Include="Assets\TA\UI\HealthBarGrid.shader" />
+    <None Include="Assets\测试输出日志\unity_log_20260522_182634.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonerSkillTable.txt" />
     <None Include="Assets\AAAGame\DataTable\AffixRuleTable.txt" />
     <None Include="Assets\AAAGame\DataTable\ConsumableTable.txt" />

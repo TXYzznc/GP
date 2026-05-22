@@ -160,8 +160,6 @@ public partial class WarehouseUI : UIFormBase
                 slot.SetSlotIndex(i);
                 slot.SetContainerType(SlotContainerType.Warehouse);
                 slot.SetSlotContainer(m_WarehouseSlotContainer);
-                // 初始化格子背景颜色为默认
-                slot.SetRarity(0);
                 m_Slots.Add(slot);
             }
             else

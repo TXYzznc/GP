@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using GameExtension;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +9,11 @@ public partial class InventoryItemUI : UIItemBase
 {
     #region 字段
 
-    private ItemStack m_ItemStack; // 物品堆叠数据
+    private ItemStack m_ItemStack;
+    private Image m_GlowImage;
+    private Tween m_GlowPulseTween;
+    private const float GlowPulseFrequency = 0.4f;
+
     #endregion
 
     #region 初始化
@@ -109,6 +114,9 @@ public partial class InventoryItemUI : UIItemBase
         // 加载物品图标
         LoadItemIconAsync(itemData.IconId).Forget();
 
+        // 根据稀有度应用发光效果
+        ApplyRarityGlow((int)item.Rarity);
+
         // 显示物品数量（可堆叠且数量>1时显示，格式为 xN）
         if (varCountText != null)
         {
@@ -154,6 +162,52 @@ public partial class InventoryItemUI : UIItemBase
                 $"加载物品图标异常: IconId={iconId}, Error:{e.Message}"
             );
         }
+    }
+
+    private void ApplyRarityGlow(int rarity)
+    {
+        if (m_GlowImage == null)
+        {
+            var glowTransform = transform.Find("GlowEffect");
+            if (glowTransform == null) return;
+            m_GlowImage = glowTransform.GetComponent<Image>();
+            if (m_GlowImage == null) return;
+        }
+
+        var shader = Shader.Find("UI/RarityGlow");
+        if (shader == null) return;
+
+        var mat = new Material(shader);
+        m_GlowImage.material = mat;
+
+        Color color = rarity switch
+        {
+            1 => new Color(0.8f, 0.8f, 0.8f, 1f),
+            2 => new Color(0.2f, 0.8f, 0.2f, 1f),
+            3 => new Color(0.2f, 0.6f, 1f, 1f),
+            4 => new Color(0.8f, 0.2f, 1f, 1f),
+            5 => new Color(1f, 0.8f, 0.2f, 1f),
+            _ => Color.white
+        };
+        float intensity = rarity switch
+        {
+            1 => 0.8f, 2 => 1.2f, 3 => 1.5f, 4 => 1.8f, 5 => 2.2f, _ => 1.0f
+        };
+
+        mat.SetColor("_GlowColor", color);
+        mat.SetFloat("_GlowIntensity", intensity);
+        mat.SetFloat("_GlowRadius", 2.0f);
+        mat.SetFloat("_EdgeSoftness", 0.35f);
+
+        m_GlowPulseTween?.Kill();
+        float duration = 1f / (GlowPulseFrequency * 2f);
+        m_GlowPulseTween = DOTween.To(
+            () => mat.GetFloat("_GlowIntensity"),
+            v => mat.SetFloat("_GlowIntensity", v),
+            intensity * 1.4f, duration)
+            .From(intensity * 0.6f)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutSine);
     }
 
     // 点击事件处理已移至 InventorySlotUI

@@ -82,25 +82,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             varLock.SetActive(!available);
     }
 
-    /// <summary>
-    /// 设置格子背景颜色
-    /// 锁定格显示黑色，可用格按稀有度着色或默认颜色
-    /// </summary>
-    public void SetRarity(int rarity)
-    {
-        if (varBg == null)
-            return;
-
-        if (!IsAvailable)
-        {
-            varBg.color = new Color(0.1f, 0.1f, 0.1f, 1f); // 锁定格：深灰/黑色
-        }
-        else
-        {
-            varBg.color =
-                rarity > 0 ? RarityColorHelper.GetColor(rarity) : RarityColorHelper.DefaultBg;
-        }
-    }
 
     public InventoryItemUI GetItemUI() => m_ItemUI;
 
@@ -137,11 +118,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         itemUI.SetData(itemStack);
         itemUI.gameObject.SetActive(itemStack != null && !itemStack.IsEmpty);
 
-        // 更新稀有度
-        int quality = 0;
-        if (itemStack != null && !itemStack.IsEmpty && itemStack.Item != null)
-            quality = (int)itemStack.Item.Rarity;
-        SetRarity(quality);
     }
 
     /// <summary>

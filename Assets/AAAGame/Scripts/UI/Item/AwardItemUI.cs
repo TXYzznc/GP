@@ -99,24 +99,26 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
         uniqueMaterial.SetFloat("_GlowRadius", 2.0f);
         uniqueMaterial.SetFloat("_EdgeSoftness", 0.35f);
 
-        // 添加脉冲动画
         ApplyGlowPulseAnimation(uniqueMaterial, baseIntensity);
 
         DebugEx.Log("AwardItemUI", $"✓ 稀有度发光已应用: Rarity={m_Row.Rarity}, Color={glowColor}, Intensity={baseIntensity}");
     }
 
+    private const float GlowPulseFrequency = 0.4f; // 每秒脉冲次数
+
     private void ApplyGlowPulseAnimation(Material material, float baseIntensity)
     {
-        // 停止之前的脉冲动画
         m_GlowPulseTween?.Kill();
 
-        // 创建脉冲效果：强度在 baseIntensity * 0.6 和 baseIntensity * 1.2 之间循环
+        float duration = 1f / (GlowPulseFrequency * 2f);
+
         m_GlowPulseTween = DOTween.To(
             () => material.GetFloat("_GlowIntensity"),
             (value) => material.SetFloat("_GlowIntensity", value),
-            baseIntensity * 1.2f,
-            1.0f
+            baseIntensity * 1.4f,
+            duration
         )
+        .From(baseIntensity * 0.6f)
         .SetLoops(-1, LoopType.Yoyo)
         .SetEase(Ease.InOutSine);
     }
