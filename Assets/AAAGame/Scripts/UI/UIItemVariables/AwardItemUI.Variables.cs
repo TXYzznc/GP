@@ -8,7 +8,6 @@ public partial class AwardItemUI
 {
 	[Space(10)]
 	[Header("UI Variables:")]
-	[SerializeField] private Image varBg = null;
 	[SerializeField] private Image varAwardImg = null;
 	[SerializeField] private Text varAwardName = null;
 	[SerializeField] private Button varBtn = null;

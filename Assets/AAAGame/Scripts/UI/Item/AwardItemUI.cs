@@ -12,6 +12,8 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
     private ItemTable m_Row;
     private Tween m_ClickScaleTween;
     private RectTransform m_RectTransform;
+    private Image m_GlowImage;
+    private Tween m_GlowPulseTween;
 
     protected override void OnInit()
     {
@@ -46,27 +48,82 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
             varAwardName.text = m_Row?.Name ?? string.Empty;
         }
 
-        SetQualityColor();
+        ApplyRarityGlow();
 
         int iconId = m_Row != null ? m_Row.IconId : 0;
         DebugEx.Log("AwardItemUI", $"SetData itemId={itemId} iconId={iconId} t={Time.time:F3} f={Time.frameCount}");
         LoadIconAsync(iconId).Forget();
     }
 
-    private void SetQualityColor()
+    private void ApplyRarityGlow()
     {
-        if (varBg == null || m_Row == null)
+        if (m_Row == null)
         {
             return;
         }
 
-        Color qualityColor = GetColorByQuality(m_Row.Rarity);
-        varBg.color = qualityColor;
+        // 查找发光对象
+        if (m_GlowImage == null)
+        {
+            var glowTransform = transform.Find("GlowEffect");
+            if (glowTransform == null)
+            {
+                DebugEx.Warning("AwardItemUI", "找不到 GlowEffect 对象");
+                return;
+            }
+            m_GlowImage = glowTransform.GetComponent<Image>();
+            if (m_GlowImage == null)
+            {
+                DebugEx.Warning("AwardItemUI", "GlowEffect 对象没有 Image 组件");
+                return;
+            }
+        }
+
+        // 为每个物品创建独立的材质（代码中自动创建，预制体中不需要配置）
+        var shader = Shader.Find("UI/RarityGlow");
+        if (shader == null)
+        {
+            DebugEx.Error("AwardItemUI", "找不到 UI/RarityGlow 着色器");
+            return;
+        }
+
+        var uniqueMaterial = new Material(shader);
+        m_GlowImage.material = uniqueMaterial;
+
+        // 根据稀有度设置发光参数
+        Color glowColor = GetGlowColorByRarity(m_Row.Rarity);
+        float baseIntensity = GetGlowIntensityByRarity(m_Row.Rarity);
+
+        uniqueMaterial.SetColor("_GlowColor", glowColor);
+        uniqueMaterial.SetFloat("_GlowIntensity", baseIntensity);
+        uniqueMaterial.SetFloat("_GlowRadius", 2.0f);
+        uniqueMaterial.SetFloat("_EdgeSoftness", 0.35f);
+
+        // 添加脉冲动画
+        ApplyGlowPulseAnimation(uniqueMaterial, baseIntensity);
+
+        DebugEx.Log("AwardItemUI", $"✓ 稀有度发光已应用: Rarity={m_Row.Rarity}, Color={glowColor}, Intensity={baseIntensity}");
     }
 
-    private Color GetColorByQuality(int quality)
+    private void ApplyGlowPulseAnimation(Material material, float baseIntensity)
     {
-        return quality switch
+        // 停止之前的脉冲动画
+        m_GlowPulseTween?.Kill();
+
+        // 创建脉冲效果：强度在 baseIntensity * 0.6 和 baseIntensity * 1.2 之间循环
+        m_GlowPulseTween = DOTween.To(
+            () => material.GetFloat("_GlowIntensity"),
+            (value) => material.SetFloat("_GlowIntensity", value),
+            baseIntensity * 1.2f,
+            1.0f
+        )
+        .SetLoops(-1, LoopType.Yoyo)
+        .SetEase(Ease.InOutSine);
+    }
+
+    private Color GetGlowColorByRarity(int rarity)
+    {
+        return rarity switch
         {
             1 => new Color(0.8f, 0.8f, 0.8f, 1f),  // 白色：普通
             2 => new Color(0.2f, 0.8f, 0.2f, 1f),  // 绿色：稀有
@@ -74,6 +131,19 @@ public partial class AwardItemUI : UIItemBase, IPointerEnterHandler, IPointerExi
             4 => new Color(0.8f, 0.2f, 1f, 1f),    // 紫色：传奇
             5 => new Color(1f, 0.8f, 0.2f, 1f),    // 金色：神话
             _ => Color.white
+        };
+    }
+
+    private float GetGlowIntensityByRarity(int rarity)
+    {
+        return rarity switch
+        {
+            1 => 0.8f,   // 普通：较弱
+            2 => 1.2f,   // 稀有
+            3 => 1.5f,   // 史诗
+            4 => 1.8f,   // 传奇
+            5 => 2.2f,   // 神话：最强
+            _ => 1.0f
         };
     }
 
