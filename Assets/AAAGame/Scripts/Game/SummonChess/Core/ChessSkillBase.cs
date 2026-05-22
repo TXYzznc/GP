@@ -93,9 +93,6 @@ public abstract class ChessSkillBase : IChessSkill
     /// </summary>
     public float GetDesireValue(float currentTime)
     {
-        if (!CanCast())
-            return 0f; // 无法释放则欲望值为0
-
         float timeSinceLastCast = currentTime - m_LastCastTime;
         float maxWaitSeconds = (float)m_Config.MaxWaitSeconds;
 
@@ -104,8 +101,15 @@ public abstract class ChessSkillBase : IChessSkill
 
         float ratio = timeSinceLastCast / maxWaitSeconds;
         float cappedRatio = Mathf.Min(ratio, 1.5f); // 上限为1.5倍
+        float desireValue = m_Config.Strength * cappedRatio;
 
-        return m_Config.Strength * cappedRatio;
+        string canCastStr = CanCast() ? "✓" : $"✗(MP:{m_Ctx?.Attribute?.CurrentMp:F0}/{m_Config.MpCost})";
+        string formula = $"{m_Config.Strength} × min({timeSinceLastCast:F2} / {maxWaitSeconds:F1}, 1.5)"
+            + $" = {desireValue:F2} [{canCastStr}]";
+
+        DebugEx.Log("ChessSkillBase", $"  [{m_Config?.Name}] {formula}");
+
+        return desireValue;
     }
 
     // 核心方法：子类必须实现

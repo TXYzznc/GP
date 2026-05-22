@@ -54,49 +54,37 @@ public class DefaultSkillReleaseStrategy : ISkillReleaseStrategy
     {
         float currentTime = Time.time;
 
-        float skill1Desire =
-            (m_Context.Entity.Skill1?.CanCast() == true)
-                ? m_Context.Entity.Skill1.GetDesireValue(currentTime)
-                : 0f;
-        float skill1_2Desire =
-            (m_Context.Entity.Skill1_2?.CanCast() == true)
-                ? m_Context.Entity.Skill1_2.GetDesireValue(currentTime)
-                : 0f;
-        float skill2Desire =
-            (m_Context.Entity.Skill2?.CanCast() == true)
-                ? m_Context.Entity.Skill2.GetDesireValue(currentTime)
-                : 0f;
+        // 欲望值无条件计算（反映等待紧迫程度，与当前能否释放无关）
+        // 实际能否释放由后续 CanCast() 判断
+        float skill1Desire = m_Context.Entity.Skill1?.GetDesireValue(currentTime) ?? 0f;
+        float skill1_2Desire = m_Context.Entity.Skill1_2?.GetDesireValue(currentTime) ?? 0f;
+        float skill2Desire = m_Context.Entity.Skill2?.GetDesireValue(currentTime) ?? 0f;
 
         DebugEx.Log(
             "DefaultSkillReleaseStrategy",
             $"{m_Context.Entity.Config.Name} 欲望值对比: 技能1={skill1Desire:F2}, 技能二={skill1_2Desire:F2}, 大招={skill2Desire:F2}"
         );
 
-        // 选择欲望值最高的技能（大招 > 技能二 > 技能一）
-        if (skill2Desire > skill1Desire && skill2Desire > skill1_2Desire && skill2Desire > 0)
+        // 过滤出当前可释放的技能再比较（欲望值高但 MP 不足的技能会等到下次）
+        float castableSkill1Desire = (m_Context.Entity.Skill1?.CanCast() == true) ? skill1Desire : 0f;
+        float castableSkill1_2Desire = (m_Context.Entity.Skill1_2?.CanCast() == true) ? skill1_2Desire : 0f;
+        float castableSkill2Desire = (m_Context.Entity.Skill2?.CanCast() == true) ? skill2Desire : 0f;
+
+        if (castableSkill2Desire > castableSkill1Desire && castableSkill2Desire > castableSkill1_2Desire && castableSkill2Desire > 0)
         {
-            DebugEx.Log(
-                "DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 释放大招"
-            );
+            DebugEx.Log("DefaultSkillReleaseStrategy", $"{m_Context.Entity.Config.Name} 决策: 释放大招");
             return 2;
         }
 
-        if (skill1_2Desire > skill1Desire && skill1_2Desire > 0)
+        if (castableSkill1_2Desire > castableSkill1Desire && castableSkill1_2Desire > 0)
         {
-            DebugEx.Log(
-                "DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 释放技能二"
-            );
+            DebugEx.Log("DefaultSkillReleaseStrategy", $"{m_Context.Entity.Config.Name} 决策: 释放技能二");
             return 3;
         }
 
-        if (skill1Desire > 0)
+        if (castableSkill1Desire > 0)
         {
-            DebugEx.Log(
-                "DefaultSkillReleaseStrategy",
-                $"{m_Context.Entity.Config.Name} 决策: 释放技能1"
-            );
+            DebugEx.Log("DefaultSkillReleaseStrategy", $"{m_Context.Entity.Config.Name} 决策: 释放技能1");
             return 1;
         }
 
