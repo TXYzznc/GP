@@ -13,3 +13,4 @@
 	14		BabylonScene	4	scene.babylon.name	scene.babylon.desc	3	15	1	15
 	15		AvalonScene	4	scene.avalon.name	scene.avalon.desc	3	5	1	5
 	16		AbyssScene	4	scene.abyss.name	scene.abyss.desc	99		1	30
+	99		Test	0	test.name	test.desc	0		1	1

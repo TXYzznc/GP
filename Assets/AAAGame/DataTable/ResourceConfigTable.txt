@@ -194,6 +194,13 @@
 	3017	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/法力消耗	法力消耗-飘字音效
 	3018	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/法力恢复	法力恢复-飘字音效
 	3019	DamageFloatingTextTable使用|资源暂不存在	3	Effect/DamageText/免疫提示	免疫提示-飘字音效
+	3101		3	UIEffect/CommonRarity	物品稀有度特效-普通
+	3102		3	UIEffect/UncommonRarity	物品稀有度特效-优秀
+	3103		3	UIEffect/RareRarity	物品稀有度特效-稀有
+	3104		3	UIEffect/EpicRarity	物品稀有度特效-史诗
+	3105		3	UIEffect/LegendaryRarity	物品稀有度特效-传说
+	3201	护盾特效	3	StateEffect/Shield	护盾特效
+	3202	护盾受击特效	3	StateEffect/ShieldHit	护盾受击特效
 	6001	EquipmentTable使用|资源暂不存在	6	Skills/SkillParamRegistry	技能参数注册表
 	10001		1	Buff/2001.png	先手·速度爆发图标
 	10002		1	Buff/2002.png	先手·攻击强化图标
