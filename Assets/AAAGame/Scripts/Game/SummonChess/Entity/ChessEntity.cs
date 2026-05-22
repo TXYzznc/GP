@@ -356,7 +356,15 @@ public class ChessEntity : MonoBehaviour
             OutlineController = gameObject.AddComponent<OutlineController>();
         }
 
-        // 14. 注册属性事件
+        // 14. 初始化护盾特效控制器
+        var shieldEffectCtrl = gameObject.GetComponent<ShieldEffectController>();
+        if (shieldEffectCtrl == null)
+        {
+            shieldEffectCtrl = gameObject.AddComponent<ShieldEffectController>();
+        }
+        shieldEffectCtrl.Initialize(this);
+
+        // 15. 注册属性事件
         Attribute.OnHpChanged += OnHpChangedHandler;
         Attribute.OnMpChanged += OnMpChangedHandler;
 

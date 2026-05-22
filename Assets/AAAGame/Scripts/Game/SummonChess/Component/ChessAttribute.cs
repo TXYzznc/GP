@@ -623,6 +623,9 @@ public class ChessAttribute : MonoBehaviour
             ModifyShield(-shieldAbsorb);
             actualDamage -= shieldAbsorb;
 
+            // 发送护盾受击事件
+            OnShieldHit?.Invoke(shieldAbsorb);
+
             if (actualDamage <= 0)
             {
                 OnDamageTaken?.Invoke(0, isMagic);
@@ -722,6 +725,12 @@ public class ChessAttribute : MonoBehaviour
     /// </summary>
     public event Action<double, double> OnShieldChanged;
 
+    /// <summary>
+    /// 护盾受击事件
+    /// 参数：吸收的伤害值
+    /// </summary>
+    public event Action<double> OnShieldHit;
+
     #endregion
 
     #region Unity生命周期
@@ -735,6 +744,7 @@ public class ChessAttribute : MonoBehaviour
         OnDamageTakenWithSource = null;
         OnDamageDealt = null;
         OnShieldChanged = null;
+        OnShieldHit = null;
     }
 
     #endregion
