@@ -256,14 +256,15 @@ public class GameProcedure : ProcedureBase
 
         var testModeData = m_ProcedureFsm.GetData<VarString>("IsExploreAITestMode");
         bool isTestMode = testModeData != null && testModeData.Value == "true";
+        bool isCombatTestMode = CombatTestBootstrapper.IsCombatTestMode;
 
-        if (!isTestMode)
+        if (!isTestMode && !isCombatTestMode)
         {
             PlayerCharacterManager.Instance.SpawnPlayerCharacterFromSave(OnCharacterSpawned);
         }
         else
         {
-            DebugEx.Log("GameProcedure", "✓ 敌人AI测试模式已识别，跳过自动玩家生成");
+            DebugEx.Log("GameProcedure", "✓ 测试模式已识别，跳过自动玩家生成");
         }
     }
 

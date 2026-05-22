@@ -85,6 +85,7 @@ public class PreloadProcedure : ProcedureBase
                 }
 
                 procedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, testScene);
+                procedureOwner.SetData<VarString>("IsExploreAITestMode", "true");
                 DebugEx.Log(nameof(PreloadProcedure), $"设置场景名: {testScene}");
 
                 CombatTestBootstrapper.NotifyReady();

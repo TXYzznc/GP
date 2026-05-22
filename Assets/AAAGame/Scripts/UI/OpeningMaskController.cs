@@ -40,6 +40,13 @@ public class OpeningMaskController : MonoBehaviour
                 "未找到 CanvasGroup 组件，请在 Mask 对象上添加 CanvasGroup"
             );
         }
+
+        // 测试模式下直接隐藏遮罩
+        if (CombatTestBootstrapper.IsCombatTestMode)
+        {
+            gameObject.SetActive(false);
+            DebugEx.Log("OpeningMaskController", "测试模式已启用，开场遮罩已禁用");
+        }
     }
 
     #endregion
