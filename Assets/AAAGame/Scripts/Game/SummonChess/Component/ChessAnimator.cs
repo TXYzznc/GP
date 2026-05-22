@@ -173,6 +173,23 @@ public class ChessAnimator : MonoBehaviour
         DebugEx.Log("ChessAnimator", $"{gameObject.name} 初始化完成");
     }
 
+    /// <summary>
+    /// 设置动画事件接收器（用于动态替换特殊类型的EventReceiver）
+    /// </summary>
+    public void SetEventReceiver(ChessAnimationEventReceiver newReceiver)
+    {
+        if (m_EventReceiver != null)
+        {
+            m_EventReceiver.OnAnimationComplete -= OnAnimationComplete;
+        }
+
+        m_EventReceiver = newReceiver;
+        if (m_EventReceiver != null)
+        {
+            m_EventReceiver.OnAnimationComplete += OnAnimationComplete;
+        }
+    }
+
     #endregion
 
     #region Unity 生命周期
@@ -302,7 +319,7 @@ public class ChessAnimator : MonoBehaviour
             return 0f;
 
         m_IsPlayingAction = true;
-        m_CurrentActionType = ChessActionType.Skill1;
+        m_CurrentActionType = ChessActionType.Skill2;
 
         if (HasParameter(PARAM_ULTIMATE))
         {

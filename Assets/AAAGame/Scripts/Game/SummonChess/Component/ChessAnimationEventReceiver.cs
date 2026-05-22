@@ -15,7 +15,7 @@ public class ChessAnimationEventReceiver : MonoBehaviour
     /// <summary>技能1执行事件</summary>
     public event Action OnSkill1Execute;
 
-    /// <summary>技能2执行事件</summary>
+    /// <summary>技能2执行事件（大招）</summary>
     public event Action OnSkill2Execute;
 
     /// <summary>动画播放完成事件</summary>
@@ -49,7 +49,7 @@ public class ChessAnimationEventReceiver : MonoBehaviour
     }
 
     /// <summary>
-    /// 技能2执行帧事件
+    /// 技能2执行帧事件（大招）
     /// </summary>
     public void AnimEvent_Skill2Execute()
     {

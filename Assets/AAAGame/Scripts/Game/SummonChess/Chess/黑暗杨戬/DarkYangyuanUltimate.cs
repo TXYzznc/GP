@@ -5,9 +5,20 @@
 /// 真实伤害大招，攻击力系数 200%
 /// 射程 15，范围半径 8
 /// 留下黑暗裂缝，对范围内的所有敌人造成伤害
+///
+/// 大招分为两段动画：
+/// - 第一段（大招）：蓄力/前置动画
+/// - 第二段（大招Start）：真正的伤害动画，关键帧触发 AnimEvent_Skill2Execute
+/// - 动画帧事件在关键帧触发伤害检测
 /// </summary>
 public class DarkYangyuanUltimate : ChessSkillBase
 {
+    #region 字段
+
+    private ChessEntity m_CurrentCaster;
+
+    #endregion
+
     #region 接口实现
 
     public override int SkillType => 4; // 大招
@@ -19,6 +30,33 @@ public class DarkYangyuanUltimate : ChessSkillBase
     public override void Init(ChessContext ctx, SummonChessSkillTable config)
     {
         base.Init(ctx, config);
+
+        var animator = ctx.Entity?.Animator;
+        if (animator != null)
+        {
+            // 确保使用黑暗杨戬专属的事件接收器
+            var animReceiver = animator.EventReceiver as DarkYangyuanAnimationEventReceiver;
+            if (animReceiver == null)
+            {
+                // 需要替换为DarkYangyuanAnimationEventReceiver
+                animReceiver = animator.gameObject.GetComponent<DarkYangyuanAnimationEventReceiver>();
+                if (animReceiver == null)
+                {
+                    // 移除通用接收器，添加专属接收器
+                    var oldReceiver = animator.EventReceiver;
+                    if (oldReceiver != null)
+                    {
+                        Object.DestroyImmediate(oldReceiver);
+                    }
+                    animReceiver = animator.gameObject.AddComponent<DarkYangyuanAnimationEventReceiver>();
+                    animator.SetEventReceiver(animReceiver);
+                }
+            }
+
+            // 订阅大招伤害帧事件
+            animReceiver.OnSkill2Execute += OnDamageFrame;
+        }
+
         DebugEx.Log("DarkYangyuanUltimate", "黑暗杨戬大招初始化完成");
     }
 
@@ -35,11 +73,53 @@ public class DarkYangyuanUltimate : ChessSkillBase
             return;
         }
 
-        DebugEx.Log("DarkYangyuanUltimate", "执行堕落劈山 - 真实伤害大招");
+        m_CurrentCaster = caster;
 
+        DebugEx.Log("DarkYangyuanUltimate", "启动大招：堕落劈山");
+
+        // 播放大招动画（两段自动依次播放）
+        // 大招Start 动画的关键帧会触发 AnimEvent_Skill2Execute，进而调用 OnDamageFrame
+        if (caster.Animator != null)
+        {
+            caster.Animator.PlaySkill2(duration: 1.5f);
+        }
+
+        PlaySkillEffect(caster);
+    }
+
+    #endregion
+
+    #region 动画帧事件回调
+
+    /// <summary>
+    /// 动画帧事件：在大招第二段的关键帧触发
+    /// 由 AnimEvent_Skill2Execute 回调调用
+    /// </summary>
+    private void OnDamageFrame()
+    {
+        if (m_CurrentCaster == null || m_CurrentCaster.Attribute.IsDead)
+        {
+            DebugEx.Warning("DarkYangyuanUltimate", "伤害帧触发时，施法者已死亡或不存在");
+            return;
+        }
+
+        DebugEx.Log("DarkYangyuanUltimate", "大招伤害帧触发：执行伤害检测");
+
+        ExecuteUltimateDamage(m_CurrentCaster);
+    }
+
+    #endregion
+
+    #region 私有方法
+
+    /// <summary>
+    /// 执行大招伤害检测
+    /// </summary>
+    private void ExecuteUltimateDamage(ChessEntity caster)
+    {
         double damage = CalculateDamage(caster, out bool isCritical);
 
-        // 构建范围检测上下文（真实伤害）
+        // 构建范围检测上下文（特殊类型伤害）
         HitContext context = new HitContext
         {
             Attacker = caster,
@@ -64,9 +144,7 @@ public class DarkYangyuanUltimate : ChessSkillBase
             }
         };
 
-        PlaySkillEffect(caster);
-
-        // 使用 AOE 检测（范围大招）
+        // 使用范围检测（AOE）
         DebugEx.Log("DarkYangyuanUltimate", "[进入检测] 启动 AOE 范围检测 (真实伤害)");
         IHitDetector detector = HitDetectorFactory.GetDetector(AttackHitType.AOE);
         caster.CombatController?.SetCurrentHitDetector(detector);
