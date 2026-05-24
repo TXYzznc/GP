@@ -1,11 +1,11 @@
-using UnityEngine;
-using UnityGameFramework.Runtime;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Text;
-using GameExtension;
 using Cysharp.Threading.Tasks;
+using GameExtension;
 using GameFramework.DataTable;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityGameFramework.Runtime;
 
 /// <summary>
 /// 角色管理界面
@@ -21,9 +21,13 @@ public partial class CharacterBagUI : UIFormBase
     private bool m_IsShowingChessList = true; // true=棋子列表，false=宝物仓库
     private int m_CurrentTabIndex = 0; // 0=State, 1=Treasure, 2=LevelUp, 3=Story
     private int m_CurrentLevelStage = 0; // 当前选中的阶段（用于高亮）
+    private bool m_IsShowingPortrait = false; // true=立绘，false=模型
 
     private IDataTable<SummonChessTable> m_DtSummonChess;
     private IDataTable<SummonChessSkillTable> m_DtSkill;
+
+    // 模型显示相关 - 使用 UIModelViewer 组件
+    private UIModelViewer m_ModelViewer = null;
 
     #endregion
 
@@ -31,15 +35,26 @@ public partial class CharacterBagUI : UIFormBase
     {
         base.OnOpen(userData);
 
+        DebugEx.Log(nameof(CharacterBagUI), "[OnOpen] 开始打开UI");
+
         // 获取数据表
         m_DtSummonChess = GF.DataTable.GetDataTable<SummonChessTable>();
         m_DtSkill = GF.DataTable.GetDataTable<SummonChessSkillTable>();
 
         // 重置默认显示状态
-        m_IsShowingChessList = true;     // 左侧默认显示角色栏
-        m_CurrentTabIndex = 0;           // 右侧默认显示StateUI
-        m_CurrentLevelStage = 0;         // 默认显示一阶数据
-        m_CurrentSelectedChessId = -1;   // 重置选中角色（等待列表加载后自动选择第一个）
+        m_IsShowingChessList = true; // 左侧默认显示角色栏
+        m_CurrentTabIndex = 0; // 右侧默认显示StateUI
+        m_CurrentLevelStage = 0; // 默认显示一阶数据
+        m_CurrentSelectedChessId = -1; // 重置选中角色（等待列表加载后自动选择第一个）
+        m_IsShowingPortrait = true; // 默认显示海报（立绘）
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[OnOpen] 初始状态: IsShowingChessList={m_IsShowingChessList}, TabIndex={m_CurrentTabIndex}"
+        );
+
+        // 初始化模型查看器
+        InitializeModelViewer();
 
         // 注册事件
         RegisterEvents();
@@ -54,6 +69,58 @@ public partial class CharacterBagUI : UIFormBase
         var input = PlayerInputManager.Instance;
         if (input != null)
             input.RequestMouseUnlock();
+
+        DebugEx.Success(nameof(CharacterBagUI), "[OnOpen] UI打开完成");
+    }
+
+    /// <summary>
+    /// 初始化模型查看器（参考 NewGameUI）
+    /// </summary>
+    private void InitializeModelViewer()
+    {
+        DebugEx.Log(nameof(CharacterBagUI), "[InitializeModelViewer] 开始初始化模型查看器");
+
+        if (varOccupationImage == null)
+        {
+            DebugEx.Error(
+                nameof(CharacterBagUI),
+                "[InitializeModelViewer] varOccupationImage 为 null"
+            );
+            return;
+        }
+
+        // 获取或添加 RawImage 组件
+        RawImage rawImage = varOccupationImage.GetComponent<RawImage>();
+        if (rawImage == null)
+        {
+            // 如果是 Image 组件，需要替换为 RawImage
+            Image image = varOccupationImage.GetComponent<Image>();
+            if (image != null)
+            {
+                // 删除 Image 组件，添加 RawImage
+                Destroy(image);
+                rawImage = varOccupationImage.gameObject.AddComponent<RawImage>();
+                DebugEx.Log(
+                    nameof(CharacterBagUI),
+                    "[InitializeModelViewer] 已将 Image 组件替换为 RawImage 组件"
+                );
+            }
+            else
+            {
+                rawImage = varOccupationImage.gameObject.AddComponent<RawImage>();
+            }
+        }
+
+        // 获取或初始化 UIModelViewer
+        m_ModelViewer = varOccupationImage.GetComponent<UIModelViewer>();
+        if (m_ModelViewer == null)
+        {
+            m_ModelViewer = varOccupationImage.gameObject.AddComponent<UIModelViewer>();
+        }
+
+        m_ModelViewer.Initialize(rawImage);
+
+        DebugEx.Success(nameof(CharacterBagUI), "[InitializeModelViewer] UIModelViewer 初始化完成");
     }
 
     /// <summary>
@@ -61,38 +128,75 @@ public partial class CharacterBagUI : UIFormBase
     /// </summary>
     private void InitializeUIAppearance()
     {
+        DebugEx.Log(nameof(CharacterBagUI), "[InitializeUIAppearance] 开始初始化UI外观");
+
         // 左侧默认显示角色栏（不显示宝物仓库）
         if (varChessContent != null)
+        {
             varChessContent.gameObject.SetActive(true);
+            DebugEx.Log(nameof(CharacterBagUI), "[InitializeUIAppearance] 显示角色栏");
+        }
         if (varTreasureContent != null)
+        {
             varTreasureContent.gameObject.SetActive(false);
+            DebugEx.Log(nameof(CharacterBagUI), "[InitializeUIAppearance] 隐藏宝物仓库");
+        }
 
-        // 中间默认显示模型（不显示立绘）
+        // 中间默认显示海报（立绘）
         if (varNormalImage != null)
-            varNormalImage.gameObject.SetActive(false);
+        {
+            varNormalImage.gameObject.SetActive(m_IsShowingPortrait);
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[InitializeUIAppearance] 立绘状态: active={varNormalImage.gameObject.activeSelf}"
+            );
+        }
         if (varOccupationImage != null)
-            varOccupationImage.gameObject.SetActive(true);
+        {
+            varOccupationImage.gameObject.SetActive(!m_IsShowingPortrait);
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[InitializeUIAppearance] 模型状态: active={varOccupationImage.gameObject.activeSelf}"
+            );
+        }
+
+        // 更新切换按钮文本
+        UpdateSwitchButtonText();
 
         // 右侧默认显示StateUI（标签页0）
-        if (varStateUI != null) varStateUI.gameObject.SetActive(true);
-        if (varTreasureUI != null) varTreasureUI.gameObject.SetActive(false);
-        if (varLevelUpUI != null) varLevelUpUI.gameObject.SetActive(false);
-        if (varStoryUI != null) varStoryUI.gameObject.SetActive(false);
+        if (varStateUI != null)
+            varStateUI.gameObject.SetActive(true);
+        if (varTreasureUI != null)
+            varTreasureUI.gameObject.SetActive(false);
+        if (varLevelUpUI != null)
+            varLevelUpUI.gameObject.SetActive(false);
+        if (varStoryUI != null)
+            varStoryUI.gameObject.SetActive(false);
+
+        DebugEx.Success(nameof(CharacterBagUI), "[InitializeUIAppearance] UI外观初始化完成");
     }
 
     private void RegisterEvents()
     {
+        DebugEx.Log(nameof(CharacterBagUI), "[RegisterEvents] 开始注册事件");
+
         // 关闭按钮
         if (varCloseBtn != null)
             varCloseBtn.onClick.AddListener(() => GF.UI.CloseUIForm(this.UIForm));
 
         // 左侧列表切换
         if (varTreasureSwitchBtn != null)
+        {
             varTreasureSwitchBtn.onClick.AddListener(OnTreasureSwitchBtnClicked);
+            DebugEx.Log(nameof(CharacterBagUI), "[RegisterEvents] 注册宝物切换按钮事件");
+        }
 
         // 立绘/模型切换
         if (varSwitchBtn != null)
+        {
             varSwitchBtn.onClick.AddListener(OnSwitchBtnClicked);
+            DebugEx.Log(nameof(CharacterBagUI), "[RegisterEvents] 注册立绘/模型切换按钮事件");
+        }
 
         // 右侧标签页按钮
         if (varStateBtn != null)
@@ -125,6 +229,8 @@ public partial class CharacterBagUI : UIFormBase
                 varLevel1Arr[i].onClick.AddListener(() => OnLevelButtonClicked(index));
             }
         }
+
+        DebugEx.Success(nameof(CharacterBagUI), "[RegisterEvents] 事件注册完成");
     }
 
     private async UniTask LoadChessListAsync()
@@ -144,7 +250,11 @@ public partial class CharacterBagUI : UIFormBase
 
             // 获取玩家拥有的棋子列表
             PlayerSaveData saveData = PlayerAccountDataManager.Instance.CurrentSaveData;
-            if (saveData == null || saveData.OwnedUnitCardIds == null || saveData.OwnedUnitCardIds.Count == 0)
+            if (
+                saveData == null
+                || saveData.OwnedUnitCardIds == null
+                || saveData.OwnedUnitCardIds.Count == 0
+            )
             {
                 DebugEx.Warning(nameof(CharacterBagUI), "玩家没有拥有任何棋子");
                 return;
@@ -191,7 +301,10 @@ public partial class CharacterBagUI : UIFormBase
                 OnChessSelected(m_ChessItemPool[0].GetChessId());
             }
 
-            DebugEx.Success(nameof(CharacterBagUI), $"棋子列表加载完成，共 {m_ChessItemPool.Count} 个");
+            DebugEx.Success(
+                nameof(CharacterBagUI),
+                $"棋子列表加载完成，共 {m_ChessItemPool.Count} 个"
+            );
         }
         catch (System.Exception ex)
         {
@@ -278,9 +391,10 @@ public partial class CharacterBagUI : UIFormBase
             return;
 
         // 获取Passive技能ID（第一个技能）
-        int passiveSkillId = chessRow.PassiveIds != null && chessRow.PassiveIds.Length > 0
-            ? chessRow.PassiveIds[0]
-            : 0;
+        int passiveSkillId =
+            chessRow.PassiveIds != null && chessRow.PassiveIds.Length > 0
+                ? chessRow.PassiveIds[0]
+                : 0;
 
         if (passiveSkillId <= 0)
             return;
@@ -304,8 +418,97 @@ public partial class CharacterBagUI : UIFormBase
     /// </summary>
     private void UpdateMiddleDisplay()
     {
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[UpdateMiddleDisplay] 开始更新中间显示, 当前选中棋子: {m_CurrentSelectedChessId}, 显示模式: {(m_IsShowingPortrait ? "立绘" : "模型")}"
+        );
+
+        if (m_CurrentSelectedChessId <= 0)
+        {
+            DebugEx.Warning(nameof(CharacterBagUI), "[UpdateMiddleDisplay] 未选中棋子");
+            return;
+        }
+
+        SummonChessTable chessRow = m_DtSummonChess.GetDataRow(m_CurrentSelectedChessId);
+        if (chessRow == null)
+        {
+            DebugEx.Error(
+                nameof(CharacterBagUI),
+                $"[UpdateMiddleDisplay] 棋子配置未找到: {m_CurrentSelectedChessId}"
+            );
+            return;
+        }
+
+        if (m_IsShowingPortrait && varNormalImage != null)
+        {
+            // 加载立绘（海报）
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[UpdateMiddleDisplay] 开始加载立绘: chessId={m_CurrentSelectedChessId}, posterId={chessRow.ChessPosterId}"
+            );
+            _ = ResourceExtension.LoadSpriteAsync(chessRow.ChessPosterId, varNormalImage);
+        }
+        else if (!m_IsShowingPortrait && m_ModelViewer != null)
+        {
+            // 加载3D模型（使用 UIModelViewer）
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[UpdateMiddleDisplay] 开始加载3D模型: chessId={m_CurrentSelectedChessId}, prefabId={chessRow.PrefabId}"
+            );
+            LoadChessModelAsync(chessRow).Forget();
+        }
+
         // 刷新宝物装备槽显示
         UpdateTreasureSlots();
+
+        DebugEx.Success(nameof(CharacterBagUI), "[UpdateMiddleDisplay] 中间显示更新完成");
+    }
+
+    /// <summary>
+    /// 异步加载棋子3D模型
+    /// </summary>
+    private async UniTaskVoid LoadChessModelAsync(SummonChessTable chessRow)
+    {
+        if (chessRow == null || m_ModelViewer == null)
+        {
+            DebugEx.Error(
+                nameof(CharacterBagUI),
+                "[LoadChessModelAsync] chessRow 或 m_ModelViewer 为 null"
+            );
+            return;
+        }
+
+        int modelConfigId =
+            chessRow.PrefabId != null && chessRow.PrefabId.Length > 0 ? chessRow.PrefabId[0] : 0;
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[LoadChessModelAsync] 开始异步加载模型: prefabId={modelConfigId}"
+        );
+
+        // 使用 UIModelViewer 异步加载模型
+        await m_ModelViewer.SetModelAsync(modelConfigId);
+
+        if (m_ModelViewer.HasModel())
+        {
+            // 设置模型旋转为 180 度，让模型面向玩家
+            m_ModelViewer.SetModelRotation(180f);
+
+            // 确保播放 Idle 待机动画
+            m_ModelViewer.PlayIdleAnimation();
+
+            DebugEx.Success(
+                nameof(CharacterBagUI),
+                $"[LoadChessModelAsync] 棋子模型加载成功: {chessRow.Name}，旋转角度设置为 (0, 180, 0)"
+            );
+        }
+        else
+        {
+            DebugEx.Error(
+                nameof(CharacterBagUI),
+                $"[LoadChessModelAsync] 棋子模型加载失败: {chessRow.Name}"
+            );
+        }
     }
 
     private void UpdateAllTabs()
@@ -319,8 +522,8 @@ public partial class CharacterBagUI : UIFormBase
 
         UpdateStateTab(chessRow);
         UpdateTreasureTab();
-        UpdateLevelUpTab(chessRow, 0);  // 默认显示第一阶段（一阶）数据
-        UpdateStoryTab(chessRow, 0);    // 默认显示第一阶段的故事
+        UpdateLevelUpTab(chessRow, 0); // 默认显示第一阶段（一阶）数据
+        UpdateStoryTab(chessRow, 0); // 默认显示第一阶段的故事
     }
 
     private void UpdateStateTab(SummonChessTable chessRow)
@@ -328,17 +531,13 @@ public partial class CharacterBagUI : UIFormBase
         if (varNameText != null)
             varNameText.text = chessRow.Name;
 
-        // 显示一阶的属性
-        if (varStateText != null)
-        {
-            string stateInfo = $"HP: {chessRow.MaxHp[0]}\n攻击: {chessRow.AtkDamage[0]}\n防御: {chessRow.Armor[0]}\n魔抗: {chessRow.MagicResist[0]}";
-            varStateText.text = stateInfo;
-        }
-
         // 根据 Skill2Id 决定是否显示 Skill_2 按钮
         if (varSkill_2 != null)
         {
-            bool hasSkill2 = chessRow.Skill2Id != null && chessRow.Skill2Id.Length > 0 && chessRow.Skill2Id[0] != 0;
+            bool hasSkill2 =
+                chessRow.Skill2Id != null
+                && chessRow.Skill2Id.Length > 0
+                && chessRow.Skill2Id[0] != 0;
             varSkill_2.gameObject.SetActive(hasSkill2);
         }
     }
@@ -350,7 +549,9 @@ public partial class CharacterBagUI : UIFormBase
 
         // 获取该棋子装备的宝物列表
         var treasureManager = PlayerAccountDataManager.Instance;
-        List<TreasureInstanceData> equippedTreasures = treasureManager.GetChessEquipments(m_CurrentSelectedChessId);
+        List<TreasureInstanceData> equippedTreasures = treasureManager.GetChessEquipments(
+            m_CurrentSelectedChessId
+        );
 
         StringBuilder baseAttributesText = new();
         StringBuilder treasureNamesText = new();
@@ -373,9 +574,10 @@ public partial class CharacterBagUI : UIFormBase
                 {
                     foreach (var affix in treasure.Affixes)
                     {
-                        string valueStr = affix.ValueType == ValueType.Percent
-                            ? $"{affix.ValueMin}%"
-                            : affix.ValueMin.ToString();
+                        string valueStr =
+                            affix.ValueType == ValueType.Percent
+                                ? $"{affix.ValueMin}%"
+                                : affix.ValueMin.ToString();
                         baseAttributesText.Append($"• {affix.Name}: +{valueStr}\n");
                     }
                 }
@@ -389,16 +591,18 @@ public partial class CharacterBagUI : UIFormBase
         // 更新显示
         if (varBaseEffect != null)
         {
-            varBaseEffect.text = treasureNamesText.Length > 0
-                ? treasureNamesText.ToString().TrimEnd()
-                : "未装备宝物";
+            varBaseEffect.text =
+                treasureNamesText.Length > 0
+                    ? treasureNamesText.ToString().TrimEnd()
+                    : "未装备宝物";
         }
 
         if (varSpecialEffect != null)
         {
-            varSpecialEffect.text = baseAttributesText.Length > 0
-                ? baseAttributesText.ToString().TrimEnd()
-                : "未装备宝物";
+            varSpecialEffect.text =
+                baseAttributesText.Length > 0
+                    ? baseAttributesText.ToString().TrimEnd()
+                    : "未装备宝物";
         }
     }
 
@@ -410,7 +614,8 @@ public partial class CharacterBagUI : UIFormBase
 
         if (varLevelUp_Base != null)
         {
-            string baseInfo = $"HP: {chessRow.MaxHp[stage]}\n攻击: {chessRow.AtkDamage[stage]}\n防御: {chessRow.Armor[stage]}\n魔抗: {chessRow.MagicResist[stage]}";
+            string baseInfo =
+                $"HP: {chessRow.MaxHp[stage]}\n攻击: {chessRow.AtkDamage[stage]}\n防御: {chessRow.Armor[stage]}\n魔抗: {chessRow.MagicResist[stage]}";
             varLevelUp_Base.text = baseInfo;
         }
     }
@@ -428,20 +633,46 @@ public partial class CharacterBagUI : UIFormBase
 
     private void OnTreasureSwitchBtnClicked()
     {
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[OnTreasureSwitchBtnClicked] 点击切换按钮, 当前状态: IsShowingChessList={m_IsShowingChessList}"
+        );
+
         m_IsShowingChessList = !m_IsShowingChessList;
 
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[OnTreasureSwitchBtnClicked] 切换后状态: IsShowingChessList={m_IsShowingChessList}"
+        );
+
         if (varChessContent != null)
+        {
             varChessContent.gameObject.SetActive(m_IsShowingChessList);
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[OnTreasureSwitchBtnClicked] 角色栏状态: active={varChessContent.gameObject.activeSelf}"
+            );
+        }
 
         if (varTreasureContent != null)
+        {
             varTreasureContent.gameObject.SetActive(!m_IsShowingChessList);
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[OnTreasureSwitchBtnClicked] 宝物仓库状态: active={varTreasureContent.gameObject.activeSelf}"
+            );
+        }
 
         if (!m_IsShowingChessList)
         {
+            DebugEx.Log(nameof(CharacterBagUI), "[OnTreasureSwitchBtnClicked] 开始加载宝物仓库");
             LoadTreasureRepositoryAsync().Forget();
         }
 
-        DebugEx.Log(nameof(CharacterBagUI), $"切换到 {(m_IsShowingChessList ? "棋子列表" : "宝物仓库")}");
+        DebugEx.Success(
+            nameof(CharacterBagUI),
+            $"[OnTreasureSwitchBtnClicked] 切换完成: {(m_IsShowingChessList ? "棋子列表" : "宝物仓库")}"
+        );
     }
 
     private async UniTask LoadTreasureRepositoryAsync()
@@ -491,7 +722,10 @@ public partial class CharacterBagUI : UIFormBase
                 }
             }
 
-            DebugEx.Success(nameof(CharacterBagUI), $"宝物仓库加载完成，共 {m_TreasureSlotPool.Count} 个槽位，{allTreasures.Count} 个宝物");
+            DebugEx.Success(
+                nameof(CharacterBagUI),
+                $"宝物仓库加载完成，共 {m_TreasureSlotPool.Count} 个槽位，{allTreasures.Count} 个宝物"
+            );
         }
         catch (System.Exception ex)
         {
@@ -513,19 +747,8 @@ public partial class CharacterBagUI : UIFormBase
         if (treasureRow == null)
             return;
 
-        // 在槽位中显示宝物
-        GameObject treasureItemContainer = slotScript.GetTreasureItemUIContainer();
-        if (treasureItemContainer != null)
-        {
-            TreasureItemUI treasureItem = treasureItemContainer.GetComponent<TreasureItemUI>();
-            if (treasureItem != null)
-            {
-                treasureItem.InitTreasure(treasure.TreasureId);
-            }
-        }
-
-        // 为所有宝物添加详情查看点击处理
-        AddTreasureDetailClickHandler(slotScript, treasure.InstanceId);
+        // ⭐ 调用InventorySlotUI的接口来加载TreasureItemUI
+        slotScript.LoadTreasureItemUI(treasure.TreasureId);
 
         // 显示装备状态：锁定和棋子名称
         if (treasure.EquippedChessId != 0)
@@ -540,18 +763,21 @@ public partial class CharacterBagUI : UIFormBase
         {
             slotScript.SetLockVisible(false);
 
-            // 为未装备的宝物添加点击处理（快速装备）
-            AddTreasureEquipClickHandler(slotScript, treasure.InstanceId);
-
+            // ⭐ 修复问题三：只保留拖拽装备功能，移除点击装备
             // 为未装备的宝物添加拖拽处理
             AddTreasureDragHandler(slotScript, treasure.InstanceId, true);
         }
     }
 
-    private void AddTreasureDragHandler(InventorySlotUI slotScript, int treasureInstanceId, bool isFromInventory)
+    private void AddTreasureDragHandler(
+        InventorySlotUI slotScript,
+        int treasureInstanceId,
+        bool isFromInventory
+    )
     {
         var slotRect = slotScript.GetComponent<RectTransform>();
-        if (slotRect == null) return;
+        if (slotRect == null)
+            return;
 
         // 检查是否已有处理器
         if (slotRect.GetComponent<TreasureDragHandler>() != null)
@@ -563,14 +789,59 @@ public partial class CharacterBagUI : UIFormBase
 
     private void OnSwitchBtnClicked()
     {
+        DebugEx.Log(nameof(CharacterBagUI), "[OnSwitchBtnClicked] 点击立绘/模型切换按钮");
+
         // 切换立绘/模型显示
         if (varNormalImage != null && varOccupationImage != null)
         {
-            bool isShowingPortrait = varNormalImage.gameObject.activeInHierarchy;
-            varNormalImage.gameObject.SetActive(!isShowingPortrait);
-            varOccupationImage.gameObject.SetActive(isShowingPortrait);
+            m_IsShowingPortrait = !m_IsShowingPortrait;
 
-            DebugEx.Log(nameof(CharacterBagUI), $"切换到 {(!isShowingPortrait ? "立绘" : "模型")}");
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[OnSwitchBtnClicked] 切换到: {(m_IsShowingPortrait ? "海报" : "模型")}"
+            );
+
+            varNormalImage.gameObject.SetActive(m_IsShowingPortrait);
+            varOccupationImage.gameObject.SetActive(!m_IsShowingPortrait);
+
+            // 更新按钮文本
+            UpdateSwitchButtonText();
+
+            DebugEx.Success(
+                nameof(CharacterBagUI),
+                $"[OnSwitchBtnClicked] 切换完成: 立绘={varNormalImage.gameObject.activeInHierarchy}, 模型={varOccupationImage.gameObject.activeInHierarchy}"
+            );
+
+            // ⭐ 切换后重新加载对应的显示内容
+            UpdateMiddleDisplay();
+        }
+        else
+        {
+            DebugEx.Error(
+                nameof(CharacterBagUI),
+                "[OnSwitchBtnClicked] varNormalImage 或 varOccupationImage 为空"
+            );
+        }
+    }
+
+    /// <summary>
+    /// 更新切换按钮的文本（显示海报时文本为"模型"，显示模型时文本为"海报"）
+    /// </summary>
+    private void UpdateSwitchButtonText()
+    {
+        if (varSwitchBtn == null)
+            return;
+
+        // 获取按钮的子对象中的 TextMeshProUGUI 组件
+        var buttonText = varSwitchBtn.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        if (buttonText != null)
+        {
+            // 显示海报时，按钮文本为"模型"；显示模型时，按钮文本为"海报"
+            buttonText.text = m_IsShowingPortrait ? "模型" : "海报";
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[UpdateSwitchButtonText] 按钮文本更新为: {buttonText.text}"
+            );
         }
     }
 
@@ -579,10 +850,14 @@ public partial class CharacterBagUI : UIFormBase
         m_CurrentTabIndex = tabIndex;
 
         // 隐藏所有标签页
-        if (varStateUI != null) varStateUI.gameObject.SetActive(tabIndex == 0);
-        if (varTreasureUI != null) varTreasureUI.gameObject.SetActive(tabIndex == 1);
-        if (varLevelUpUI != null) varLevelUpUI.gameObject.SetActive(tabIndex == 2);
-        if (varStoryUI != null) varStoryUI.gameObject.SetActive(tabIndex == 3);
+        if (varStateUI != null)
+            varStateUI.gameObject.SetActive(tabIndex == 0);
+        if (varTreasureUI != null)
+            varTreasureUI.gameObject.SetActive(tabIndex == 1);
+        if (varLevelUpUI != null)
+            varLevelUpUI.gameObject.SetActive(tabIndex == 2);
+        if (varStoryUI != null)
+            varStoryUI.gameObject.SetActive(tabIndex == 3);
 
         DebugEx.Log(nameof(CharacterBagUI), $"切换到标签页 {tabIndex}");
     }
@@ -623,7 +898,7 @@ public partial class CharacterBagUI : UIFormBase
             SkillType.Skill1 => chessRow.Skill1Id?[0] ?? 0,
             SkillType.Skill2 => chessRow.Skill2Id?[0] ?? 0,
             SkillType.Ultimate => chessRow.UltimateId?[0] ?? 0,
-            _ => 0
+            _ => 0,
         };
     }
 
@@ -656,9 +931,10 @@ public partial class CharacterBagUI : UIFormBase
             if (varLevel1Arr[i] != null && varLevel1Arr[i].TryGetComponent<Image>(out var btnImage))
             {
                 // 选中的按钮为完全透明度，未选中的为 0.6 透明度
-                btnImage.color = i == m_CurrentLevelStage
-                    ? new Color(1f, 1f, 1f, 1f)
-                    : new Color(1f, 1f, 1f, 0.6f);
+                btnImage.color =
+                    i == m_CurrentLevelStage
+                        ? new Color(1f, 1f, 1f, 1f)
+                        : new Color(1f, 1f, 1f, 0.6f);
             }
         }
     }
@@ -669,32 +945,37 @@ public partial class CharacterBagUI : UIFormBase
             return;
 
         var treasureManager = PlayerAccountDataManager.Instance;
-        List<TreasureInstanceData> equippedTreasures = treasureManager.GetChessEquipments(m_CurrentSelectedChessId);
+        List<TreasureInstanceData> equippedTreasures = treasureManager.GetChessEquipments(
+            m_CurrentSelectedChessId
+        );
         IDataTable<TreasureTable> dtTreasure = GF.DataTable.GetDataTable<TreasureTable>();
 
         for (int i = 0; i < varTreasureSlot1Arr.Length; i++)
         {
             RectTransform slotRect = varTreasureSlot1Arr[i];
-            if (slotRect == null) continue;
+            if (slotRect == null)
+                continue;
 
-            TreasureInstanceData treasure = i < equippedTreasures.Count ? equippedTreasures[i] : null;
+            TreasureInstanceData treasure =
+                i < equippedTreasures.Count ? equippedTreasures[i] : null;
+
+            // ⭐ 修复问题一：TreasureSlot容器始终显示（无论是否有宝物）
+            slotRect.gameObject.SetActive(true);
 
             if (treasure != null)
             {
                 TreasureTable treasureRow = dtTreasure.GetDataRow(treasure.TreasureId);
                 if (treasureRow != null)
                 {
-                    TreasureItemUI treasureItemUI = slotRect.GetComponentInChildren<TreasureItemUI>();
+                    TreasureItemUI treasureItemUI =
+                        slotRect.GetComponentInChildren<TreasureItemUI>();
                     if (treasureItemUI == null)
                     {
                         treasureItemUI = slotRect.gameObject.AddComponent<TreasureItemUI>();
                     }
 
                     treasureItemUI.InitTreasure(treasure.TreasureId);
-                    slotRect.gameObject.SetActive(true);
-
-                    // 为已装备的宝物添加详情查看点击处理
-                    AddTreasureDetailClickHandler(slotRect, treasure.InstanceId);
+                    treasureItemUI.gameObject.SetActive(true);
 
                     // 为已装备的宝物添加右键卸装处理
                     AddTreasureSlotRightClickHandler(slotRect, treasure.InstanceId);
@@ -708,16 +989,26 @@ public partial class CharacterBagUI : UIFormBase
             }
             else
             {
-                slotRect.gameObject.SetActive(false);
+                // 没有宝物时，隐藏TreasureItemUI（但保留容器）
+                TreasureItemUI treasureItemUI = slotRect.GetComponentInChildren<TreasureItemUI>();
+                if (treasureItemUI != null)
+                {
+                    treasureItemUI.gameObject.SetActive(false);
+                }
             }
         }
 
         DebugEx.Log(nameof(CharacterBagUI), $"刷新棋子 {m_CurrentSelectedChessId} 的宝物槽位");
     }
 
-    private void AddTreasureDragHandler(RectTransform slotRect, int treasureInstanceId, bool isFromInventory)
+    private void AddTreasureDragHandler(
+        RectTransform slotRect,
+        int treasureInstanceId,
+        bool isFromInventory
+    )
     {
-        if (slotRect == null) return;
+        if (slotRect == null)
+            return;
 
         // 检查是否已有处理器
         if (slotRect.GetComponent<TreasureDragHandler>() != null)
@@ -749,41 +1040,6 @@ public partial class CharacterBagUI : UIFormBase
         LoadTreasureRepositoryAsync().Forget();
     }
 
-    private void AddTreasureEquipClickHandler(InventorySlotUI slotScript, int treasureInstanceId)
-    {
-        var slotRect = slotScript.GetComponent<RectTransform>();
-        if (slotRect == null) return;
-
-        if (slotRect.GetComponent<TreasureEquipClickHandler>() != null)
-            return;
-
-        var handler = slotRect.gameObject.AddComponent<TreasureEquipClickHandler>();
-        handler.Initialize(treasureInstanceId, OnTreasureEquipClicked);
-    }
-
-    private void AddTreasureDetailClickHandler(InventorySlotUI slotScript, int treasureInstanceId)
-    {
-        var slotRect = slotScript.GetComponent<RectTransform>();
-        if (slotRect == null) return;
-
-        if (slotRect.GetComponent<TreasureDetailClickHandler>() != null)
-            return;
-
-        var handler = slotRect.gameObject.AddComponent<TreasureDetailClickHandler>();
-        handler.Initialize(treasureInstanceId, slotRect);
-    }
-
-    private void AddTreasureDetailClickHandler(RectTransform slotRect, int treasureInstanceId)
-    {
-        if (slotRect == null) return;
-
-        if (slotRect.GetComponent<TreasureDetailClickHandler>() != null)
-            return;
-
-        var handler = slotRect.gameObject.AddComponent<TreasureDetailClickHandler>();
-        handler.Initialize(treasureInstanceId, slotRect);
-    }
-
     public int GetCurrentSelectedChessId() => m_CurrentSelectedChessId;
 
     public void RefreshTreasureUI()
@@ -793,27 +1049,19 @@ public partial class CharacterBagUI : UIFormBase
         LoadTreasureRepositoryAsync().Forget();
     }
 
-    private void OnTreasureEquipClicked(int treasureInstanceId)
-    {
-        if (m_CurrentSelectedChessId <= 0)
-        {
-            DebugEx.Warning(nameof(CharacterBagUI), "未选中棋子，无法装备宝物");
-            return;
-        }
-
-        var treasureManager = PlayerAccountDataManager.Instance;
-        treasureManager.EquipTreasure(treasureInstanceId, m_CurrentSelectedChessId);
-        treasureManager.SaveCurrentSave();
-
-        DebugEx.Log(nameof(CharacterBagUI), $"装备宝物 {treasureInstanceId} 到棋子 {m_CurrentSelectedChessId}");
-
-        UpdateTreasureSlots();
-        UpdateTreasureTab();
-        LoadTreasureRepositoryAsync().Forget();
-    }
-
     protected override void OnClose(bool isShutdown, object userData)
     {
+        DebugEx.Log(nameof(CharacterBagUI), "[OnClose] 开始关闭UI");
+
+        // ⭐ 移除所有按钮监听器（修复事件重复注册问题）
+        UnregisterEvents();
+
+        // ⭐ 清理模型查看器（包括 RenderTexture、Camera 和 ModelRoot）
+        if (m_ModelViewer != null)
+        {
+            m_ModelViewer.CleanupRenderTexture();
+        }
+
         // 清理棋子卡片池
         foreach (var item in m_ChessItemPool)
         {
@@ -835,7 +1083,50 @@ public partial class CharacterBagUI : UIFormBase
         if (input != null)
             input.RequestMouseLock();
 
+        DebugEx.Success(nameof(CharacterBagUI), "[OnClose] UI关闭完成");
+
         base.OnClose(isShutdown, userData);
+    }
+
+    private void UnregisterEvents()
+    {
+        DebugEx.Log(nameof(CharacterBagUI), "[UnregisterEvents] 开始移除事件监听器");
+
+        if (varCloseBtn != null)
+            varCloseBtn.onClick.RemoveAllListeners();
+        if (varTreasureSwitchBtn != null)
+            varTreasureSwitchBtn.onClick.RemoveAllListeners();
+        if (varSwitchBtn != null)
+            varSwitchBtn.onClick.RemoveAllListeners();
+        if (varStateBtn != null)
+            varStateBtn.onClick.RemoveAllListeners();
+        if (varTreasureBtn != null)
+            varTreasureBtn.onClick.RemoveAllListeners();
+        if (varLevelUpBtn != null)
+            varLevelUpBtn.onClick.RemoveAllListeners();
+        if (varStoryBtn != null)
+            varStoryBtn.onClick.RemoveAllListeners();
+        if (varPassiveSkill != null)
+            varPassiveSkill.onClick.RemoveAllListeners();
+        if (varNormalAtk != null)
+            varNormalAtk.onClick.RemoveAllListeners();
+        if (varSkill_1 != null)
+            varSkill_1.onClick.RemoveAllListeners();
+        if (varSkill_2 != null)
+            varSkill_2.onClick.RemoveAllListeners();
+        if (varUltimateSkill != null)
+            varUltimateSkill.onClick.RemoveAllListeners();
+
+        if (varLevel1Arr != null)
+        {
+            foreach (var btn in varLevel1Arr)
+            {
+                if (btn != null)
+                    btn.onClick.RemoveAllListeners();
+            }
+        }
+
+        DebugEx.Success(nameof(CharacterBagUI), "[UnregisterEvents] 事件监听器移除完成");
     }
 
     #region 辅助类型

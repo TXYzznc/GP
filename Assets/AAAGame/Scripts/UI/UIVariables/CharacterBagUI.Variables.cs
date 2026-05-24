@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:DESKTOP-7JQ11GM
+//更新自:一只靓仔的电脑
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +23,6 @@ public partial class CharacterBagUI
 	[SerializeField] private RectTransform varLevelUpUI = null;
 	[SerializeField] private RectTransform varStoryUI = null;
 	[SerializeField] private TextMeshProUGUI varNameText = null;
-	[SerializeField] private TextMeshProUGUI varStateText = null;
 	[SerializeField] private Button varPassiveSkill = null;
 	[SerializeField] private Button varNormalAtk = null;
 	[SerializeField] private Button varSkill_1 = null;
@@ -42,5 +41,17 @@ public partial class CharacterBagUI
 	[SerializeField] private Button varTreasureSwitchBtn = null;
 	[SerializeField] private GridLayoutGroup varTreasureContent = null;
 	[SerializeField] private GameObject varInventorySlotUI = null;
-	[SerializeField] private GameObject varTreasureBoxUI = null;
+	[SerializeField] private RectTransform varTreasureIcon = null;
+	[SerializeField] private RectTransform varChessIcon = null;
+	[SerializeField] private TextMeshProUGUI varSkillNameText = null;
+	[SerializeField] private TextMeshProUGUI varHPText = null;
+	[SerializeField] private TextMeshProUGUI varMpText = null;
+	[SerializeField] private TextMeshProUGUI varAttackText = null;
+	[SerializeField] private TextMeshProUGUI varMagicalAttackText = null;
+	[SerializeField] private TextMeshProUGUI varArmorText = null;
+	[SerializeField] private TextMeshProUGUI varSpelResistanceText = null;
+	[SerializeField] private TextMeshProUGUI varAttackSpeedText = null;
+	[SerializeField] private TextMeshProUGUI varMoveSpeedText = null;
+	[SerializeField] private TextMeshProUGUI varCriticalChanceText = null;
+	[SerializeField] private TextMeshProUGUI varCriticalDamageText = null;
 }

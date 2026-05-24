@@ -1,7 +1,6 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Cysharp.Threading.Tasks;
-
 
 /// <summary>
 /// 背包/仓库格子UI
@@ -44,6 +43,17 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         }
     }
 
+    private void OnDestroy()
+    {
+        // 清理 InventoryItemUI 引用
+        if (m_ItemUI != null)
+        {
+            Destroy(m_ItemUI.gameObject);
+            m_ItemUI = null;
+        }
+        m_IsItemUILoaded = false;
+    }
+
     public void SetSlotIndex(int index)
     {
         SlotIndex = index;
@@ -82,12 +92,40 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
             varLock.SetActive(!available);
     }
 
-
     public InventoryItemUI GetItemUI() => m_ItemUI;
 
     /// <summary>
+    /// 获取宝物ItemUI（用于宝物仓库）
+    /// </summary>
+    public TreasureItemUI GetTreasureItemUI()
+    {
+        return GetComponentInChildren<TreasureItemUI>(true);
+    }
+
+    /// <summary>
+    /// 检查格子是否有物品（兼容InventoryItemUI和TreasureItemUI）
+    /// </summary>
+    public bool HasAnyItem()
+    {
+        // 检查 InventoryItemUI
+        if (m_ItemUI != null && m_ItemUI.HasItem())
+        {
+            return true;
+        }
+
+        // 检查 TreasureItemUI
+        var treasureItemUI = GetTreasureItemUI();
+        if (treasureItemUI != null && treasureItemUI.gameObject.activeSelf)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// 设置格子数据（延迟加载 InventoryItemUI）
-    /// 有物品时：加载并显示 ItemUI
+    /// 有物品时：如果已有 ItemUI 则复用，否则异步加载
     /// 无物品时：隐藏 ItemUI（不销毁，复用）
     /// </summary>
     public void SetData(ItemStack itemStack)
@@ -95,14 +133,25 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         // 暂存数据（可能需要异步加载后才能设置）
         m_PendingItemStack = itemStack;
 
-        // 1. 判断是否需要加载 InventoryItemUI
-        if (itemStack != null && !itemStack.IsEmpty && !m_IsItemUILoaded)
+        // 情况1：有物品 + 已有ItemUI → 直接复用
+        if (itemStack != null && !itemStack.IsEmpty && m_ItemUI != null)
         {
-            LoadItemUISync();
-            return;  // 异步加载完成后会设置数据，这里先返回
+            DebugEx.Log(
+                GetType().Name,
+                $"复用 ItemUI: 格子={SlotIndex}, 物品={itemStack.Item.Name}"
+            );
+            ApplyItemData(itemStack);
+            return;
         }
 
-        // 2. 如果已经加载完成或无物品，立即设置数据
+        // 情况2：有物品 + 无ItemUI → 异步加载（只有真的没有ItemUI对象时才加载）
+        if (itemStack != null && !itemStack.IsEmpty && m_ItemUI == null)
+        {
+            LoadItemUISync();
+            return; // 异步加载完成后会设置数据，这里先返回
+        }
+
+        // 情况3：无物品 → 隐藏ItemUI（不销毁，保留复用）
         ApplyItemData(itemStack);
     }
 
@@ -117,7 +166,6 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
         itemUI.SetData(itemStack);
         itemUI.gameObject.SetActive(itemStack != null && !itemStack.IsEmpty);
-
     }
 
     /// <summary>
@@ -167,8 +215,13 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// </summary>
     private async UniTaskVoid LoadItemUIAsync()
     {
-        if (m_IsItemUILoaded || m_ItemUI != null)
+        // 关键修复：检查m_ItemUI而不是m_IsItemUILoaded，避免重复创建
+        if (m_ItemUI != null)
+        {
+            DebugEx.Log(this.GetType().Name, $"ItemUI已存在，直接复用: 格子={SlotIndex}");
+            ApplyItemData(m_PendingItemStack);
             return;
+        }
 
         if (varInventoryItemUI == null)
         {
@@ -184,6 +237,17 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         if (!gameObject.activeInHierarchy)
         {
             DebugEx.Warning(this.GetType().Name, "格子已销毁，取消加载");
+            return;
+        }
+
+        // 再次检查，防止异步期间已经创建
+        if (m_ItemUI != null)
+        {
+            DebugEx.Warning(
+                this.GetType().Name,
+                $"异步期间ItemUI已创建，取消重复加载: 格子={SlotIndex}"
+            );
+            ApplyItemData(m_PendingItemStack);
             return;
         }
 
@@ -244,26 +308,36 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// </summary>
     public void OnLeftClick()
     {
+        // 优先检查 InventoryItemUI
         var itemUI = GetItemUI();
-        if (itemUI == null || !itemUI.HasItem())
+        if (itemUI != null && itemUI.HasItem())
         {
-            DebugEx.Warning(this.GetType().Name, $"[OnLeftClick] 格子 {SlotIndex} 无物品");
+            var itemStack = itemUI.GetItemStack();
+            if (itemStack != null && !itemStack.IsEmpty)
+            {
+                DebugEx.Log(
+                    this.GetType().Name,
+                    $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}"
+                );
+                ShowItemDetailPanel(itemStack);
+                return;
+            }
+        }
+
+        // 检查 TreasureItemUI
+        var treasureItemUI = GetTreasureItemUI();
+        if (treasureItemUI != null && treasureItemUI.gameObject.activeSelf)
+        {
+            int treasureId = treasureItemUI.GetTreasureId();
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[OnLeftClick] 左键点击宝物 格子={SlotIndex} treasureId={treasureId}"
+            );
+            // TODO: 显示宝物详情面板（如果需要）
             return;
         }
 
-        var itemStack = itemUI.GetItemStack();
-        if (itemStack == null || itemStack.IsEmpty)
-        {
-            DebugEx.Warning(this.GetType().Name, $"[OnLeftClick] 物品堆叠为空");
-            return;
-        }
-
-        DebugEx.Log(
-            this.GetType().Name,
-            $"[OnLeftClick] 左键点击 格子={SlotIndex} 物品={itemStack.Item.Name}"
-        );
-
-        ShowItemDetailPanel(itemStack);
+        DebugEx.Warning(this.GetType().Name, $"[OnLeftClick] 格子 {SlotIndex} 无物品");
     }
 
     /// <summary>
@@ -273,55 +347,71 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// </summary>
     public void OnRightClick(Vector2 mousePosition)
     {
+        // 优先检查 InventoryItemUI
         var itemUI = GetItemUI();
-        if (itemUI == null || !itemUI.HasItem())
+        if (itemUI != null && itemUI.HasItem())
         {
-            DebugEx.Warning(this.GetType().Name, $"[OnRightClick] 格子 {SlotIndex} 无物品");
-            return;
-        }
-
-        var itemStack = itemUI.GetItemStack();
-        if (itemStack == null || itemStack.IsEmpty)
-        {
-            DebugEx.Warning(this.GetType().Name, $"[OnRightClick] 物品堆叠为空");
-            return;
-        }
-
-        DebugEx.Log(
-            this.GetType().Name,
-            $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}"
-        );
-
-        // 宝箱格子：右键快捷键直接移入背包
-        if (ContainerType == SlotContainerType.TreasureBox)
-        {
-            var treasureContainer = SlotContainer as TreasureBoxSlotContainerImpl;
-            if (treasureContainer != null)
+            var itemStack = itemUI.GetItemStack();
+            if (itemStack != null && !itemStack.IsEmpty)
             {
-                var slot = treasureContainer.GetSlot(SlotIndex);
-                if (slot != null && !slot.IsEmpty)
+                DebugEx.Log(
+                    this.GetType().Name,
+                    $"[OnRightClick] 右键点击 格子={SlotIndex} 物品={itemStack.Item.Name} 容器={ContainerType}"
+                );
+
+                // 宝箱格子：右键快捷键直接移入背包
+                if (ContainerType == SlotContainerType.TreasureBox)
                 {
-                    // 尝试添加到背包
-                    bool ok = InventoryManager.Instance?.AddItem(slot.ItemId, slot.Count) ?? false;
-                    if (ok)
+                    var treasureContainer = SlotContainer as TreasureBoxSlotContainerImpl;
+                    if (treasureContainer != null)
                     {
-                        treasureContainer.RemoveItem(SlotIndex, slot.Count);
-                        DebugEx.Success(
-                            this.GetType().Name,
-                            $"[OnRightClick] 宝箱物品快捷放入背包: {itemStack.Item.Name}"
-                        );
+                        var slot = treasureContainer.GetSlot(SlotIndex);
+                        if (slot != null && !slot.IsEmpty)
+                        {
+                            // 尝试添加到背包
+                            bool ok =
+                                InventoryManager.Instance?.AddItem(slot.ItemId, slot.Count)
+                                ?? false;
+                            if (ok)
+                            {
+                                treasureContainer.RemoveItem(SlotIndex, slot.Count);
+                                DebugEx.Success(
+                                    this.GetType().Name,
+                                    $"[OnRightClick] 宝箱物品快捷放入背包: {itemStack.Item.Name}"
+                                );
+                            }
+                            else
+                            {
+                                DebugEx.Warning(
+                                    this.GetType().Name,
+                                    "[OnRightClick] 背包已满，无法放入"
+                                );
+                            }
+                        }
                     }
-                    else
-                    {
-                        DebugEx.Warning(this.GetType().Name, "[OnRightClick] 背包已满，无法放入");
-                    }
+                    return;
                 }
+
+                // 其他容器：显示上下文菜单
+                ShowContextMenu(itemStack, SlotIndex, mousePosition, GetComponent<RectTransform>());
+                return;
             }
+        }
+
+        // 检查 TreasureItemUI
+        var treasureItemUI = GetTreasureItemUI();
+        if (treasureItemUI != null && treasureItemUI.gameObject.activeSelf)
+        {
+            int treasureId = treasureItemUI.GetTreasureId();
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[OnRightClick] 右键点击宝物 格子={SlotIndex} treasureId={treasureId}"
+            );
+            // TODO: 显示宝物右键菜单（如果需要）
             return;
         }
 
-        // 其他容器：显示上下文菜单
-        ShowContextMenu(itemStack, SlotIndex, mousePosition, GetComponent<RectTransform>());
+        DebugEx.Warning(this.GetType().Name, $"[OnRightClick] 格子 {SlotIndex} 无物品");
     }
 
     /// <summary>
@@ -417,6 +507,50 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
     /// 获取宝物物品UI容器GameObject
     /// </summary>
     public GameObject GetTreasureItemUIContainer() => varTreasureItemUI;
+
+    /// <summary>
+    /// 加载并初始化TreasureItemUI（用于CharacterBagUI的宝物仓库）
+    /// </summary>
+    public void LoadTreasureItemUI(int treasureId)
+    {
+        if (varTreasureItemUI == null)
+        {
+            DebugEx.Error(GetType().Name, "[LoadTreasureItemUI] varTreasureItemUI预制体未配置");
+            return;
+        }
+
+        // 检查是否已经实例化过
+        TreasureItemUI existingItem = GetComponentInChildren<TreasureItemUI>(true);
+
+        if (existingItem == null)
+        {
+            // 实例化预制体
+            GameObject treasureItemObj = Instantiate(varTreasureItemUI, transform);
+            treasureItemObj.name = "TreasureItemUI";
+
+            // 设置大小和分层
+            SetupChildUITransform(treasureItemObj);
+
+            existingItem = treasureItemObj.GetComponent<TreasureItemUI>();
+
+            DebugEx.Log(
+                GetType().Name,
+                $"[LoadTreasureItemUI] 实例化TreasureItemUI: treasureId={treasureId}"
+            );
+        }
+
+        // 初始化宝物数据
+        if (existingItem != null)
+        {
+            existingItem.InitTreasure(treasureId);
+            existingItem.gameObject.SetActive(true);
+
+            DebugEx.Success(
+                GetType().Name,
+                $"[LoadTreasureItemUI] 宝物加载成功: treasureId={treasureId}"
+            );
+        }
+    }
 
     /// <summary>
     /// 显示或隐藏格子锁定状态

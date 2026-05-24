@@ -37,6 +37,9 @@ public partial class InventoryUI : UIFormBase
     // 装备栏
     private readonly List<InventorySlotUI> m_EquipSlots = new();
 
+    // UI管理器（负责物品与格子的映射和同步）
+    private InventoryUIManager m_UIManager;
+
     #endregion
 
     #region 生命周期
@@ -64,6 +67,9 @@ public partial class InventoryUI : UIFormBase
         InitializeEquipSlots();
         BindButtonEvents();
 
+        // 初始化UI管理器
+        m_UIManager = new InventoryUIManager();
+
         DebugEx.Success("InventoryUI", "背包UI初始化完成");
     }
 
@@ -84,6 +90,9 @@ public partial class InventoryUI : UIFormBase
         var warehouseManager = WarehouseManager.Instance;
         if (warehouseManager != null)
             warehouseManager.OnSlotChanged += OnWarehouseSlotChanged;
+
+        // 初始化UI管理器（注册所有格子）
+        m_UIManager.Initialize(m_InventorySlots, m_EquipSlots, m_FastSlots);
 
         m_CurrentPage = 0;
         BuildPageLabels();
@@ -132,6 +141,9 @@ public partial class InventoryUI : UIFormBase
         if (warehouseManager != null)
             warehouseManager.OnSlotChanged -= OnWarehouseSlotChanged;
 
+        // 清理UI管理器
+        m_UIManager?.Clear();
+
         LockPlayerMovement(false);
 
         // 请求锁定鼠标（通过引用计数管理）
@@ -148,7 +160,64 @@ public partial class InventoryUI : UIFormBase
         if (PageCount != m_PageLabels.Count)
             BuildPageLabels();
 
-        RefreshInventorySlotAt(args.SlotIndex);
+        // 使用UIManager进行高效的增量更新
+        switch (args.ChangeType)
+        {
+            case SlotChangeType.Add:
+                // 添加物品：从InventoryManager获取物品数据并通过UIManager添加
+                if (args.InstanceId > 0)
+                {
+                    var slot = m_InventoryManager.GetSlotInternal(args.SlotIndex);
+                    if (slot != null && !slot.IsEmpty)
+                    {
+                        m_UIManager.AddItemToUI(slot.ItemStack);
+                        DebugEx.Log(
+                            "InventoryUI",
+                            $"添加物品: slot={args.SlotIndex}, item={slot.ItemStack.Item.Name}, instanceId={args.InstanceId}"
+                        );
+                    }
+                }
+                break;
+
+            case SlotChangeType.Remove:
+                // 移除物品：通过InstanceId从UIManager移除
+                if (args.InstanceId > 0)
+                {
+                    m_UIManager.RemoveItemFromUI(args.InstanceId);
+                    DebugEx.Log(
+                        "InventoryUI",
+                        $"移除物品: slot={args.SlotIndex}, instanceId={args.InstanceId}"
+                    );
+                }
+                else
+                {
+                    // 如果没有InstanceId（旧数据或特殊情况），回退到直接刷新格子
+                    RefreshInventorySlotAt(args.SlotIndex);
+                }
+                break;
+
+            case SlotChangeType.Update:
+                // 更新数量：直接刷新对应格子（ItemUI已存在，只需更新数量）
+                RefreshInventorySlotAt(args.SlotIndex);
+                DebugEx.Log(
+                    "InventoryUI",
+                    $"更新物品数量: slot={args.SlotIndex}, {args.OldCount} → {args.NewCount}"
+                );
+                break;
+
+            case SlotChangeType.Move:
+                // 移动：刷新涉及的格子
+                RefreshInventorySlotAt(args.SlotIndex);
+                DebugEx.Log("InventoryUI", $"移动物品: slot={args.SlotIndex}");
+                break;
+
+            case SlotChangeType.Clear:
+                // 清空：全量刷新
+                RefreshInventory();
+                DebugEx.Log("InventoryUI", "清空背包，全量刷新");
+                break;
+        }
+
         RefreshWeightState();
         RefreshEquipSlots();
     }
