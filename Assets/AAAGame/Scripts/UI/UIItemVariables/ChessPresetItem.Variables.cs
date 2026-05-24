@@ -18,4 +18,6 @@ public partial class ChessPresetItem
 	[SerializeField] private TextMeshProUGUI varNameText = null;
 	[SerializeField] private TextMeshProUGUI varStar = null;
 	[SerializeField] private TextMeshProUGUI varMaskText = null;
+	[SerializeField] private HorizontalLayoutGroup varSynergy = null;
+	[SerializeField] private GameObject varSynergyIcon = null;
 }

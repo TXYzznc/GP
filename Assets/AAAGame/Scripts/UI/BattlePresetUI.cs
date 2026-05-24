@@ -736,6 +736,9 @@ public partial class BattlePresetUI : UIFormBase
                 m_SelectedChessItems.Add(go);
             }
 
+            // ⭐ 确保 ChessPresetItem 在 Container 中的 sibling 顺序与 index 一致
+            go.transform.SetSiblingIndex(i);
+
             var chessPresetItem = go.GetComponent<ChessPresetItem>();
             if (chessPresetItem != null)
             {
@@ -828,32 +831,25 @@ public partial class BattlePresetUI : UIFormBase
         if (removedCanvasGroup != null)
             DOTween.Kill(removedCanvasGroup);
 
-        // 播放移除动画，动画完成后再从数据中移除
-        PlayItemRemoveAnimation(
-            removedItem,
-            poolItem,
-            () =>
-            {
-                // 动画完成后从数据中移除
-                m_EditingPreset.UnitCardIds.Remove(chessId);
+        // ⭐ 立即从数据中移除，避免动画期间快速操作导致数据/UI不同步
+        m_EditingPreset.UnitCardIds.Remove(chessId);
 
-                // 隐藏这个项
-                removedItem.SetActive(false);
+        // 立即刷新已选区域（数据已更新）
+        removedItem.SetActive(false);
+        RefreshSelectedChessFromIndex(removedIndex);
 
-                // 重新排列已选区域
-                RefreshSelectedChessFromIndex(removedIndex);
+        // 更新计数文本
+        if (varChessCountText != null)
+        {
+            string newCount = $"{m_EditingPreset.UnitCardIds.Count}/8";
+            varChessCountText.text = newCount;
+        }
 
-                // 更新计数文本（格式：x/8）
-                if (varChessCountText != null)
-                {
-                    string newCount = $"{m_EditingPreset.UnitCardIds.Count}/8";
-                    varChessCountText.text = newCount;
-                }
+        // 激活一个空位
+        RefreshChessEmptySlots();
 
-                // 激活一个空位
-                RefreshChessEmptySlots();
-            }
-        );
+        // 播放移除动画（纯视觉，不影响数据）
+        PlayItemRemoveAnimation(removedItem, poolItem, null);
 
         // 立即更新可选池中这一个棋子的状态
         UpdatePoolChessState(chessId, false);
@@ -888,6 +884,9 @@ public partial class BattlePresetUI : UIFormBase
             // 确保激活
             if (!go.activeSelf)
                 go.SetActive(true);
+
+            // ⭐ 确保 sibling 顺序正确
+            go.transform.SetSiblingIndex(i);
 
             var chessPresetItem = go.GetComponent<ChessPresetItem>();
             if (chessPresetItem != null)
@@ -986,6 +985,17 @@ public partial class BattlePresetUI : UIFormBase
         if (index < m_SelectedChessItems.Count)
         {
             go = m_SelectedChessItems[index];
+
+            // 重置动画残留状态，防止上次移除动画的 scale/alpha 污染
+            DOTween.Kill(go.transform);
+            go.transform.localScale = Vector3.one;
+            var cg = go.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                DOTween.Kill(cg);
+                cg.alpha = 1f;
+            }
+
             go.SetActive(true);
         }
         else
@@ -993,6 +1003,9 @@ public partial class BattlePresetUI : UIFormBase
             go = Instantiate(varChessItemTemplate, varSelectedChessContainer.transform);
             m_SelectedChessItems.Add(go);
         }
+
+        // ⭐ 确保插入到正确的 sibling 位置（在 EmptySlot 之前）
+        go.transform.SetSiblingIndex(index);
 
         var chessPresetItem = go.GetComponent<ChessPresetItem>();
         if (chessPresetItem != null)
@@ -1031,6 +1044,7 @@ public partial class BattlePresetUI : UIFormBase
                 var canvasGroup = poolGo.GetComponent<CanvasGroup>();
                 if (canvasGroup != null)
                 {
+                    canvasGroup.alpha = 1f;
                     canvasGroup.interactable = true;
                 }
             }
@@ -1360,6 +1374,17 @@ public partial class BattlePresetUI : UIFormBase
         if (index < m_SelectedCardItems.Count)
         {
             go = m_SelectedCardItems[index];
+
+            // ⭐ 重置动画残留状态
+            DOTween.Kill(go.transform);
+            go.transform.localScale = Vector3.one;
+            var cg = go.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                DOTween.Kill(cg);
+                cg.alpha = 1f;
+            }
+
             go.SetActive(true);
         }
         else

@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using GameFramework;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,23 +51,12 @@ public partial class ChessPresetItem : UIItemBase
 
         if (ChessDataManager.Instance.TryGetConfig(chessId, out var config))
         {
-            // 设置名称
             if (varNameText != null)
-            {
                 varNameText.text = config.Name;
-            }
 
-            // 设置等级显示（固定为Rank 1）
-            if (varStar != null)
-            {
-                varStar.text = "Lv1";
-            }
-
-            // 加载图标（使用Rank 1）
             LoadIconAsync(config.GetIconId(1));
-
-            // 设置稀有度UI
             SetQualityUI(config.Quality);
+            LoadSynergyIconsAsync(chessId).Forget();
 
             DebugEx.Log("ChessPresetItem", $"SetData: chessId={chessId}, name={config.Name}");
         }
@@ -80,43 +70,82 @@ public partial class ChessPresetItem : UIItemBase
     }
 
     /// <summary>
-    /// 根据稀有度设置卡牌框、背景和名字背景
+    /// 根据稀有度设置卡牌框和背景
     /// </summary>
     private void SetQualityUI(int quality)
     {
         int cardFrameId = 19000 + quality;
         int bgId = 19010 + quality;
-        int maskId = 19020 + quality;
 
         if (varCardFrame != null)
-        {
             _ = GameExtension.ResourceExtension.LoadSpriteAsync(cardFrameId, varCardFrame, 1f);
-        }
 
         if (varBg != null)
-        {
             _ = GameExtension.ResourceExtension.LoadSpriteAsync(bgId, varBg, 1f);
-        }
-
-        if (varNameBg != null)
-        {
-            var maskImage = varNameBg.GetComponent<Image>();
-            if (maskImage != null)
-            {
-                _ = GameExtension.ResourceExtension.LoadSpriteAsync(maskId, maskImage, 0.8f);
-            }
-        }
     }
 
-    /// <summary>
-    /// 异步加载图标
-    /// </summary>
     private void LoadIconAsync(int iconResourceId)
     {
         if (varImage == null)
             return;
-
         _ = GameExtension.ResourceExtension.LoadSpriteAsync(iconResourceId, varImage, 1f);
+    }
+
+    /// <summary>
+    /// 加载羁绊图标
+    /// </summary>
+    private async UniTaskVoid LoadSynergyIconsAsync(int chessId)
+    {
+        if (varSynergy == null || varSynergyIcon == null)
+            return;
+
+        // 清除旧的克隆图标
+        for (int i = varSynergy.transform.childCount - 1; i >= 0; i--)
+        {
+            var child = varSynergy.transform.GetChild(i);
+            if (child.gameObject != varSynergyIcon)
+                UnityEngine.Object.Destroy(child.gameObject);
+        }
+
+        var chessDt = GF.DataTable.GetDataTable<SummonChessTable>();
+        var chessRow = chessDt?.GetDataRow(chessId);
+        if (chessRow == null)
+            return;
+
+        var synergyDt = GF.DataTable.GetDataTable<SynergyTable>();
+        if (synergyDt == null)
+            return;
+
+        var synergyIds = new System.Collections.Generic.List<int>();
+        if (chessRow.Races != null)
+            synergyIds.AddRange(chessRow.Races);
+        if (chessRow.Classes != null)
+            synergyIds.AddRange(chessRow.Classes);
+
+        bool hasAny = false;
+        foreach (int synergyId in synergyIds)
+        {
+            if (synergyId <= 0)
+                continue;
+            var synergyRow = synergyDt.GetDataRow(synergyId);
+            if (synergyRow == null || synergyRow.IconId <= 0)
+                continue;
+
+            var iconGo = UnityEngine.Object.Instantiate(varSynergyIcon, varSynergy.transform);
+            iconGo.SetActive(true);
+
+            var iconImage = iconGo.GetComponent<Image>();
+            if (iconImage != null)
+                await GameExtension.ResourceExtension.LoadSpriteAsync(synergyRow.IconId, iconImage);
+
+            hasAny = true;
+        }
+
+        varSynergy.gameObject.SetActive(hasAny);
+        DebugEx.Log(
+            "ChessPresetItem",
+            $"LoadSynergyIconsAsync: chessId={chessId}, hasAny={hasAny}"
+        );
     }
 
     #endregion
@@ -133,31 +162,19 @@ public partial class ChessPresetItem : UIItemBase
 
     #region Mask 管理
 
-    /// <summary>
-    /// 隐藏 Mask（默认状态）
-    /// </summary>
     public void HideMask()
     {
         if (varMask != null)
-        {
             varMask.SetActive(false);
-        }
 
         if (varMaskText != null)
-        {
             varMaskText.gameObject.SetActive(false);
-        }
     }
 
-    /// <summary>
-    /// 显示 Mask 并设置"已选中"文本
-    /// </summary>
     public void ShowSelectedMask()
     {
         if (varMask != null)
-        {
             varMask.SetActive(true);
-        }
 
         if (varMaskText != null)
         {
@@ -166,9 +183,6 @@ public partial class ChessPresetItem : UIItemBase
         }
     }
 
-    /// <summary>
-    /// 设置为空占位状态（已选区域未填充的格子）
-    /// </summary>
     public void SetEmpty()
     {
         m_ChessId = 0;
@@ -176,22 +190,19 @@ public partial class ChessPresetItem : UIItemBase
 
         if (varNameText != null)
             varNameText.text = string.Empty;
-        if (varStar != null)
-            varStar.text = string.Empty;
         if (varImage != null)
             varImage.sprite = null;
         if (varCardFrame != null)
             varCardFrame.sprite = null;
         if (varBg != null)
             varBg.sprite = null;
+        if (varSynergy != null)
+            varSynergy.gameObject.SetActive(false);
         HideMask();
 
         DebugEx.Log("ChessPresetItem", "SetEmpty: 设置为空占位");
     }
 
-    /// <summary>
-    /// 获取棋子名称（用于搜索过滤）
-    /// </summary>
     public string GetChessName()
     {
         if (ChessDataManager.Instance.TryGetConfig(m_ChessId, out var config))

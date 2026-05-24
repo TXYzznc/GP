@@ -1,9 +1,9 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using TMPro;
-using GameExtension;
 using Cysharp.Threading.Tasks;
+using GameExtension;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// 棋子小卡片 - 在 CharacterBagUI 的列表中显示
@@ -15,15 +15,6 @@ public partial class ChessItemUI_Small : UIItemBase, IPointerClickHandler
 
     private int m_ChessId;
     private SummonChessConfig m_ChessConfig;
-
-    private void OnEnable()
-    {
-        if (varChessImg == null)
-        {
-            DebugEx.Error(nameof(ChessItemUI_Small), "ChessItemUI_Small 缺少 UI 元素引用");
-            return;
-        }
-    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -41,41 +32,42 @@ public partial class ChessItemUI_Small : UIItemBase, IPointerClickHandler
         m_ChessId = chessId;
         m_ChessConfig = config;
 
-        // 显示棋子名称
         if (varNameText != null)
-        {
             varNameText.text = config.Name;
-        }
 
-        // 显示品质指示器
-        UpdateQualityDisplay(config.Quality);
+        // 默认隐藏高亮
+        if (varHighlightImage != null)
+            varHighlightImage.gameObject.SetActive(false);
 
-        // 异步加载棋子图标
         LoadChessImageAsync(config).Forget();
+        LoadQualityUIAsync(config.Quality).Forget();
     }
 
     private async UniTask LoadChessImageAsync(SummonChessConfig config)
     {
         if (varChessImg == null || config == null)
             return;
-
-        int iconId = config.GetIconId(1);
-        await ResourceExtension.LoadSpriteAsync(iconId, varChessImg);
+        await ResourceExtension.LoadSpriteAsync(config.GetIconId(1), varChessImg);
     }
 
-    private void UpdateQualityDisplay(int quality)
+    /// <summary>
+    /// 根据稀有度加载 Frame 和 Bg，资源ID规则与 ChessItemUI 一致
+    /// </summary>
+    private async UniTask LoadQualityUIAsync(int quality)
     {
-        if (varQualityPanel == null || varQualityItem1Arr == null || varQualityItem1Arr.Length == 0)
-            return;
+        int frameId = 19000 + quality; // 19001~19004
+        int bgId = 19010 + quality; // 19011~19014
 
-        // 根据品质显示对应数量的品质元素
-        for (int i = 0; i < varQualityItem1Arr.Length; i++)
-        {
-            if (varQualityItem1Arr[i] != null)
-            {
-                varQualityItem1Arr[i].gameObject.SetActive(i < quality);
-            }
-        }
+        if (varFrame != null)
+            await ResourceExtension.LoadSpriteAsync(frameId, varFrame);
+
+        if (varBg != null)
+            await ResourceExtension.LoadSpriteAsync(bgId, varBg);
+
+        DebugEx.Log(
+            nameof(ChessItemUI_Small),
+            $"加载稀有度UI: quality={quality}, frameId={frameId}, bgId={bgId}"
+        );
     }
 
     public void OnCardSelected()
@@ -85,10 +77,11 @@ public partial class ChessItemUI_Small : UIItemBase, IPointerClickHandler
 
     public void SetHighlight(bool isHighlighted)
     {
-        // 由 CharacterBagUI 控制高亮状态
-        // 这里可以添加高亮效果的逻辑
+        if (varHighlightImage != null)
+            varHighlightImage.gameObject.SetActive(isHighlighted);
     }
 
     public int GetChessId() => m_ChessId;
+
     public SummonChessConfig GetChessConfig() => m_ChessConfig;
 }

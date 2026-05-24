@@ -99,7 +99,8 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     private void RefreshDeployStatus()
     {
         var instance = ChessDeploymentTracker.Instance.GetInstance(m_InstanceId);
-        if (instance == null) return;
+        if (instance == null)
+            return;
 
         if (varText != null)
         {
@@ -163,17 +164,14 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
                 varNameText.text = config.Name;
             }
 
-            // 设置等级显示（固定为Rank 1）
-            if (varStar != null)
-            {
-                varStar.text = "Lv1";
-            }
-
             // 加载图标（异步，使用Rank 1）
             LoadIconAsync(config.GetIconId(1)).Forget();
 
             // ⭐ 根据稀有度设置卡牌框、背景和名字背景
             SetQualityUI(config.Quality).Forget();
+
+            // 加载羁绊图标
+            LoadSynergyIconsAsync(chessId).Forget();
 
             // 刷新出战/死亡状态显示
             RefreshDeployStatus();
@@ -200,10 +198,10 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     /// </summary>
     private async UniTaskVoid SetQualityUI(int quality)
     {
-        // 稀有度映射到资源ID
+        // 稀有度映射到资源ID（quality 从1开始，对应 19001~19004 等）
         int cardFrameId = 19000 + quality;
         int bgId = 19010 + quality;
-        int maskId = 19020 + quality;
+        int decorateId = 19020 + quality; // 19021~19024 对应四种稀有度
 
         // 加载卡牌框
         if (varCardFrame != null)
@@ -225,18 +223,14 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
             );
         }
 
-        // 加载名字背景
-        if (varNameBg != null)
+        // 加载装饰图标（根据稀有度，19021~19024）
+        if (varDecorate != null)
         {
-            var maskImage = varNameBg.GetComponent<Image>();
-            if (maskImage != null)
-            {
-                await GameExtension.ResourceExtension.LoadSpriteAsync(maskId, maskImage);
-                DebugEx.Log(
-                    nameof(ChessItemUI),
-                    $"SetQualityUI: 加载名字背景 quality={quality}, resourceId={maskId}"
-                );
-            }
+            await GameExtension.ResourceExtension.LoadSpriteAsync(decorateId, varDecorate);
+            DebugEx.Log(
+                nameof(ChessItemUI),
+                $"SetQualityUI: 加载装饰图标 quality={quality}, resourceId={decorateId}"
+            );
         }
     }
 
@@ -257,6 +251,88 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
     public void SetDeployedState()
     {
         RefreshDeployStatus();
+    }
+
+    /// <summary>
+    /// 加载棋子羁绊图标：从 SummonChessTable 读取 Races/Classes，
+    /// 到 SynergyTable 查找对应羁绊的 IconId，再通过 ResourceConfigTable 加载图标
+    /// </summary>
+    private async UniTaskVoid LoadSynergyIconsAsync(int chessId)
+    {
+        if (varSynergy == null || varSynergyIcon == null)
+            return;
+
+        // 先清除旧的羁绊图标（保留模板，只删除克隆出来的）
+        for (int i = varSynergy.transform.childCount - 1; i >= 0; i--)
+        {
+            var child = varSynergy.transform.GetChild(i);
+            if (child.gameObject != varSynergyIcon)
+                UnityEngine.Object.Destroy(child.gameObject);
+        }
+
+        var chessDt = GF.DataTable.GetDataTable<SummonChessTable>();
+        var chessRow = chessDt?.GetDataRow(chessId);
+        if (chessRow == null)
+        {
+            DebugEx.Warning(
+                nameof(ChessItemUI),
+                $"LoadSynergyIconsAsync: 找不到棋子配置 chessId={chessId}"
+            );
+            return;
+        }
+
+        var synergyDt = GF.DataTable.GetDataTable<SynergyTable>();
+        if (synergyDt == null)
+        {
+            DebugEx.Error(nameof(ChessItemUI), "LoadSynergyIconsAsync: SynergyTable 未加载");
+            return;
+        }
+
+        // 合并 Races 和 Classes 作为羁绊ID列表
+        var synergyIds = new System.Collections.Generic.List<int>();
+        if (chessRow.Races != null)
+            synergyIds.AddRange(chessRow.Races);
+        if (chessRow.Classes != null)
+            synergyIds.AddRange(chessRow.Classes);
+
+        DebugEx.Log(
+            nameof(ChessItemUI),
+            $"LoadSynergyIconsAsync: chessId={chessId}, synergyIds=[{string.Join(",", synergyIds)}]"
+        );
+
+        bool hasAny = false;
+        foreach (int synergyId in synergyIds)
+        {
+            if (synergyId <= 0)
+                continue;
+
+            var synergyRow = synergyDt.GetDataRow(synergyId);
+            if (synergyRow == null || synergyRow.IconId <= 0)
+                continue;
+
+            // 实例化图标对象
+            var iconGo = UnityEngine.Object.Instantiate(varSynergyIcon, varSynergy.transform);
+            iconGo.SetActive(true);
+
+            var iconImage = iconGo.GetComponent<UnityEngine.UI.Image>();
+            if (iconImage != null)
+            {
+                await GameExtension.ResourceExtension.LoadSpriteAsync(synergyRow.IconId, iconImage);
+                DebugEx.Log(
+                    nameof(ChessItemUI),
+                    $"LoadSynergyIconsAsync: 加载羁绊图标 synergyId={synergyId}, iconId={synergyRow.IconId}"
+                );
+            }
+
+            hasAny = true;
+        }
+
+        // 如果有羁绊图标则显示容器，否则隐藏
+        varSynergy.gameObject.SetActive(hasAny);
+        DebugEx.Log(
+            nameof(ChessItemUI),
+            $"LoadSynergyIconsAsync: 完成，共加载 {synergyIds.Count} 个羁绊，hasAny={hasAny}"
+        );
     }
 
     #endregion
@@ -293,7 +369,10 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // ⭐ 修改：已出战的棋子也可以点击显示详情（由回调方决定如何处理）
         // 触发选中回调（无论已出战还是未出战）
         m_OnSelectCallback?.Invoke(m_InstanceId);
-        DebugEx.Log(nameof(ChessItemUI), $"OnButtonClick: 选中棋子 instanceId={m_InstanceId}, IsDeployed={instance.IsDeployed}");
+        DebugEx.Log(
+            nameof(ChessItemUI),
+            $"OnButtonClick: 选中棋子 instanceId={m_InstanceId}, IsDeployed={instance.IsDeployed}"
+        );
     }
 
     #endregion
@@ -530,10 +609,7 @@ public partial class ChessItemUI : UIItemBase, IBeginDragHandler, IDragHandler, 
         // 刷新显示
         UpdateLevelUpBtnState();
 
-        DebugEx.Log(
-            nameof(ChessItemUI),
-            $"✅ 棋子升阶完成：Rank {oldLevel} → {newState.Level}"
-        );
+        DebugEx.Log(nameof(ChessItemUI), $"✅ 棋子升阶完成：Rank {oldLevel} → {newState.Level}");
     }
 
     #endregion
