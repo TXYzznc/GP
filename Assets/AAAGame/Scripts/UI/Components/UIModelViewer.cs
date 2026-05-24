@@ -101,13 +101,15 @@ public class UIModelViewer : MonoBehaviour
     {
         m_TargetImage = targetImage;
 
+        DebugEx.Log(this.GetType().Name, "Initialize 开始");
+
         // 创建RenderTexture
         CreateRenderTexture();
 
         // 创建专用相机和模型根节点
         CreateModelCameraAndRoot();
 
-        Log.Info("UIModelViewer 初始化完成");
+        DebugEx.Log(this.GetType().Name, "Initialize 完成");
     }
 
     /// <summary>
@@ -117,7 +119,32 @@ public class UIModelViewer : MonoBehaviour
     {
         if (m_RenderTexture != null)
         {
-            m_RenderTexture.Release();
+            DebugEx.Warning(
+                this.GetType().Name,
+                $"CreateRenderTexture: 旧的RenderTexture {m_RenderTexture.GetInstanceID()} 还存在，先释放"
+            );
+
+            // ⭐ 修复：在释放 RenderTexture 之前，先解除 Camera 的引用
+            if (m_ModelCamera != null && m_ModelCamera.targetTexture == m_RenderTexture)
+            {
+                DebugEx.Log(
+                    this.GetType().Name,
+                    $"CreateRenderTexture: 解除Camera对RenderTexture的引用"
+                );
+                m_ModelCamera.targetTexture = null;
+            }
+
+            // 解除 RawImage 的引用
+            if (m_TargetImage != null && m_TargetImage.texture == m_RenderTexture)
+            {
+                m_TargetImage.texture = null;
+            }
+
+            // 现在可以安全释放
+            if (m_RenderTexture.IsCreated())
+            {
+                m_RenderTexture.Release();
+            }
             Destroy(m_RenderTexture);
         }
 
@@ -125,10 +152,16 @@ public class UIModelViewer : MonoBehaviour
         m_RenderTexture.antiAliasing = 2;
         m_RenderTexture.Create();
 
+        DebugEx.Log(
+            this.GetType().Name,
+            $"CreateRenderTexture: 创建新的RenderTexture {m_RenderTexture.GetInstanceID()}"
+        );
+
         // 将RenderTexture赋值给RawImage
         if (m_TargetImage != null)
         {
             m_TargetImage.texture = m_RenderTexture;
+            DebugEx.Log(this.GetType().Name, "CreateRenderTexture: 已赋值给RawImage");
         }
     }
 
@@ -137,6 +170,8 @@ public class UIModelViewer : MonoBehaviour
     /// </summary>
     private void CreateModelCameraAndRoot()
     {
+        DebugEx.Log(this.GetType().Name, "CreateModelCameraAndRoot 开始");
+
         // 创建模型根节点（放在远离主场景的位置）
         m_ModelRoot = new GameObject("UIModelViewer_Root");
         m_ModelRoot.transform.position = modelWorldPosition;
@@ -158,8 +193,20 @@ public class UIModelViewer : MonoBehaviour
         m_ModelCamera.nearClipPlane = 0.1f;
         m_ModelCamera.farClipPlane = 100f;
 
+        DebugEx.Log(
+            this.GetType().Name,
+            $"CreateModelCameraAndRoot: Camera已创建 - "
+                + $"InstanceID={cameraObj.GetInstanceID()}, "
+                + $"enabled={m_ModelCamera.enabled}, "
+                + $"depth={m_ModelCamera.depth}, "
+                + $"targetTexture={m_RenderTexture.GetInstanceID()}, "
+                + $"clearFlags={m_ModelCamera.clearFlags}"
+        );
+
         // 添加光源
         CreateLight();
+
+        DebugEx.Log(this.GetType().Name, "CreateModelCameraAndRoot 完成");
     }
 
     /// <summary>
@@ -182,7 +229,10 @@ public class UIModelViewer : MonoBehaviour
         m_Light.shadows = LightShadows.Soft;
         m_Light.shadowStrength = 0.6f;
 
-        DebugEx.Log(this.GetType().Name, $"光源创建完成 - 类型: {lightType}, 强度: {lightIntensity}, 旋转: {lightRotation}, 阴影强度: 0.6");
+        DebugEx.Log(
+            this.GetType().Name,
+            $"光源创建完成 - 类型: {lightType}, 强度: {lightIntensity}, 旋转: {lightRotation}, 阴影强度: 0.6"
+        );
 
         // 根据光源类型设置特定参数
         switch (lightType)
@@ -232,7 +282,10 @@ public class UIModelViewer : MonoBehaviour
         }
         else
         {
-            DebugEx.Warning(this.GetType().Name, "ModelController 初始化失败或模型没有 Animator 组件");
+            DebugEx.Warning(
+                this.GetType().Name,
+                "ModelController 初始化失败或模型没有 Animator 组件"
+            );
         }
 
         Log.Info($"UIModelViewer 设置模型成功: {modelPrefab.name}");
@@ -610,25 +663,191 @@ public class UIModelViewer : MonoBehaviour
 
     #region 清理资源
 
-    private void OnDestroy()
+    /// <summary>
+    /// 公共清理方法 - 供外部调用，彻底清理RenderTexture、Camera和ModelRoot
+    /// </summary>
+    public void CleanupRenderTexture()
     {
-        // 清理资源
-        ClearModel();
+        DebugEx.Log(this.GetType().Name, "========== CleanupRenderTexture 开始 ==========");
+        DebugEx.Log(
+            this.GetType().Name,
+            $"[CleanupRenderTexture] 调用堆栈: {UnityEngine.StackTraceUtility.ExtractStackTrace()}"
+        );
 
-        if (m_RenderTexture != null)
+        // ⭐ 第一步：记录Camera当前状态
+        if (m_ModelCamera != null)
         {
-            m_RenderTexture.Release();
-            Destroy(m_RenderTexture);
-            m_RenderTexture = null;
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[CleanupRenderTexture] Camera状态 - "
+                    + $"GameObject={m_ModelCamera.gameObject.name}, "
+                    + $"InstanceID={m_ModelCamera.gameObject.GetInstanceID()}, "
+                    + $"enabled={m_ModelCamera.enabled}, "
+                    + $"depth={m_ModelCamera.depth}, "
+                    + $"clearFlags={m_ModelCamera.clearFlags}, "
+                    + $"cullingMask={m_ModelCamera.cullingMask}, "
+                    + $"targetTexture={(m_ModelCamera.targetTexture != null ? m_ModelCamera.targetTexture.GetInstanceID().ToString() : "null")}"
+            );
+
+            // 立即禁用Camera
+            m_ModelCamera.enabled = false;
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[CleanupRenderTexture] 已禁用Camera，当前enabled={m_ModelCamera.enabled}"
+            );
+        }
+        else
+        {
+            DebugEx.Warning(this.GetType().Name, "[CleanupRenderTexture] m_ModelCamera 为 null");
         }
 
+        // 清理模型
+        ClearModel();
+
+        // 解除RawImage引用
+        if (m_TargetImage != null)
+        {
+            m_TargetImage.texture = null;
+            DebugEx.Log(this.GetType().Name, "[CleanupRenderTexture] 已解除RawImage引用");
+        }
+
+        // 解除Camera引用
+        if (m_ModelCamera != null && m_ModelCamera.targetTexture != null)
+        {
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[CleanupRenderTexture] 解除Camera对RenderTexture {m_ModelCamera.targetTexture.GetInstanceID()} 的引用"
+            );
+            m_ModelCamera.targetTexture = null;
+        }
+
+        // 释放并销毁RenderTexture
+        if (m_RenderTexture != null)
+        {
+            int rtId = m_RenderTexture.GetInstanceID();
+
+            if (m_RenderTexture.IsCreated())
+            {
+                m_RenderTexture.Release();
+                DebugEx.Log(
+                    this.GetType().Name,
+                    $"[CleanupRenderTexture] 已释放RenderTexture {rtId}"
+                );
+            }
+
+            Destroy(m_RenderTexture);
+            m_RenderTexture = null;
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[CleanupRenderTexture] 已销毁RenderTexture {rtId} 并设为null"
+            );
+        }
+
+        // ⭐ 立即销毁ModelRoot（包含Camera和Light）
         if (m_ModelRoot != null)
         {
+            int rootInstanceId = m_ModelRoot.GetInstanceID();
+            int childCount = m_ModelRoot.transform.childCount;
+
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[CleanupRenderTexture] 准备销毁ModelRoot - "
+                    + $"GameObject={m_ModelRoot.name}, "
+                    + $"InstanceID={rootInstanceId}, "
+                    + $"ChildCount={childCount}"
+            );
+
+            // 记录所有子对象
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = m_ModelRoot.transform.GetChild(i);
+                DebugEx.Log(
+                    this.GetType().Name,
+                    $"[CleanupRenderTexture] 子对象 {i}: {child.name}, InstanceID={child.gameObject.GetInstanceID()}"
+                );
+            }
+
+            Destroy(m_ModelRoot);
+            m_ModelRoot = null;
+            m_ModelCamera = null;
+            m_Light = null;
+            m_LightObject = null;
+
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[CleanupRenderTexture] 已调用Destroy(ModelRoot)并清空所有引用，ModelRoot InstanceID={rootInstanceId}"
+            );
+        }
+        else
+        {
+            DebugEx.Warning(this.GetType().Name, "[CleanupRenderTexture] m_ModelRoot 为 null");
+        }
+
+        DebugEx.Log(this.GetType().Name, "========== CleanupRenderTexture 完成 ==========");
+    }
+
+    private void OnDestroy()
+    {
+        DebugEx.Log(this.GetType().Name, "========== OnDestroy 开始清理 ==========");
+        DebugEx.Log(
+            this.GetType().Name,
+            $"[OnDestroy] 调用堆栈: {UnityEngine.StackTraceUtility.ExtractStackTrace()}"
+        );
+
+        // ⭐ 检查RenderTexture是否已经被清理（通过CleanupRenderTexture）
+        if (m_RenderTexture == null)
+        {
+            DebugEx.Log(this.GetType().Name, "[OnDestroy] RenderTexture已被提前清理，跳过重复释放");
+        }
+        else
+        {
+            // 如果没有被提前清理，执行正常清理流程
+            int rtId = m_RenderTexture.GetInstanceID();
+            DebugEx.Log(
+                this.GetType().Name,
+                $"[OnDestroy] RenderTexture {rtId} 未被提前清理，现在清理"
+            );
+
+            // 清理模型
+            ClearModel();
+
+            // 解除Camera引用
+            if (m_ModelCamera != null && m_ModelCamera.targetTexture != null)
+            {
+                DebugEx.Log(
+                    this.GetType().Name,
+                    $"[OnDestroy] Camera状态 - enabled={m_ModelCamera.enabled}, targetTexture={m_ModelCamera.targetTexture.GetInstanceID()}"
+                );
+                m_ModelCamera.targetTexture = null;
+                DebugEx.Log(this.GetType().Name, "[OnDestroy] 已解除Camera对RenderTexture的引用");
+            }
+
+            // 释放并销毁RenderTexture
+            if (m_RenderTexture.IsCreated())
+            {
+                m_RenderTexture.Release();
+                DebugEx.Log(this.GetType().Name, $"[OnDestroy] 已释放RenderTexture {rtId}");
+            }
+
+            Destroy(m_RenderTexture);
+            m_RenderTexture = null;
+            DebugEx.Log(this.GetType().Name, $"[OnDestroy] 已销毁RenderTexture {rtId}");
+        }
+
+        // 清理模型根节点
+        if (m_ModelRoot != null)
+        {
+            int rootId = m_ModelRoot.GetInstanceID();
+            DebugEx.Log(this.GetType().Name, $"[OnDestroy] 销毁ModelRoot {rootId}");
             Destroy(m_ModelRoot);
             m_ModelRoot = null;
         }
+        else
+        {
+            DebugEx.Log(this.GetType().Name, "[OnDestroy] ModelRoot已被提前清理");
+        }
 
-        Log.Info("UIModelViewer 已清理");
+        DebugEx.Log(this.GetType().Name, "========== OnDestroy 清理完成 ==========");
     }
 
     #endregion

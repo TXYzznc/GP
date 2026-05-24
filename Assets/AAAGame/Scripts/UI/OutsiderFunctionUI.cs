@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,9 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
     // 功能按钮名称（商店和挑战暂时隐藏）
     private readonly string[] m_FunctionNames = new string[] { "角色", "图鉴", "仓库", "出战预设" };
+
+    // 防抖机制：记录正在打开的UI（防止重复点击）
+    private UIViews? m_OpeningUI = null;
 
     #endregion
 
@@ -130,18 +134,87 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
         switch (functionName)
         {
             case "角色":
-                GF.UI.OpenUIForm(UIViews.CharacterBagUI);
+                OpenUIFormSafe(UIViews.CharacterBagUI);
                 break;
             case "图鉴":
-                GF.UI.OpenUIForm(UIViews.DictionariesUI);
+                OpenUIFormSafe(UIViews.DictionariesUI);
                 break;
             case "仓库":
-                GF.UI.OpenUIForm(UIViews.WarehouseUI);
+                OpenUIFormSafe(UIViews.WarehouseUI);
                 break;
             case "出战预设":
-                GF.UI.OpenUIForm(UIViews.BattlePresetUI);
+                OpenUIFormSafe(UIViews.BattlePresetUI);
                 break;
         }
+    }
+
+    /// <summary>
+    /// 安全打开UI（避免重复打开）
+    /// </summary>
+    private void OpenUIFormSafe(UIViews uiView)
+    {
+        DebugEx.Log("OutsiderFunctionUI", $"[OpenUIFormSafe] 开始检查 UI {uiView}");
+
+        // 防抖检查：如果正在打开同一个UI，忽略
+        if (m_OpeningUI == uiView)
+        {
+            DebugEx.Warning("OutsiderFunctionUI", $"UI {uiView} 正在打开中，忽略重复请求");
+            return;
+        }
+
+        // 检查UI是否已经打开（防止重复打开导致serial id冲突）
+        if (GF.UI.HasUIForm(uiView))
+        {
+            DebugEx.Warning("OutsiderFunctionUI", $"UI {uiView} 已经打开，忽略重复打开请求");
+            return;
+        }
+
+        // 检查UI是否正在加载中
+        if (GF.UI.IsLoadingUIForm(uiView))
+        {
+            DebugEx.Warning("OutsiderFunctionUI", $"UI {uiView} 正在加载中，忽略重复打开请求");
+            return;
+        }
+
+        // 标记正在打开
+        m_OpeningUI = uiView;
+        DebugEx.Log("OutsiderFunctionUI", $"[OpenUIFormSafe] 开始打开UI {uiView}");
+
+        // 打开UI
+        int formId = GF.UI.OpenUIForm(uiView);
+        DebugEx.Log(
+            "OutsiderFunctionUI",
+            $"[OpenUIFormSafe] UI {uiView} 已调用OpenUIForm，返回formId={formId}"
+        );
+
+        // ⭐ 延迟清除标记（等待UI完全打开）
+        // ⚠️ 注意：这个延迟回调可能在UI关闭后才执行，导致访问已关闭的UIForm
+        DOVirtual.DelayedCall(
+            0.5f,
+            () =>
+            {
+                DebugEx.Log(
+                    "OutsiderFunctionUI",
+                    $"[DOTween延迟回调] 0.5秒后执行，当前m_OpeningUI={m_OpeningUI}, 目标uiView={uiView}"
+                );
+
+                if (m_OpeningUI == uiView)
+                {
+                    m_OpeningUI = null;
+                    DebugEx.Log(
+                        "OutsiderFunctionUI",
+                        $"[DOTween延迟回调] UI {uiView} 打开完成，清除防抖标记"
+                    );
+                }
+                else
+                {
+                    DebugEx.Warning(
+                        "OutsiderFunctionUI",
+                        $"[DOTween延迟回调] m_OpeningUI已变化，不清除标记"
+                    );
+                }
+            }
+        );
     }
 
     #endregion

@@ -14,7 +14,11 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     private bool m_IsDraggingFromInventory; // true=从宝物仓库, false=从宝物槽
     private RectTransform m_SourceSlotRect;
 
-    public void Initialize(int treasureInstanceId, bool isFromInventory, RectTransform sourceSlotRect)
+    public void Initialize(
+        int treasureInstanceId,
+        bool isFromInventory,
+        RectTransform sourceSlotRect
+    )
     {
         m_TreasureInstanceId = treasureInstanceId;
         m_IsDraggingFromInventory = isFromInventory;
@@ -55,8 +59,10 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        DebugEx.Log(nameof(TreasureDragHandler),
-            $"[OnBeginDrag] 开始拖拽宝物: {m_TreasureInstanceId}, 来自: {(m_IsDraggingFromInventory ? "仓库" : "宝物槽")}");
+        DebugEx.Log(
+            nameof(TreasureDragHandler),
+            $"[OnBeginDrag] 开始拖拽宝物: {m_TreasureInstanceId}, 来自: {(m_IsDraggingFromInventory ? "仓库" : "宝物槽")}"
+        );
 
         CreateDragIcon();
     }
@@ -66,11 +72,14 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         if (m_DragIcon != null && m_TopCanvas != null)
         {
             var canvasRT = m_TopCanvas.GetComponent<RectTransform>();
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRT,
-                eventData.position,
-                m_TopCanvas.worldCamera,
-                out var localPoint))
+            if (
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvasRT,
+                    eventData.position,
+                    m_TopCanvas.worldCamera,
+                    out var localPoint
+                )
+            )
             {
                 m_DragIcon.rectTransform.anchoredPosition = localPoint;
             }
@@ -96,7 +105,8 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     private void CreateDragIcon()
     {
-        if (m_TopCanvas == null) return;
+        if (m_TopCanvas == null)
+            return;
 
         var dragIconObj = new GameObject("TreasureDragIcon");
         dragIconObj.transform.SetParent(m_TopCanvas.transform, false);
@@ -109,8 +119,16 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
             m_DragIcon.color = new Color(1, 1, 1, 0.7f);
         }
 
+        // ⭐ 修复：禁用拖拽图标的射线检测，避免阻挡目标槽位
+        m_DragIcon.raycastTarget = false;
+
         var rectTransform = dragIconObj.GetComponent<RectTransform>();
         rectTransform.sizeDelta = new Vector2(100, 100);
+
+        DebugEx.Log(
+            nameof(TreasureDragHandler),
+            $"[CreateDragIcon] 创建拖拽图标，raycastTarget={m_DragIcon.raycastTarget}"
+        );
     }
 
     private void CleanupDrag()
@@ -126,26 +144,56 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         // 创建射线检测数据
         var pointerEventData = new PointerEventData(EventSystem.current)
         {
-            position = mousePosition
+            position = mousePosition,
         };
 
-        // 使用 GraphicRaycaster 进行射线检测
+        // 使用所有 GraphicRaycaster 进行射线检测（不只是顶层Canvas）
         var results = new System.Collections.Generic.List<RaycastResult>();
-        var graphicRaycaster = m_TopCanvas?.GetComponent<GraphicRaycaster>();
 
-        if (graphicRaycaster != null)
+        // 获取所有 GraphicRaycaster
+        var allRaycasters = FindObjectsOfType<GraphicRaycaster>();
+
+        DebugEx.Log(
+            nameof(TreasureDragHandler),
+            $"[GetTargetSlot] 找到 {allRaycasters.Length} 个 GraphicRaycaster"
+        );
+
+        foreach (var raycaster in allRaycasters)
         {
-            graphicRaycaster.Raycast(pointerEventData, results);
+            var tempResults = new System.Collections.Generic.List<RaycastResult>();
+            raycaster.Raycast(pointerEventData, tempResults);
+            results.AddRange(tempResults);
+        }
 
-            // 遍历射线检测结果，查找宝物槽位
-            foreach (var result in results)
+        DebugEx.Log(
+            nameof(TreasureDragHandler),
+            $"[GetTargetSlot] 射线检测到 {results.Count} 个对象"
+        );
+
+        // 遍历射线检测结果，查找带有TreasureSlotDropHandler组件的对象
+        foreach (var result in results)
+        {
+            DebugEx.Log(
+                nameof(TreasureDragHandler),
+                $"[GetTargetSlot] 检测到对象: {result.gameObject.name}, Canvas={result.gameObject.GetComponentInParent<Canvas>()?.name}"
+            );
+
+            // ⭐ 通过组件检测而不是Tag
+            var dropHandler = result.gameObject.GetComponent<TreasureSlotDropHandler>();
+            if (dropHandler != null)
             {
-                if (result.gameObject.CompareTag("TreasureSlot"))
-                {
-                    return result.gameObject.GetComponent<RectTransform>();
-                }
+                DebugEx.Success(
+                    nameof(TreasureDragHandler),
+                    $"[GetTargetSlot] 找到目标槽位（通过TreasureSlotDropHandler）: {result.gameObject.name}"
+                );
+                return result.gameObject.GetComponent<RectTransform>();
             }
         }
+
+        DebugEx.Warning(
+            nameof(TreasureDragHandler),
+            "[GetTargetSlot] 未找到带有TreasureSlotDropHandler组件的对象"
+        );
 
         return null;
     }
@@ -165,8 +213,10 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
                 {
                     treasureManager.EquipTreasure(m_TreasureInstanceId, chessId);
                     treasureManager.SaveCurrentSave();
-                    DebugEx.Success(nameof(TreasureDragHandler),
-                        $"拖拽装备宝物: {m_TreasureInstanceId} 到棋子 {chessId}");
+                    DebugEx.Success(
+                        nameof(TreasureDragHandler),
+                        $"拖拽装备宝物: {m_TreasureInstanceId} 到棋子 {chessId}"
+                    );
                     characterBagUI.RefreshTreasureUI();
                 }
             }
@@ -176,8 +226,7 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
             // 从宝物槽拖拽到仓库：卸装宝物
             treasureManager.UnequipTreasure(m_TreasureInstanceId);
             treasureManager.SaveCurrentSave();
-            DebugEx.Success(nameof(TreasureDragHandler),
-                $"拖拽卸装宝物: {m_TreasureInstanceId}");
+            DebugEx.Success(nameof(TreasureDragHandler), $"拖拽卸装宝物: {m_TreasureInstanceId}");
 
             if (characterBagUI != null)
             {
