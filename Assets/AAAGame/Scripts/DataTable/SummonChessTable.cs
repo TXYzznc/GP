@@ -101,6 +101,15 @@ public partial class SummonChessTable : DataRowBase
         }
 
         /// <summary>
+        /// 棋子海报资源Id
+        /// </summary>
+        public int ChessPosterId
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 最大生命值（三个阶级）**基础属性**
         /// </summary>
         public double[] MaxHp
@@ -318,6 +327,7 @@ public partial class SummonChessTable : DataRowBase
             PrefabId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             IconId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             HeadImgId = DataTableExtension.ParseArray<int>(columnStrings[index++]);
+            ChessPosterId = int.Parse(columnStrings[index++]);
             MaxHp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
             MaxMp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
             InitialMp = DataTableExtension.ParseArray<double>(columnStrings[index++]);
@@ -359,6 +369,7 @@ public partial class SummonChessTable : DataRowBase
                     PrefabId = binaryReader.ReadArray<int>();
                     IconId = binaryReader.ReadArray<int>();
                     HeadImgId = binaryReader.ReadArray<int>();
+                    ChessPosterId = binaryReader.Read7BitEncodedInt32();
                     MaxHp = binaryReader.ReadArray<double>();
                     MaxMp = binaryReader.ReadArray<double>();
                     InitialMp = binaryReader.ReadArray<double>();

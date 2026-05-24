@@ -11,6 +11,8 @@
 	1007		1	UI/BattlePresetUI/新增.png	战斗预设界面，新增预设
 	1008		1	UI/Combat/SneakAttack.png	探索阶段-偷袭图标
 	1009		1	UI/Combat/Encounter.png	探索阶段-遭遇战图标
+	1010		1	UI/CharacterBagUI/Lebal_0.png	角色界面，标签未选中背景
+	1011		1	UI/CharacterBagUI/Lebal_1.png	角色界面，标签选中背景
 	1101		1	UI/Items/Gold.png	金币图标
 	1102		1	UI/Items/OriginStone.png	起源石图标
 	1103		1	UI/Items/MagicalStone.png	灵石图标
@@ -50,8 +52,10 @@
 	1225		1	Card/策略卡/绝对零度.png	绝对零度-策略卡图标
 	1301		1	Chess/后羿/立绘.png	棋子-后羿图标
 	1304		1	Chess/嫦娥/立绘.png	棋子-嫦娥图标
-	1310	SummonChessTable使用|资源暂不存在	1	Chess/邪灵/立绘.png	棋子-邪灵图标
-	1311	SummonChessTable使用|资源暂不存在	1	Chess/恶魂/立绘.png	棋子-恶魂图标
+	1310		1	Chess/邪灵/立绘.png	棋子-邪灵图标
+	1311		1	Chess/恶魂/立绘.png	棋子-恶魂图标
+	1312		1	Chess/黑暗杨戬/立绘.png	棋子-黑暗杨戬图标
+	1313		1	Chess/黑暗哮天犬/立绘.png	棋子-黑暗哮天犬图标
 	1401		1	Buff/1.png	灼烧Buff图标
 	1402		1	Buff/2.png	寒霜Buff图标
 	1403		1	Buff/3.png	融化Buff图标
@@ -66,10 +70,11 @@
 	1501		1	UI/Icons/Skill_Dash.png	飞雷神-角色技能图标
 	1502		1	UI/Icons/Skill_Heal.png	治疗术-角色技能图标
 	1503		1	UI/Icons/Skill_Bomb.png	爆裂弹-角色技能图标
-	1601		1	Chess/邪灵/邪灵头像.png	邪灵-敌人头像
-	1602		1	Chess/恶魂/恶魂头像.png	恶魂-敌人头像
-	1603		1	Chess/黑暗杨戬/黑暗杨戬头像.png	黑暗杨戬-敌人头像
-	1701		1	Summoner/Skill/狂怒之心技能.png	狂怒之心-召唤师技能图标
+	1511	棋子海报	1	Chess/后羿/海报.png	后羿海报
+	1512	棋子海报	1	Chess/嫦娥/海报.png	嫦娥海报
+	1513	棋子海报	1	Chess/邪灵/海报.png	邪灵海报
+	1514	棋子海报	1	Chess/恶魂/海报.png	恶魂海报
+	1515	棋子海报	1	Chess/黑暗杨戬/海报.png	黑暗杨戬海报
 	1702		1	Summoner/Skill/战意激昂技能.png	战意激昂-召唤师技能图标
 	1703		1	Summoner/Skill/王者号令技能.png	王者号令-召唤师技能图标
 	1704		1	Summoner/Skill/钢铁洪流技能.png	钢铁洪流-召唤师技能图标
@@ -212,14 +217,13 @@
 	10201		1	Buff/4001.png	战意激昂Buff图标
 	10202		1	Buff/4002.png	狂怒之心Buff图标
 	10203		1	Buff/4003.png	暗影咒体Buff图标
-	11001	EnemyEntityTable使用|资源暂不存在	1	Enemy/默认.png	敌人图标
 	13001		1	Chess/后羿/后羿头像.png	棋子后羿头像
 	13004		1	Chess/嫦娥/嫦娥头像.png	棋子嫦娥头像
-	13010	SummonChessTable使用|资源暂不存在	1	Chess/邪灵/邪灵头像.png	棋子邪灵头像
-	13011	SummonChessTable使用|资源暂不存在	1	Chess/恶魂/恶魂头像.png	棋子恶魂头像
-	13012	SummonChessTable使用|资源暂不存在	1	Chess/黑暗杨戬/黑暗杨戬头像.png	棋子黑暗杨戬头像
-	13013	SummonChessTable使用|资源暂不存在	1	Chess/黑暗哮天犬/黑暗哮天犬头像.png	棋子黑暗哮天犬头像
-	13999	SummonChessTable使用|资源暂不存在	1	Chess/稻草人/稻草人头像.png	稻草人头像
+	13010		1	Chess/邪灵/邪灵头像.png	棋子邪灵头像
+	13011		1	Chess/恶魂/恶魂头像.png	棋子恶魂头像
+	13012		1	Chess/黑暗杨戬/黑暗杨戬头像.png	棋子黑暗杨戬头像
+	13013		1	Chess/黑暗哮天犬/黑暗哮天犬头像.png	棋子黑暗哮天犬头像
+	13999		1	Chess/稻草人/稻草人头像.png	稻草人头像
 	15001		1	Buff/5001.png	神圣庇护Buff图标
 	15002	(不再使用)	1	Buff/5002.png	烈焰风暴·灼烧Buff图标
 	15003		1	Buff/5003.png	战争号角Buff图标
@@ -244,15 +248,18 @@
 	16004	SynergyTable使用	1	Synergy/射手.png	射手-职业羁绊图标
 	16005	SynergyTable使用	1	Synergy/法师.png	法师-职业羁绊图标
 	16006	SynergyTable使用	1	Synergy/战士.png	战士-职业羁绊图标
+	19001		1	Card/Component/1.png	卡牌框-稀有度1
 	19002		1	Card/Component/2.png	卡牌框-稀有度2
 	19003		1	Card/Component/3.png	卡牌框-稀有度3
 	19004		1	Card/Component/4.png	卡牌框-稀有度4
+	19011		1	Card/Component/Bg-1.png	卡片背景-稀有度1
 	19012		1	Card/Component/Bg-2.png	卡片背景-稀有度2
 	19013		1	Card/Component/Bg-3.png	卡片背景-稀有度3
 	19014		1	Card/Component/Bg-4.png	卡片背景-稀有度4
-	19022		1	Card/Component/Mask/Mask2.png	名字背景-稀有度2
-	19023		1	Card/Component/Mask/Mask3.png	名字背景-稀有度3
-	19024		1	Card/Component/Mask/Mask4.png	名字背景-稀有度4
+	19021		1	Card/Component/装饰/宝石_稀有.png	宝石装饰-稀有
+	19022		1	Card/Component/装饰/宝石_史诗.png	宝石装饰-史诗
+	19023		1	Card/Component/装饰/宝石_传奇.png	宝石装饰-传奇
+	19024		1	Card/Component/装饰/宝石_神话.png	宝石装饰-神话
 	20101	CardTable使用|资源暂不存在	2	Entity/Card/神圣庇护_Effect	神圣庇护-施法预制体
 	20102	CardTable使用|资源暂不存在	2	Entity/Card/烈焰风暴_Effect	烈焰风暴-施法预制体
 	20103	CardTable使用|资源暂不存在	2	Entity/Card/时间回溯_Effect	时间回溯-施法预制体
