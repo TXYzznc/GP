@@ -5,12 +5,12 @@
 /// </summary>
 public enum SlotContainerType
 {
-    Inventory,   // 背包
-    Warehouse,   // 仓库
-    Equip,       // 装备栏
-    FastBar,     // 快捷栏
-    Chess,       // 棋子
-    TreasureBox  // 宝箱
+    Inventory, // 背包
+    Warehouse, // 仓库
+    Equip, // 装备栏
+    FastBar, // 快捷栏
+    Chess, // 棋子
+    TreasureBox, // 宝箱
 }
 
 /// <summary>
@@ -18,11 +18,11 @@ public enum SlotContainerType
 /// </summary>
 public enum SlotChangeType
 {
-    Add,     // 添加物品
-    Remove,  // 移除物品
-    Update,  // 数量更新（堆叠）
-    Move,    // 移动（内部交换）
-    Clear    // 清空格子
+    Add, // 添加物品
+    Remove, // 移除物品
+    Update, // 数量更新（堆叠）
+    Move, // 移动（内部交换）
+    Clear, // 清空格子
 }
 
 /// <summary>
@@ -38,6 +38,9 @@ public class SlotChangeEventArgs
 
     /// <summary>物品ID（-1表示格子为空）</summary>
     public int ItemId { get; set; }
+
+    /// <summary>物品实例ID（用于UI映射，-1表示无效）</summary>
+    public int InstanceId { get; set; }
 
     /// <summary>变化前的数量</summary>
     public int OldCount { get; set; }

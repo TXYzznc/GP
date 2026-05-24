@@ -22,18 +22,18 @@ public class InventoryManager : SingletonBase<InventoryManager>
     private bool m_IsInitialized = false; // 是否已初始化
 
     // 虚拟物品缓存
-    private int m_CachedGold = 0;      // 金币缓存
+    private int m_CachedGold = 0; // 金币缓存
     private int m_CachedSpiritStone = 0; // 灵石缓存
 
     // 性能缓存
-    private int m_UsedSlotCount = 0;        // 已使用格子数（增量维护，O(1) 读取）
-    private float m_CachedWeight = 0f;      // 负重缓存
-    private bool m_WeightDirty = true;      // 负重脏标记
+    private int m_UsedSlotCount = 0; // 已使用格子数（增量维护，O(1) 读取）
+    private float m_CachedWeight = 0f; // 负重缓存
+    private bool m_WeightDirty = true; // 负重脏标记
 
     // 虚拟物品 ID 常量
-    public const int VIRTUAL_ITEM_GOLD = 999;           // 金币
+    public const int VIRTUAL_ITEM_GOLD = 999; // 金币
     public const int VIRTUAL_ITEM_ORIGIN_STONE = 99999; // 起源石
-    public const int VIRTUAL_ITEM_SPIRIT_STONE = 9999;  // 灵石（局内临时货币）
+    public const int VIRTUAL_ITEM_SPIRIT_STONE = 9999; // 灵石（局内临时货币）
 
     // 背包快照数据（进入局内时保存）
     private List<InventoryItemSaveData> m_SnapshotBeforeSession = null;
@@ -245,14 +245,20 @@ public class InventoryManager : SingletonBase<InventoryManager>
     {
         if (slotIndex < 0 || slotIndex >= m_Slots.Count)
         {
-            DebugEx.Warning(nameof(InventoryManager), $"[RemoveItemFromSlot] 格子索引越界: {slotIndex}");
+            DebugEx.Warning(
+                nameof(InventoryManager),
+                $"[RemoveItemFromSlot] 格子索引越界: {slotIndex}"
+            );
             return false;
         }
 
         var slot = m_Slots[slotIndex];
         if (slot.IsEmpty)
         {
-            DebugEx.Warning(nameof(InventoryManager), $"[RemoveItemFromSlot] 格子 {slotIndex} 为空");
+            DebugEx.Warning(
+                nameof(InventoryManager),
+                $"[RemoveItemFromSlot] 格子 {slotIndex} 为空"
+            );
             return false;
         }
 
@@ -331,7 +337,10 @@ public class InventoryManager : SingletonBase<InventoryManager>
     {
         if (fromSlot < 0 || fromSlot >= m_Slots.Count || toSlot < 0 || toSlot >= m_Slots.Count)
         {
-            DebugEx.Error(nameof(InventoryManager), $"MoveItem 格子索引越界: {fromSlot} -> {toSlot}");
+            DebugEx.Error(
+                nameof(InventoryManager),
+                $"MoveItem 格子索引越界: {fromSlot} -> {toSlot}"
+            );
             return false;
         }
 
@@ -661,7 +670,7 @@ public class InventoryManager : SingletonBase<InventoryManager>
                 ItemId = -1,
                 OldCount = 0,
                 NewCount = 0,
-                ChangeType = SlotChangeType.Clear
+                ChangeType = SlotChangeType.Clear,
             };
             OnSlotChanged?.Invoke(clearArgs);
             OnInventoryChanged?.Invoke();
@@ -676,7 +685,10 @@ public class InventoryManager : SingletonBase<InventoryManager>
             var item = ItemManager.Instance?.CreateItem(saveData.ItemId);
             if (item == null)
             {
-                DebugEx.Warning(nameof(InventoryManager), $"创建物品失败，跳过 ItemId:{saveData.ItemId}");
+                DebugEx.Warning(
+                    nameof(InventoryManager),
+                    $"创建物品失败，跳过 ItemId:{saveData.ItemId}"
+                );
                 continue;
             }
 
@@ -727,11 +739,18 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// <summary>
     /// 通知格子变化事件
     /// </summary>
-    private void NotifySlotChanged(int slotIndex, SlotChangeType changeType, int oldCount, int newCount)
+    private void NotifySlotChanged(
+        int slotIndex,
+        SlotChangeType changeType,
+        int oldCount,
+        int newCount
+    )
     {
         // 维护 UsedSlotCount 计数器
-        if (oldCount == 0 && newCount > 0) m_UsedSlotCount++;
-        else if (oldCount > 0 && newCount == 0) m_UsedSlotCount--;
+        if (oldCount == 0 && newCount > 0)
+            m_UsedSlotCount++;
+        else if (oldCount > 0 && newCount == 0)
+            m_UsedSlotCount--;
 
         // 标记负重脏
         m_WeightDirty = true;
@@ -742,9 +761,10 @@ public class InventoryManager : SingletonBase<InventoryManager>
             ContainerType = SlotContainerType.Inventory,
             SlotIndex = slotIndex,
             ItemId = slot?.ItemId ?? -1,
+            InstanceId = slot?.ItemStack?.InstanceId ?? -1, // 添加InstanceId
             OldCount = oldCount,
             NewCount = newCount,
-            ChangeType = changeType
+            ChangeType = changeType,
         };
 
         OnSlotChanged?.Invoke(args);
@@ -875,15 +895,17 @@ public class InventoryManager : SingletonBase<InventoryManager>
         }
 
         // 按稀有度降序排序
-        result.Sort((a, b) =>
-        {
-            var rowA = itemTable.GetDataRow(a.itemId);
-            var rowB = itemTable.GetDataRow(b.itemId);
-            int rarityCompare = rowB.Rarity.CompareTo(rowA.Rarity);
-            if (rarityCompare != 0)
-                return rarityCompare;
-            return a.itemId.CompareTo(b.itemId);
-        });
+        result.Sort(
+            (a, b) =>
+            {
+                var rowA = itemTable.GetDataRow(a.itemId);
+                var rowB = itemTable.GetDataRow(b.itemId);
+                int rarityCompare = rowB.Rarity.CompareTo(rowA.Rarity);
+                if (rarityCompare != 0)
+                    return rarityCompare;
+                return a.itemId.CompareTo(b.itemId);
+            }
+        );
 
         return result;
     }
@@ -937,7 +959,8 @@ public class InventoryManager : SingletonBase<InventoryManager>
     /// </summary>
     public static int CalculateInventoryValue(List<InventoryItemSaveData> inventoryData)
     {
-        if (inventoryData == null) return 0;
+        if (inventoryData == null)
+            return 0;
 
         int totalValue = 0;
         var itemTable = GF.DataTable.GetDataTable<ItemTable>();
@@ -973,7 +996,8 @@ public class InventoryManager : SingletonBase<InventoryManager>
         // 遍历所有格子，收集虚拟物品数量
         foreach (var slot in m_Slots)
         {
-            if (slot.IsEmpty) continue;
+            if (slot.IsEmpty)
+                continue;
 
             switch (slot.ItemId)
             {

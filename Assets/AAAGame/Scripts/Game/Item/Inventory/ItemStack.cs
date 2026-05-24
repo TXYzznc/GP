@@ -8,11 +8,18 @@ public class ItemStack
 {
     #region 字段
 
+    private static int s_NextInstanceId = 1; // 全局实例ID计数器
+    private int m_InstanceId; // 物品堆叠唯一实例ID
     private ItemBase m_Item; // 物品实例
     private int m_Count; // 数量
     #endregion
 
     #region 属性
+
+    /// <summary>
+    /// 物品堆叠唯一实例ID
+    /// </summary>
+    public int InstanceId => m_InstanceId;
 
     /// <summary>
     /// 物品实例
@@ -54,10 +61,14 @@ public class ItemStack
 
     public ItemStack(ItemBase item, int count = 1)
     {
+        m_InstanceId = GenerateInstanceId();
         m_Item = item;
         m_Count = count;
 
-        DebugEx.Log(nameof(ItemStack), $"创建物品堆叠: {item?.Name}, 数量:{count}");
+        DebugEx.Log(
+            nameof(ItemStack),
+            $"创建物品堆叠: {item?.Name}, 数量:{count}, InstanceId:{m_InstanceId}"
+        );
     }
 
     #endregion
@@ -133,6 +144,18 @@ public class ItemStack
 
         // 必须是相同物品且可堆叠
         return m_Item.ItemId == other.ItemId && m_Item.CanStack;
+    }
+
+    #endregion
+
+    #region 私有方法
+
+    /// <summary>
+    /// 生成唯一实例ID
+    /// </summary>
+    private static int GenerateInstanceId()
+    {
+        return s_NextInstanceId++;
     }
 
     #endregion
