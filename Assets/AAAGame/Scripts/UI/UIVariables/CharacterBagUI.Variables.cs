@@ -54,4 +54,6 @@ public partial class CharacterBagUI
 	[SerializeField] private TextMeshProUGUI varMoveSpeedText = null;
 	[SerializeField] private TextMeshProUGUI varCriticalChanceText = null;
 	[SerializeField] private TextMeshProUGUI varCriticalDamageText = null;
+	[SerializeField] private GameObject varTreasureItemUI = null;
+	[SerializeField] private TextMeshProUGUI varTitle = null;
 }

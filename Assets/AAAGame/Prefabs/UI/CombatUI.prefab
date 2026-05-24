@@ -4353,6 +4353,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 782776383693007485, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 782776383693007485, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 782776383693007485, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 782776383693007485, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 782776383693007485, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1242978596525118027, guid: 714aeb1f189659342ade620877cc0a53, type: 3}
       propertyPath: m_RaycastTarget
       value: 0

@@ -62,24 +62,27 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
     /// <summary>
     /// 刷新功能按钮
     /// </summary>
-    private void RefreshFunctions()
+    private async void RefreshFunctions()
     {
         // 清除旧的功能项
         ClearFunctionItems();
 
-        // 创建功能按钮
+        // 创建功能按钮（异步加载图标）
         for (int i = 0; i < m_FunctionNames.Length; i++)
         {
-            CreateFunctionItem(m_FunctionNames[i], i);
+            await CreateFunctionItemAsync(m_FunctionNames[i], i);
         }
 
         DebugEx.Log("OutsiderFunctionUI", "功能按钮已刷新");
     }
 
     /// <summary>
-    /// 创建功能项
+    /// 创建功能项（异步加载图标后再显示）
     /// </summary>
-    private void CreateFunctionItem(string functionName, int index)
+    private async Cysharp.Threading.Tasks.UniTask CreateFunctionItemAsync(
+        string functionName,
+        int index
+    )
     {
         if (varFunctionItem == null || varOutsiderFunctionPanel == null)
         {
@@ -89,13 +92,21 @@ public partial class OutsiderFunctionUI : StateAwareUIForm
 
         // 实例化功能项
         GameObject itemObj = Instantiate(varFunctionItem, varOutsiderFunctionPanel.transform);
-        itemObj.SetActive(true);
 
         // 获取 FunctionItem 组件
         FunctionItem functionItem = itemObj.GetComponent<FunctionItem>();
         if (functionItem != null)
         {
-            functionItem.SetData(functionName, () => OnFunctionClicked(functionName));
+            // 计算图标资源ID（1012~1015）
+            int iconId = 1012 + index;
+
+            // 异步设置数据（等待图标加载完成后再显示）
+            await functionItem.SetDataAsync(
+                functionName,
+                iconId,
+                () => OnFunctionClicked(functionName)
+            );
+
             m_FunctionItems.Add(functionItem);
         }
         else

@@ -38,15 +38,6 @@ public partial class TreasureTable : DataRowBase
         }
 
         /// <summary>
-        /// 对应ItemTable中的ID
-        /// </summary>
-        public int ItemTableId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 特殊效果ID
         /// </summary>
         public int SpecialEffectId
@@ -85,7 +76,6 @@ public partial class TreasureTable : DataRowBase
             index++;
             m_Id = int.Parse(columnStrings[index++]);
             Name = columnStrings[index++];
-            ItemTableId = int.Parse(columnStrings[index++]);
             SpecialEffectId = int.Parse(columnStrings[index++]);
             SynergyIds = DataTableExtension.ParseArray<int>(columnStrings[index++]);
             BaseAttributes = columnStrings[index++];
@@ -101,7 +91,6 @@ public partial class TreasureTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
-                    ItemTableId = binaryReader.Read7BitEncodedInt32();
                     SpecialEffectId = binaryReader.Read7BitEncodedInt32();
                     SynergyIds = binaryReader.ReadArray<int>();
                     BaseAttributes = binaryReader.ReadString();

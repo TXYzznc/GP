@@ -4,10 +4,14 @@
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
+
 public partial class FunctionItem
 {
-	[Space(10)]
-	[Header("UI Variables:")]
-	[SerializeField] private Text varTitle = null;
-	[SerializeField] private Button varFunctionItem = null;
+    [Space(10)]
+    [Header("UI Variables:")]
+    [SerializeField]
+    private Text varTitle = null;
+
+    [SerializeField]
+    private Button varFunctionItem = null;
 }

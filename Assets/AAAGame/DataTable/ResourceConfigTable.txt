@@ -13,6 +13,10 @@
 	1009		1	UI/Combat/Encounter.png	探索阶段-遭遇战图标
 	1010		1	UI/CharacterBagUI/Lebal_0.png	角色界面，标签未选中背景
 	1011		1	UI/CharacterBagUI/Lebal_1.png	角色界面，标签选中背景
+	1012		1	UI/Common/角色Logo.png	角色图标
+	1013		1	UI/Common/图鉴Logo.png	图鉴图标
+	1014		1	UI/Common/仓库Logo.png	仓库图标
+	1015		1	UI/Common/战斗预设Logo.png	出战预设图标
 	1101		1	UI/Items/Gold.png	金币图标
 	1102		1	UI/Items/OriginStone.png	起源石图标
 	1103		1	UI/Items/MagicalStone.png	灵石图标

@@ -366,6 +366,13 @@ public class SettlementManager
         // ⭐ 清理背包快照
         InventoryManager.Instance?.ClearSnapshot();
 
+        // ⭐ 首次结算时标记教程完成
+        if (!accountManager.CurrentSaveData.HasCompletedTutorial)
+        {
+            accountManager.MarkTutorialCompleted();
+            DebugEx.Success(nameof(SettlementManager), "首次结算完成，教程已标记为完成");
+        }
+
         // ⭐ 正常结算完成，清除局内快照（标记此次局内进度已合法提交）
         accountManager.ClearInGameSnapshot();
         accountManager.SaveCurrentSave();

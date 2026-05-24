@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GameExtension;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,6 +18,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
     /// <summary>待设置的物品数据（等待异步加载完成后设置）</summary>
     private ItemStack m_PendingItemStack;
+
+    /// <summary>当前显示的悬浮提示框ID</summary>
+    private int m_FloatingTipId = -1;
 
     /// <summary>格子索引</summary>
     public int SlotIndex { get; private set; }
@@ -45,6 +49,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
 
     private void OnDestroy()
     {
+        // 清理提示框
+        HideTooltip();
+
         // 清理 InventoryItemUI 引用
         if (m_ItemUI != null)
         {
@@ -284,6 +291,13 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         {
             varHighLightImg.gameObject.SetActive(true);
         }
+
+        // 如果是宝物格子，显示提示框
+        var treasureItemUI = GetTreasureItemUI();
+        if (treasureItemUI != null && treasureItemUI.HasItem())
+        {
+            ShowTreasureTooltip();
+        }
     }
 
     /// <summary>
@@ -295,6 +309,9 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
         {
             varHighLightImg.gameObject.SetActive(false);
         }
+
+        // 隐藏提示框
+        HideTooltip();
     }
 
     #endregion
@@ -333,11 +350,194 @@ public partial class InventorySlotUI : UIItemBase, IPointerEnterHandler, IPointe
                 this.GetType().Name,
                 $"[OnLeftClick] 左键点击宝物 格子={SlotIndex} treasureId={treasureId}"
             );
-            // TODO: 显示宝物详情面板（如果需要）
+            ShowTreasureTooltip();
             return;
         }
 
         DebugEx.Warning(this.GetType().Name, $"[OnLeftClick] 格子 {SlotIndex} 无物品");
+    }
+
+    /// <summary>
+    /// 显示宝物提示框
+    /// </summary>
+    private void ShowTreasureTooltip()
+    {
+        var treasureItemUI = GetTreasureItemUI();
+        if (treasureItemUI == null || !treasureItemUI.HasItem())
+        {
+            DebugEx.Warning(GetType().Name, "[ShowTreasureTooltip] 宝物ItemUI为空或无数据");
+            return;
+        }
+
+        int treasureId = treasureItemUI.GetTreasureId();
+        string detailText = BuildTreasureDetailText(treasureId);
+
+        if (string.IsNullOrEmpty(detailText))
+        {
+            DebugEx.Warning(
+                GetType().Name,
+                $"[ShowTreasureTooltip] 宝物详情文本为空: treasureId={treasureId}"
+            );
+            return;
+        }
+
+        var rectTransform = GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            DebugEx.Error(GetType().Name, "[ShowTreasureTooltip] RectTransform为空");
+            return;
+        }
+
+        // 先隐藏旧的提示框
+        HideTooltip();
+
+        // 显示新的提示框（在格子上方，水平居中）
+        m_FloatingTipId = GF.UI.ShowFloatingTipAt(detailText, rectTransform, new Vector2(0f, 10f));
+
+        DebugEx.Log(
+            GetType().Name,
+            $"[ShowTreasureTooltip] 显示宝物提示框: treasureId={treasureId}, tipId={m_FloatingTipId}"
+        );
+    }
+
+    /// <summary>
+    /// 构建宝物详情文本
+    /// </summary>
+    private string BuildTreasureDetailText(int treasureId)
+    {
+        // 从 TreasureTable 获取宝物数据
+        var dtTreasure = GF.DataTable.GetDataTable<TreasureTable>();
+        var treasureRow = dtTreasure?.GetDataRow(treasureId);
+
+        if (treasureRow == null)
+        {
+            DebugEx.Error(
+                GetType().Name,
+                $"[BuildTreasureDetailText] 未找到宝物数据: treasureId={treasureId}"
+            );
+            return string.Empty;
+        }
+
+        // 从 ItemTable 获取物品基础数据
+        var dtItem = GF.DataTable.GetDataTable<ItemTable>();
+        var itemRow = dtItem?.GetDataRow(treasureRow.Id);
+
+        if (itemRow == null)
+        {
+            DebugEx.Error(
+                GetType().Name,
+                $"[BuildTreasureDetailText] 未找到物品数据: ItemTableId={treasureRow.Id}"
+            );
+            return string.Empty;
+        }
+
+        var sb = new System.Text.StringBuilder();
+
+        // 标题：宝物名称
+        sb.AppendLine($"<b>{itemRow.Name}</b>");
+        sb.AppendLine();
+
+        // 品质
+        if (itemRow.Rarity > 0)
+        {
+            string rarityText = itemRow.Rarity switch
+            {
+                1 => "普通",
+                2 => "稀有",
+                3 => "史诗",
+                4 => "传奇",
+                5 => "神话",
+                _ => itemRow.Rarity.ToString(),
+            };
+            sb.AppendLine($"品质: {rarityText}");
+        }
+
+        // 重量
+        if (itemRow.Weight > 0)
+        {
+            sb.AppendLine($"重量: {itemRow.Weight}g");
+        }
+
+        // 从 ItemManager 获取宝物详细数据
+        var treasureData = ItemManager.Instance?.GetTreasureData(treasureRow.Id);
+        if (treasureData != null)
+        {
+            // 羁绊
+            if (treasureData.SynergyIds != null && treasureData.SynergyIds.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("[羁绊]");
+                foreach (var synergyId in treasureData.SynergyIds)
+                {
+                    // TODO: 从 SynergyTable 获取羁绊名称
+                    sb.AppendLine($"  羁绊ID: {synergyId}");
+                }
+            }
+
+            // 基础属性
+            if (treasureData.BaseAttributes != null && treasureData.BaseAttributes.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("[基础属性]");
+                foreach (var attr in treasureData.BaseAttributes)
+                {
+                    string attrName = GetAttributeName(attr.Key.ToString());
+                    sb.AppendLine($"  {attrName}: +{attr.Value}");
+                }
+            }
+
+            // 特殊效果
+            if (treasureData.SpecialEffectId > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"特殊效果ID: {treasureData.SpecialEffectId}");
+                // TODO: 从 SpecialEffectTable 获取效果描述
+            }
+        }
+
+        // 描述
+        if (!string.IsNullOrEmpty(itemRow.Description))
+        {
+            sb.AppendLine();
+            sb.AppendLine($"<color=#808080>{itemRow.Description}</color>");
+        }
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// 获取属性名称（中文）
+    /// </summary>
+    private string GetAttributeName(string attrKey)
+    {
+        return attrKey switch
+        {
+            "MaxHP" => "生命值",
+            "Attack" => "攻击力",
+            "Defense" => "防御力",
+            "MagicAttack" => "魔法攻击",
+            "MagicDefense" => "魔法防御",
+            "Speed" => "速度",
+            "CritRate" => "暴击率",
+            "CritDamage" => "暴击伤害",
+            "Dodge" => "闪避",
+            "Hit" => "命中",
+            _ => attrKey,
+        };
+    }
+
+    /// <summary>
+    /// 隐藏提示框
+    /// </summary>
+    private void HideTooltip()
+    {
+        if (m_FloatingTipId > 0)
+        {
+            GF.UI.CloseUIForm(m_FloatingTipId);
+            m_FloatingTipId = -1;
+
+            DebugEx.Log(GetType().Name, "[HideTooltip] 隐藏提示框");
+        }
     }
 
     /// <summary>

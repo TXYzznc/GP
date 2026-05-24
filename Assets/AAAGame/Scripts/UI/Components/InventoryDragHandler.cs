@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 /// <summary>
 /// 背包/仓库物品拖拽处理器，挂在 InventorySlotUI 上。
@@ -64,7 +64,10 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         if (m_SourceSlot == null)
         {
-            DebugEx.Warning(nameof(InventoryDragHandler), $"[OnBeginDrag] 无法找到 InventorySlotUI (GameObject={gameObject.name})");
+            DebugEx.Warning(
+                nameof(InventoryDragHandler),
+                $"[OnBeginDrag] 无法找到 InventorySlotUI (GameObject={gameObject.name})"
+            );
             return;
         }
 
@@ -82,12 +85,16 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             return;
         }
 
-        DebugEx.Log(nameof(InventoryDragHandler), $"[OnBeginDrag] 开始拖拽: 容器={m_SourceSlot.ContainerType} 格子={m_SourceSlot.SlotIndex}");
+        DebugEx.Log(
+            nameof(InventoryDragHandler),
+            $"[OnBeginDrag] 开始拖拽: 容器={m_SourceSlot.ContainerType} 格子={m_SourceSlot.SlotIndex}"
+        );
         CreateDragIcon();
 
         // 检测是否为装备物品（仅 Equip 容器支持拖拽到 3D 棋子）
         var item = itemUI.GetItemStack()?.Item;
-        m_IsDraggingEquipment = item is EquipmentItem && m_SourceSlot.ContainerType == SlotContainerType.Equip;
+        m_IsDraggingEquipment =
+            item is EquipmentItem && m_SourceSlot.ContainerType == SlotContainerType.Equip;
         if (m_IsDraggingEquipment)
         {
             DebugEx.Log(nameof(InventoryDragHandler), $"拖拽装备: {item.Name}");
@@ -100,11 +107,14 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         {
             // 将鼠标屏幕坐标转换为 Canvas 本地坐标
             var canvasRT = m_TopCanvas.GetComponent<RectTransform>();
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRT,
-                eventData.position,
-                m_TopCanvas.worldCamera,
-                out var localPoint))
+            if (
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvasRT,
+                    eventData.position,
+                    m_TopCanvas.worldCamera,
+                    out var localPoint
+                )
+            )
             {
                 m_DragIcon.rectTransform.anchoredPosition = localPoint;
             }
@@ -136,16 +146,25 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         // 原有逻辑：拖放到 UI 格子
         var targetSlot = GetTargetSlot(eventData.position);
-        DebugEx.Log(nameof(InventoryDragHandler), $"[OnEndDrag] 寻找目标格子 鼠标位置={eventData.position} 找到={targetSlot != null}");
+        DebugEx.Log(
+            nameof(InventoryDragHandler),
+            $"[OnEndDrag] 寻找目标格子 鼠标位置={eventData.position} 找到={targetSlot != null}"
+        );
 
         if (targetSlot != null && targetSlot != m_SourceSlot)
         {
-            DebugEx.Log(nameof(InventoryDragHandler), $"[OnEndDrag] 执行拖放 源={m_SourceSlot.ContainerType}/{m_SourceSlot.SlotIndex} → 目标={targetSlot.ContainerType}/{targetSlot.SlotIndex}");
+            DebugEx.Log(
+                nameof(InventoryDragHandler),
+                $"[OnEndDrag] 执行拖放 源={m_SourceSlot.ContainerType}/{m_SourceSlot.SlotIndex} → 目标={targetSlot.ContainerType}/{targetSlot.SlotIndex}"
+            );
             HandleDrop(m_SourceSlot, targetSlot);
         }
         else if (targetSlot == null)
         {
-            DebugEx.Warning(nameof(InventoryDragHandler), $"[OnEndDrag] 未找到目标格子 位置={eventData.position}");
+            DebugEx.Warning(
+                nameof(InventoryDragHandler),
+                $"[OnEndDrag] 未找到目标格子 位置={eventData.position}"
+            );
         }
         else if (targetSlot == m_SourceSlot)
         {
@@ -188,7 +207,8 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             {
                 m_HighlightedChess.OutlineController.ShowOutline(
                     OutlineController.AllyColor,
-                    OutlineController.DefaultSize);
+                    OutlineController.DefaultSize
+                );
             }
         }
     }
@@ -214,10 +234,12 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
     private void TryEquipToHighlightedChess()
     {
         var itemUI = m_SourceSlot.GetItemUI();
-        if (itemUI == null) return;
+        if (itemUI == null)
+            return;
 
         var equipItem = itemUI.GetItemStack()?.Item as EquipmentItem;
-        if (equipItem == null) return;
+        if (equipItem == null)
+            return;
 
         int chessId = m_HighlightedChess.ChessId;
         var equipMgr = ChessEquipmentManager.Instance;
@@ -235,7 +257,10 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         // 从背包移除
         InventoryManager.Instance.RemoveItem(equipItem.ItemId, 1);
 
-        DebugEx.Log(nameof(InventoryDragHandler), $"装备 {equipItem.Name} → 棋子 {chessId} 槽位 {slotIndex}");
+        DebugEx.Log(
+            nameof(InventoryDragHandler),
+            $"装备 {equipItem.Name} → 棋子 {chessId} 槽位 {slotIndex}"
+        );
     }
 
     /// <summary>
@@ -244,10 +269,12 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
     private ChessEntity FindNearestFriendlyChess(Vector3 worldPos)
     {
         var summonMgr = SummonChessManager.Instance;
-        if (summonMgr == null) return null;
+        if (summonMgr == null)
+            return null;
 
         var allChess = summonMgr.GetAllChess();
-        if (allChess == null) return null;
+        if (allChess == null)
+            return null;
 
         var equipMgr = ChessEquipmentManager.Instance;
         ChessEntity nearest = null;
@@ -255,11 +282,14 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
         foreach (var chess in allChess)
         {
-            if (chess == null) continue;
-            if (chess.Camp != (int)CampType.Player) continue;
+            if (chess == null)
+                continue;
+            if (chess.Camp != (int)CampType.Player)
+                continue;
 
             // 跳过装备槽满的棋子
-            if (equipMgr.GetFirstEmptySlot(chess.ChessId) < 0) continue;
+            if (equipMgr.GetFirstEmptySlot(chess.ChessId) < 0)
+                continue;
 
             float dist = Vector3.Distance(chess.transform.position, worldPos);
             if (dist <= EQUIP_DETECT_RADIUS && dist < nearestDist)
@@ -278,7 +308,8 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
     private Vector3 GetWorldPosFromScreen(Vector2 screenPos)
     {
         var cam = Camera.main;
-        if (cam == null) return Vector3.zero;
+        if (cam == null)
+            return Vector3.zero;
 
         Ray ray = cam.ScreenPointToRay(screenPos);
 
@@ -310,9 +341,16 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             return;
         }
 
-        DebugEx.Log(nameof(InventoryDragHandler), $"[HandleDrop] 拖放: {src.ContainerType}/{src.SlotIndex} → {dst.ContainerType}/{dst.SlotIndex}");
+        DebugEx.Log(
+            nameof(InventoryDragHandler),
+            $"[HandleDrop] 拖放: {src.ContainerType}/{src.SlotIndex} → {dst.ContainerType}/{dst.SlotIndex}"
+        );
 
-        bool success = src.SlotContainer.TryMoveToContainer(src.SlotIndex, dst.SlotContainer, dst.SlotIndex);
+        bool success = src.SlotContainer.TryMoveToContainer(
+            src.SlotIndex,
+            dst.SlotContainer,
+            dst.SlotIndex
+        );
 
         if (success)
         {
@@ -321,7 +359,10 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         }
         else
         {
-            DebugEx.Warning(nameof(InventoryDragHandler), $"[HandleDrop] 拖放失败: {src.ContainerType} → {dst.ContainerType}");
+            DebugEx.Warning(
+                nameof(InventoryDragHandler),
+                $"[HandleDrop] 拖放失败: {src.ContainerType} → {dst.ContainerType}"
+            );
         }
     }
 
@@ -331,7 +372,8 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
 
     private void CreateDragIcon()
     {
-        if (m_TopCanvas == null) return;
+        if (m_TopCanvas == null)
+            return;
 
         var go = new GameObject("DragIcon");
         go.transform.SetParent(m_TopCanvas.transform, false);
@@ -349,15 +391,39 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
         var itemUI = m_SourceSlot.GetItemUI();
         if (itemUI != null)
         {
-            itemUI.TryGetComponent(out Image srcImg);
-            if (srcImg == null)
+            // ⭐ 从 InventoryItemUI 的子对象中查找名为 "ItemImg" 的 Image 组件
+            var itemImgTransform = itemUI.transform.Find("ItemImg");
+            if (itemImgTransform != null)
             {
-                srcImg = itemUI.GetComponentInChildren<Image>();
+                var itemImg = itemImgTransform.GetComponent<Image>();
+                if (itemImg != null && itemImg.sprite != null)
+                {
+                    m_DragIcon.sprite = itemImg.sprite;
+                    m_DragIcon.color = new Color(1f, 1f, 1f, 0.7f);
+                    DebugEx.Log(
+                        nameof(InventoryDragHandler),
+                        "[CreateDragIcon] 从 InventoryItemUI.ItemImg 获取图标成功"
+                    );
+                }
             }
-            if (srcImg != null)
+
+            // 备用方案：从 InventoryItemUI 的 Image 组件获取
+            if (m_DragIcon.sprite == null)
             {
-                m_DragIcon.sprite = srcImg.sprite;
-                m_DragIcon.color = new Color(1f, 1f, 1f, 0.7f);
+                itemUI.TryGetComponent(out Image srcImg);
+                if (srcImg == null)
+                {
+                    srcImg = itemUI.GetComponentInChildren<Image>();
+                }
+                if (srcImg != null && srcImg.sprite != null)
+                {
+                    m_DragIcon.sprite = srcImg.sprite;
+                    m_DragIcon.color = new Color(1f, 1f, 1f, 0.7f);
+                    DebugEx.Warning(
+                        nameof(InventoryDragHandler),
+                        "[CreateDragIcon] 未找到 ItemImg，使用备用方案"
+                    );
+                }
             }
         }
     }
@@ -370,10 +436,16 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             results
         );
 
-        DebugEx.Log(nameof(InventoryDragHandler), $"[GetTargetSlot] RaycastAll 找到 {results.Count} 个物体 位置={position}");
+        DebugEx.Log(
+            nameof(InventoryDragHandler),
+            $"[GetTargetSlot] RaycastAll 找到 {results.Count} 个物体 位置={position}"
+        );
         for (int i = 0; i < results.Count; i++)
         {
-            DebugEx.Log(nameof(InventoryDragHandler), $"  [{i}] {results[i].gameObject.name} ({results[i].gameObject.GetType().Name})");
+            DebugEx.Log(
+                nameof(InventoryDragHandler),
+                $"  [{i}] {results[i].gameObject.name} ({results[i].gameObject.GetType().Name})"
+            );
         }
 
         foreach (var r in results)
@@ -381,12 +453,18 @@ public class InventoryDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandl
             var slot = r.gameObject.GetComponent<InventorySlotUI>();
             if (slot != null)
             {
-                DebugEx.Log(nameof(InventoryDragHandler), $"[GetTargetSlot] 找到目标格子: 容器={slot.ContainerType} 格子={slot.SlotIndex}");
+                DebugEx.Log(
+                    nameof(InventoryDragHandler),
+                    $"[GetTargetSlot] 找到目标格子: 容器={slot.ContainerType} 格子={slot.SlotIndex}"
+                );
                 return slot;
             }
         }
 
-        DebugEx.Warning(nameof(InventoryDragHandler), "[GetTargetSlot] 没有找到任何 InventorySlotUI");
+        DebugEx.Warning(
+            nameof(InventoryDragHandler),
+            "[GetTargetSlot] 没有找到任何 InventorySlotUI"
+        );
         return null;
     }
 

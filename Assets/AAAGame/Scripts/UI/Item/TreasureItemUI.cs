@@ -49,13 +49,13 @@ public partial class TreasureItemUI : UIItemBase
     {
         // 通过 ItemTableId 从 ItemTable 获取稀有度
         IDataTable<ItemTable> dtItem = GF.DataTable.GetDataTable<ItemTable>();
-        ItemTable itemRow = dtItem.GetDataRow(treasureRow.ItemTableId);
+        ItemTable itemRow = dtItem.GetDataRow(treasureRow.Id);
 
         if (itemRow == null)
         {
             DebugEx.Warning(
                 nameof(TreasureItemUI),
-                $"未找到ItemTable数据: ItemTableId={treasureRow.ItemTableId}"
+                $"未找到ItemTable数据: ItemTableId={treasureRow.Id}"
             );
             return;
         }
@@ -73,7 +73,7 @@ public partial class TreasureItemUI : UIItemBase
 
         // 通过 ItemTableId 从 ItemTable 获取图标配置ID
         IDataTable<ItemTable> dtItem = GF.DataTable.GetDataTable<ItemTable>();
-        ItemTable itemRow = dtItem.GetDataRow(treasureRow.ItemTableId);
+        ItemTable itemRow = dtItem.GetDataRow(treasureRow.Id);
 
         if (itemRow == null)
             return;

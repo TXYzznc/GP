@@ -649,6 +649,7 @@
     <Compile Include="Assets\AAAGame\Scripts\Utils\DebugEx.cs" />
     <Compile Include="Assets\AAAGame\Scripts\DataTable\LanguageTextTable.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIVariables\EndCombatUI.Variables.cs" />
+    <Compile Include="Assets\AAAGame\Scripts\UI\Components\TreasureSlotInteractionHandler.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Buff\TauntBuff.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Effects\DamagePopupItem.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Item\Effect\Effects\RestoreHPEffect.cs" />

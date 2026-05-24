@@ -172,12 +172,12 @@ public class ItemManager : SingletonBase<ItemManager>
             var data = new TreasureData
             {
                 Id = row.Id,
-                ItemTableId = row.ItemTableId,
+                ItemTableId = row.Id,
                 SpecialEffectId = row.SpecialEffectId,
                 SynergyIds = new List<int>(row.SynergyIds ?? new int[0]),
                 BaseAttributes = ParseAttributes(row.BaseAttributes),
             };
-            m_TreasureDataDict[row.ItemTableId] = data;
+            m_TreasureDataDict[row.Id] = data;
         }
 
         DebugEx.Success("ItemManager", $"宝物配置表加载完成，共 {m_TreasureDataDict.Count} 条数据");

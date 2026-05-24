@@ -142,6 +142,9 @@ public partial class CharacterBagUI : UIFormBase
             DebugEx.Log(nameof(CharacterBagUI), "[InitializeUIAppearance] 隐藏宝物仓库");
         }
 
+        // ⭐ 更新 Title 和图标（默认显示角色列表）
+        UpdateTitleAndIcons();
+
         // 中间默认显示海报（立绘）
         if (varNormalImage != null)
         {
@@ -172,6 +175,9 @@ public partial class CharacterBagUI : UIFormBase
             varLevelUpUI.gameObject.SetActive(false);
         if (varStoryUI != null)
             varStoryUI.gameObject.SetActive(false);
+
+        // ⭐ 更新标签按钮图标（默认选中 StateBtn）
+        UpdateTabButtonIcons();
 
         DebugEx.Success(nameof(CharacterBagUI), "[InitializeUIAppearance] UI外观初始化完成");
     }
@@ -531,6 +537,69 @@ public partial class CharacterBagUI : UIFormBase
         if (varNameText != null)
             varNameText.text = chessRow.Name;
 
+        // ⭐ 更新属性显示（使用当前阶段的数值）
+        int stage = m_CurrentLevelStage; // 0=一阶, 1=二阶, 2=三A阶, 3=三B阶
+
+        if (varHPText != null)
+            varHPText.text =
+                chessRow.MaxHp != null && stage < chessRow.MaxHp.Length
+                    ? chessRow.MaxHp[stage].ToString()
+                    : "0";
+
+        if (varMpText != null)
+            varMpText.text =
+                chessRow.MaxMp != null && stage < chessRow.MaxMp.Length
+                    ? chessRow.MaxMp[stage].ToString()
+                    : "0";
+
+        if (varAttackText != null)
+            varAttackText.text =
+                chessRow.AtkDamage != null && stage < chessRow.AtkDamage.Length
+                    ? chessRow.AtkDamage[stage].ToString()
+                    : "0";
+
+        if (varMagicalAttackText != null)
+            varMagicalAttackText.text =
+                chessRow.SpellPower != null && stage < chessRow.SpellPower.Length
+                    ? chessRow.SpellPower[stage].ToString()
+                    : "0";
+
+        if (varArmorText != null)
+            varArmorText.text =
+                chessRow.Armor != null && stage < chessRow.Armor.Length
+                    ? chessRow.Armor[stage].ToString()
+                    : "0";
+
+        if (varSpelResistanceText != null)
+            varSpelResistanceText.text =
+                chessRow.MagicResist != null && stage < chessRow.MagicResist.Length
+                    ? chessRow.MagicResist[stage].ToString()
+                    : "0";
+
+        if (varAttackSpeedText != null)
+            varAttackSpeedText.text =
+                chessRow.AtkSpeed != null && stage < chessRow.AtkSpeed.Length
+                    ? chessRow.AtkSpeed[stage].ToString("F2")
+                    : "0.00";
+
+        if (varMoveSpeedText != null)
+            varMoveSpeedText.text = chessRow.MoveSpeed.ToString("F2");
+
+        if (varCriticalChanceText != null)
+            varCriticalChanceText.text =
+                chessRow.CritRate != null && stage < chessRow.CritRate.Length
+                    ? $"{(chessRow.CritRate[stage] * 100):F1}%"
+                    : "0%";
+
+        if (varCriticalDamageText != null)
+            varCriticalDamageText.text =
+                chessRow.CritDamage != null && stage < chessRow.CritDamage.Length
+                    ? $"{(chessRow.CritDamage[stage] * 100):F1}%"
+                    : "0%";
+
+        // ⭐ 加载技能图标
+        LoadSkillIcons(chessRow);
+
         // 根据 Skill2Id 决定是否显示 Skill_2 按钮
         if (varSkill_2 != null)
         {
@@ -663,6 +732,9 @@ public partial class CharacterBagUI : UIFormBase
             );
         }
 
+        // ⭐ 更新 Title 和图标
+        UpdateTitleAndIcons();
+
         if (!m_IsShowingChessList)
         {
             DebugEx.Log(nameof(CharacterBagUI), "[OnTreasureSwitchBtnClicked] 开始加载宝物仓库");
@@ -737,15 +809,37 @@ public partial class CharacterBagUI : UIFormBase
 
     private void BindTreasureToSlot(InventorySlotUI slotScript, TreasureInstanceData treasure)
     {
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[BindTreasureToSlot] 开始绑定宝物: slotScript={(slotScript != null ? "有效" : "null")}, treasure={(treasure != null ? $"ID={treasure.TreasureId}" : "null")}"
+        );
+
         if (slotScript == null || treasure == null)
+        {
+            DebugEx.Warning(
+                nameof(CharacterBagUI),
+                "[BindTreasureToSlot] slotScript 或 treasure 为 null，跳过"
+            );
             return;
+        }
 
         // 获取宝物配置
         IDataTable<TreasureTable> dtTreasure = GF.DataTable.GetDataTable<TreasureTable>();
         TreasureTable treasureRow = dtTreasure.GetDataRow(treasure.TreasureId);
 
         if (treasureRow == null)
+        {
+            DebugEx.Error(
+                nameof(CharacterBagUI),
+                $"[BindTreasureToSlot] 配置表中找不到宝物: TreasureId={treasure.TreasureId}"
+            );
             return;
+        }
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[BindTreasureToSlot] 开始加载TreasureItemUI: TreasureId={treasure.TreasureId}, Name={treasureRow.Name}"
+        );
 
         // ⭐ 调用InventorySlotUI的接口来加载TreasureItemUI
         slotScript.LoadTreasureItemUI(treasure.TreasureId);
@@ -767,24 +861,6 @@ public partial class CharacterBagUI : UIFormBase
             // 为未装备的宝物添加拖拽处理
             AddTreasureDragHandler(slotScript, treasure.InstanceId, true);
         }
-    }
-
-    private void AddTreasureDragHandler(
-        InventorySlotUI slotScript,
-        int treasureInstanceId,
-        bool isFromInventory
-    )
-    {
-        var slotRect = slotScript.GetComponent<RectTransform>();
-        if (slotRect == null)
-            return;
-
-        // 检查是否已有处理器
-        if (slotRect.GetComponent<TreasureDragHandler>() != null)
-            return;
-
-        var handler = slotRect.gameObject.AddComponent<TreasureDragHandler>();
-        handler.Initialize(treasureInstanceId, isFromInventory, slotRect);
     }
 
     private void OnSwitchBtnClicked()
@@ -858,6 +934,9 @@ public partial class CharacterBagUI : UIFormBase
             varLevelUpUI.gameObject.SetActive(tabIndex == 2);
         if (varStoryUI != null)
             varStoryUI.gameObject.SetActive(tabIndex == 3);
+
+        // ⭐ 更新标签按钮图标
+        UpdateTabButtonIcons();
 
         DebugEx.Log(nameof(CharacterBagUI), $"切换到标签页 {tabIndex}");
     }
@@ -948,7 +1027,11 @@ public partial class CharacterBagUI : UIFormBase
         List<TreasureInstanceData> equippedTreasures = treasureManager.GetChessEquipments(
             m_CurrentSelectedChessId
         );
-        IDataTable<TreasureTable> dtTreasure = GF.DataTable.GetDataTable<TreasureTable>();
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[UpdateTreasureSlots] 开始刷新宝物槽位: chessId={m_CurrentSelectedChessId}, 已装备宝物数={equippedTreasures.Count}"
+        );
 
         for (int i = 0; i < varTreasureSlot1Arr.Length; i++)
         {
@@ -959,54 +1042,207 @@ public partial class CharacterBagUI : UIFormBase
             TreasureInstanceData treasure =
                 i < equippedTreasures.Count ? equippedTreasures[i] : null;
 
-            // ⭐ 修复问题一：TreasureSlot容器始终显示（无论是否有宝物）
+            // 槽位始终显示（无论是否有宝物）
             slotRect.gameObject.SetActive(true);
 
-            if (treasure != null)
+            // ⭐ 清理旧的交互组件（避免重复添加）
+            CleanupSlotInteractionHandlers(slotRect);
+
+            if (treasure != null && treasure.TreasureId > 0)
             {
-                TreasureTable treasureRow = dtTreasure.GetDataRow(treasure.TreasureId);
-                if (treasureRow != null)
+                // 有宝物：加载或更新 TreasureItemUI
+                DebugEx.Log(
+                    nameof(CharacterBagUI),
+                    $"[UpdateTreasureSlots] 槽位 {i} 加载宝物: treasureId={treasure.TreasureId}, instanceId={treasure.InstanceId}"
+                );
+
+                LoadTreasureItemUIToSlot(slotRect, treasure.TreasureId);
+
+                // ⭐ 添加右键点击处理器（卸下宝物）
+                AddTreasureSlotRightClickHandler(slotRect, treasure.InstanceId);
+
+                // ⭐ 添加交互处理器（左键点击/悬浮显示提示框）
+                AddTreasureSlotInteractionHandler(slotRect, treasure.TreasureId);
+
+                // 添加 TreasureSlotDropHandler 组件用于拖拽检测
+                if (slotRect.GetComponent<TreasureSlotDropHandler>() == null)
                 {
-                    TreasureItemUI treasureItemUI =
-                        slotRect.GetComponentInChildren<TreasureItemUI>();
-                    if (treasureItemUI == null)
-                    {
-                        treasureItemUI = slotRect.gameObject.AddComponent<TreasureItemUI>();
-                    }
-
-                    treasureItemUI.InitTreasure(treasure.TreasureId);
-                    treasureItemUI.gameObject.SetActive(true);
-
-                    // 为已装备的宝物添加右键卸装处理
-                    AddTreasureSlotRightClickHandler(slotRect, treasure.InstanceId);
-
-                    // 为已装备的宝物添加拖拽处理（可拖拽卸装）
-                    AddTreasureDragHandler(slotRect, treasure.InstanceId, false);
-
-                    // 添加标签用于拖拽检测
-                    slotRect.gameObject.tag = "TreasureSlot";
+                    slotRect.gameObject.AddComponent<TreasureSlotDropHandler>();
                 }
             }
             else
             {
                 // 没有宝物时，隐藏TreasureItemUI（但保留容器）
-                TreasureItemUI treasureItemUI = slotRect.GetComponentInChildren<TreasureItemUI>();
+                TreasureItemUI treasureItemUI = slotRect.GetComponentInChildren<TreasureItemUI>(
+                    true
+                );
                 if (treasureItemUI != null)
                 {
                     treasureItemUI.gameObject.SetActive(false);
+                    DebugEx.Log(
+                        nameof(CharacterBagUI),
+                        $"[UpdateTreasureSlots] 槽位 {i} 隐藏宝物UI"
+                    );
+                }
+
+                // 添加 TreasureSlotDropHandler 组件用于拖拽检测（空槽位也可以接收拖拽）
+                if (slotRect.GetComponent<TreasureSlotDropHandler>() == null)
+                {
+                    slotRect.gameObject.AddComponent<TreasureSlotDropHandler>();
                 }
             }
         }
 
-        DebugEx.Log(nameof(CharacterBagUI), $"刷新棋子 {m_CurrentSelectedChessId} 的宝物槽位");
+        DebugEx.Success(
+            nameof(CharacterBagUI),
+            $"[UpdateTreasureSlots] 刷新完成: chessId={m_CurrentSelectedChessId}"
+        );
     }
 
+    /// <summary>
+    /// 加载 TreasureItemUI 到宝物槽位
+    /// </summary>
+    private void LoadTreasureItemUIToSlot(RectTransform slotRect, int treasureId)
+    {
+        if (slotRect == null || treasureId <= 0)
+            return;
+
+        // 检查是否已经有 TreasureItemUI
+        TreasureItemUI existingItemUI = slotRect.GetComponentInChildren<TreasureItemUI>(true);
+
+        if (existingItemUI != null)
+        {
+            // 复用现有的 TreasureItemUI
+            existingItemUI.InitTreasure(treasureId);
+            existingItemUI.gameObject.SetActive(true);
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[LoadTreasureItemUIToSlot] 复用现有 TreasureItemUI: treasureId={treasureId}"
+            );
+        }
+        else
+        {
+            // 需要实例化新的 TreasureItemUI
+            // 使用 varTreasureItemUI 字段引用的预制体
+            if (varTreasureItemUI == null)
+            {
+                DebugEx.Error(
+                    nameof(CharacterBagUI),
+                    "[LoadTreasureItemUIToSlot] varTreasureItemUI 预制体引用为空，请在 Unity Editor 中配置"
+                );
+                return;
+            }
+
+            // 实例化预制体
+            GameObject treasureItemObj = Instantiate(varTreasureItemUI, slotRect);
+            treasureItemObj.name = "TreasureItemUI";
+
+            // 设置大小和位置（铺满整个槽位）
+            RectTransform itemRect = treasureItemObj.GetComponent<RectTransform>();
+            if (itemRect != null)
+            {
+                itemRect.anchorMin = Vector2.zero;
+                itemRect.anchorMax = Vector2.one;
+                itemRect.offsetMin = Vector2.zero;
+                itemRect.offsetMax = Vector2.zero;
+            }
+
+            // 初始化宝物数据
+            TreasureItemUI treasureItemUI = treasureItemObj.GetComponent<TreasureItemUI>();
+            if (treasureItemUI != null)
+            {
+                treasureItemUI.InitTreasure(treasureId);
+                treasureItemUI.gameObject.SetActive(true);
+                DebugEx.Success(
+                    nameof(CharacterBagUI),
+                    $"[LoadTreasureItemUIToSlot] 实例化新 TreasureItemUI: treasureId={treasureId}"
+                );
+            }
+            else
+            {
+                DebugEx.Error(
+                    nameof(CharacterBagUI),
+                    "[LoadTreasureItemUIToSlot] TreasureItemUI 预制体缺少 TreasureItemUI 组件"
+                );
+                Destroy(treasureItemObj);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 清理槽位上的旧交互组件（避免重复添加）
+    /// </summary>
+    private void CleanupSlotInteractionHandlers(RectTransform slotRect)
+    {
+        if (slotRect == null)
+            return;
+
+        // 移除旧的右键点击处理器
+        var oldRightClickHandler = slotRect.GetComponent<TreasureSlotRightClickHandler>();
+        if (oldRightClickHandler != null)
+        {
+            Destroy(oldRightClickHandler);
+        }
+
+        // 移除旧的交互处理器
+        var oldInteractionHandler = slotRect.GetComponent<TreasureSlotInteractionHandler>();
+        if (oldInteractionHandler != null)
+        {
+            Destroy(oldInteractionHandler);
+        }
+
+        // ⭐ 移除旧的拖拽处理器（TreasureSlot 不支持拖拽发起）
+        var oldDragHandler = slotRect.GetComponent<TreasureDragHandler>();
+        if (oldDragHandler != null)
+        {
+            Destroy(oldDragHandler);
+        }
+    }
+
+    /// <summary>
+    /// 添加右键点击处理器（卸下宝物）
+    /// </summary>
+    private void AddTreasureSlotRightClickHandler(RectTransform slotRect, int treasureInstanceId)
+    {
+        if (slotRect == null)
+            return;
+
+        var handler = slotRect.gameObject.AddComponent<TreasureSlotRightClickHandler>();
+        handler.Initialize(treasureInstanceId, OnTreasureSlotRightClicked);
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[AddTreasureSlotRightClickHandler] 添加右键点击处理器: instanceId={treasureInstanceId}"
+        );
+    }
+
+    /// <summary>
+    /// 添加交互处理器（左键点击/悬浮显示提示框）
+    /// </summary>
+    private void AddTreasureSlotInteractionHandler(RectTransform slotRect, int treasureId)
+    {
+        if (slotRect == null)
+            return;
+
+        var handler = slotRect.gameObject.AddComponent<TreasureSlotInteractionHandler>();
+        handler.Initialize(treasureId);
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[AddTreasureSlotInteractionHandler] 添加交互处理器: treasureId={treasureId}"
+        );
+    }
+
+    /// <summary>
+    /// 为宝物仓库的格子添加拖拽处理器（仅用于宝物仓库，不用于TreasureSlot）
+    /// </summary>
     private void AddTreasureDragHandler(
-        RectTransform slotRect,
+        InventorySlotUI slotScript,
         int treasureInstanceId,
         bool isFromInventory
     )
     {
+        var slotRect = slotScript.GetComponent<RectTransform>();
         if (slotRect == null)
             return;
 
@@ -1016,15 +1252,6 @@ public partial class CharacterBagUI : UIFormBase
 
         var handler = slotRect.gameObject.AddComponent<TreasureDragHandler>();
         handler.Initialize(treasureInstanceId, isFromInventory, slotRect);
-    }
-
-    private void AddTreasureSlotRightClickHandler(RectTransform slotRect, int treasureInstanceId)
-    {
-        if (slotRect.GetComponent<TreasureSlotRightClickHandler>() != null)
-            return;
-
-        var handler = slotRect.gameObject.AddComponent<TreasureSlotRightClickHandler>();
-        handler.Initialize(treasureInstanceId, OnTreasureSlotRightClicked);
     }
 
     private void OnTreasureSlotRightClicked(int treasureInstanceId)
@@ -1128,6 +1355,204 @@ public partial class CharacterBagUI : UIFormBase
 
         DebugEx.Success(nameof(CharacterBagUI), "[UnregisterEvents] 事件监听器移除完成");
     }
+
+    #region UI更新辅助方法
+
+    /// <summary>
+    /// 更新 Title 文本和图标显示
+    /// </summary>
+    private void UpdateTitleAndIcons()
+    {
+        if (m_IsShowingChessList)
+        {
+            // 显示角色列表
+            if (varTitle != null)
+                varTitle.text = "角色列表";
+
+            // 显示宝物图标（提示可以切换到宝物列表）
+            if (varTreasureIcon != null)
+                varTreasureIcon.gameObject.SetActive(true);
+
+            // 隐藏角色图标
+            if (varChessIcon != null)
+                varChessIcon.gameObject.SetActive(false);
+
+            DebugEx.Log(nameof(CharacterBagUI), "[UpdateTitleAndIcons] 显示角色列表，显示宝物图标");
+        }
+        else
+        {
+            // 显示宝物列表
+            if (varTitle != null)
+                varTitle.text = "宝物列表";
+
+            // 隐藏宝物图标
+            if (varTreasureIcon != null)
+                varTreasureIcon.gameObject.SetActive(false);
+
+            // 显示角色图标（提示可以切换回角色列表）
+            if (varChessIcon != null)
+                varChessIcon.gameObject.SetActive(true);
+
+            DebugEx.Log(nameof(CharacterBagUI), "[UpdateTitleAndIcons] 显示宝物列表，显示角色图标");
+        }
+    }
+
+    /// <summary>
+    /// 更新标签按钮图标（选中/未选中状态）
+    /// </summary>
+    private void UpdateTabButtonIcons()
+    {
+        // 资源 ID
+        const int SELECTED_ICON_ID = 1011; // 选中状态图标
+        const int UNSELECTED_ICON_ID = 1010; // 未选中状态图标
+
+        // 更新 StateBtn
+        if (varStateBtn != null)
+        {
+            int iconId = m_CurrentTabIndex == 0 ? SELECTED_ICON_ID : UNSELECTED_ICON_ID;
+            LoadButtonIcon(varStateBtn, iconId);
+        }
+
+        // 更新 TreasureBtn
+        if (varTreasureBtn != null)
+        {
+            int iconId = m_CurrentTabIndex == 1 ? SELECTED_ICON_ID : UNSELECTED_ICON_ID;
+            LoadButtonIcon(varTreasureBtn, iconId);
+        }
+
+        // 更新 LevelUpBtn
+        if (varLevelUpBtn != null)
+        {
+            int iconId = m_CurrentTabIndex == 2 ? SELECTED_ICON_ID : UNSELECTED_ICON_ID;
+            LoadButtonIcon(varLevelUpBtn, iconId);
+        }
+
+        // 更新 StoryBtn
+        if (varStoryBtn != null)
+        {
+            int iconId = m_CurrentTabIndex == 3 ? SELECTED_ICON_ID : UNSELECTED_ICON_ID;
+            LoadButtonIcon(varStoryBtn, iconId);
+        }
+
+        DebugEx.Log(
+            nameof(CharacterBagUI),
+            $"[UpdateTabButtonIcons] 更新标签按钮图标，当前选中: {m_CurrentTabIndex}"
+        );
+    }
+
+    /// <summary>
+    /// 加载按钮图标
+    /// </summary>
+    private void LoadButtonIcon(Button button, int iconId)
+    {
+        if (button == null)
+            return;
+
+        var image = button.GetComponent<Image>();
+        if (image != null)
+        {
+            _ = ResourceExtension.LoadSpriteAsync(iconId, image);
+        }
+    }
+
+    /// <summary>
+    /// 加载技能图标
+    /// </summary>
+    private void LoadSkillIcons(SummonChessTable chessRow)
+    {
+        if (chessRow == null)
+            return;
+
+        // 加载被动技能图标
+        if (
+            varPassiveSkill != null
+            && chessRow.PassiveIds != null
+            && chessRow.PassiveIds.Length > 0
+        )
+        {
+            int passiveSkillId = chessRow.PassiveIds[0];
+            LoadSkillIcon(varPassiveSkill, passiveSkillId);
+        }
+
+        // 加载普通攻击图标
+        if (varNormalAtk != null && chessRow.NormalAtkId != null && chessRow.NormalAtkId.Length > 0)
+        {
+            int normalAtkId = chessRow.NormalAtkId[0];
+            LoadSkillIcon(varNormalAtk, normalAtkId);
+        }
+
+        // 加载技能1图标
+        if (varSkill_1 != null && chessRow.Skill1Id != null && chessRow.Skill1Id.Length > 0)
+        {
+            int skill1Id = chessRow.Skill1Id[0];
+            LoadSkillIcon(varSkill_1, skill1Id);
+        }
+
+        // 加载技能2图标
+        if (varSkill_2 != null && chessRow.Skill2Id != null && chessRow.Skill2Id.Length > 0)
+        {
+            int skill2Id = chessRow.Skill2Id[0];
+            LoadSkillIcon(varSkill_2, skill2Id);
+        }
+
+        // 加载大招图标
+        if (
+            varUltimateSkill != null
+            && chessRow.UltimateId != null
+            && chessRow.UltimateId.Length > 0
+        )
+        {
+            int ultimateId = chessRow.UltimateId[0];
+            LoadSkillIcon(varUltimateSkill, ultimateId);
+        }
+
+        DebugEx.Log(nameof(CharacterBagUI), $"[LoadSkillIcons] 加载技能图标: {chessRow.Name}");
+    }
+
+    /// <summary>
+    /// 加载单个技能图标
+    /// </summary>
+    private void LoadSkillIcon(Button skillButton, int skillId)
+    {
+        if (skillButton == null || skillId <= 0)
+            return;
+
+        // 从 SummonChessSkillTable 获取技能数据
+        var skillRow = m_DtSkill?.GetDataRow(skillId);
+        if (skillRow == null)
+        {
+            DebugEx.Warning(
+                nameof(CharacterBagUI),
+                $"[LoadSkillIcon] 未找到技能数据: skillId={skillId}"
+            );
+            return;
+        }
+
+        // 获取技能图标 ID（IconId 是 int 类型，不是数组）
+        int iconId = skillRow.IconId;
+
+        if (iconId <= 0)
+        {
+            DebugEx.Warning(
+                nameof(CharacterBagUI),
+                $"[LoadSkillIcon] 技能图标ID无效: skillId={skillId}, iconId={iconId}"
+            );
+            return;
+        }
+
+        // 加载图标到按钮的 Image 组件
+        var image = skillButton.GetComponent<Image>();
+        if (image != null)
+        {
+            _ = ResourceExtension.LoadSpriteAsync(iconId, image);
+            DebugEx.Log(
+                nameof(CharacterBagUI),
+                $"[LoadSkillIcon] 加载技能图标: skillId={skillId}, iconId={iconId}"
+            );
+        }
+    }
+
+    #endregion
 
     #region 辅助类型
 

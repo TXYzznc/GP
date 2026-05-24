@@ -112,11 +112,41 @@ public class TreasureDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         dragIconObj.transform.SetParent(m_TopCanvas.transform, false);
 
         m_DragIcon = dragIconObj.AddComponent<Image>();
-        var sourceImage = GetComponent<Image>();
-        if (sourceImage != null)
+
+        // ⭐ 从 TreasureItemUI 获取宝物图标
+        var treasureItemUI = GetComponentInChildren<TreasureItemUI>(true);
+        if (treasureItemUI != null)
         {
-            m_DragIcon.sprite = sourceImage.sprite;
-            m_DragIcon.color = new Color(1, 1, 1, 0.7f);
+            // 从 TreasureItemUI 的子对象中查找名为 "TreasureImg" 的 Image 组件
+            var treasureImgTransform = treasureItemUI.transform.Find("TreasureImg");
+            if (treasureImgTransform != null)
+            {
+                var treasureImg = treasureImgTransform.GetComponent<Image>();
+                if (treasureImg != null && treasureImg.sprite != null)
+                {
+                    m_DragIcon.sprite = treasureImg.sprite;
+                    m_DragIcon.color = new Color(1, 1, 1, 0.7f);
+                    DebugEx.Log(
+                        nameof(TreasureDragHandler),
+                        "[CreateDragIcon] 从 TreasureItemUI 获取图标成功"
+                    );
+                }
+            }
+        }
+
+        // 备用方案：从当前对象的 Image 组件获取
+        if (m_DragIcon.sprite == null)
+        {
+            var sourceImage = GetComponent<Image>();
+            if (sourceImage != null && sourceImage.sprite != null)
+            {
+                m_DragIcon.sprite = sourceImage.sprite;
+                m_DragIcon.color = new Color(1, 1, 1, 0.7f);
+                DebugEx.Warning(
+                    nameof(TreasureDragHandler),
+                    "[CreateDragIcon] 未找到 TreasureItemUI 图标，使用备用方案"
+                );
+            }
         }
 
         // ⭐ 修复：禁用拖拽图标的射线检测，避免阻挡目标槽位
