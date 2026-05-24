@@ -863,7 +863,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1918839695, guid: 21fe403dcd2d39f4aa5be82fccfa94b4, type: 3}
+  m_Sprite: {fileID: -316447372, guid: 21fe403dcd2d39f4aa5be82fccfa94b4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1527,7 +1527,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -316447372, guid: 21fe403dcd2d39f4aa5be82fccfa94b4, type: 3}
+  m_Sprite: {fileID: -1918839695, guid: 21fe403dcd2d39f4aa5be82fccfa94b4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2017,6 +2017,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3040014205112018260}
   - component: {fileID: 1205342321792352436}
+  - component: {fileID: 8236279883525003512}
   m_Layer: 5
   m_Name: SelectedChessContainer
   m_TagString: Untagged
@@ -2067,6 +2068,20 @@ MonoBehaviour:
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 2
   m_ConstraintCount: 1
+--- !u!114 &8236279883525003512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3217093968261749477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!1 &3351243064816019050
 GameObject:
   m_ObjectHideFlags: 0
