@@ -1,15 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
 /// 粒子特效批量预览 - 场景版本
 /// 在场景中以网格方式显示特效，支持批次切换和播放控制
-///
-/// 快捷键：
-/// A / ← - 上一批
-/// D / → - 下一批
-/// Space - 播放/暂停
-/// R - 重启
 /// </summary>
 public class ParticleEffectBatchPreview : MonoBehaviour
 {
@@ -35,11 +29,6 @@ public class ParticleEffectBatchPreview : MonoBehaviour
     [Tooltip("特效最大尺寸")]
     private float m_MaxEffectSize = 1.5f;
 
-    [Header("调试")]
-    [SerializeField]
-    [Tooltip("显示调试信息")]
-    private bool m_ShowDebugUI = true;
-
     private List<GameObject> m_EffectPrefabs = new List<GameObject>();
     private List<GameObject> m_CurrentBatchInstances = new List<GameObject>();
     private List<ParticleSystem> m_AllParticleSystems = new List<ParticleSystem>();
@@ -47,9 +36,18 @@ public class ParticleEffectBatchPreview : MonoBehaviour
     private int m_CurrentBatch = 0;
     private bool m_IsPlaying = true;
     private GameObject m_ContainerRoot;
+    private string m_LastFolderPath;
+
+    public int CurrentBatch => m_CurrentBatch;
+    public int TotalBatches => m_EffectPrefabs.Count == 0 ? 0 : Mathf.CeilToInt((float)m_EffectPrefabs.Count / (m_GridColumns * m_GridRows));
+    public int TotalEffects => m_EffectPrefabs.Count;
+    public int ParticleSystemCount => m_AllParticleSystems.Count;
+    public bool IsPlaying => m_IsPlaying;
+    public string FolderPath => m_FolderPath;
 
     private void Start()
     {
+        m_LastFolderPath = m_FolderPath;
         LoadEffectPrefabs();
         CreateContainerRoot();
         DisplayBatch(0);
@@ -61,111 +59,22 @@ public class ParticleEffectBatchPreview : MonoBehaviour
     private void Update()
     {
         HandleInput();
-    }
-
-    private void OnGUI()
-    {
-        if (!m_ShowDebugUI) return;
-
-        GUILayout.BeginArea(new Rect(10, 10, 500, 500));
-        GUILayout.BeginVertical("box");
-
-        GUILayout.Label("<b><size=14>特效批量预览</size></b>", GetRichTextStyle());
-        GUILayout.Space(5);
-
-        // 批次信息
-        int batchSize = m_GridColumns * m_GridRows;
-        int totalBatches = Mathf.CeilToInt((float)m_EffectPrefabs.Count / batchSize);
-        int startIndex = m_CurrentBatch * batchSize + 1;
-        int endIndex = Mathf.Min((m_CurrentBatch + 1) * batchSize, m_EffectPrefabs.Count);
-
-        GUILayout.Label($"<b>批次信息</b>", GetHeaderStyle());
-        GUILayout.Label($"当前: {m_CurrentBatch + 1}/{totalBatches}");
-        GUILayout.Label($"显示: {startIndex}-{endIndex}/{m_EffectPrefabs.Count}");
-        GUILayout.Space(8);
-
-        // 批次控制按钮
-        GUILayout.Label($"<b>批次控制</b>", GetHeaderStyle());
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("◄ 上一批", GUILayout.Height(30)))
-        {
-            PreviousBatch();
-        }
-        if (GUILayout.Button("下一批 ►", GUILayout.Height(30)))
-        {
-            NextBatch();
-        }
-        GUILayout.EndHorizontal();
-        GUILayout.Space(8);
-
-        // 状态信息
-        GUILayout.Label($"<b>播放状态</b>", GetHeaderStyle());
-        GUILayout.Label($"状态: {(m_IsPlaying ? "<color=green>播放中</color>" : "<color=red>已暂停</color>")}");
-        GUILayout.Label($"粒子系统: {m_AllParticleSystems.Count}");
-        GUILayout.Space(8);
-
-        // 播放控制按钮
-        GUILayout.Label($"<b>播放控制</b>", GetHeaderStyle());
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button(m_IsPlaying ? "⏸ 暂停" : "▶ 播放", GUILayout.Height(30)))
-        {
-            TogglePlayPause();
-        }
-        if (GUILayout.Button("↻ 重启", GUILayout.Height(30)))
-        {
-            RestartAllParticles();
-        }
-        GUILayout.EndHorizontal();
-        GUILayout.Space(8);
-
-        // 网格参数
-        GUILayout.Label($"<b>网格参数</b>", GetHeaderStyle());
-        GUILayout.Label($"布局: {m_GridColumns}×{m_GridRows}");
-        GUILayout.Label($"特效大小: {m_MaxEffectSize:F2}");
-        GUILayout.Label($"文件夹: {m_FolderPath}");
-        GUILayout.Space(8);
-
-        // 快捷键说明
-        GUILayout.Label($"<b>快捷键</b>", GetHeaderStyle());
-        GUILayout.Label("A/← - 上一批  |  D/→ - 下一批");
-        GUILayout.Label("Space - 播放/暂停  |  R - 重启");
-        GUILayout.Label("H - 隐藏此面板");
-
-        GUILayout.EndVertical();
-        GUILayout.EndArea();
+        DetectFolderPathChange();
     }
 
     private void HandleInput()
     {
-        // 上一批
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-        {
             PreviousBatch();
-        }
 
-        // 下一批
         if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
             NextBatch();
-        }
 
-        // 播放/暂停
         if (Input.GetKeyDown(KeyCode.Space))
-        {
             TogglePlayPause();
-        }
 
-        // 重启
         if (Input.GetKeyDown(KeyCode.R))
-        {
             RestartAllParticles();
-        }
-
-        // 隐藏/显示UI
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            m_ShowDebugUI = !m_ShowDebugUI;
-        }
     }
 
     private void LoadEffectPrefabs()
@@ -173,7 +82,6 @@ public class ParticleEffectBatchPreview : MonoBehaviour
         m_EffectPrefabs.Clear();
 
 #if UNITY_EDITOR
-        // 编辑器模式：使用 AssetDatabase
         string searchPath = m_FolderPath.StartsWith("Assets/") ? m_FolderPath : "Assets/" + m_FolderPath;
         string[] guids = UnityEditor.AssetDatabase.FindAssets("t:Prefab", new[] { searchPath });
 
@@ -194,15 +102,14 @@ public class ParticleEffectBatchPreview : MonoBehaviour
                 $"未找到特效，请检查路径: {searchPath}");
         }
 #else
-    // 运行时模式：使用 Resources
-    GameObject[] prefabs = Resources.LoadAll<GameObject>(m_FolderPath);
-    foreach (var prefab in prefabs)
-    {
-        if (prefab.GetComponentInChildren<ParticleSystem>() != null)
+        GameObject[] prefabs = Resources.LoadAll<GameObject>(m_FolderPath);
+        foreach (var prefab in prefabs)
         {
-            m_EffectPrefabs.Add(prefab);
+            if (prefab.GetComponentInChildren<ParticleSystem>() != null)
+            {
+                m_EffectPrefabs.Add(prefab);
+            }
         }
-    }
 #endif
 
         DebugEx.Success(nameof(ParticleEffectBatchPreview),
@@ -217,7 +124,6 @@ public class ParticleEffectBatchPreview : MonoBehaviour
 
     private void DisplayBatch(int batchIndex)
     {
-        // 清理旧特效
         ClearCurrentBatch();
 
         if (m_EffectPrefabs.Count == 0)
@@ -226,7 +132,7 @@ public class ParticleEffectBatchPreview : MonoBehaviour
             return;
         }
 
-        m_CurrentBatch = Mathf.Clamp(batchIndex, 0, Mathf.CeilToInt((float)m_EffectPrefabs.Count / (m_GridColumns * m_GridRows)) - 1);
+        m_CurrentBatch = Mathf.Clamp(batchIndex, 0, TotalBatches - 1);
 
         int batchSize = m_GridColumns * m_GridRows;
         int startIndex = m_CurrentBatch * batchSize;
@@ -242,29 +148,24 @@ public class ParticleEffectBatchPreview : MonoBehaviour
             int row = localIndex / m_GridColumns;
             int col = localIndex % m_GridColumns;
 
-            // 计算位置
             float x = col * cellSize - gridWidth / 2 + cellSize / 2;
             float z = row * cellSize - gridHeight / 2 + cellSize / 2;
             Vector3 cellPos = new Vector3(x, 0, z);
 
-            // 创建格子容器
             GameObject cellObj = new GameObject($"Cell_{row}_{col}");
             cellObj.transform.SetParent(m_ContainerRoot.transform, false);
             cellObj.transform.localPosition = cellPos;
 
-            // 实例化特效
             GameObject effectInstance = Instantiate(m_EffectPrefabs[i]);
             effectInstance.name = m_EffectPrefabs[i].name;
             effectInstance.transform.SetParent(cellObj.transform, false);
             effectInstance.transform.localPosition = Vector3.zero;
             effectInstance.transform.localRotation = Quaternion.identity;
 
-            // 自动缩放
             ScaleEffectToBounds(effectInstance);
 
             m_CurrentBatchInstances.Add(effectInstance);
 
-            // 收集粒子系统
             var particles = effectInstance.GetComponentsInChildren<ParticleSystem>();
             foreach (var ps in particles)
             {
@@ -274,7 +175,6 @@ public class ParticleEffectBatchPreview : MonoBehaviour
             localIndex++;
         }
 
-        // 播放所有粒子系统
         PlayAllParticles();
 
         DebugEx.Success(nameof(ParticleEffectBatchPreview),
@@ -283,7 +183,6 @@ public class ParticleEffectBatchPreview : MonoBehaviour
 
     private void ClearCurrentBatch()
     {
-        // 删除容器下所有的Cell对象（包括特效实例）
         if (m_ContainerRoot != null)
         {
             foreach (Transform child in m_ContainerRoot.transform)
@@ -343,21 +242,36 @@ public class ParticleEffectBatchPreview : MonoBehaviour
         m_IsPlaying = false;
     }
 
-    private void RestartAllParticles()
+    private void DetectFolderPathChange()
     {
-        foreach (var ps in m_AllParticleSystems)
+        if (m_FolderPath != m_LastFolderPath)
         {
-            if (ps != null)
-            {
-                ps.Stop();
-                ps.Play();
-            }
+            m_LastFolderPath = m_FolderPath;
+            RefreshEffects();
         }
-        m_IsPlaying = true;
-        DebugEx.Log(nameof(ParticleEffectBatchPreview), "已重启所有粒子系统");
     }
 
-    private void TogglePlayPause()
+    public void RefreshEffects()
+    {
+        LoadEffectPrefabs();
+        DisplayBatch(0);
+        DebugEx.Success(nameof(ParticleEffectBatchPreview),
+            $"已刷新资源，路径: {m_FolderPath}，共 {m_EffectPrefabs.Count} 个特效");
+    }
+
+    public void PreviousBatch()
+    {
+        if (m_CurrentBatch > 0)
+            DisplayBatch(m_CurrentBatch - 1);
+    }
+
+    public void NextBatch()
+    {
+        if (m_CurrentBatch < TotalBatches - 1)
+            DisplayBatch(m_CurrentBatch + 1);
+    }
+
+    public void TogglePlayPause()
     {
         if (m_IsPlaying)
         {
@@ -371,37 +285,17 @@ public class ParticleEffectBatchPreview : MonoBehaviour
         }
     }
 
-    private void PreviousBatch()
+    public void RestartAllParticles()
     {
-        if (m_CurrentBatch > 0)
+        foreach (var ps in m_AllParticleSystems)
         {
-            DisplayBatch(m_CurrentBatch - 1);
+            if (ps != null)
+            {
+                ps.Stop();
+                ps.Play();
+            }
         }
-    }
-
-    private void NextBatch()
-    {
-        int batchSize = m_GridColumns * m_GridRows;
-        int totalBatches = Mathf.CeilToInt((float)m_EffectPrefabs.Count / batchSize);
-        if (m_CurrentBatch < totalBatches - 1)
-        {
-            DisplayBatch(m_CurrentBatch + 1);
-        }
-    }
-
-    private GUIStyle GetRichTextStyle()
-    {
-        var style = new GUIStyle(GUI.skin.label);
-        style.richText = true;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
-    }
-
-    private GUIStyle GetHeaderStyle()
-    {
-        var style = new GUIStyle(GUI.skin.label);
-        style.richText = true;
-        style.fontStyle = FontStyle.Bold;
-        return style;
+        m_IsPlaying = true;
+        DebugEx.Log(nameof(ParticleEffectBatchPreview), "已重启所有粒子系统");
     }
 }
