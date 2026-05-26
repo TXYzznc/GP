@@ -44,6 +44,10 @@ public class SceneSpawnManager : MonoBehaviour
     private int m_EnemyGridSampleDensity = 2;
 
     [SerializeField]
+    [Tooltip("敌人安全区域NavMesh采样容差")]
+    private float m_EnemySafetyNavMeshTolerance = 0.2f;
+
+    [SerializeField]
     [Tooltip("敌人之间的最小间隔距离")]
     private float m_EnemyMinSpacing = 1.5f;
 
@@ -488,7 +492,7 @@ public class SceneSpawnManager : MonoBehaviour
             for (int z = -m_EnemyGridSampleDensity; z <= m_EnemyGridSampleDensity; z++)
             {
                 Vector3 samplePos = centerPos + new Vector3(x * step, 0, z * step);
-                if (!NavMesh.SamplePosition(samplePos, out _, 0f, NavMesh.AllAreas))
+                if (!NavMesh.SamplePosition(samplePos, out _, m_EnemySafetyNavMeshTolerance, NavMesh.AllAreas))
                     return false;
             }
         }

@@ -405,7 +405,6 @@
     <Compile Include="Assets\AAAGame\Scripts\UI\Components\FastBarSlotContainerImpl.cs" />
     <Compile Include="Assets\AAAGame\Scripts\UI\UIItemVariables\PlayerInfoItem.Variables.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Explore\Enemy\Core\EnemyTypeDefine.cs" />
-    <Compile Include="Assets\AAAGame\Scripts\Test\Editor\ParticleEffectBatchPreviewEditor.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\AI\TargetSearchConfig.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Game\Combat\Chess\ChessPlacementManager.cs" />
     <Compile Include="Assets\AAAGame\Scripts\Extension\AwaitExtension\DownloadResult.cs" />

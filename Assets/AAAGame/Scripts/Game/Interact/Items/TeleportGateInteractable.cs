@@ -24,7 +24,6 @@ public class TeleportGateInteractable : InteractableBase
     protected override void Awake()
     {
         base.Awake();
-        interactionTip = m_TeleportType == TeleportType.ToBase ? "回到基地" : "进入传送阵";
     }
 
     public override bool CanInteract(GameObject player)

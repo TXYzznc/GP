@@ -106,6 +106,7 @@
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableGenerator.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.EnumProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Vector3ArrayProcessor.cs" />
+    <Compile Include="Assets\Editor\SceneDependencyAnalyzer.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.DataProcessorUtility.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Float2DArrayProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Assets\Editor\unity开发集成工具箱\Panels\ChessSkillTestPanel.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.LongProcessor.cs" />
     <Compile Include="Assets\Editor\unity开发集成工具箱\CatmullRomSpline.cs" />
+    <Compile Include="Assets\Editor\ParticleEffectBatchPreviewEditor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Vector2IntProcessor.cs" />
     <Compile Include="Assets\AAAGame\ScriptsBuiltin\Editor\DataTableGenerator\DataTableProcessor.Vector4Processor.cs" />
     <Compile Include="Assets\Editor\unity开发集成工具箱\Panels\BatchMeshColliderPanel.cs" />
