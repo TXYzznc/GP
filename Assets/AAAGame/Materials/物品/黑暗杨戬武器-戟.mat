@@ -103,9 +103,9 @@ Material:
     - _DISSOLVE_MODE: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DissolveEdgeWidth: 0.08
+    - _DissolveEdgeWidth: 0.04
     - _DissolveEnabled: 1
-    - _DissolveThreshold: 0.005
+    - _DissolveThreshold: 0.002
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1

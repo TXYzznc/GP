@@ -116,9 +116,15 @@ Material:
     - _LocalOutlineDepthNear: 0.5
     - _LocalOutlineRate: 1
     - _LocalOutlineWidthFar: 0.005
+    - _LocalOutlineWidthFarRate: 0.2
     - _LocalOutlineWidthNear: 0.03
+    - _LocalOutlineWidthNearRate: 1.2
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OilPaintingBrushScale: 2
+    - _OilPaintingHardness: 8
+    - _OilPaintingRadius: 3
+    - _OilPaintingSharpness: 0.5
     - _OutlineDistanceCurve: 1
     - _OutlineDistanceMax: 2
     - _OutlineDistanceMin: 20
@@ -131,17 +137,19 @@ Material:
     - _QueueOffset: 0
     - _RainbowIntensity: 2
     - _RampSmooth: 0.1
-    - _RampThreshold: 0.4
+    - _RampThreshold: 0.3
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _StealthAlpha: 1
     - _Surface: 0
-    - _ToonSteps: 5
+    - _ToonSteps: 6
     - _UseDistanceOutline: 0
     - _UseLocalDepthOutline: 0
+    - _UseOilPainting: 0
     - _UseSmoothNormal: 0
     - _WorkflowMode: 1
     - _ZWrite: 1

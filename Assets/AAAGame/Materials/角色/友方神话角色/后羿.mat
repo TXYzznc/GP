@@ -151,7 +151,7 @@ Material:
     - _OutlineLocalEnableDistance: 5
     - _OutlineWidth: 0.003
     - _OutlineWidthMax: 0.008
-    - _OutlineWidthMin: 0.001
+    - _OutlineWidthMin: 0.002
     - _OutlineZOffset: 0
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -161,7 +161,7 @@ Material:
     - _RampThreshold: 0.2
     - _ReceiveShadows: 1
     - _Sharpness: 0.5
-    - _Smoothness: 0.5
+    - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
