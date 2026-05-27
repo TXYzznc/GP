@@ -148,6 +148,7 @@
     <None Include="Assets\AAAGame\DataTable\PlayerInitTable.txt" />
     <None Include="Assets\AAAGame\DataTable\TargetSearchStrategyTable.txt" />
     <None Include="Assets\特效\攻击及命中特效\ProjectilesFX\HDRP URP Gamma Readme.txt" />
+    <None Include="Assets\测试输出日志\unity_log_20260527_231246.txt" />
     <None Include="Assets\AAAGame\DataTable\ItemGroupTable.txt" />
     <None Include="Assets\AAAGame\DataTable\SummonChessSkillTable.txt" />
     <None Include="Assets\AAAGame\Font\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
