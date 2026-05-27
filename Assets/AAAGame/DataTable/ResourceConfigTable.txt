@@ -227,7 +227,6 @@
 	13011		1	Chess/恶魂/恶魂头像.png	棋子恶魂头像
 	13012		1	Chess/黑暗杨戬/黑暗杨戬头像.png	棋子黑暗杨戬头像
 	13013		1	Chess/黑暗哮天犬/黑暗哮天犬头像.png	棋子黑暗哮天犬头像
-	13999		1	Chess/稻草人/稻草人头像.png	稻草人头像
 	15001		1	Buff/5001.png	神圣庇护Buff图标
 	15002	(不再使用)	1	Buff/5002.png	烈焰风暴·灼烧Buff图标
 	15003		1	Buff/5003.png	战争号角Buff图标
@@ -260,10 +259,10 @@
 	19012		1	Card/Component/Bg-2.png	卡片背景-稀有度2
 	19013		1	Card/Component/Bg-3.png	卡片背景-稀有度3
 	19014		1	Card/Component/Bg-4.png	卡片背景-稀有度4
-	19021		1	Card/Component/装饰/宝石_稀有.png	宝石装饰-稀有
-	19022		1	Card/Component/装饰/宝石_史诗.png	宝石装饰-史诗
-	19023		1	Card/Component/装饰/宝石_传奇.png	宝石装饰-传奇
-	19024		1	Card/Component/装饰/宝石_神话.png	宝石装饰-神话
+	19021		1	Card/Component/装饰/1.png	宝石装饰-稀有
+	19022		1	Card/Component/装饰/2.png	宝石装饰-史诗
+	19023		1	Card/Component/装饰/3.png	宝石装饰-传奇
+	19024		1	Card/Component/装饰/4.png	宝石装饰-神话
 	20101	CardTable使用|资源暂不存在	2	Entity/Card/神圣庇护_Effect	神圣庇护-施法预制体
 	20102	CardTable使用|资源暂不存在	2	Entity/Card/烈焰风暴_Effect	烈焰风暴-施法预制体
 	20103	CardTable使用|资源暂不存在	2	Entity/Card/时间回溯_Effect	时间回溯-施法预制体

@@ -1,8 +1,8 @@
-﻿using GameFramework.Fsm;
-using UnityGameFramework.Runtime;
+﻿using System.Reflection;
 using GameFramework;
 using GameFramework.Event;
-using System.Reflection;
+using GameFramework.Fsm;
+using UnityGameFramework.Runtime;
 
 /// <summary>
 /// 局内状态 - 游戏进行中
@@ -109,7 +109,7 @@ public class InGameState : FsmState<GameStateManager>
             DestroySubStateMachine();
         }
 
-        // 清理玩家运行时数据管理器
+        // 清理玩家运行时数据管理器（会重置污染值为0）
         PlayerRuntimeDataManager.Instance.Cleanup();
 
         // 清理仓库数据（WarehouseManager 是纯 C# 单例，需手动清理）
@@ -172,9 +172,10 @@ public class InGameState : FsmState<GameStateManager>
             {
                 uiParams.Set<VarInt32>(EndCombatUI.P_RewardId, config.RewardId);
                 // 优先使用动态计算的难度等级，否则使用配置表中的基础难度
-                int difficultyLevel = (enemy.ComputedDifficultyLevel > 0)
-                    ? enemy.ComputedDifficultyLevel
-                    : config.EnemyDifficulty;
+                int difficultyLevel =
+                    (enemy.ComputedDifficultyLevel > 0)
+                        ? enemy.ComputedDifficultyLevel
+                        : config.EnemyDifficulty;
                 uiParams.Set<VarInt32>(EndCombatUI.P_Difficulty, difficultyLevel);
             }
         }
@@ -206,7 +207,7 @@ public class InGameState : FsmState<GameStateManager>
         {
             new ExplorationState(),
             new CombatPreparationState(),
-            new CombatState()
+            new CombatState(),
         };
 
         // 创建子状态机
@@ -362,7 +363,8 @@ public class InGameState : FsmState<GameStateManager>
     /// <summary>
     /// 通过反射调用子状态机的 ChangeState 方法
     /// </summary>
-    private void ChangeSubStateByReflection<TState>() where TState : FsmState<InGameState>
+    private void ChangeSubStateByReflection<TState>()
+        where TState : FsmState<InGameState>
     {
         try
         {
@@ -370,15 +372,19 @@ public class InGameState : FsmState<GameStateManager>
             var fsmType = m_SubFsm.GetType();
 
             // 获取所有 ChangeState 方法
-            var methods = fsmType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            var methods = fsmType.GetMethods(
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public
+            );
 
             // 查找无参数的泛型 ChangeState 方法
             MethodInfo targetMethod = null;
             foreach (var method in methods)
             {
-                if (method.Name == "ChangeState" &&
-                    method.IsGenericMethodDefinition &&
-                    method.GetParameters().Length == 0)
+                if (
+                    method.Name == "ChangeState"
+                    && method.IsGenericMethodDefinition
+                    && method.GetParameters().Length == 0
+                )
                 {
                     targetMethod = method;
                     break;

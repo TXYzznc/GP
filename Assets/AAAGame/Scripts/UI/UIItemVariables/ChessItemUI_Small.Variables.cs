@@ -14,4 +14,5 @@ public partial class ChessItemUI_Small
 	[SerializeField] private TextMeshProUGUI varNameText = null;
 	[SerializeField] private Image varBg = null;
 	[SerializeField] private Image varFrame = null;
+	[SerializeField] private Image varDecorate = null;
 }

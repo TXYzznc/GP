@@ -51,12 +51,13 @@ public partial class ChessItemUI_Small : UIItemBase, IPointerClickHandler
     }
 
     /// <summary>
-    /// 根据稀有度加载 Frame 和 Bg，资源ID规则与 ChessItemUI 一致
+    /// 根据稀有度加载 Frame、Bg 和 Decorate，资源ID规则与 ChessItemUI 一致
     /// </summary>
     private async UniTask LoadQualityUIAsync(int quality)
     {
         int frameId = 19000 + quality; // 19001~19004
         int bgId = 19010 + quality; // 19011~19014
+        int decorateId = 19020 + quality; // 19021~19024
 
         if (varFrame != null)
             await ResourceExtension.LoadSpriteAsync(frameId, varFrame);
@@ -64,9 +65,12 @@ public partial class ChessItemUI_Small : UIItemBase, IPointerClickHandler
         if (varBg != null)
             await ResourceExtension.LoadSpriteAsync(bgId, varBg);
 
+        if (varDecorate != null)
+            await ResourceExtension.LoadSpriteAsync(decorateId, varDecorate);
+
         DebugEx.Log(
             nameof(ChessItemUI_Small),
-            $"加载稀有度UI: quality={quality}, frameId={frameId}, bgId={bgId}"
+            $"加载稀有度UI: quality={quality}, frameId={frameId}, bgId={bgId}, decorateId={decorateId}"
         );
     }
 

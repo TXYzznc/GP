@@ -743,7 +743,8 @@ public partial class BattlePresetUI : UIFormBase
             if (chessPresetItem != null)
             {
                 int chessId = m_EditingPreset.UnitCardIds[i];
-                chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(chessId));
+                int capturedIndex = i; // ⭐ 捕获当前索引
+                chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(capturedIndex));
                 chessPresetItem.HideMask();
             }
         }
@@ -811,16 +812,16 @@ public partial class BattlePresetUI : UIFormBase
     /// <summary>
     /// 已选棋子被点击（移除）
     /// </summary>
-    private void OnSelectedChessClicked(int chessId)
+    private void OnSelectedChessClicked(int index)
     {
         if (m_EditingPreset == null)
             return;
 
-        int removedIndex = m_EditingPreset.UnitCardIds.IndexOf(chessId);
-        if (removedIndex < 0)
+        if (index < 0 || index >= m_EditingPreset.UnitCardIds.Count)
             return;
 
-        var removedItem = m_SelectedChessItems[removedIndex];
+        int chessId = m_EditingPreset.UnitCardIds[index];
+        var removedItem = m_SelectedChessItems[index];
         GameObject poolItem = m_PoolChessItemsDict.ContainsKey(chessId)
             ? m_PoolChessItemsDict[chessId]
             : null;
@@ -831,12 +832,11 @@ public partial class BattlePresetUI : UIFormBase
         if (removedCanvasGroup != null)
             DOTween.Kill(removedCanvasGroup);
 
-        // ⭐ 立即从数据中移除，避免动画期间快速操作导致数据/UI不同步
-        m_EditingPreset.UnitCardIds.Remove(chessId);
+        // ⭐ 从数据中移除
+        m_EditingPreset.UnitCardIds.RemoveAt(index);
 
-        // 立即刷新已选区域（数据已更新）
-        removedItem.SetActive(false);
-        RefreshSelectedChessFromIndex(removedIndex);
+        // ⭐ 立即刷新所有已选棋子（完整重建，确保索引对应关系正确）
+        RefreshSelectedChessUI();
 
         // 更新计数文本
         if (varChessCountText != null)
@@ -854,7 +854,7 @@ public partial class BattlePresetUI : UIFormBase
         // 立即更新可选池中这一个棋子的状态
         UpdatePoolChessState(chessId, false);
 
-        DebugEx.Log(nameof(BattlePresetUI), $"移除棋子: {chessId}");
+        DebugEx.Log(nameof(BattlePresetUI), $"移除棋子: index={index}, chessId={chessId}");
     }
 
     /// <summary>
@@ -891,7 +891,8 @@ public partial class BattlePresetUI : UIFormBase
             var chessPresetItem = go.GetComponent<ChessPresetItem>();
             if (chessPresetItem != null)
             {
-                chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(chessId));
+                int capturedIndex = i; // ⭐ 捕获当前索引
+                chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(capturedIndex));
                 chessPresetItem.HideMask();
             }
 
@@ -915,6 +916,62 @@ public partial class BattlePresetUI : UIFormBase
                     DOTween.Kill(canvasGroup);
 
                 m_SelectedChessItems[i].SetActive(false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 完整刷新已选棋子UI（用于移除后重建，确保索引对应关系正确）
+    /// </summary>
+    private void RefreshSelectedChessUI()
+    {
+        // 先隐藏所有项
+        foreach (var go in m_SelectedChessItems)
+        {
+            if (go != null)
+            {
+                DOTween.Kill(go.transform);
+                var cg = go.GetComponent<CanvasGroup>();
+                if (cg != null)
+                    DOTween.Kill(cg);
+                go.SetActive(false);
+            }
+        }
+
+        // 根据当前数据重新显示
+        for (int i = 0; i < m_EditingPreset.UnitCardIds.Count; i++)
+        {
+            GameObject go;
+            if (i < m_SelectedChessItems.Count)
+            {
+                go = m_SelectedChessItems[i];
+                go.SetActive(true);
+            }
+            else
+            {
+                go = Instantiate(varChessItemTemplate, varSelectedChessContainer.transform);
+                m_SelectedChessItems.Add(go);
+            }
+
+            // 确保 sibling 顺序正确
+            go.transform.SetSiblingIndex(i);
+
+            // 重置状态
+            go.transform.localScale = Vector3.one;
+            var cg = go.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = 1f;
+            }
+
+            // 设置数据
+            var chessPresetItem = go.GetComponent<ChessPresetItem>();
+            if (chessPresetItem != null)
+            {
+                int chessId = m_EditingPreset.UnitCardIds[i];
+                int capturedIndex = i; // ⭐ 捕获当前索引，避免闭包问题
+                chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(capturedIndex));
+                chessPresetItem.HideMask();
             }
         }
     }
@@ -1010,7 +1067,8 @@ public partial class BattlePresetUI : UIFormBase
         var chessPresetItem = go.GetComponent<ChessPresetItem>();
         if (chessPresetItem != null)
         {
-            chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(chessId));
+            int capturedIndex = index; // ⭐ 捕获当前索引
+            chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(capturedIndex));
             chessPresetItem.HideMask();
         }
     }

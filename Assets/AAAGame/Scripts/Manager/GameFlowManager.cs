@@ -63,6 +63,37 @@ public static class GameFlowManager
     }
 
     /// <summary>
+    /// 进入指定场景（通过场景ID）
+    /// </summary>
+    /// <param name="sceneId">场景ID</param>
+    public static void EnterScene(int sceneId)
+    {
+        Log.Info($"=== 进入场景 ID={sceneId} ===");
+
+        // 从配置表获取场景名称
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null)
+        {
+            Log.Error("GameFlowManager: 场景配置表未加载");
+            return;
+        }
+
+        var sceneRow = sceneTable.GetDataRow(sceneId);
+        if (sceneRow == null)
+        {
+            Log.Error($"GameFlowManager: 场景ID {sceneId} 不存在");
+            return;
+        }
+
+        Log.Info(
+            $"GameFlowManager: 切换到场景 {sceneRow.SceneName} (ID={sceneId}, Type={sceneRow.GetSceneTypeEnum()})"
+        );
+
+        // 切换到对应场景
+        ChangeScene(sceneRow.SceneName);
+    }
+
+    /// <summary>
     /// 切换场景
     /// </summary>
     /// <param name="sceneName">场景名称</param>

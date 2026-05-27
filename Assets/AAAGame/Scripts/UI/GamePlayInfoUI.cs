@@ -250,6 +250,9 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         ShowUI();
         RefreshGameInfo();
 
+        // 重置污染值满触发标记
+        m_IsCorruptionMaxTriggered = false;
+
         // 初始化警示UI系统（在进入探索时）
         InitializeAlertUISystem();
     }
@@ -411,12 +414,28 @@ public partial class GamePlayInfoUI : StateAwareUIForm
             )
             {
                 varHPSlider.value = PlayerRuntimeDataManager.Instance.CorruptionPercent;
-                // DebugEx.LogModule("GamePlayInfoUI",
-                //     $"污染值显示更新: {PlayerRuntimeDataManager.Instance.CurrentCorruption:F1}/{PlayerRuntimeDataManager.Instance.MaxCorruption:F1} ({PlayerRuntimeDataManager.Instance.CorruptionPercent:P1})");
+
+                // 更新污染值文本显示（格式：当前值/最大值）
+                if (varHpText != null)
+                {
+                    int currentCorruption = Mathf.RoundToInt(
+                        PlayerRuntimeDataManager.Instance.CurrentCorruption
+                    );
+                    int maxCorruption = Mathf.RoundToInt(
+                        PlayerRuntimeDataManager.Instance.MaxCorruption
+                    );
+                    varHpText.text = $"{currentCorruption}/{maxCorruption}";
+                }
             }
             else
             {
                 varHPSlider.value = 0f; // 默认无污染
+
+                // 重置文本显示为 0/100
+                if (varHpText != null)
+                {
+                    varHpText.text = "0/100";
+                }
             }
         }
     }
@@ -436,6 +455,15 @@ public partial class GamePlayInfoUI : StateAwareUIForm
         )
         {
             PlayerRuntimeDataManager.Instance.UpdateCorruptionGrowth(elapseSeconds);
+
+            // 检查污染值是否已满，触发游戏失败
+            if (
+                PlayerRuntimeDataManager.Instance.CurrentCorruption
+                >= PlayerRuntimeDataManager.Instance.MaxCorruption
+            )
+            {
+                OnCorruptionMaxReached();
+            }
         }
 
         // 更新隐身倒计时显示
@@ -449,6 +477,40 @@ public partial class GamePlayInfoUI : StateAwareUIForm
             varStealthText.text = $"隐身 {m_SubscribedStealth.RemainingTime:F0}s";
         }
     }
+
+    /// <summary>
+    /// 污染值达到最大值时触发（游戏失败）
+    /// </summary>
+    private void OnCorruptionMaxReached()
+    {
+        // 防止重复触发
+        if (m_IsCorruptionMaxTriggered)
+            return;
+
+        m_IsCorruptionMaxTriggered = true;
+
+        DebugEx.Warning("GamePlayInfoUI", "污染值已满！游戏失败，返回基地");
+
+        // 停止污染值增长
+        PlayerRuntimeDataManager.Instance.SetCorruptionGrowthRate(0f);
+
+        // 触发游戏失败，返回基地
+        ReturnToBaseOnFailure();
+    }
+
+    /// <summary>
+    /// 游戏失败时返回基地
+    /// </summary>
+    private void ReturnToBaseOnFailure()
+    {
+        DebugEx.Log("GamePlayInfoUI", "执行返回基地流程");
+
+        // 切换到基地场景（SceneTable ID=1）
+        GameFlowManager.EnterScene(1);
+    }
+
+    /// <summary>污染值满触发标记（防止重复触发）</summary>
+    private bool m_IsCorruptionMaxTriggered = false;
 
     #endregion
 }

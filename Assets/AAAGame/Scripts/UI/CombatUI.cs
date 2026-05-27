@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameFramework.Event;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityGameFramework.Runtime;
-using GameFramework.Event;
 
 #if ENABLE_OBFUZ
 [Obfuz.ObfuzIgnore(Obfuz.ObfuzScope.TypeName)]
@@ -230,7 +230,8 @@ public partial class CombatUI : StateAwareUIForm
     private void OnChessSelectedForDetail(ChessEntity entity)
     {
         var detailUI = GetDetailInfoUI();
-        if (detailUI == null) return;
+        if (detailUI == null)
+            return;
 
         m_CurrentDetailChess = entity;
 
@@ -315,7 +316,10 @@ public partial class CombatUI : StateAwareUIForm
         {
             m_CurrentDetailChess.Attribute.OnHpChanged -= OnDetailChessHpChanged;
             m_CurrentDetailChess.Attribute.OnMpChanged -= OnDetailChessMpChanged;
-            DebugEx.Log(nameof(CombatUI), $"已取消订阅棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件");
+            DebugEx.Log(
+                nameof(CombatUI),
+                $"已取消订阅棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件"
+            );
         }
 
         ChessStateEvents.OnBuffAdded -= OnDetailChessBuffChanged;
@@ -354,7 +358,8 @@ public partial class CombatUI : StateAwareUIForm
     private void OnEnemyChessClickedForDetail(ChessEntity enemyChess)
     {
         var detailUI = GetDetailInfoUI();
-        if (detailUI == null) return;
+        if (detailUI == null)
+            return;
 
         m_CurrentDetailChess = enemyChess;
 
@@ -363,7 +368,10 @@ public partial class CombatUI : StateAwareUIForm
         {
             enemyChess.Attribute.OnHpChanged += OnDetailChessHpChanged;
             enemyChess.Attribute.OnMpChanged += OnDetailChessMpChanged;
-            DebugEx.Log(nameof(CombatUI), $"已订阅敌方棋子 {enemyChess.Config?.Name} 的属性变化事件");
+            DebugEx.Log(
+                nameof(CombatUI),
+                $"已订阅敌方棋子 {enemyChess.Config?.Name} 的属性变化事件"
+            );
         }
 
         // 订阅Buff变化事件
@@ -386,7 +394,10 @@ public partial class CombatUI : StateAwareUIForm
         {
             m_CurrentDetailChess.Attribute.OnHpChanged -= OnDetailChessHpChanged;
             m_CurrentDetailChess.Attribute.OnMpChanged -= OnDetailChessMpChanged;
-            DebugEx.Log(nameof(CombatUI), $"已取消订阅敌方棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件");
+            DebugEx.Log(
+                nameof(CombatUI),
+                $"已取消订阅敌方棋子 {m_CurrentDetailChess.Config?.Name} 的属性变化事件"
+            );
         }
 
         ChessStateEvents.OnBuffAdded -= OnDetailChessBuffChanged;
@@ -454,12 +465,14 @@ public partial class CombatUI : StateAwareUIForm
         if (varPlayerEXP != null)
         {
             // 满级（RequiredExp == 0）时填满
-            varPlayerEXP.fillAmount = requiredExp > 0 ? Mathf.Clamp01((float)currentExp / requiredExp) : 1f;
+            varPlayerEXP.fillAmount =
+                requiredExp > 0 ? Mathf.Clamp01((float)currentExp / requiredExp) : 1f;
         }
 
         if (varPlayerEXPText != null)
         {
-            varPlayerEXPText.text = requiredExp > 0 ? $"{currentExp}/{requiredExp}" : $"{currentExp}/--";
+            varPlayerEXPText.text =
+                requiredExp > 0 ? $"{currentExp}/{requiredExp}" : $"{currentExp}/--";
         }
     }
 
@@ -478,19 +491,79 @@ public partial class CombatUI : StateAwareUIForm
             varEnemyTitle.SetActive(true);
         }
 
-        if (varEnemyName != null)
+        // 从 EnemySpawnManager 获取当前战斗的敌人配置ID
+        if (EnemySpawnManager.Instance != null)
         {
-            varEnemyName.text = "稻草人";  // TODO: 从战斗数据获取
+            var spawnedEnemies = EnemySpawnManager.Instance.GetSpawnedEnemies();
+            if (spawnedEnemies != null && spawnedEnemies.Count > 0)
+            {
+                // 获取第一个敌人的配置ID（假设同一波次的敌人使用相同的 BattleConfigId）
+                var firstEnemy = spawnedEnemies[0];
+                if (firstEnemy != null && firstEnemy.Config != null)
+                {
+                    // 通过 EnemyEntityTable 获取 BattleConfigId
+                    var entityTable = GF.DataTable.GetDataTable<EnemyEntityTable>();
+                    if (entityTable != null)
+                    {
+                        // 遍历查找匹配的 EnemyEntity（通过棋子ID反查）
+                        foreach (var entityRow in entityTable.GetAllDataRows())
+                        {
+                            var enemyTable = GF.DataTable.GetDataTable<EnemyTable>();
+                            var enemyRow = enemyTable?.GetDataRow(entityRow.BattleConfigId);
+
+                            if (enemyRow != null && enemyRow.ChessIds != null)
+                            {
+                                // 检查是否包含当前棋子ID
+                                bool containsChess = false;
+                                foreach (int chessId in enemyRow.ChessIds)
+                                {
+                                    if (chessId == firstEnemy.Config.Id)
+                                    {
+                                        containsChess = true;
+                                        break;
+                                    }
+                                }
+
+                                if (containsChess)
+                                {
+                                    // 找到匹配的敌人配置，显示名称
+                                    if (varEnemyName != null)
+                                    {
+                                        varEnemyName.text = enemyRow.EnemyName;
+                                    }
+
+                                    if (varEnemyNum != null)
+                                    {
+                                        varEnemyNum.text = $"x{spawnedEnemies.Count}";
+                                    }
+
+                                    DebugEx.Log(
+                                        nameof(CombatUI),
+                                        $"刷新敌人信息: {enemyRow.EnemyName}, 数量={spawnedEnemies.Count}"
+                                    );
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        if (varEnemyNum != null)
+        // 默认值（如果无法获取）
+        if (varEnemyName != null && string.IsNullOrEmpty(varEnemyName.text))
         {
-            varEnemyNum.text = "x3";  // TODO: 从战斗数据获取
+            varEnemyName.text = "未知敌人";
+        }
+
+        if (varEnemyNum != null && string.IsNullOrEmpty(varEnemyNum.text))
+        {
+            varEnemyNum.text = "x?";
         }
 
         if (varEnemyWave != null)
         {
-            varEnemyWave.text = "1/3";  // TODO: 从战斗数据获取
+            varEnemyWave.text = "1/1"; // TODO: 多波次支持
         }
     }
 
@@ -512,20 +585,26 @@ public partial class CombatUI : StateAwareUIForm
         if (varHPSlider != null)
         {
             // 从召唤师运行时数据获取HP
-            if (SummonerRuntimeDataManager.Instance != null && SummonerRuntimeDataManager.Instance.IsInitialized)
+            if (
+                SummonerRuntimeDataManager.Instance != null
+                && SummonerRuntimeDataManager.Instance.IsInitialized
+            )
             {
                 varHPSlider.value = SummonerRuntimeDataManager.Instance.HPPercent;
             }
             else
             {
-                varHPSlider.value = 1.0f;  // 默认满血
+                varHPSlider.value = 1.0f; // 默认满血
             }
         }
 
         // 刷新HP文本
         if (varHpText != null)
         {
-            if (SummonerRuntimeDataManager.Instance != null && SummonerRuntimeDataManager.Instance.IsInitialized)
+            if (
+                SummonerRuntimeDataManager.Instance != null
+                && SummonerRuntimeDataManager.Instance.IsInitialized
+            )
             {
                 int currentHP = Mathf.RoundToInt(SummonerRuntimeDataManager.Instance.CurrentHP);
                 int maxHP = Mathf.RoundToInt(SummonerRuntimeDataManager.Instance.MaxHP);
@@ -533,7 +612,7 @@ public partial class CombatUI : StateAwareUIForm
             }
             else
             {
-                varHpText.text = "100/100";  // 默认值
+                varHpText.text = "100/100"; // 默认值
             }
         }
     }
@@ -547,20 +626,26 @@ public partial class CombatUI : StateAwareUIForm
         if (varMPSlider != null)
         {
             // 从召唤师运行时数据获取MP
-            if (SummonerRuntimeDataManager.Instance != null && SummonerRuntimeDataManager.Instance.IsInitialized)
+            if (
+                SummonerRuntimeDataManager.Instance != null
+                && SummonerRuntimeDataManager.Instance.IsInitialized
+            )
             {
                 varMPSlider.value = SummonerRuntimeDataManager.Instance.MPPercent;
             }
             else
             {
-                varMPSlider.value = 1.0f;  // 默认满MP
+                varMPSlider.value = 1.0f; // 默认满MP
             }
         }
 
         // 刷新MP文本
         if (varMpText != null)
         {
-            if (SummonerRuntimeDataManager.Instance != null && SummonerRuntimeDataManager.Instance.IsInitialized)
+            if (
+                SummonerRuntimeDataManager.Instance != null
+                && SummonerRuntimeDataManager.Instance.IsInitialized
+            )
             {
                 int currentMP = Mathf.RoundToInt(SummonerRuntimeDataManager.Instance.CurrentMP);
                 int maxMP = Mathf.RoundToInt(SummonerRuntimeDataManager.Instance.MaxMP);
@@ -568,7 +653,7 @@ public partial class CombatUI : StateAwareUIForm
             }
             else
             {
-                varMpText.text = "50/50";  // 默认值
+                varMpText.text = "50/50"; // 默认值
             }
         }
     }
@@ -705,7 +790,7 @@ public partial class CombatUI : StateAwareUIForm
         {
             for (int i = 0; i < varBtn1Arr.Length; i++)
             {
-                int index = i;  // 闭包捕获
+                int index = i; // 闭包捕获
                 varBtn1Arr[i].onClick.RemoveAllListeners();
                 varBtn1Arr[i].onClick.AddListener(() => OnSummonerSkillClicked(index));
             }
@@ -717,12 +802,12 @@ public partial class CombatUI : StateAwareUIForm
         // 设置消耗数值
         if (varConsumeNum_Population != null)
         {
-            varConsumeNum_Population.text = "2";  // TODO: 从配置获取
+            varConsumeNum_Population.text = "2"; // TODO: 从配置获取
         }
 
         if (varConsumeNum_Refresh != null)
         {
-            varConsumeNum_Refresh.text = "1";  // TODO: 从配置获取
+            varConsumeNum_Refresh.text = "1"; // TODO: 从配置获取
         }
     }
 
@@ -787,7 +872,10 @@ public partial class CombatUI : StateAwareUIForm
         }
 
         // 检查召唤师运行时数据
-        if (SummonerRuntimeDataManager.Instance == null || !SummonerRuntimeDataManager.Instance.IsInitialized)
+        if (
+            SummonerRuntimeDataManager.Instance == null
+            || !SummonerRuntimeDataManager.Instance.IsInitialized
+        )
         {
             DebugEx.Error(nameof(CombatUI), "召唤师数据未初始化");
             return;
@@ -805,7 +893,10 @@ public partial class CombatUI : StateAwareUIForm
             costType = "MP";
             if (summonerData.CurrentMP < costAmount)
             {
-                DebugEx.Warning(nameof(CombatUI), $"灵力不足（需要 {costAmount:F0}，当前 {summonerData.CurrentMP:F0}）");
+                DebugEx.Warning(
+                    nameof(CombatUI),
+                    $"灵力不足（需要 {costAmount:F0}，当前 {summonerData.CurrentMP:F0}）"
+                );
                 return;
             }
         }
@@ -816,7 +907,10 @@ public partial class CombatUI : StateAwareUIForm
             costType = "HP";
             if (summonerData.CurrentHP < costAmount)
             {
-                DebugEx.Warning(nameof(CombatUI), $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
+                DebugEx.Warning(
+                    nameof(CombatUI),
+                    $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）"
+                );
                 return;
             }
         }
@@ -827,7 +921,10 @@ public partial class CombatUI : StateAwareUIForm
             costType = "HP";
             if (summonerData.CurrentHP < costAmount)
             {
-                DebugEx.Warning(nameof(CombatUI), $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）");
+                DebugEx.Warning(
+                    nameof(CombatUI),
+                    $"生命值不足（需要 {costAmount:F0}，当前 {summonerData.CurrentHP:F0}）"
+                );
                 return;
             }
         }
@@ -848,7 +945,10 @@ public partial class CombatUI : StateAwareUIForm
             CardManager.Instance.RefreshCards();
             await RefreshCardSlotsAsync();
             m_RefreshCount++;
-            DebugEx.Log(nameof(CombatUI), $"卡牌已刷新（第 {m_RefreshCount} 次），消耗 {costAmount:F0} {costType}");
+            DebugEx.Log(
+                nameof(CombatUI),
+                $"卡牌已刷新（第 {m_RefreshCount} 次），消耗 {costAmount:F0} {costType}"
+            );
         }
     }
 
@@ -873,33 +973,42 @@ public partial class CombatUI : StateAwareUIForm
         var ct = this.GetCancellationTokenOnDestroy();
 
         var playerCharacter = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
-        var skillManager = playerCharacter != null
-            ? playerCharacter.GetComponent<SummonerSkillManager>()
-            : null;
+        var skillManager =
+            playerCharacter != null ? playerCharacter.GetComponent<SummonerSkillManager>() : null;
 
         var skillTable = GF.DataTable.GetDataTable<SummonerSkillTable>();
 
         for (int i = 0; i < varBtn1Arr.Length; i++)
         {
-            if (ct.IsCancellationRequested) return;
+            if (ct.IsCancellationRequested)
+                return;
 
             var btn = varBtn1Arr[i];
-            if (btn == null) continue;
+            if (btn == null)
+                continue;
 
             bool hasSkill = skillManager != null && i < skillManager.Skills.Count;
             btn.gameObject.SetActive(hasSkill);
 
-            if (!hasSkill || skillTable == null) continue;
+            if (!hasSkill || skillTable == null)
+                continue;
 
             int skillId = skillManager.Skills[i].SkillId;
             var row = skillTable.GetDataRow(skillId);
-            if (row == null) continue;
+            if (row == null)
+                continue;
 
             var btnImage = btn.GetComponent<Image>();
             if (btnImage != null && row.IconId > 0)
             {
-                await GameExtension.ResourceExtension.LoadSpriteAsync(row.IconId, btnImage, 1f, null);
-                if (ct.IsCancellationRequested) return;
+                await GameExtension.ResourceExtension.LoadSpriteAsync(
+                    row.IconId,
+                    btnImage,
+                    1f,
+                    null
+                );
+                if (ct.IsCancellationRequested)
+                    return;
             }
         }
     }
@@ -991,7 +1100,10 @@ public partial class CombatUI : StateAwareUIForm
         if (createdBuffUI.Count > 0)
         {
             m_SynergyBuffUICache[synergyId] = createdBuffUI[0]; // 存储第一个（可扩展为列表）
-            DebugEx.Success(nameof(CombatUI), $"羁绊 {synergyId} Buff UI已显示 (共 {createdBuffUI.Count} 个)");
+            DebugEx.Success(
+                nameof(CombatUI),
+                $"羁绊 {synergyId} Buff UI已显示 (共 {createdBuffUI.Count} 个)"
+            );
         }
     }
 
@@ -1090,7 +1202,10 @@ public partial class CombatUI : StateAwareUIForm
         base.OnUpdate(elapseSeconds, realElapseSeconds);
 
         // 更新召唤师MP恢复
-        if (SummonerRuntimeDataManager.Instance != null && SummonerRuntimeDataManager.Instance.IsInitialized)
+        if (
+            SummonerRuntimeDataManager.Instance != null
+            && SummonerRuntimeDataManager.Instance.IsInitialized
+        )
         {
             SummonerRuntimeDataManager.Instance.UpdateMPRegen(elapseSeconds);
         }

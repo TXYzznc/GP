@@ -195,7 +195,8 @@ public class CombatEntityTracker : MonoBehaviour
     /// </summary>
     public void ReviveChess(ChessEntity chess)
     {
-        if (chess == null) return;
+        if (chess == null)
+            return;
 
         // 从死亡列表移除
         m_DeadChess.Remove(chess);
@@ -576,7 +577,10 @@ public class CombatEntityTracker : MonoBehaviour
 
         int enemyCamp = enemy.Camp;
 
-        DebugEx.Log("CombatEntityTracker", $"⭐ 尝试为敌人 {enemy.Config?.Name} (Camp={enemyCamp}) 添加到缓存，缓存数量={m_EnemyCacheByMyCamp.Count}");
+        DebugEx.Log(
+            "CombatEntityTracker",
+            $"⭐ 尝试为敌人 {enemy.Config?.Name} (Camp={enemyCamp}) 添加到缓存，缓存数量={m_EnemyCacheByMyCamp.Count}"
+        );
 
         // 为所有其他阵营添加这个敌人到缓存
         foreach (var kvp in m_EnemyCacheByMyCamp)
@@ -586,7 +590,10 @@ public class CombatEntityTracker : MonoBehaviour
 
             // 检查是否为敌对关系
             CampRelation relation = CampRelationService.GetRelation(myCamp, enemyCamp);
-            DebugEx.Log("CombatEntityTracker", $"  检查关系: myCamp={myCamp} vs enemyCamp={enemyCamp}, relation={relation}");
+            DebugEx.Log(
+                "CombatEntityTracker",
+                $"  检查关系: myCamp={myCamp} vs enemyCamp={enemyCamp}, relation={relation}"
+            );
 
             if (relation == CampRelation.Enemy)
             {
@@ -595,12 +602,17 @@ public class CombatEntityTracker : MonoBehaviour
                 if (!exists)
                 {
                     cacheList.Add(cache);
-                    DebugEx.Log("CombatEntityTracker",
-                        $"✅ 为阵营 {myCamp} 添加敌人缓存: {enemy.Config?.Name}，缓存现有数量={cacheList.Count}");
+                    DebugEx.Log(
+                        "CombatEntityTracker",
+                        $"✅ 为阵营 {myCamp} 添加敌人缓存: {enemy.Config?.Name}，缓存现有数量={cacheList.Count}"
+                    );
                 }
                 else
                 {
-                    DebugEx.Log("CombatEntityTracker", $"⚠️  敌人 {enemy.Config?.Name} 已在阵营 {myCamp} 的缓存中");
+                    DebugEx.Log(
+                        "CombatEntityTracker",
+                        $"⚠️  敌人 {enemy.Config?.Name} 已在阵营 {myCamp} 的缓存中"
+                    );
                 }
             }
         }
@@ -636,8 +648,10 @@ public class CombatEntityTracker : MonoBehaviour
 
         if (removedCount > 0)
         {
-            DebugEx.Log("CombatEntityTracker",
-                $"从 {removedCount} 个阵营缓存中移除敌人: {enemy.Config?.Name}");
+            DebugEx.Log(
+                "CombatEntityTracker",
+                $"从 {removedCount} 个阵营缓存中移除敌人: {enemy.Config?.Name}"
+            );
         }
     }
 

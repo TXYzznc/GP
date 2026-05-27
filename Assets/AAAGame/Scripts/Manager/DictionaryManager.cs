@@ -390,7 +390,7 @@ public class DictionaryManager
 
         entry.Name = row.Name;
         entry.Description = row.Description;
-        entry.IconId = row.IconId;
+        entry.IconId = row.EnemyIconId;
         entry.Rarity = row.EnemyDifficulty;
         entry.SubText = $"难度 {new string('★', row.EnemyDifficulty)}";
     }

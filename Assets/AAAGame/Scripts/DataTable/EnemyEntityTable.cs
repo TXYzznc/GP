@@ -38,15 +38,6 @@ public partial class EnemyEntityTable : DataRowBase
         }
 
         /// <summary>
-        /// 图标ID
-        /// </summary>
-        public int IconId
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 描述
         /// </summary>
         public string Description
@@ -302,7 +293,6 @@ public partial class EnemyEntityTable : DataRowBase
             m_Id = int.Parse(columnStrings[index++]);
             index++;
             Name = columnStrings[index++];
-            IconId = int.Parse(columnStrings[index++]);
             Description = columnStrings[index++];
             EnemyIconId = int.Parse(columnStrings[index++]);
             EnemyType = int.Parse(columnStrings[index++]);
@@ -342,7 +332,6 @@ public partial class EnemyEntityTable : DataRowBase
                 {
                     m_Id = binaryReader.Read7BitEncodedInt32();
                     Name = binaryReader.ReadString();
-                    IconId = binaryReader.Read7BitEncodedInt32();
                     Description = binaryReader.ReadString();
                     EnemyIconId = binaryReader.Read7BitEncodedInt32();
                     EnemyType = binaryReader.Read7BitEncodedInt32();
