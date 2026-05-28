@@ -935,6 +935,12 @@ public partial class InventoryUI : UIFormBase
             varDescriptionText.text = itemData.Description ?? "暂无描述";
         }
 
+        // 显示效果状态（宝物/装备）
+        if (varStatusText != null)
+        {
+            varStatusText.text = BuildItemStatusText(item.ItemId, item.Type);
+        }
+
         DebugEx.Success("InventoryUI", $"物品详情显示完成: {item.Name}");
     }
 
@@ -960,6 +966,9 @@ public partial class InventoryUI : UIFormBase
 
         if (varDescriptionText != null)
             varDescriptionText.text = "";
+
+        if (varStatusText != null)
+            varStatusText.text = "";
 
         DebugEx.Log("InventoryUI", "物品详情已清空");
     }
@@ -997,6 +1006,9 @@ public partial class InventoryUI : UIFormBase
             );
         }
     }
+
+    private string BuildItemStatusText(int itemId, ItemType itemType)
+        => ItemDetailHelper.BuildStatusText(itemId, itemType);
 
     /// <summary>
     /// 获取物品上下文菜单

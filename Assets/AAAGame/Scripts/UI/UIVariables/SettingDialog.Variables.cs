@@ -1,24 +1,17 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:一只靓仔的电脑
+//更新自:DESKTOP-7JQ11GM
 //---------------------------------
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
+using TMPro;
 public partial class SettingDialog
 {
 	[Space(10)]
 	[Header("UI Variables:")]
-	[SerializeField] private TextMeshProUGUI varVersionTxt = null;
-	[SerializeField] protected Slider varMusicSlider = null;
-	[SerializeField] protected Slider varSoundFxSlider = null;
-	[SerializeField] private Button varBtnLanguage = null;
-	[SerializeField] protected Toggle varToggleVibrate = null;
-	[SerializeField] protected Button varBtnHelp = null;
-	[SerializeField] protected Button varBtnPrivacy = null;
-	[SerializeField] protected Button varBtnTermsOfService = null;
-	[SerializeField] protected Button varBtnRating = null;
-	[SerializeField] private Image varIconFlag = null;
-	[SerializeField] private TextMeshProUGUI varLanguageName = null;
-	[SerializeField] private RectTransform varVibrateHandle = null;
+	[SerializeField] protected Slider varSensitivitySlider = null;
+	[SerializeField] private TextMeshProUGUI varSensitivityValueText = null;
+	[SerializeField] private Button varButton_Close = null;
+	[SerializeField] private Button varBtnBackToMenu = null;
+	[SerializeField] private Button varBtnQuit = null;
 }

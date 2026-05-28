@@ -4,6 +4,7 @@
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public partial class InventoryUI
 {
 	[Space(10)]
@@ -27,7 +28,8 @@ public partial class InventoryUI
 	[SerializeField] private Text varItemName = null;
 	[SerializeField] private Text varRarityText = null;
 	[SerializeField] private Text varWeightText = null;
-	[SerializeField] private Text varDescriptionText = null;
 	[SerializeField] private Text varWeightStateText = null;
 	[SerializeField] private GameObject varItemContextMenu = null;
+	[SerializeField] private TextMeshProUGUI varStatusText = null;
+	[SerializeField] private TextMeshProUGUI varDescriptionText = null;
 }
