@@ -803,6 +803,12 @@ public class PlayerController : MonoBehaviour
         return transform.position;
     }
 
+    public void ResetVerticalVelocity()
+    {
+        m_VerticalVelocity = 0f;
+        m_Velocity = Vector3.zero;
+    }
+
     /// <summary>
     /// 传送到指定位置
     /// </summary>

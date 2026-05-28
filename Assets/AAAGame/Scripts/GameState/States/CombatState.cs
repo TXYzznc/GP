@@ -215,14 +215,7 @@ public class CombatState : FsmState<InGameState>
     /// </summary>
     private async UniTaskVoid OnLeaveRestoreAsync()
     {
-        // ⭐ 恢复玩家位置（在溶解前）
-        if (PlayerCharacterManager.Instance != null)
-        {
-            PlayerCharacterManager.Instance.RestorePositionAfterCombat();
-            DebugEx.Log("CombatState", "玩家位置已恢复");
-        }
-
-        // ⭐ 场景转换：显示敌人、溶解显示环境物体、清除玩家战斗标记
+        // ⭐ 场景转换：恢复玩家位置、禁用CC、溶解、恢复CC（全部在 ExitCombatAsync 内完成）
         await SceneTransitionManager.Instance.ExitCombatAsync();
 
         // ⭐ 恢复视角模式（解锁已在 OnLeave 同步完成）

@@ -105,8 +105,15 @@ public class SceneTransitionManager
     {
         DebugEx.Log("SceneTransitionManager", "开始离开战斗场景转换...");
 
-        // 1. 恢复玩家位置
+        // 1. 恢复玩家位置，并立即禁用 CharacterController
+        // 原位置 y=-16 下方在溶解过渡完成前没有地面，CC 激活状态下重力会导致坠落触发死亡
         RestorePlayerPosition();
+        var cc = GetPlayerCharacterController();
+        if (cc != null)
+        {
+            cc.enabled = false;
+            DebugEx.Log("SceneTransitionManager", "CharacterController 已禁用，等待溶解完成");
+        }
 
         // 2. 清除玩家战斗标记（敌人可重新索敌）
         SetPlayerCombatFlag(false);
@@ -120,7 +127,26 @@ public class SceneTransitionManager
         // 5. 溶解显示环境物体（异步）
         await DissolveTransitionManager.Instance.TransitionToExploration();
 
+        // 6. 溶解完成后重新启用 CharacterController，并清零垂直速度防止瞬间弹跳
+        if (cc != null)
+        {
+            cc.enabled = true;
+            var playerController = cc.GetComponent<PlayerController>();
+            if (playerController != null)
+                playerController.ResetVerticalVelocity();
+            DebugEx.Log("SceneTransitionManager", "CharacterController 已恢复");
+        }
+
         DebugEx.Log("SceneTransitionManager", "离开战斗场景转换完成");
+    }
+
+    /// <summary>
+    /// 获取玩家身上的 CharacterController
+    /// </summary>
+    private CharacterController GetPlayerCharacterController()
+    {
+        var playerGo = PlayerCharacterManager.Instance?.CurrentPlayerCharacter;
+        return playerGo != null ? playerGo.GetComponent<CharacterController>() : null;
     }
 
     /// <summary>

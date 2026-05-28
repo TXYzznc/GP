@@ -153,12 +153,6 @@ public class InGameState : FsmState<GameStateManager>
             return;
         }
 
-        // ⭐ 在切换状态前先恢复玩家位置
-        if (PlayerCharacterManager.Instance != null)
-        {
-            PlayerCharacterManager.Instance.RestorePositionAfterCombat();
-        }
-
         var uiParams = UIParams.Create(false);
         uiParams.Set<VarBoolean>(EndCombatUI.P_IsVictory, eventArgs.IsVictory);
 
