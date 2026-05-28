@@ -63,17 +63,75 @@ public class TreasureEquipmentManager : MonoBehaviour
     /// </summary>
     private void ApplySingleTreasure(ChessAttribute chessAttribute, TreasureInstanceData treasureData)
     {
-        if (treasureData?.Affixes == null)
+        if (treasureData == null)
             return;
 
-        // 应用词条效果
-        foreach (var affixData in treasureData.Affixes)
+        // 应用宝物基础属性（TreasureData.BaseAttributes）
+        var treasureStaticData = ItemManager.Instance?.GetTreasureData(treasureData.TreasureId);
+        if (treasureStaticData?.BaseAttributes != null)
         {
-            ApplySingleAffix(chessAttribute, affixData);
+            foreach (var kv in treasureStaticData.BaseAttributes)
+            {
+                ApplyAttributeDelta(chessAttribute, kv.Key, kv.Value);
+            }
+        }
+
+        // 应用词条效果（TreasureInstanceData.Affixes）
+        if (treasureData.Affixes != null)
+        {
+            foreach (var affixData in treasureData.Affixes)
+            {
+                ApplySingleAffix(chessAttribute, affixData);
+            }
         }
 
         DebugEx.Log(nameof(TreasureEquipmentManager),
-            $"宝物 {treasureData.TreasureId}(InstanceId={treasureData.InstanceId}) 词条应用完成，词条数={treasureData.Affixes.Count}");
+            $"宝物 {treasureData.TreasureId}(InstanceId={treasureData.InstanceId}) 效果应用完成，词条数={treasureData.Affixes?.Count ?? 0}");
+    }
+
+    /// <summary>
+    /// 将属性增量应用到棋子（统一入口，MaxHP/MaxMP 扩展最大值并补充当前值）
+    /// </summary>
+    private void ApplyAttributeDelta(ChessAttribute chessAttribute, AttributeType type, double delta)
+    {
+        switch (type)
+        {
+            case AttributeType.MaxHP:
+                chessAttribute.SetMaxHp(chessAttribute.MaxHp + delta);
+                chessAttribute.ModifyHp(delta); // 同步扩充当前血量
+                break;
+            case AttributeType.Attack:
+                chessAttribute.ModifyAtkDamage(delta);
+                break;
+            case AttributeType.MaxMP:
+                chessAttribute.SetMaxMp(chessAttribute.MaxMp + delta);
+                chessAttribute.ModifyMp(delta);
+                break;
+            case AttributeType.AttackSpeed:
+                chessAttribute.ModifyAtkSpeed(delta);
+                break;
+            case AttributeType.CritRate:
+                chessAttribute.ModifyCritRate(delta);
+                break;
+            case AttributeType.CritDamage:
+                chessAttribute.ModifyCritDamage(delta);
+                break;
+            case AttributeType.Defense:
+                chessAttribute.ModifyArmor(delta);
+                break;
+            case AttributeType.MagicResist:
+                chessAttribute.ModifyMagicResist(delta);
+                break;
+            case AttributeType.SpellPower:
+                chessAttribute.ModifySpellPower(delta);
+                break;
+            case AttributeType.MoveSpeed:
+                chessAttribute.ModifyMoveSpeed(delta);
+                break;
+            case AttributeType.CooldownReduce:
+                chessAttribute.ModifyCooldownReduce(delta);
+                break;
+        }
     }
 
     /// <summary>
@@ -93,12 +151,14 @@ public class TreasureEquipmentManager : MonoBehaviour
         switch (affixData.AttributeType)
         {
             case AttributeType.MaxHP:
+                chessAttribute.SetMaxHp(chessAttribute.MaxHp + delta);
                 chessAttribute.ModifyHp(delta);
                 break;
             case AttributeType.Attack:
                 chessAttribute.ModifyAtkDamage(delta);
                 break;
             case AttributeType.MaxMP:
+                chessAttribute.SetMaxMp(chessAttribute.MaxMp + delta);
                 chessAttribute.ModifyMp(delta);
                 break;
             case AttributeType.AttackSpeed:

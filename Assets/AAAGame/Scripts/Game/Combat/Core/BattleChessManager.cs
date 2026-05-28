@@ -128,6 +128,14 @@ public class BattleChessManager
         m_BattleDataDict[chessId] = battleData;
         m_EntityDict[chessId] = entity;
 
+        // 玩家普通棋子（ChessId < 1000）：补回装备和宝物加成
+        // 每次 Spawn 新 Entity 时 Initialize 会重置属性，需要重新叠加
+        if (entity.Camp == 0 && chessId < 1000)
+        {
+            ChessEquipmentManager.Instance.ReapplyAllEquipmentStats(chessId);
+            TreasureEquipmentManager.Instance.ApplyPlayerEquippedTreasures(entity.Attribute, chessId);
+        }
+
         // 订阅事件：自动同步 BattleChessData，无论伤害/Buff 从哪个路径触发
         SubscribeEntityEvents(entity, battleData);
     }

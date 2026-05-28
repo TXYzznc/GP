@@ -899,9 +899,6 @@ public class CombatPreparationState : FsmState<InGameState>
         // 设置Layer为Chess，便于碰撞检测
         playerCharacter.layer = (int)LayerHelper.Layer.Chess;
 
-        // ⭐ 应用装备的宝物效果（词条、基础属性等）
-        TreasureEquipmentManager.Instance.ApplyPlayerEquippedTreasures(attribute, summonChessId);
-
         // 注册召唤师到战斗追踪系统
         CombatEntityTracker.Instance?.RegisterSummoner(summonerProxy);
 

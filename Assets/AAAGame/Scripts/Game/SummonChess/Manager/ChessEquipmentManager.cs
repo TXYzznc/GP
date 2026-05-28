@@ -282,6 +282,7 @@ public class ChessEquipmentManager
                 break;
             case AttributeType.MaxHP:
                 attribute.SetMaxHp(attribute.MaxHp + value);
+                attribute.ModifyHp(value);
                 break;
             case AttributeType.CritRate:
                 attribute.ModifyCritRate(value);
@@ -297,6 +298,19 @@ public class ChessEquipmentManager
                 break;
             case AttributeType.SpellPower:
                 attribute.ModifySpellPower(value);
+                break;
+            case AttributeType.MaxMP:
+                attribute.SetMaxMp(attribute.MaxMp + value);
+                attribute.ModifyMp(value);
+                break;
+            case AttributeType.CritDamage:
+                attribute.ModifyCritDamage(value);
+                break;
+            case AttributeType.MagicResist:
+                attribute.ModifyMagicResist(value);
+                break;
+            case AttributeType.CooldownReduce:
+                attribute.ModifyCooldownReduce(value);
                 break;
             default:
                 DebugEx.Warning(nameof(ChessEquipmentManager), $"未处理的 AttributeType: {type}");
