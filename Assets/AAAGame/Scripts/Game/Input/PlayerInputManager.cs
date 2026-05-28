@@ -19,7 +19,7 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
     [Header("鼠标灵敏度")]
     [SerializeField]
-    private float mouseSensitivityX = 3.0f;
+    private float mouseSensitivityX = 2.0f;
 
     [SerializeField]
     private float mouseSensitivityY = 1.0f;
@@ -40,6 +40,12 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
     // 仓库开关
     public bool WarehouseToggleTriggered { get; private set; }
+
+    // GM 面板开关
+    public bool GMPanelToggleTriggered { get; private set; }
+
+    // 操作指南开关
+    public bool GuideToggleTriggered { get; private set; }
 
     // 背包翻页（A=上一页，D=下一页，仅背包打开时使用）
     public bool InventoryPagePrevTriggered { get; private set; }
@@ -73,9 +79,6 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
     // F键：交互
     public bool InteractKeyDown { get; private set; }
 
-    // ⭐ [测试功能] 游戏暂停触发（按空格键）
-    public bool GamePauseTestTriggered { get; private set; }
-
     private bool[] skillDown = new bool[10];
     private bool[] summonerSkillDown = new bool[4]; // 槽位 1-3：Q/E/R 键盘
     private readonly bool[] m_SummonerSkillButtonPending = new bool[4]; // 槽位 1-3：UI 按钮触发
@@ -102,14 +105,6 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
     private void Update()
     {
-        // ⭐ [测试功能] 按空格暂停游戏播放
-        GamePauseTestTriggered = Input.GetKeyDown(KeyCode.Space);
-        if (GamePauseTestTriggered)
-        {
-            //Time.timeScale = Time.timeScale == 0f ? 1f : 0f;  // 切换暂停状态
-        }
-
-        // 空格键也写入 SpaceKeyDown（供 CombatOpportunityDetector 使用）
         SpaceKeyDown = Input.GetKeyDown(KeyCode.Space);
 
         // Tab 键：背包开关
@@ -123,6 +118,12 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
 
         // G 键：仓库开关
         WarehouseToggleTriggered = Input.GetKeyDown(KeyCode.G);
+
+        // C 键：GM 面板开关
+        GMPanelToggleTriggered = Input.GetKeyDown(KeyCode.C);
+
+        // Z 键：操作指南开关
+        GuideToggleTriggered = Input.GetKeyDown(KeyCode.Z);
 
         // F 键：交互
         InteractKeyDown = Input.GetKeyDown(KeyCode.F);
@@ -188,8 +189,6 @@ public class PlayerInputManager : SingletonBase<PlayerInputManager>
         // 鼠标按钮输入
         LeftMouseButtonDown = Input.GetMouseButtonDown(0); // 0 = 左键
         RightMouseButtonDown = Input.GetMouseButtonDown(1); // 1 = 右键
-
-        // 空格键输入（已在上方 GamePauseTestTriggered 附近同步赋值）
 
         // 技能输入
         for (int slot = 1; slot <= 3; slot++)
