@@ -15,8 +15,8 @@ public static class SkillFactory
 
         // 示例：将技能ID与具体技能类型绑定，绑定的技能从通用配置表中获取
         Register(1, () => new DashSkill());
-        Register(2, () => new HealSkill());
-        Register(3, () => new FireBallSkill());
+        //Register(2, () => new HealSkill());
+        //Register(3, () => new FireBallSkill());
     }
 
     public static void Register(int skillId, Func<IPlayerSkill> creator)

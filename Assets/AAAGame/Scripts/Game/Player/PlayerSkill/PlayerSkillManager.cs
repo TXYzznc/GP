@@ -42,13 +42,14 @@ public class PlayerSkillManager : MonoBehaviour
             Skills[i].Tick(dt);
 
         // 检测技能输入（槽位1-3对应J/K/L按键）
+        // 暂时只开放技能一（槽位1），其他技能待开放时取消注释
         if (PlayerInputManager.Instance != null)
         {
-            for (int slot = 1; slot <= 3; slot++)
+            //for (int slot = 1; slot <= 3; slot++)
+            for (int slot = 1; slot <= 1; slot++)
             {
                 if (PlayerInputManager.Instance.SkillDown(slot))
                 {
-                    // 查找对应槽位的技能
                     IPlayerSkill skill = FindSkillBySlot(slot);
                     if (skill != null)
                     {

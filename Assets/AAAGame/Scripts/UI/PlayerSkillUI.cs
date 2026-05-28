@@ -174,8 +174,8 @@ public partial class PlayerSkillUI : StateAwareUIForm
             return;
         }
 
-        // 创建3个槽位
-        for (int i = 0; i < 3; i++)
+        // 暂时只创建1个槽位，其他技能待开放时改回3
+        for (int i = 0; i < 1; i++)
         {
             GameObject slotObj = Instantiate(varSkillSlot, varSkillSlotContainer);
             slotObj.SetActive(true);
