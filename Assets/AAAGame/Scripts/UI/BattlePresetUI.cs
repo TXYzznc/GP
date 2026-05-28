@@ -40,7 +40,7 @@ public partial class BattlePresetUI : UIFormBase
     private int m_CurrentPage = 0;
 
     /// <summary>每页显示数量</summary>
-    private const int PAGE_SIZE = 15;
+    private const int PAGE_SIZE = 16;
 
     /// <summary>当前过滤后的棋子ID列表（用于分页）</summary>
     private List<int> m_FilteredChessIds = new List<int>();
@@ -826,33 +826,35 @@ public partial class BattlePresetUI : UIFormBase
             ? m_PoolChessItemsDict[chessId]
             : null;
 
-        // 先停止这个项上的所有动画
+        // 停止该项上的所有动画
         DOTween.Kill(removedItem.transform);
         var removedCanvasGroup = removedItem.GetComponent<CanvasGroup>();
         if (removedCanvasGroup != null)
             DOTween.Kill(removedCanvasGroup);
 
-        // ⭐ 从数据中移除
-        m_EditingPreset.UnitCardIds.RemoveAt(index);
-
-        // ⭐ 立即刷新所有已选棋子（完整重建，确保索引对应关系正确）
-        RefreshSelectedChessUI();
-
-        // 更新计数文本
-        if (varChessCountText != null)
-        {
-            string newCount = $"{m_EditingPreset.UnitCardIds.Count}/8";
-            varChessCountText.text = newCount;
-        }
-
-        // 激活一个空位
-        RefreshChessEmptySlots();
-
-        // 播放移除动画（纯视觉，不影响数据）
-        PlayItemRemoveAnimation(removedItem, poolItem, null);
-
-        // 立即更新可选池中这一个棋子的状态
+        // 立即更新可选池状态（与策略卡保持一致）
         UpdatePoolChessState(chessId, false);
+
+        // 先播放移除动画，动画完成后再更新数据和 UI
+        // 原先在动画前调用 RefreshSelectedChessUI() 会导致 removedItem 被重用来显示下一个棋子，
+        // 动画就播在了错误的 item 上，造成视觉异常。
+        PlayItemRemoveAnimation(
+            removedItem,
+            poolItem,
+            () =>
+            {
+                m_EditingPreset.UnitCardIds.RemoveAt(index);
+
+                removedItem.SetActive(false);
+
+                RefreshSelectedChessFromIndex(index);
+
+                if (varChessCountText != null)
+                    varChessCountText.text = $"{m_EditingPreset.UnitCardIds.Count}/8";
+
+                RefreshChessEmptySlots();
+            }
+        );
 
         DebugEx.Log(nameof(BattlePresetUI), $"移除棋子: index={index}, chessId={chessId}");
     }
@@ -920,61 +922,6 @@ public partial class BattlePresetUI : UIFormBase
         }
     }
 
-    /// <summary>
-    /// 完整刷新已选棋子UI（用于移除后重建，确保索引对应关系正确）
-    /// </summary>
-    private void RefreshSelectedChessUI()
-    {
-        // 先隐藏所有项
-        foreach (var go in m_SelectedChessItems)
-        {
-            if (go != null)
-            {
-                DOTween.Kill(go.transform);
-                var cg = go.GetComponent<CanvasGroup>();
-                if (cg != null)
-                    DOTween.Kill(cg);
-                go.SetActive(false);
-            }
-        }
-
-        // 根据当前数据重新显示
-        for (int i = 0; i < m_EditingPreset.UnitCardIds.Count; i++)
-        {
-            GameObject go;
-            if (i < m_SelectedChessItems.Count)
-            {
-                go = m_SelectedChessItems[i];
-                go.SetActive(true);
-            }
-            else
-            {
-                go = Instantiate(varChessItemTemplate, varSelectedChessContainer.transform);
-                m_SelectedChessItems.Add(go);
-            }
-
-            // 确保 sibling 顺序正确
-            go.transform.SetSiblingIndex(i);
-
-            // 重置状态
-            go.transform.localScale = Vector3.one;
-            var cg = go.GetComponent<CanvasGroup>();
-            if (cg != null)
-            {
-                cg.alpha = 1f;
-            }
-
-            // 设置数据
-            var chessPresetItem = go.GetComponent<ChessPresetItem>();
-            if (chessPresetItem != null)
-            {
-                int chessId = m_EditingPreset.UnitCardIds[i];
-                int capturedIndex = i; // ⭐ 捕获当前索引，避免闭包问题
-                chessPresetItem.SetData(chessId, (_) => OnSelectedChessClicked(capturedIndex));
-                chessPresetItem.HideMask();
-            }
-        }
-    }
 
     /// <summary>
     /// 可选棋子池被点击（添加）
