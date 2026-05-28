@@ -31,3 +31,4 @@
 	33	主地图界面	2	OverworldUI	False	1	True
 	34	结算界面	2	SettlementUIForm	False	3	True
 	35	决赛管理界面	2	CharacterBagUI	False	1	True
+	36	操作指南界面	2	GuideUI	False	1	True
