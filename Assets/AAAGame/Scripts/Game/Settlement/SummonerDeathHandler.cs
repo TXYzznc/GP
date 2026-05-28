@@ -10,6 +10,10 @@ public class SummonerDeathHandler : MonoBehaviour
 {
     #region 字段
 
+    /// <summary>掉落死亡的 Y 轴高度阈值</summary>
+    private const float FALL_DEATH_Y = -100f;
+
+
     /// <summary>腐蚀度阈值百分比（>=此值触发倒计时）</summary>
     [SerializeField]
     private float m_CorruptionThreshold = 1.0f; // 100%
@@ -24,6 +28,9 @@ public class SummonerDeathHandler : MonoBehaviour
     /// <summary>是否处于死亡倒计时状态</summary>
     private bool m_IsCountingDownToDeath = false;
 
+    /// <summary>死亡结算是否已触发（防重入）</summary>
+    private bool m_IsDeathTriggered = false;
+
     #endregion
 
     #region 生命周期
@@ -33,12 +40,23 @@ public class SummonerDeathHandler : MonoBehaviour
         if (!IsGameRunning())
             return;
 
+        MonitorFallDeath();
         MonitorCorruptionAndTriggerDeath();
     }
 
     #endregion
 
     #region 腐蚀度监控和死亡触发
+
+    /// <summary>检测掉落死亡（Y < -100）</summary>
+    private void MonitorFallDeath()
+    {
+        if (!m_IsDeathTriggered && transform.position.y < FALL_DEATH_Y)
+        {
+            DebugEx.Log(nameof(SummonerDeathHandler), $"玩家坠落到 y={transform.position.y:F1}，触发死亡结算");
+            TriggerCompleteDeath();
+        }
+    }
 
     /// <summary>监控腐蚀度并在条件满足时触发死亡</summary>
     private void MonitorCorruptionAndTriggerDeath()
@@ -133,10 +151,21 @@ public class SummonerDeathHandler : MonoBehaviour
     /// <summary>触发完全死亡，进行结算</summary>
     private void TriggerCompleteDeath()
     {
+        if (m_IsDeathTriggered)
+            return;
+
+        m_IsDeathTriggered = true;
         DebugEx.Log(nameof(SummonerDeathHandler), "触发死亡结算");
 
-        // 异步调用结算流程，使用 Forget() 因为 MonoBehaviour 的 Update 不支持 async
-        SettlementManager.Instance.TriggerSettlementAsync("BaseScene", SettlementTriggerSource.Death).Forget();
+        var sceneTable = GF.DataTable.GetDataTable<SceneTable>();
+        if (sceneTable == null || !sceneTable.HasDataRow(1))
+        {
+            DebugEx.Error(nameof(SummonerDeathHandler), "SceneTable 中不存在 ID=1 的基地场景，无法触发死亡结算");
+            return;
+        }
+
+        string baseSceneName = sceneTable.GetDataRow(1).SceneName;
+        SettlementManager.Instance.TriggerSettlementAsync(baseSceneName, SettlementTriggerSource.Death).Forget();
     }
 
     /// <summary>检查游戏是否仍在运行</summary>

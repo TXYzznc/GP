@@ -13,6 +13,9 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     /// <summary>当前订阅的隐身组件（用于取消订阅）</summary>
     private PostCombatStealth m_SubscribedStealth;
 
+    /// <summary>是否处于战斗状态（战斗中暂停污染值增长）</summary>
+    private bool m_IsInCombat;
+
     #region 事件订阅
 
     protected override void SubscribeEvents()
@@ -276,6 +279,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     private void OnCombatEnter(object sender, GameEventArgs e)
     {
         DebugEx.Log("GamePlayInfoUI", "收到战斗进入事件 → 隐藏UI");
+        m_IsInCombat = true;
         HideUI();
     }
 
@@ -288,6 +292,7 @@ public partial class GamePlayInfoUI : StateAwareUIForm
     private void OnCombatLeave(object sender, GameEventArgs e)
     {
         DebugEx.Log("GamePlayInfoUI", "收到战斗离开事件 → 显示UI");
+        m_IsInCombat = false;
         ShowUI();
         RefreshGameInfo();
         // UI 已可见，正式激活隐身（开始计时 + 显示 StealthText）
@@ -444,13 +449,31 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     #region 生命周期
 
+    protected override void OnOpen(object userData)
+    {
+        base.OnOpen(userData);
+        varSettingButton.onClick.AddListener(OnSettingButtonClick);
+    }
+
+    protected override void OnClose(bool isShutdown, object userData)
+    {
+        varSettingButton.onClick.RemoveListener(OnSettingButtonClick);
+        base.OnClose(isShutdown, userData);
+    }
+
+    private void OnSettingButtonClick()
+    {
+        GF.UI.OpenUIForm(UIViews.SettingDialog);
+    }
+
     protected override void OnUpdate(float elapseSeconds, float realElapseSeconds)
     {
         base.OnUpdate(elapseSeconds, realElapseSeconds);
 
-        // 更新玩家污染值增长
+        // 更新玩家污染值增长（战斗中暂停）
         if (
-            PlayerRuntimeDataManager.Instance != null
+            !m_IsInCombat
+            && PlayerRuntimeDataManager.Instance != null
             && PlayerRuntimeDataManager.Instance.IsInitialized
         )
         {
@@ -480,37 +503,23 @@ public partial class GamePlayInfoUI : StateAwareUIForm
 
     /// <summary>
     /// 污染值达到最大值时触发（游戏失败）
+    /// 只负责停止增长，场景切换由 SummonerDeathHandler 统一处理
     /// </summary>
     private void OnCorruptionMaxReached()
     {
-        // 防止重复触发
         if (m_IsCorruptionMaxTriggered)
             return;
 
         m_IsCorruptionMaxTriggered = true;
 
-        DebugEx.Warning("GamePlayInfoUI", "污染值已满！游戏失败，返回基地");
+        DebugEx.Warning("GamePlayInfoUI", "污染值已满，停止增长，等待 SummonerDeathHandler 处理死亡流程");
 
-        // 停止污染值增长
         PlayerRuntimeDataManager.Instance.SetCorruptionGrowthRate(0f);
-
-        // 触发游戏失败，返回基地
-        ReturnToBaseOnFailure();
-    }
-
-    /// <summary>
-    /// 游戏失败时返回基地
-    /// </summary>
-    private void ReturnToBaseOnFailure()
-    {
-        DebugEx.Log("GamePlayInfoUI", "执行返回基地流程");
-
-        // 切换到基地场景（SceneTable ID=1）
-        GameFlowManager.EnterScene(1);
     }
 
     /// <summary>污染值满触发标记（防止重复触发）</summary>
     private bool m_IsCorruptionMaxTriggered = false;
 
     #endregion
+
 }

@@ -37,7 +37,7 @@ public class PlayerRuntimeDataManager
     private float m_MaxCorruption = 100f;
 
     /// <summary>污染值增长速度（每秒增加的数值）</summary>
-    private float m_CorruptionGrowthRate = 1f;
+    private float m_CorruptionGrowthRate = 0.2f;
 
     /// <summary>当前移速</summary>
     private float m_CurrentMoveSpeed = 5f;
@@ -111,7 +111,7 @@ public class PlayerRuntimeDataManager
         // 初始化污染值为0（局外时为0）
         m_CurrentCorruption = 0f;
         m_MaxCorruption = 100f;
-        m_CorruptionGrowthRate = 1f; // 默认每秒增加1点污染值
+        m_CorruptionGrowthRate = 0.2f; // 默认每秒增加0.2点污染值
 
         m_IsInitialized = true;
 
@@ -133,7 +133,7 @@ public class PlayerRuntimeDataManager
 
         m_CurrentCorruption = 0f;
         m_CurrentMoveSpeed = 5f;
-        m_CorruptionGrowthRate = 1f;
+        m_CorruptionGrowthRate = 0.2f;
         m_SpiritStone = 0;
         m_IsInitialized = false;
 

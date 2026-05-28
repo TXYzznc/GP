@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:一只靓仔的电脑
+//更新自:DESKTOP-7JQ11GM
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,4 +18,5 @@ public partial class GamePlayInfoUI
 	[SerializeField] private RectTransform varCombatInteractUI = null;
 	[SerializeField] private Text varInteractText = null;
 	[SerializeField] private Text varStealthText = null;
+	[SerializeField] private Button varSettingButton = null;
 }
