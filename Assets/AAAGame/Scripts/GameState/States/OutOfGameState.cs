@@ -9,6 +9,7 @@ public class OutOfGameState : FsmState<GameStateManager>
 {
     private int m_InventoryFormId = -1;
     private int m_WarehouseFormId = -1;
+    private int m_GuideFormId = -1;
 
     protected override void OnInit(IFsm<GameStateManager> fsm)
     {
@@ -55,6 +56,9 @@ public class OutOfGameState : FsmState<GameStateManager>
 
         if (input.WarehouseToggleTriggered)
             ToggleWarehouse();
+
+        if (input.GuideToggleTriggered)
+            ToggleGuide();
     }
 
     protected override void OnLeave(IFsm<GameStateManager> fsm, bool isShutdown)
@@ -72,6 +76,12 @@ public class OutOfGameState : FsmState<GameStateManager>
         {
             GF.UI.CloseUIForm(m_WarehouseFormId);
             m_WarehouseFormId = -1;
+        }
+
+        if (GF.UI.HasUIForm(m_GuideFormId))
+        {
+            GF.UI.CloseUIForm(m_GuideFormId);
+            m_GuideFormId = -1;
         }
 
         // 触发离开局外状态事件
@@ -113,6 +123,21 @@ public class OutOfGameState : FsmState<GameStateManager>
         {
             m_WarehouseFormId = GF.UI.OpenUIForm(UIViews.WarehouseUI);
             DebugEx.Log("OutOfGameState", "打开仓库");
+        }
+    }
+
+    private void ToggleGuide()
+    {
+        if (GF.UI.HasUIForm(m_GuideFormId))
+        {
+            GF.UI.CloseUIForm(m_GuideFormId);
+            m_GuideFormId = -1;
+            DebugEx.Log("OutOfGameState", "关闭操作指南");
+        }
+        else
+        {
+            m_GuideFormId = GF.UI.OpenUIForm(UIViews.GuideUI);
+            DebugEx.Log("OutOfGameState", "打开操作指南");
         }
     }
 }

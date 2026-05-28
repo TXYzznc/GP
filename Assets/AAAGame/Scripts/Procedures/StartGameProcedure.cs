@@ -79,10 +79,8 @@ public class StartGameProcedure : ProcedureBase
 
         Log.Info($"请求切换场景: {sceneName}");
 
-        // 设置场景名流程参数
         s_ProcedureOwner.SetData<VarString>(ChangeSceneProcedure.P_SceneName, sceneName);
 
-        // 获取当前 Procedure 并切换到 ChangeSceneProcedure
         var currentProcedure = s_ProcedureOwner.CurrentState as StartGameProcedure;
         if (currentProcedure != null)
         {

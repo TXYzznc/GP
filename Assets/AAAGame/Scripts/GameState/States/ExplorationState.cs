@@ -65,6 +65,12 @@ public class ExplorationState : FsmState<InGameState>
         {
             ToggleInventory();
         }
+
+        // Z 键开关操作指南
+        if (PlayerInputManager.Instance != null && PlayerInputManager.Instance.GuideToggleTriggered)
+        {
+            ToggleGuide();
+        }
     }
 
     protected override void OnDestroy(IFsm<InGameState> fsm)
@@ -205,6 +211,27 @@ public class ExplorationState : FsmState<InGameState>
         {
             m_InventoryFormId = GF.UI.OpenUIForm(UIViews.InventoryUI);
             DebugEx.Log("ExplorationState", "打开背包");
+        }
+    }
+
+    #endregion
+
+    #region 操作指南开关
+
+    private int m_GuideFormId = -1;
+
+    private void ToggleGuide()
+    {
+        if (GF.UI.HasUIForm(m_GuideFormId))
+        {
+            GF.UI.CloseUIForm(m_GuideFormId);
+            m_GuideFormId = -1;
+            DebugEx.Log("ExplorationState", "关闭操作指南");
+        }
+        else
+        {
+            m_GuideFormId = GF.UI.OpenUIForm(UIViews.GuideUI);
+            DebugEx.Log("ExplorationState", "打开操作指南");
         }
     }
 

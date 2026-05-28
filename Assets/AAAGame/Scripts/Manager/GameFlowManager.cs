@@ -101,12 +101,15 @@ public static class GameFlowManager
     {
         Log.Info($"准备切换场景: {sceneName}");
 
-        // 显示加载进度
         GFBuiltin.BuiltinView.ShowLoadingProgress();
 
-        // 通过 StartGameProcedure 请求场景切换
-        // ChangeSceneProcedure 会自动根据场景名称切换到对应的 Procedure
-        StartGameProcedure.RequestChangeScene(sceneName);
+        // 根据当前激活的 Procedure 选择正确的切换入口
+        // GameProcedure（局内）：通过 GameProcedure.RequestChangeScene
+        // StartGameProcedure（主菜单）：通过 StartGameProcedure.RequestChangeScene
+        if (GameProcedure.IsActive)
+            GameProcedure.RequestChangeScene(sceneName);
+        else
+            StartGameProcedure.RequestChangeScene(sceneName);
     }
 
     /// <summary>

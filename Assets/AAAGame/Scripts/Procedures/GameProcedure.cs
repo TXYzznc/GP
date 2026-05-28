@@ -14,6 +14,9 @@ using UnityGameFramework.Runtime;
 public class GameProcedure : ProcedureBase
 {
     private static IFsm<IProcedureManager> s_ProcedureOwner;
+
+    /// <summary>当前是否处于 GameProcedure 中</summary>
+    public static bool IsActive => s_ProcedureOwner != null;
     private IFsm<IProcedureManager> m_ProcedureFsm;
     private PlayerSkillManager m_SkillManager; // 玩家技能管理器引用
     private SceneSpawnManager m_SceneSpawnManager; // 场景生成管理器
@@ -62,6 +65,9 @@ public class GameProcedure : ProcedureBase
 
         // 4. 初始化场景生成管理器
         InitializeSceneSpawnManager();
+
+        // 4.5. 初始化 GM 面板（开发调试用）
+        InitializeGMPanel();
 
         // 5. 打开常驻游戏UI，等所有UI加载完后再切换游戏状态
         // 注意：状态切换会Fire事件，UI必须已订阅（OnOpen中订阅）才能收到
@@ -330,6 +336,19 @@ public class GameProcedure : ProcedureBase
         // 初始化生成管理器
         m_SceneSpawnManager.Initialize(mapId);
         Log.Info($"GameProcedure: [完成] 场景生成管理器已初始化 (MapId={mapId})");
+    }
+
+    /// <summary>
+    /// 初始化 GM 面板（开发调试用，DontDestroyOnLoad）
+    /// </summary>
+    private void InitializeGMPanel()
+    {
+        if (GMPanelManager.Instance != null)
+            return;
+
+        var go = new GameObject("GMPanelManager");
+        go.AddComponent<GMPanelManager>();
+        Log.Info("GameProcedure: GM 面板已初始化");
     }
 
     /// <summary>

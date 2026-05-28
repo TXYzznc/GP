@@ -332,6 +332,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4251753339408692025}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1769704615333289160}
   m_SourcePrefab: {fileID: 100100000, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
 --- !u!1 &7777384509973940845 stripped
 GameObject:
@@ -471,6 +474,20 @@ MonoBehaviour:
   interactTipResourceId: 2402
   tipHeightOffset: 1.5
   playerInteraction: {fileID: 0}
+--- !u!114 &1769704615333289160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7777384509973940845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fca2a119edb8d8438379aa53195de0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_CorruptionThreshold: 1
+  m_DeathConfirmationDelay: 3
 --- !u!4 &9122629399051077876 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: 66d3e276d21c35042846bc978ab134f0, type: 3}
