@@ -35,7 +35,7 @@ public static class DebugEx
     /// <summary>
     /// 全局总开关
     /// </summary>
-    public static bool EnableLog = true;
+    public static bool EnableLog = false;
 
     /// <summary>
     /// 脚本级别的日志控制字典（由 LogConfigPanel 管理）

@@ -516,6 +516,9 @@ public class PlayerSaveSnapshot
     public string InventoryItems;
     public int InventoryCapacity;
     public List<int> CompletedQuestIds;
+    // 宝物数据（与 PlayerSaveData 中的字段一一对应）
+    public string TreasureData;
+    public string ChessTreasureSlotsData;
 }
 
 /// <summary>

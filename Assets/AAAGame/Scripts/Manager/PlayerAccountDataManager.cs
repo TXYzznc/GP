@@ -1113,6 +1113,14 @@ public class PlayerAccountDataManager
         if (m_CurrentSaveData == null)
             return;
 
+        // 先把最新的背包和宝物数据同步到 SaveData，确保快照是当前最新状态
+        if (InventoryManager.Instance != null)
+        {
+            var inventoryData = InventoryManager.Instance.SaveInventory();
+            m_CurrentSaveData.SetInventoryItems(inventoryData);
+        }
+        SaveTreasureData(m_CurrentSaveData);
+
         // 序列化当前关键数据为快照（排除快照字段本身，避免递归）
         var snapshot = new PlayerSaveSnapshot
         {
@@ -1127,6 +1135,8 @@ public class PlayerAccountDataManager
                 m_CurrentSaveData.CompletedQuestIds != null
                     ? new List<int>(m_CurrentSaveData.CompletedQuestIds)
                     : new List<int>(),
+            TreasureData = m_CurrentSaveData.TreasureData,
+            ChessTreasureSlotsData = m_CurrentSaveData.ChessTreasureSlotsData,
         };
 
         m_CurrentSaveData.InGameSnapshot = JsonUtility.ToJson(snapshot);
@@ -1197,6 +1207,14 @@ public class PlayerAccountDataManager
             m_CurrentSaveData.InventoryItems = snapshot.InventoryItems;
             m_CurrentSaveData.InventoryCapacity = snapshot.InventoryCapacity;
             m_CurrentSaveData.CompletedQuestIds = snapshot.CompletedQuestIds ?? new List<int>();
+            // 同步恢复宝物数据（旧快照无此字段时保持现有数据不变）
+            if (!string.IsNullOrEmpty(snapshot.TreasureData))
+                m_CurrentSaveData.TreasureData = snapshot.TreasureData;
+            if (!string.IsNullOrEmpty(snapshot.ChessTreasureSlotsData))
+                m_CurrentSaveData.ChessTreasureSlotsData = snapshot.ChessTreasureSlotsData;
+            // 回滚宝物内存对象
+            LoadTreasureData(m_CurrentSaveData);
+
             m_CurrentSaveData.InGameSnapshot = null;
 
             SaveCurrentSave();
