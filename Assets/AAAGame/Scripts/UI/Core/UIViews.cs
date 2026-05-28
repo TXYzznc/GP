@@ -29,5 +29,6 @@ public enum UIViews : int
 	TreasureBoxUI = 32,
 	OverworldUI = 33,
 	SettlementUIForm = 34,
-	CharacterBagUI = 35
+	CharacterBagUI = 35,
+	GuideUI = 36
 }

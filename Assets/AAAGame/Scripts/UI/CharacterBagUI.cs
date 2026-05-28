@@ -616,63 +616,99 @@ public partial class CharacterBagUI : UIFormBase
         if (m_CurrentSelectedChessId <= 0)
             return;
 
-        // 获取该棋子装备的宝物列表
         var treasureManager = PlayerAccountDataManager.Instance;
         List<TreasureInstanceData> equippedTreasures = treasureManager.GetChessEquipments(
             m_CurrentSelectedChessId
         );
 
-        StringBuilder baseAttributesText = new();
-        StringBuilder treasureNamesText = new();
+        // 累加所有宝物的基础属性
+        var totalBaseAttrs = new Dictionary<AttributeType, float>();
+        // 收集所有特殊效果
+        var specialEffectLines = new StringBuilder();
 
         if (equippedTreasures != null && equippedTreasures.Count > 0)
         {
-            IDataTable<TreasureTable> dtTreasure = GF.DataTable.GetDataTable<TreasureTable>();
-
             foreach (var treasure in equippedTreasures)
             {
-                TreasureTable treasureRow = dtTreasure.GetDataRow(treasure.TreasureId);
-                if (treasureRow == null)
-                    continue;
-
-                // 收集宝物名称
-                treasureNamesText.Append(treasureRow.Name).Append("\n");
-
-                // 收集词条信息
-                if (treasure.Affixes != null && treasure.Affixes.Count > 0)
+                // 1. 基础属性：从 ItemManager 获取 TreasureData.BaseAttributes 累加
+                var itemMgr = ItemManager.Instance;
+                TreasureData treasureData = itemMgr != null ? itemMgr.GetTreasureData(treasure.TreasureId) : null;
+                if (treasureData != null && treasureData.BaseAttributes != null)
                 {
-                    foreach (var affix in treasure.Affixes)
+                    foreach (var kv in treasureData.BaseAttributes)
                     {
-                        string valueStr =
-                            affix.ValueType == ValueType.Percent
-                                ? $"{affix.ValueMin}%"
-                                : affix.ValueMin.ToString();
-                        baseAttributesText.Append($"• {affix.Name}: +{valueStr}\n");
+                        if (totalBaseAttrs.ContainsKey(kv.Key))
+                            totalBaseAttrs[kv.Key] += kv.Value;
+                        else
+                            totalBaseAttrs[kv.Key] = kv.Value;
                     }
                 }
-                else
+
+                // 2. 特殊效果：从 ItemManager 获取 SpecialEffectData
+                if (treasure.TreasureId > 0 && treasureData != null && treasureData.SpecialEffectId > 0)
                 {
-                    baseAttributesText.Append("无词条\n");
+                    SpecialEffectData effectData = itemMgr != null ? itemMgr.GetSpecialEffectData(treasureData.SpecialEffectId) : null;
+                    if (effectData != null && !string.IsNullOrEmpty(effectData.Description))
+                    {
+                        specialEffectLines.Append($"• {effectData.Name}: {effectData.Description}\n");
+                    }
                 }
             }
         }
 
-        // 更新显示
+        // 更新 BaseEffect：显示累加后的基础属性
         if (varBaseEffect != null)
         {
-            varBaseEffect.text =
-                treasureNamesText.Length > 0
-                    ? treasureNamesText.ToString().TrimEnd()
-                    : "未装备宝物";
+            if (totalBaseAttrs.Count > 0)
+            {
+                var sb = new StringBuilder();
+                foreach (var kv in totalBaseAttrs)
+                {
+                    string attrName = GetAttributeTypeName(kv.Key);
+                    string valueStr = IsPercentAttribute(kv.Key)
+                        ? $"{kv.Value * 100:F1}%"
+                        : kv.Value.ToString("F0");
+                    sb.Append($"• {attrName}: +{valueStr}\n");
+                }
+                varBaseEffect.text = sb.ToString().TrimEnd();
+            }
+            else
+            {
+                varBaseEffect.text = "未装备宝物";
+            }
         }
 
+        // 更新 SpecialEffect：显示所有特殊效果
         if (varSpecialEffect != null)
         {
-            varSpecialEffect.text =
-                baseAttributesText.Length > 0
-                    ? baseAttributesText.ToString().TrimEnd()
-                    : "未装备宝物";
+            varSpecialEffect.text = specialEffectLines.Length > 0
+                ? specialEffectLines.ToString().TrimEnd()
+                : "无特殊效果";
         }
+    }
+
+    private static string GetAttributeTypeName(AttributeType type)
+    {
+        return type switch
+        {
+            AttributeType.MaxHP         => "生命值",
+            AttributeType.Attack        => "攻击力",
+            AttributeType.MaxMP         => "法力值",
+            AttributeType.AttackSpeed   => "攻击速度",
+            AttributeType.CritRate      => "暴击率",
+            AttributeType.CritDamage    => "暴击伤害",
+            AttributeType.Defense       => "护甲",
+            AttributeType.MagicResist   => "魔法抗性",
+            AttributeType.SpellPower    => "法术强度",
+            AttributeType.MoveSpeed     => "移动速度",
+            AttributeType.CooldownReduce => "冷却缩减",
+            _                           => type.ToString(),
+        };
+    }
+
+    private static bool IsPercentAttribute(AttributeType type)
+    {
+        return type is AttributeType.CritRate or AttributeType.CritDamage or AttributeType.CooldownReduce;
     }
 
     private void UpdateLevelUpTab(SummonChessTable chessRow, int stage)
@@ -730,6 +766,16 @@ public partial class CharacterBagUI : UIFormBase
                 nameof(CharacterBagUI),
                 $"[OnTreasureSwitchBtnClicked] 宝物仓库状态: active={varTreasureContent.gameObject.activeSelf}"
             );
+        }
+
+        // 同步 ScrollRect 的 content 到当前显示的列表
+        if (varLeftScroll != null)
+        {
+            if (m_IsShowingChessList)
+                varLeftScroll.content = varChessContent != null ? varChessContent.GetComponent<RectTransform>() : null;
+            else
+                varLeftScroll.content = varTreasureContent != null ? varTreasureContent.GetComponent<RectTransform>() : null;
+            varLeftScroll.verticalNormalizedPosition = 1f; // 回到顶部
         }
 
         // ⭐ 更新 Title 和图标

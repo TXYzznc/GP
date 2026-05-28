@@ -1,6 +1,6 @@
 //---------------------------------
 //此文件由工具自动生成,请勿手动修改
-//更新自:一只靓仔的电脑
+//更新自:DESKTOP-7JQ11GM
 //---------------------------------
 using UnityEngine;
 using UnityEngine.UI;
@@ -54,6 +54,7 @@ public partial class CharacterBagUI
 	[SerializeField] private TextMeshProUGUI varMoveSpeedText = null;
 	[SerializeField] private TextMeshProUGUI varCriticalChanceText = null;
 	[SerializeField] private TextMeshProUGUI varCriticalDamageText = null;
-	[SerializeField] private GameObject varTreasureItemUI = null;
 	[SerializeField] private TextMeshProUGUI varTitle = null;
+	[SerializeField] private ScrollRect varLeftScroll = null;
+	[SerializeField] private GameObject varTreasureItemUI = null;
 }

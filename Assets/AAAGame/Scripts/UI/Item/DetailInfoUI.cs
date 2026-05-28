@@ -33,14 +33,38 @@ public partial class DetailInfoUI : UIItemBase
     private ChessSlotContainerImpl m_EquipContainer;
     private InventorySlot[] m_EquipSlotData; // 装备槽数据包装
 
-    // 装备加成数据结构
-    private struct EquipmentBonus
+    // 装备/宝物加成数据结构（覆盖全部 AttributeType）
+    private struct StatBonus
     {
         public double MaxHp;
-        public double CurrentMp;
+        public double MaxMp;
         public double AtkDamage;
         public double Armor;
         public double MagicResist;
+        public double AtkSpeed;
+        public double CritRate;
+        public double CritDamage;
+        public double SpellPower;
+        public double MoveSpeed;
+        public double CooldownReduce;
+
+        public void Add(AttributeType type, double value)
+        {
+            switch (type)
+            {
+                case AttributeType.MaxHP:         MaxHp += value; break;
+                case AttributeType.MaxMP:         MaxMp += value; break;
+                case AttributeType.Attack:        AtkDamage += value; break;
+                case AttributeType.Defense:       Armor += value; break;
+                case AttributeType.MagicResist:   MagicResist += value; break;
+                case AttributeType.AttackSpeed:   AtkSpeed += value; break;
+                case AttributeType.CritRate:      CritRate += value; break;
+                case AttributeType.CritDamage:    CritDamage += value; break;
+                case AttributeType.SpellPower:    SpellPower += value; break;
+                case AttributeType.MoveSpeed:     MoveSpeed += value; break;
+                case AttributeType.CooldownReduce: CooldownReduce += value; break;
+            }
+        }
     }
 
     #endregion
@@ -380,7 +404,7 @@ public partial class DetailInfoUI : UIItemBase
     #region 属性显示
 
     /// <summary>
-    /// 刷新属性显示（包含装备加成）
+    /// 刷新属性显示（含装备绿色加成 + 宝物蓝色加成）
     /// </summary>
     private void RefreshAttributeDisplay(ChessAttribute attr, SummonChessConfig config, int rank)
     {
@@ -390,130 +414,177 @@ public partial class DetailInfoUI : UIItemBase
         int level = globalState?.Level ?? rank;
         int experience = globalState?.Experience ?? 0;
 
-        // 获取装备加成
-        var equipBonus = GetEquipmentBonus(m_CurrentChessId);
+        var equipBonus   = GetEquipmentBonus(m_CurrentChessId);
+        var treasureBonus = GetTreasureBonus(m_CurrentChessId);
 
-        // 显示等级
-        if (varGradeText != null)
-            varGradeText.text = $"{level}";
+        if (varGradeText != null) varGradeText.text = $"{level}";
+        if (varExpText != null)   varExpText.text   = $"{experience}";
 
-        // 显示经验值
-        if (varExpText != null)
-            varExpText.text = $"{experience}";
-
-        // 显示HP（格式：当前值/基础值+装备加成）
+        // HP
         if (varHPText != null)
         {
-            double baseHp = attr.MaxHp - equipBonus.MaxHp;
-            if (equipBonus.MaxHp > 0)
-                varHPText.text = $"{attr.CurrentHp:F0}/<color=white>{baseHp:F0}</color><color=green>+{equipBonus.MaxHp:F0}</color>";
-            else
-                varHPText.text = $"{attr.CurrentHp:F0}/{attr.MaxHp:F0}";
+            double baseHp = attr.MaxHp - equipBonus.MaxHp - treasureBonus.MaxHp;
+            string txt = $"{attr.CurrentHp:F0}/";
+            txt += equipBonus.MaxHp > 0 || treasureBonus.MaxHp > 0
+                ? $"<color=white>{baseHp:F0}</color>"
+                : $"{attr.MaxHp:F0}";
+            if (equipBonus.MaxHp > 0)   txt += $"<color=green>+{equipBonus.MaxHp:F0}</color>";
+            if (treasureBonus.MaxHp > 0) txt += $"<color=#6BB5FF>+{treasureBonus.MaxHp:F0}</color>";
+            varHPText.text = txt;
         }
 
-        // 显示MP
+        // MP
         if (varMpText != null)
         {
-            double maxMp = config.GetMaxMp(rank);
-            double baseMp = maxMp - equipBonus.CurrentMp;
-            if (equipBonus.CurrentMp > 0)
-                varMpText.text = $"{attr.CurrentMp:F0}/<color=white>{baseMp:F0}</color><color=green>+{equipBonus.CurrentMp:F0}</color>";
-            else
-                varMpText.text = $"{attr.CurrentMp:F0}/{maxMp:F0}";
+            double baseMp = config.GetMaxMp(rank);
+            string txt = $"{attr.CurrentMp:F0}/";
+            txt += equipBonus.MaxMp > 0 || treasureBonus.MaxMp > 0
+                ? $"<color=white>{baseMp:F0}</color>"
+                : $"{baseMp:F0}";
+            if (equipBonus.MaxMp > 0)   txt += $"<color=green>+{equipBonus.MaxMp:F0}</color>";
+            if (treasureBonus.MaxMp > 0) txt += $"<color=#6BB5FF>+{treasureBonus.MaxMp:F0}</color>";
+            varMpText.text = txt;
         }
 
-        // 显示攻击（包含装备加成）
+        // 攻击
         if (varAttackText != null)
         {
-            double baseAtk = attr.AtkDamage - equipBonus.AtkDamage;
-            if (equipBonus.AtkDamage > 0)
-                varAttackText.text = $"<color=white>{baseAtk:F0}</color><color=green>+{equipBonus.AtkDamage:F0}</color>";
-            else
-                varAttackText.text = $"{attr.AtkDamage:F0}";
+            double baseAtk = attr.AtkDamage - equipBonus.AtkDamage - treasureBonus.AtkDamage;
+            string txt = equipBonus.AtkDamage > 0 || treasureBonus.AtkDamage > 0
+                ? $"<color=white>{baseAtk:F0}</color>"
+                : $"{attr.AtkDamage:F0}";
+            if (equipBonus.AtkDamage > 0)   txt += $"<color=green>+{equipBonus.AtkDamage:F0}</color>";
+            if (treasureBonus.AtkDamage > 0) txt += $"<color=#6BB5FF>+{treasureBonus.AtkDamage:F0}</color>";
+            varAttackText.text = txt;
         }
 
-        // 显示护甲
+        // 护甲
         if (varArmorText != null)
         {
-            double baseArmor = attr.Armor - equipBonus.Armor;
-            if (equipBonus.Armor > 0)
-                varArmorText.text = $"<color=white>{baseArmor:F0}</color><color=green>+{equipBonus.Armor:F0}</color>";
-            else
-                varArmorText.text = $"{attr.Armor:F0}";
+            double baseArmor = attr.Armor - equipBonus.Armor - treasureBonus.Armor;
+            string txt = equipBonus.Armor > 0 || treasureBonus.Armor > 0
+                ? $"<color=white>{baseArmor:F0}</color>"
+                : $"{attr.Armor:F0}";
+            if (equipBonus.Armor > 0)   txt += $"<color=green>+{equipBonus.Armor:F0}</color>";
+            if (treasureBonus.Armor > 0) txt += $"<color=#6BB5FF>+{treasureBonus.Armor:F0}</color>";
+            varArmorText.text = txt;
         }
 
-        // 显示攻速
-        if (varAttackSpeedText != null && config.AtkSpeed != null && rank > 0 && rank <= config.AtkSpeed.Length)
-            varAttackSpeedText.text = $"{(float)config.AtkSpeed[rank - 1]:F1}";
-
-        // 显示暴击率
-        if (varCriticalChanceText != null && config.CritRate != null && rank > 0 && rank <= config.CritRate.Length)
-            varCriticalChanceText.text = $"{(float)config.CritRate[rank - 1] * 100:F0}%";
-
-        // 显示暴击伤害
-        if (varCriticalDamageText != null && config.CritDamage != null && rank > 0 && rank <= config.CritDamage.Length)
-            varCriticalDamageText.text = $"{(float)config.CritDamage[rank - 1]:F0}";
-
-        // 显示法强
-        if (varMagicalAttackText != null && config.SpellPower != null && rank > 0 && rank <= config.SpellPower.Length)
-            varMagicalAttackText.text = $"{(float)config.SpellPower[rank - 1]:F0}";
-
-        // 显示魔抗
+        // 魔抗
         if (varSpelResistanceText != null)
         {
-            double baseMagicResist = attr.MagicResist - equipBonus.MagicResist;
-            if (equipBonus.MagicResist > 0)
-                varSpelResistanceText.text = $"<color=white>{baseMagicResist:F0}</color><color=green>+{equipBonus.MagicResist:F0}</color>";
-            else
-                varSpelResistanceText.text = $"{attr.MagicResist:F0}";
+            double baseMr = attr.MagicResist - equipBonus.MagicResist - treasureBonus.MagicResist;
+            string txt = equipBonus.MagicResist > 0 || treasureBonus.MagicResist > 0
+                ? $"<color=white>{baseMr:F0}</color>"
+                : $"{attr.MagicResist:F0}";
+            if (equipBonus.MagicResist > 0)   txt += $"<color=green>+{equipBonus.MagicResist:F0}</color>";
+            if (treasureBonus.MagicResist > 0) txt += $"<color=#6BB5FF>+{treasureBonus.MagicResist:F0}</color>";
+            varSpelResistanceText.text = txt;
         }
 
-        // 显示移动速度
+        // 攻速
+        if (varAttackSpeedText != null && config.AtkSpeed != null && rank > 0 && rank <= config.AtkSpeed.Length)
+        {
+            double baseAs = config.AtkSpeed[rank - 1];
+            string txt = treasureBonus.AtkSpeed > 0
+                ? $"<color=white>{baseAs:F2}</color><color=#6BB5FF>+{treasureBonus.AtkSpeed:F2}</color>"
+                : $"{attr.AtkSpeed:F2}";
+            varAttackSpeedText.text = txt;
+        }
+
+        // 暴击率
+        if (varCriticalChanceText != null && config.CritRate != null && rank > 0 && rank <= config.CritRate.Length)
+        {
+            double baseCr = config.CritRate[rank - 1] * 100;
+            string txt = treasureBonus.CritRate > 0
+                ? $"<color=white>{baseCr:F0}%</color><color=#6BB5FF>+{treasureBonus.CritRate * 100:F0}%</color>"
+                : $"{baseCr:F0}%";
+            varCriticalChanceText.text = txt;
+        }
+
+        // 暴击伤害
+        if (varCriticalDamageText != null && config.CritDamage != null && rank > 0 && rank <= config.CritDamage.Length)
+        {
+            double baseCd = config.CritDamage[rank - 1];
+            string txt = treasureBonus.CritDamage > 0
+                ? $"<color=white>{baseCd:F0}</color><color=#6BB5FF>+{treasureBonus.CritDamage:F0}</color>"
+                : $"{baseCd:F0}";
+            varCriticalDamageText.text = txt;
+        }
+
+        // 法强
+        if (varMagicalAttackText != null && config.SpellPower != null && rank > 0 && rank <= config.SpellPower.Length)
+        {
+            double baseSp = config.SpellPower[rank - 1];
+            string txt = treasureBonus.SpellPower > 0
+                ? $"<color=white>{baseSp:F0}</color><color=#6BB5FF>+{treasureBonus.SpellPower:F0}</color>"
+                : $"{baseSp:F0}";
+            varMagicalAttackText.text = txt;
+        }
+
+        // 移速
         if (varMoveSpeedText != null)
-            varMoveSpeedText.text = $"{(float)config.MoveSpeed:F1}";
+        {
+            string txt = treasureBonus.MoveSpeed > 0
+                ? $"<color=white>{config.MoveSpeed:F1}</color><color=#6BB5FF>+{treasureBonus.MoveSpeed:F1}</color>"
+                : $"{config.MoveSpeed:F1}";
+            varMoveSpeedText.text = txt;
+        }
     }
 
     /// <summary>
-    /// 获取装备加成（根据当前装备的BaseAttributes计算）
+    /// 统计装备（绿色）加成
     /// </summary>
-    private EquipmentBonus GetEquipmentBonus(int chessId)
+    private StatBonus GetEquipmentBonus(int chessId)
     {
-        var bonus = new EquipmentBonus();
+        var bonus = new StatBonus();
         if (chessId < 0) return bonus;
 
         var equipMgr = ChessEquipmentManager.Instance;
         if (equipMgr == null) return bonus;
 
-        // 遍历所有装备槽，累加基础属性加成
         for (int i = 0; i < ChessEquipmentManager.EQUIP_SLOT_COUNT; i++)
         {
-            var equipItem = equipMgr.GetEquippedItem(chessId, i);
-            if (equipItem == null || equipItem.BaseAttributes == null) continue;
+            var item = equipMgr.GetEquippedItem(chessId, i);
+            if (item?.BaseAttributes == null) continue;
+            foreach (var kv in item.BaseAttributes)
+                bonus.Add(kv.Key, kv.Value);
+        }
+        return bonus;
+    }
 
-            // 遍历装备的所有基础属性
-            foreach (var attrKvp in equipItem.BaseAttributes)
+    /// <summary>
+    /// 统计宝物（蓝色）加成（BaseAttributes + Affixes）
+    /// </summary>
+    private StatBonus GetTreasureBonus(int chessId)
+    {
+        var bonus = new StatBonus();
+        if (chessId < 0) return bonus;
+
+        var equippedTreasures = PlayerAccountDataManager.Instance?.GetChessEquipments(chessId);
+        if (equippedTreasures == null) return bonus;
+
+        foreach (var treasureInstance in equippedTreasures)
+        {
+            // BaseAttributes
+            var staticData = ItemManager.Instance?.GetTreasureData(treasureInstance.TreasureId);
+            if (staticData?.BaseAttributes != null)
             {
-                switch (attrKvp.Key)
+                foreach (var kv in staticData.BaseAttributes)
+                    bonus.Add(kv.Key, kv.Value);
+            }
+
+            // Affixes（词条）
+            if (treasureInstance.Affixes != null)
+            {
+                foreach (var affix in treasureInstance.Affixes)
                 {
-                    case AttributeType.MaxHP:
-                        bonus.MaxHp += (double)attrKvp.Value;
-                        break;
-                    case AttributeType.Attack:
-                        bonus.AtkDamage += (double)attrKvp.Value;
-                        break;
-                    case AttributeType.Defense:
-                        bonus.Armor += (double)attrKvp.Value;
-                        break;
-                    case AttributeType.MagicResist:
-                        bonus.MagicResist += (double)attrKvp.Value;
-                        break;
-                    case AttributeType.MaxMP:
-                        bonus.CurrentMp += (double)attrKvp.Value;
-                        break;
+                    double val = affix.ValueMax;
+                    if (affix.ValueType == ValueType.Percent) val /= 100.0;
+                    bonus.Add(affix.AttributeType, val);
                 }
             }
         }
-
         return bonus;
     }
 
